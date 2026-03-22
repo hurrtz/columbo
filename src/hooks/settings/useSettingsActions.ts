@@ -11,8 +11,15 @@ import {
   getDefaultTtsListenLanguages,
   isDefaultAssistantInstructions,
 } from "../../types";
+import {
+  createApiKeyUpdater,
+  createLocalTtsVoiceUpdater,
+  createProviderModelUpdater,
+  createResponseModeUpdater,
+  updateTopLevelSettingsValue,
+} from "./actionHelpers";
 import { mergeSettings } from "./mergeStoredSettings";
-import { persistApiKey, persistPublicSettings } from "./storage";
+import { persistPublicSettings } from "./storage";
 import type { SettingsUpdate } from "./types";
 
 interface UseSettingsActionsParams {
@@ -51,120 +58,46 @@ export function useSettingsActions({ setSettings }: UseSettingsActionsParams) {
     });
   }, [setSettings]);
 
-  const updateProviderModel = useCallback((provider: Provider, value: string) => {
-    setSettings((prev) => {
-      const next = {
-        ...prev,
-        providerModels: {
-          ...prev.providerModels,
-          [provider]: value,
-        },
-      };
-      void persistPublicSettings(next);
-      return next;
-    });
-  }, [setSettings]);
+  const updateProviderModel = useCallback(
+    createProviderModelUpdater(setSettings, "providerModels"),
+    [setSettings],
+  );
 
   const updateResponseModeRoute = useCallback(
     (mode: ResponseMode, value: ResponseModeRoute) => {
-      setSettings((prev) => {
-        const next = {
-          ...prev,
-          responseModes: {
-            ...prev.responseModes,
-            [mode]: value,
-          },
-        };
-        void persistPublicSettings(next);
-        return next;
-      });
+      createResponseModeUpdater(setSettings)(mode, value);
     },
     [setSettings],
   );
 
-  const updateActiveResponseMode = useCallback((value: ResponseMode) => {
-    setSettings((prev) => {
-      const next = {
-        ...prev,
-        activeResponseMode: value,
-      };
-      void persistPublicSettings(next);
-      return next;
-    });
-  }, [setSettings]);
+  const updateActiveResponseMode = useCallback(
+    (value: ResponseMode) => {
+      updateTopLevelSettingsValue(setSettings, "activeResponseMode", value);
+    },
+    [setSettings],
+  );
 
-  const updateProviderTtsVoice = useCallback((provider: Provider, value: string) => {
-    setSettings((prev) => {
-      const next = {
-        ...prev,
-        providerTtsVoices: {
-          ...prev.providerTtsVoices,
-          [provider]: value,
-        },
-      };
-      void persistPublicSettings(next);
-      return next;
-    });
-  }, [setSettings]);
+  const updateProviderTtsVoice = useCallback(
+    createProviderModelUpdater(setSettings, "providerTtsVoices"),
+    [setSettings],
+  );
 
-  const updateProviderTtsModel = useCallback((provider: Provider, value: string) => {
-    setSettings((prev) => {
-      const next = {
-        ...prev,
-        providerTtsModels: {
-          ...prev.providerTtsModels,
-          [provider]: value,
-        },
-      };
-      void persistPublicSettings(next);
-      return next;
-    });
-  }, [setSettings]);
+  const updateProviderTtsModel = useCallback(
+    createProviderModelUpdater(setSettings, "providerTtsModels"),
+    [setSettings],
+  );
 
-  const updateProviderSttModel = useCallback((provider: Provider, value: string) => {
-    setSettings((prev) => {
-      const next = {
-        ...prev,
-        providerSttModels: {
-          ...prev.providerSttModels,
-          [provider]: value,
-        },
-      };
-      void persistPublicSettings(next);
-      return next;
-    });
-  }, [setSettings]);
+  const updateProviderSttModel = useCallback(
+    createProviderModelUpdater(setSettings, "providerSttModels"),
+    [setSettings],
+  );
 
   const updateLocalTtsVoice = useCallback(
-    (language: keyof LocalTtsVoiceSelections, value: string) => {
-      setSettings((prev) => {
-        const next = {
-          ...prev,
-          localTtsVoices: {
-            ...prev.localTtsVoices,
-            [language]: value,
-          },
-        };
-        void persistPublicSettings(next);
-        return next;
-      });
-    },
+    createLocalTtsVoiceUpdater(setSettings),
     [setSettings],
   );
 
-  const updateApiKey = useCallback((provider: Provider, value: string) => {
-    const nextValue = value.trim();
-
-    setSettings((prev) => ({
-      ...prev,
-      apiKeys: {
-        ...prev.apiKeys,
-        [provider]: nextValue,
-      },
-    }));
-
-    void persistApiKey(provider, nextValue);
-  }, [setSettings]);
+  const updateApiKey = useCallback(createApiKeyUpdater(setSettings), [setSettings]);
 
   return {
     updateSettings,

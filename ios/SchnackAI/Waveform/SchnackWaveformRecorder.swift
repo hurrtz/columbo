@@ -5,26 +5,20 @@ final class SchnackWaveformRecorder {
   static let rollingSampleCount = 192
   private static let inputSampleChunkCount = 6
   private static let inputTapBufferSize: AVAudioFrameCount = 256
-  private static let emitIntervalMs = 33
   private static let inputReferenceFloor: Float = 0.11
 
   var onEvent: (([String: Any]) -> Void)?
 
   private let stateLock = NSLock()
-  private let inputProcessor = SchnackWaveformInputProcessor(
+  private let levelEmitter = SchnackWaveformLevelEmitter(intervalMs: 33)
+  private let rollingBuffer = SchnackWaveformRollingBuffer(
+    sampleCount: SchnackWaveformRecorder.rollingSampleCount,
     referenceFloor: SchnackWaveformRecorder.inputReferenceFloor
   )
   private var audioEngine: AVAudioEngine?
   private var audioFile: AVAudioFile?
   private var activeSessionId: String?
   private var outputURL: URL?
-  private var emitTimer: DispatchSourceTimer?
-  private var rollingSamples = Array(
-    repeating: Float.zero,
-    count: SchnackWaveformRecorder.rollingSampleCount
-  )
-  private var rollingCursor = 0
-  private var rollingFilled = false
   private var pendingRecordingErrorSessionId: String?
 
   func startRecording(
@@ -44,13 +38,7 @@ final class SchnackWaveformRecorder {
       withIntermediateDirectories: true
     )
 
-    let session = AVAudioSession.sharedInstance()
-    try session.setCategory(
-      .playAndRecord,
-      mode: .measurement,
-      options: [.defaultToSpeaker, .allowBluetoothHFP]
-    )
-    try session.setActive(true)
+    try SchnackWaveformAudioSession.activateRecordingSession()
 
     let engine = AVAudioEngine()
     let inputNode = engine.inputNode
@@ -81,7 +69,7 @@ final class SchnackWaveformRecorder {
       interleaved: false
     )
 
-    resetRollingSamples()
+    rollingBuffer.reset()
 
     inputNode.installTap(
       onBus: 0,
@@ -102,11 +90,9 @@ final class SchnackWaveformRecorder {
         return
       }
 
-      self.appendRollingSamples(
-        self.inputProcessor.extractEnvelopeSamples(
-          from: buffer,
-          targetCount: Self.inputSampleChunkCount
-        )
+      self.rollingBuffer.append(
+        buffer: buffer,
+        targetCount: Self.inputSampleChunkCount
       )
     }
 
@@ -117,7 +103,15 @@ final class SchnackWaveformRecorder {
     audioFile = file
     activeSessionId = sessionId
     self.outputURL = outputURL
-    startEmitTimer(for: sessionId)
+    levelEmitter.start(
+      sessionId: sessionId,
+      sampleProvider: { [weak self] in
+        self?.rollingBuffer.snapshot() ?? []
+      },
+      onLevels: { [weak self] body in
+        self?.emitEvent(body)
+      }
+    )
 
     emitEvent([
       "type": "started",
@@ -172,7 +166,7 @@ final class SchnackWaveformRecorder {
   }
 
   private func cleanupRecording(deleteOutput: Bool) {
-    stopEmitTimer()
+    levelEmitter.stop()
 
     if let inputNode = audioEngine?.inputNode {
       inputNode.removeTap(onBus: 0)
@@ -187,12 +181,8 @@ final class SchnackWaveformRecorder {
     let outputURL = self.outputURL
     self.outputURL = nil
 
-    resetRollingSamples()
-
-    try? AVAudioSession.sharedInstance().setActive(
-      false,
-      options: [.notifyOthersOnDeactivation]
-    )
+    rollingBuffer.reset()
+    SchnackWaveformAudioSession.deactivate()
 
     if deleteOutput, let outputURL {
       try? FileManager.default.removeItem(at: outputURL)
@@ -232,97 +222,7 @@ final class SchnackWaveformRecorder {
     }
   }
 
-  private func startEmitTimer(for sessionId: String) {
-    stopEmitTimer()
-
-    let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.main)
-    timer.schedule(
-      deadline: .now(),
-      repeating: .milliseconds(Self.emitIntervalMs)
-    )
-    timer.setEventHandler { [weak self] in
-      guard let self else {
-        return
-      }
-
-      let samples = self.snapshotRollingSamples()
-      let averageMagnitude =
-        samples.reduce(0.0) { partialResult, sample in
-          partialResult + abs(sample)
-        } / Double(max(1, samples.count))
-
-      self.emitEvent([
-        "type": "levels",
-        "sessionId": sessionId,
-        "samples": samples,
-        "averageMagnitude": averageMagnitude,
-      ])
-    }
-    emitTimer = timer
-    timer.resume()
-  }
-
-  private func stopEmitTimer() {
-    emitTimer?.setEventHandler {}
-    emitTimer?.cancel()
-    emitTimer = nil
-  }
-
   private func emitEvent(_ body: [String: Any]) {
     onEvent?(body)
-  }
-
-  private func resetRollingSamples() {
-    stateLock.lock()
-    rollingSamples = Array(
-      repeating: Float.zero,
-      count: Self.rollingSampleCount
-    )
-    rollingCursor = 0
-    rollingFilled = false
-    stateLock.unlock()
-
-    inputProcessor.reset()
-    SchnackWaveformCoordinator.shared.clear(channel: .input)
-  }
-
-  private func appendRollingSamples(_ samples: [Float]) {
-    let shapedSamples = inputProcessor.shape(samples: samples)
-
-    stateLock.lock()
-    for sample in shapedSamples {
-      rollingSamples[rollingCursor] = SchnackWaveformAudioAnalysis.clamp(sample: sample)
-      rollingCursor = (rollingCursor + 1) % rollingSamples.count
-      if rollingCursor == 0 {
-        rollingFilled = true
-      }
-    }
-    let orderedSamples = orderedRollingSamplesLocked()
-    stateLock.unlock()
-
-    SchnackWaveformCoordinator.shared.setSamples(
-      channel: .input,
-      samples: orderedSamples,
-      appendedCount: shapedSamples.count
-    )
-  }
-
-  private func snapshotRollingSamples() -> [Double] {
-    stateLock.lock()
-    let orderedSamples = orderedRollingSamplesLocked()
-    stateLock.unlock()
-    return orderedSamples.map(Double.init)
-  }
-
-  private func orderedRollingSamplesLocked() -> [Float] {
-    if rollingFilled {
-      return
-        Array(rollingSamples[rollingCursor...]) +
-        Array(rollingSamples[..<rollingCursor])
-    }
-
-    return
-      Array(repeating: 0, count: rollingSamples.count - rollingCursor) +
-      Array(rollingSamples[..<rollingCursor])
   }
 }

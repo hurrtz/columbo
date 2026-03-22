@@ -1,0 +1,45 @@
+import { transcribeAudio } from "../whisper";
+
+interface ResolvePipelineTranscriptionParams {
+  abortSignal?: AbortSignal;
+  audioUri?: string;
+  language: Parameters<typeof transcribeAudio>[0]["language"];
+  sttApiKey?: string;
+  sttMode: Parameters<typeof transcribeAudio>[0]["mode"];
+  sttModel?: string;
+  sttProvider?: Parameters<typeof transcribeAudio>[0]["provider"];
+  transcriptionOverride?: string;
+}
+
+export async function resolvePipelineTranscription({
+  abortSignal,
+  audioUri,
+  language,
+  sttApiKey,
+  sttMode,
+  sttModel,
+  sttProvider,
+  transcriptionOverride,
+}: ResolvePipelineTranscriptionParams) {
+  if (abortSignal?.aborted) {
+    return null;
+  }
+
+  if (transcriptionOverride?.trim()) {
+    return transcriptionOverride.trim();
+  }
+
+  if (!audioUri) {
+    return null;
+  }
+
+  return transcribeAudio({
+    fileUri: audioUri,
+    mode: sttMode,
+    provider: sttProvider,
+    providerModel: sttModel,
+    apiKey: sttApiKey,
+    language,
+    abortSignal,
+  });
+}

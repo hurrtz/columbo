@@ -1,62 +1,11 @@
-import { MutableRefObject, useCallback, useEffect, useRef } from "react";
-import { AppState } from "react-native";
+import { useCallback, useEffect } from "react";
 
-import { PipelinePhase } from "../../hooks/useVoicePipeline";
-import { releaseLocalTtsResources } from "../../services/localTts";
-import { Provider, Settings } from "../../types";
-
-import { ShowToastFn, TranslateFn } from "./shared";
-
-interface AudioPlayerController {
-  isPlaying: boolean;
-  stopPlayback: () => Promise<void>;
-  waitForPlaybackRouteSettle: () => Promise<void>;
-}
-
-interface AudioRecorderController {
-  clearLastError: () => void;
-  lastError: string | null;
-  startRecording: () => Promise<void>;
-  stopRecording: () => Promise<string | null>;
-}
-
-interface NativeSpeechRecognizerController {
-  abortRecognition: () => Promise<void>;
-  clearLastError: () => void;
-  isAvailable: boolean;
-  lastError: string | null;
-  startRecognition: () => Promise<void>;
-  stopRecognition: () => Promise<string | null>;
-}
-
-interface UseVoiceSessionControllerParams<Snapshot> {
-  abortRef: MutableRefObject<AbortController | null>;
-  availableSttProviders: Provider[];
-  availableTtsProviders: Provider[];
-  captureActiveConversationSnapshot: () => Snapshot;
-  handleVoiceCaptureDone: (params: {
-    audioUri?: string;
-    transcriptionOverride?: string;
-  }) => Promise<void>;
-  isBusy: boolean;
-  isRecording: boolean;
-  lastCompletedReplyRef: MutableRefObject<string>;
-  nativeStt: NativeSpeechRecognizerController;
-  player: AudioPlayerController;
-  providerApiKey: string;
-  providerLabel: string;
-  recorder: AudioRecorderController;
-  restoreActiveConversationSnapshot: (snapshot: Snapshot) => Promise<void>;
-  setPipelinePhase: (phase: PipelinePhase) => void;
-  setStreamingText: (text: string) => void;
-  settings: Pick<Settings, "sttMode" | "ttsMode">;
-  showToast: ShowToastFn;
-  sttApiKey: string;
-  sttProvider: Provider | null;
-  t: TranslateFn;
-  ttsApiKey: string;
-  ttsProvider: Provider | null;
-}
+import { useVoiceCaptureLifecycle } from "./voiceSession/useVoiceCaptureLifecycle";
+import { useVoiceSessionAppState } from "./voiceSession/useVoiceSessionAppState";
+import { useVoiceSessionCancellation } from "./voiceSession/useVoiceSessionCancellation";
+import { useVoiceSessionGuards } from "./voiceSession/useVoiceSessionGuards";
+import type { UseVoiceSessionControllerParams } from "./voiceSession/types";
+import { useVoiceTurnSnapshots } from "./voiceSession/useVoiceTurnSnapshots";
 
 export function useVoiceSessionController<Snapshot>({
   abortRef,
@@ -83,73 +32,60 @@ export function useVoiceSessionController<Snapshot>({
   ttsApiKey,
   ttsProvider,
 }: UseVoiceSessionControllerParams<Snapshot>) {
-  const recordingStartedRef = useRef<Promise<void> | null>(null);
-  const voiceTurnSessionRef = useRef(0);
-  const voiceTurnSnapshotRef = useRef<Snapshot | null>(null);
-  const cancelableVoiceTurnSessionRef = useRef<number | null>(null);
-
-  const rollbackCancelableVoiceTurn = useCallback(async () => {
-    const snapshot = voiceTurnSnapshotRef.current;
-
-    if (!snapshot || cancelableVoiceTurnSessionRef.current === null) {
-      return;
-    }
-
-    voiceTurnSnapshotRef.current = null;
-    cancelableVoiceTurnSessionRef.current = null;
-    await restoreActiveConversationSnapshot(snapshot);
-  }, [restoreActiveConversationSnapshot]);
-
-  const cancelCurrentInteraction = useCallback(
-    async ({ rollbackConversation }: { rollbackConversation: boolean }) => {
-      abortRef.current?.abort();
-      setPipelinePhase("idle");
-      setStreamingText("");
-
-      if (player.isPlaying) {
-        await player.stopPlayback();
-      }
-
-      if (rollbackConversation) {
-        await rollbackCancelableVoiceTurn();
-      }
-    },
-    [
+  const {
+    clearCancelableVoiceTurn,
+    processCapturedVoiceTurn,
+    resetVoiceTurnSnapshots,
+    rollbackCancelableVoiceTurn,
+  } = useVoiceTurnSnapshots({
+    captureActiveConversationSnapshot,
+    handleVoiceCaptureDone,
+    restoreActiveConversationSnapshot,
+  });
+  const { cancelCurrentInteraction, resetPipelineState } =
+    useVoiceSessionCancellation({
       abortRef,
       player,
       rollbackCancelableVoiceTurn,
       setPipelinePhase,
       setStreamingText,
-    ],
-  );
+    });
+  const ensureVoiceSessionReady = useVoiceSessionGuards({
+    availableSttProviders,
+    availableTtsProviders,
+    nativeSttAvailable: nativeStt.isAvailable,
+    providerApiKey,
+    providerLabel,
+    settings,
+    showToast,
+    sttApiKey,
+    sttProvider,
+    t,
+    ttsApiKey,
+    ttsProvider,
+  });
+  const { startVoiceCapture, stopVoiceCapture } = useVoiceCaptureLifecycle({
+    nativeStt,
+    player,
+    processCapturedVoiceTurn,
+    recorder,
+    sttMode: settings.sttMode,
+  });
 
-  const processCapturedVoiceTurn = useCallback(
-    async (params: { audioUri?: string; transcriptionOverride?: string }) => {
-      const sessionId = voiceTurnSessionRef.current + 1;
-      voiceTurnSessionRef.current = sessionId;
-      voiceTurnSnapshotRef.current = captureActiveConversationSnapshot();
-      cancelableVoiceTurnSessionRef.current = sessionId;
-
-      try {
-        await handleVoiceCaptureDone(params);
-      } finally {
-        if (cancelableVoiceTurnSessionRef.current === sessionId) {
-          cancelableVoiceTurnSessionRef.current = null;
-        }
-
-        if (voiceTurnSessionRef.current === sessionId) {
-          voiceTurnSnapshotRef.current = null;
-        }
-      }
-    },
-    [captureActiveConversationSnapshot, handleVoiceCaptureDone],
-  );
+  useVoiceSessionAppState({
+    abortRef,
+    nativeStt,
+    recorder,
+    setPipelinePhase,
+    setStreamingText,
+    sttMode: settings.sttMode,
+  });
 
   useEffect(() => {
-    if (player.isPlaying && cancelableVoiceTurnSessionRef.current !== null) {
-      cancelableVoiceTurnSessionRef.current = null;
+    if (player.isPlaying) {
+      clearCancelableVoiceTurn();
     }
-  }, [player.isPlaying]);
+  }, [clearCancelableVoiceTurn, player.isPlaying]);
 
   useEffect(() => {
     if (!nativeStt.lastError) {
@@ -168,136 +104,6 @@ export function useVoiceSessionController<Snapshot>({
     showToast(recorder.lastError);
     recorder.clearLastError();
   }, [recorder, showToast]);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener("change", (nextAppState) => {
-      if (nextAppState !== "background") {
-        return;
-      }
-
-      void (async () => {
-        abortRef.current?.abort();
-        setPipelinePhase("idle");
-        setStreamingText("");
-
-        try {
-          if (settings.sttMode === "native") {
-            await nativeStt.abortRecognition();
-          } else {
-            await recorder.stopRecording();
-          }
-        } catch {
-          // Ignore background-stop failures.
-        }
-
-        await releaseLocalTtsResources();
-      })();
-    });
-
-    return () => {
-      subscription.remove();
-      void releaseLocalTtsResources();
-    };
-  }, [abortRef, nativeStt, recorder, setPipelinePhase, setStreamingText, settings.sttMode]);
-
-  const ensureVoiceSessionReady = useCallback(() => {
-    if (!providerApiKey) {
-      showToast(t("addProviderKeyToUseProvider", { provider: providerLabel }));
-      return false;
-    }
-
-    if (settings.sttMode === "native" && !nativeStt.isAvailable) {
-      showToast(t("speechRecognitionUnavailableOnDevice"));
-      return false;
-    }
-
-    if (
-      settings.sttMode === "provider" &&
-      (!sttProvider ||
-        !availableSttProviders.includes(sttProvider) ||
-        !sttApiKey)
-    ) {
-      showToast(t("chooseSttBeforeVoiceSession"));
-      return false;
-    }
-
-    if (
-      settings.ttsMode === "provider" &&
-      (!ttsProvider ||
-        !availableTtsProviders.includes(ttsProvider) ||
-        !ttsApiKey)
-    ) {
-      showToast(t("chooseTtsBeforeSpokenReplies"));
-      return false;
-    }
-
-    return true;
-  }, [
-    availableSttProviders,
-    availableTtsProviders,
-    nativeStt.isAvailable,
-    providerApiKey,
-    providerLabel,
-    settings.sttMode,
-    settings.ttsMode,
-    showToast,
-    sttApiKey,
-    sttProvider,
-    t,
-    ttsApiKey,
-    ttsProvider,
-  ]);
-
-  const startVoiceCapture = useCallback(async () => {
-    await player.waitForPlaybackRouteSettle();
-
-    const startPromise =
-      settings.sttMode === "native"
-        ? nativeStt.startRecognition()
-        : recorder.startRecording();
-
-    recordingStartedRef.current = startPromise;
-
-    try {
-      await startPromise;
-    } finally {
-      if (recordingStartedRef.current === startPromise) {
-        recordingStartedRef.current = null;
-      }
-    }
-  }, [nativeStt, player, recorder, settings.sttMode]);
-
-  const stopVoiceCapture = useCallback(async () => {
-    const startPromise = recordingStartedRef.current;
-
-    if (startPromise) {
-      try {
-        await startPromise;
-      } catch {
-        return;
-      } finally {
-        if (recordingStartedRef.current === startPromise) {
-          recordingStartedRef.current = null;
-        }
-      }
-    }
-
-    if (settings.sttMode === "native") {
-      const transcription = await nativeStt.stopRecognition();
-
-      if (transcription) {
-        void processCapturedVoiceTurn({ transcriptionOverride: transcription });
-      }
-
-      return;
-    }
-
-    const uri = await recorder.stopRecording();
-
-    if (uri) {
-      void processCapturedVoiceTurn({ audioUri: uri });
-    }
-  }, [nativeStt, processCapturedVoiceTurn, recorder, settings.sttMode]);
 
   const handlePressIn = useCallback(async () => {
     if (player.isPlaying) {
@@ -390,12 +196,9 @@ export function useVoiceSessionController<Snapshot>({
   ]);
 
   const resetVoiceSessionState = useCallback(async () => {
-    abortRef.current?.abort();
-    setPipelinePhase("idle");
-    setStreamingText("");
+    resetPipelineState();
     lastCompletedReplyRef.current = "";
-    voiceTurnSnapshotRef.current = null;
-    cancelableVoiceTurnSessionRef.current = null;
+    resetVoiceTurnSnapshots();
 
     if (player.isPlaying) {
       await player.stopPlayback();
@@ -415,14 +218,13 @@ export function useVoiceSessionController<Snapshot>({
       // Ignore recorder cleanup failures while switching conversations.
     }
   }, [
-    abortRef,
     isRecording,
     lastCompletedReplyRef,
     nativeStt,
     player,
     recorder,
-    setPipelinePhase,
-    setStreamingText,
+    resetPipelineState,
+    resetVoiceTurnSnapshots,
     settings.sttMode,
   ]);
 
