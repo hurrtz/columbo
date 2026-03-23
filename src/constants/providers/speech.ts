@@ -1,7 +1,47 @@
+import { getCatalogModelForAppProvider } from "../../catalog";
 import { AppLanguage, Provider } from "../../types";
 import type { ModelInfo, TtsVoiceOption } from "./types";
 
-export const PROVIDER_STT_MODEL_OPTIONS: Partial<Record<Provider, ModelInfo[]>> = {
+const CATALOG_SPEECH_LABEL_MODEL_ALIASES: Partial<
+  Record<
+    "stt" | "tts",
+    Partial<Record<Provider, Record<string, string>>>
+  >
+> = {
+  stt: {
+    mistral: {
+      "voxtral-mini-latest": "voxtral-mini",
+    },
+  },
+};
+
+function getCatalogSpeechModelLabel(
+  provider: Provider,
+  service: "stt" | "tts",
+  modelId: string,
+) {
+  const resolvedModelId =
+    CATALOG_SPEECH_LABEL_MODEL_ALIASES[service]?.[provider]?.[modelId] ??
+    modelId;
+
+  return (
+    getCatalogModelForAppProvider(provider, resolvedModelId, service)
+      ?.publicName ?? null
+  );
+}
+
+function withCatalogSpeechLabels(
+  provider: Provider,
+  service: "stt" | "tts",
+  options: ModelInfo[],
+) {
+  return options.map((option) => ({
+    ...option,
+    name: getCatalogSpeechModelLabel(provider, service, option.id) ?? option.name,
+  }));
+}
+
+const PROVIDER_STT_MODEL_OPTIONS_FALLBACK: Partial<Record<Provider, ModelInfo[]>> = {
   openai: [
     { id: "gpt-4o-transcribe", name: "GPT-4o Transcribe" },
     { id: "gpt-4o-mini-transcribe", name: "GPT-4o Mini Transcribe" },
@@ -33,6 +73,17 @@ export const PROVIDER_STT_MODEL_OPTIONS: Partial<Record<Provider, ModelInfo[]>> 
     },
   ],
 };
+
+export const PROVIDER_STT_MODEL_OPTIONS: Partial<
+  Record<Provider, ModelInfo[]>
+> = Object.fromEntries(
+  Object.entries(PROVIDER_STT_MODEL_OPTIONS_FALLBACK).map(
+    ([provider, options]) => [
+      provider,
+      withCatalogSpeechLabels(provider as Provider, "stt", options),
+    ],
+  ),
+) as Partial<Record<Provider, ModelInfo[]>>;
 
 export const PROVIDER_DEFAULT_STT_MODELS: Partial<Record<Provider, string>> = {
   openai: "gpt-4o-mini-transcribe",
@@ -143,7 +194,7 @@ export const PROVIDER_DEFAULT_TTS_VOICES: Partial<Record<Provider, string>> = {
   xai: "ara",
 };
 
-export const PROVIDER_TTS_MODEL_OPTIONS: Partial<Record<Provider, ModelInfo[]>> = {
+const PROVIDER_TTS_MODEL_OPTIONS_FALLBACK: Partial<Record<Provider, ModelInfo[]>> = {
   openai: [
     { id: "gpt-4o-mini-tts", name: "GPT-4o Mini TTS" },
     { id: "tts-1", name: "tts-1" },
@@ -161,6 +212,17 @@ export const PROVIDER_TTS_MODEL_OPTIONS: Partial<Record<Provider, ModelInfo[]>> 
   ],
   together: [{ id: "hexgrad/Kokoro-82M", name: "Kokoro 82M" }],
 };
+
+export const PROVIDER_TTS_MODEL_OPTIONS: Partial<
+  Record<Provider, ModelInfo[]>
+> = Object.fromEntries(
+  Object.entries(PROVIDER_TTS_MODEL_OPTIONS_FALLBACK).map(
+    ([provider, options]) => [
+      provider,
+      withCatalogSpeechLabels(provider as Provider, "tts", options),
+    ],
+  ),
+) as Partial<Record<Provider, ModelInfo[]>>;
 
 export const PROVIDER_DEFAULT_TTS_MODELS: Partial<Record<Provider, string>> = {
   openai: "gpt-4o-mini-tts",
