@@ -8,9 +8,9 @@ import {
   getNativeSttLanguageNote,
   getNativeTtsLanguageNote,
   getProviderSttLimitNote,
-  getProviderSttLanguageNote,
+  getProviderSttLanguageNoteForModel,
   getProviderSttModelOptions,
-  getProviderTtsLanguageNote,
+  getProviderTtsLanguageNoteForModel,
   getProviderTtsModelOptions,
 } from "../../constants/models";
 import { useSpeechDiagnostics } from "../../hooks/useSpeechDiagnostics";
@@ -187,8 +187,12 @@ export function useSettingsModalController({
   const sttLanguageNote =
     settings.sttMode === "native"
       ? getNativeSttLanguageNote(language)
-      : settings.sttProvider
-        ? getProviderSttLanguageNote(settings.sttProvider, language)
+      : settings.sttProvider && selectedSttProviderModel
+        ? getProviderSttLanguageNoteForModel(
+            settings.sttProvider,
+            selectedSttProviderModel,
+            language,
+          )
         : null;
   const sttLimitNote =
     settings.sttMode === "provider" &&
@@ -200,14 +204,6 @@ export function useSettingsModalController({
           language,
         )
       : null;
-  const ttsLanguageNote =
-    settings.ttsMode === "native"
-      ? getNativeTtsLanguageNote(language)
-      : settings.ttsMode === "local"
-        ? t("localTtsLanguageCoverageHint")
-        : settings.ttsProvider
-          ? getProviderTtsLanguageNote(settings.ttsProvider, language)
-          : null;
   const selectedPreviewProvider =
     settings.ttsProvider && enabledTtsProviders.includes(settings.ttsProvider)
       ? settings.ttsProvider
@@ -222,6 +218,18 @@ export function useSettingsModalController({
         selectedPreviewProviderModelOptions[0]?.id ||
         ""
       : "";
+  const ttsLanguageNote =
+    settings.ttsMode === "native"
+      ? getNativeTtsLanguageNote(language)
+      : settings.ttsMode === "local"
+        ? t("localTtsLanguageCoverageHint")
+        : selectedPreviewProvider && selectedPreviewProviderModel
+          ? getProviderTtsLanguageNoteForModel(
+              selectedPreviewProvider,
+              selectedPreviewProviderModel,
+              language,
+            )
+          : null;
   const toggleListenLanguage = (value: TtsListenLanguage) => {
     const exists = settings.ttsListenLanguages.includes(value);
 

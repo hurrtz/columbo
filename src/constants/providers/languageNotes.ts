@@ -1,6 +1,7 @@
 import { AppLanguage, Provider } from "../../types";
 import {
   getCatalogConstraintsForAppProvider,
+  getCatalogModelForAppProvider,
   getStrictestCatalogMaxConstraint,
 } from "../../catalog";
 import {
@@ -114,6 +115,19 @@ const PROVIDER_TTS_LANGUAGE_NOTES_BY_LANGUAGE: Partial<
   },
 };
 
+const CATALOG_SPEECH_LANGUAGE_MODEL_ALIASES: Partial<
+  Record<
+    "stt" | "tts",
+    Partial<Record<Provider, Record<string, string>>>
+  >
+> = {
+  stt: {
+    mistral: {
+      "voxtral-mini-latest": "voxtral-mini",
+    },
+  },
+};
+
 export function getNativeSttLanguageNote(language: AppLanguage) {
   return NATIVE_STT_LANGUAGE_NOTES_BY_LANGUAGE[language];
 }
@@ -138,6 +152,103 @@ export function getProviderSttLanguageNote(
   language: AppLanguage,
 ) {
   return PROVIDER_STT_LANGUAGE_NOTES_BY_LANGUAGE[language]?.[provider] ?? null;
+}
+
+function formatApproximateCount(
+  value: number,
+  rawText: string | null,
+) {
+  return rawText?.includes(`${value}+`) ? `${value}+` : `${value}`;
+}
+
+function buildCatalogSpeechLanguageNote(params: {
+  provider: Provider;
+  modelId: string;
+  service: "stt" | "tts";
+  language: AppLanguage;
+}) {
+  const resolvedModelId =
+    CATALOG_SPEECH_LANGUAGE_MODEL_ALIASES[params.service]?.[params.provider]?.[
+      params.modelId
+    ] ?? params.modelId;
+  const model = getCatalogModelForAppProvider(
+    params.provider,
+    resolvedModelId,
+    params.service,
+  );
+
+  if (!model) {
+    return null;
+  }
+
+  const languageSupport = model.derived.languageSupport;
+  const parts: string[] = [];
+
+  if (languageSupport.voiceCount && languageSupport.languageCount) {
+    const voiceCount = formatApproximateCount(
+      languageSupport.voiceCount,
+      languageSupport.rawText,
+    );
+    const languageCount = formatApproximateCount(
+      languageSupport.languageCount,
+      languageSupport.rawText,
+    );
+
+    parts.push(
+      params.language === "de"
+        ? `${voiceCount} Stimmen in ${languageCount} Sprachen`
+        : `${voiceCount} voices across ${languageCount} languages`,
+    );
+  } else if (languageSupport.languageCount) {
+    const languageCount = formatApproximateCount(
+      languageSupport.languageCount,
+      languageSupport.rawText,
+    );
+
+    parts.push(
+      params.language === "de"
+        ? `Unterstuetzt ${languageCount} Sprachen`
+        : `Supports ${languageCount} languages`,
+    );
+  } else if (
+    languageSupport.isMultilingual &&
+    (
+      /^(multilingual[.!]?|multilingual;?)$/i.test(
+        (languageSupport.rawText ?? "").trim(),
+      ) || languageSupport.notes.includes("english-optimized")
+    )
+  ) {
+    parts.push(params.language === "de" ? "Mehrsprachig" : "Multilingual");
+  }
+
+  if (languageSupport.notes.includes("english-optimized")) {
+    parts.push(
+      params.language === "de"
+        ? "Stimmen sind fuer Englisch optimiert"
+        : "Voices are optimized for English",
+    );
+  }
+
+  if (!parts.length) {
+    return null;
+  }
+
+  return `${parts.join(". ")}.`;
+}
+
+export function getProviderSttLanguageNoteForModel(
+  provider: Provider,
+  modelId: string,
+  language: AppLanguage,
+) {
+  return (
+    buildCatalogSpeechLanguageNote({
+      provider,
+      modelId,
+      service: "stt",
+      language,
+    }) ?? getProviderSttLanguageNote(provider, language)
+  );
 }
 
 function formatByteLimit(bytes: number) {
@@ -258,4 +369,19 @@ export function getProviderTtsLanguageNote(
   language: AppLanguage,
 ) {
   return PROVIDER_TTS_LANGUAGE_NOTES_BY_LANGUAGE[language]?.[provider] ?? null;
+}
+
+export function getProviderTtsLanguageNoteForModel(
+  provider: Provider,
+  modelId: string,
+  language: AppLanguage,
+) {
+  return (
+    buildCatalogSpeechLanguageNote({
+      provider,
+      modelId,
+      service: "tts",
+      language,
+    }) ?? getProviderTtsLanguageNote(provider, language)
+  );
 }
