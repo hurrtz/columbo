@@ -1,25 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import type React from "react";
 import {
   Easing,
   runOnJS,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-
-function clearPreviousGradient(
-  token: number,
-  gradientTransitionTokenRef: React.MutableRefObject<number>,
-  setPreviousGradientColors: React.Dispatch<
-    React.SetStateAction<[string, string, string] | null>
-  >,
-) {
-  if (gradientTransitionTokenRef.current !== token) {
-    return;
-  }
-
-  setPreviousGradientColors(null);
-}
 
 export function useGradientTransition(gradientColors: [string, string, string]) {
   const [previousGradientColors, setPreviousGradientColors] = useState<
@@ -32,6 +17,14 @@ export function useGradientTransition(gradientColors: [string, string, string]) 
   const gradientTransitionTokenRef = useRef(0);
   const backgroundGradientFade = useSharedValue(0);
   const gradientColorKey = gradientColors.join("|");
+
+  const clearPreviousGradient = (token: number) => {
+    if (gradientTransitionTokenRef.current !== token) {
+      return;
+    }
+
+    setPreviousGradientColors(null);
+  };
 
   useEffect(() => {
     if (!previousGradientKeyRef.current || !previousGradientColorsRef.current) {
@@ -64,11 +57,7 @@ export function useGradientTransition(gradientColors: [string, string, string]) 
       },
       (finished) => {
         if (finished) {
-          runOnJS(clearPreviousGradient)(
-            token,
-            gradientTransitionTokenRef,
-            setPreviousGradientColors,
-          );
+          runOnJS(clearPreviousGradient)(token);
         }
       },
     );
