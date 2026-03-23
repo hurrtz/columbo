@@ -8,6 +8,7 @@
     "ios": "expo run:ios",
     "test": "jest",
     "typecheck": "tsc --noEmit",
+    "catalog:generate-index": "python3 scripts/provider_catalog/generate_provider_index.py",
     "catalog:test": "jest __tests__/catalog --runInBand --watchman=false"
   },
   "dependencies": {

@@ -42,11 +42,48 @@ describe("provider catalog", () => {
       "provider-catalog",
       "providers",
     );
-    const providerFiles = fs
-      .readdirSync(providersDir)
-      .filter((entry) => entry.endsWith(".ts") && entry !== "index.ts");
+    const providerEntries = fs.readdirSync(providersDir).filter((entry) => {
+      if (entry === "index.ts") {
+        return false;
+      }
 
-    expect(providerFiles).toHaveLength(56);
+      const fullPath = path.join(providersDir, entry);
+      const stats = fs.statSync(fullPath);
+
+      return (
+        (stats.isFile() && entry.endsWith(".ts")) ||
+        (stats.isDirectory() && fs.existsSync(path.join(fullPath, "index.ts")))
+      );
+    });
+
+    expect(providerEntries).toHaveLength(56);
+    expect(
+      fs.existsSync(
+        path.join(process.cwd(), "data", "provider-catalog", "definitions.ts"),
+      ),
+    ).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(
+          process.cwd(),
+          "scripts",
+          "provider_catalog",
+          "generate_provider_index.py",
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(
+          process.cwd(),
+          "data",
+          "provider-catalog",
+          "providers",
+          "openai",
+          "index.ts",
+        ),
+      ),
+    ).toBe(true);
     expect(
       fs.existsSync(
         path.join(process.cwd(), "data", "provider-catalog", "catalog.snapshot.json"),
