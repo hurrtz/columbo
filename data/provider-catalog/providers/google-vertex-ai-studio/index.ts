@@ -1,12 +1,9 @@
-import { defineProviderDocument } from "../../definitions";
-
 import { llms } from "./llms";
-import { provider } from "./provider";
+import { providerContext } from "./provider";
 import { stt } from "./stt";
 import { tts } from "./tts";
 
-export default defineProviderDocument({
-  provider,
+export default providerContext.document({
   llms,
   stt,
   tts,

@@ -106,6 +106,9 @@ describe("provider catalog", () => {
     const mistral = getCatalogProvider("mistral-ai");
     expect(mistral?.verifiedSupport.stt).toBe("native");
     expect(mistral?.verifiedSupport.tts).toBe("unsupported");
+    expect(mistral?.summaries.activeModels.stt).toContain(
+      "Voxtral Mini [voxtral-mini] — Audio understanding",
+    );
   });
 
   it("captures derived recording safeguards for OpenAI transcription models", () => {

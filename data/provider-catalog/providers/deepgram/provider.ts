@@ -1,7 +1,6 @@
-import { defineProvider } from "../../definitions";
-import type { CatalogProvider } from "../../../../src/catalog/types";
+import { createProviderContext, defineProviderDefinition } from "../../definitions";
 
-export const provider = defineProvider(
+export const providerDefinition = defineProviderDefinition(
 {
   "providerId": "deepgram",
   "providerName": "Deepgram",
@@ -31,11 +30,6 @@ export const provider = defineProvider(
     "regionSplitRecommended": false
   },
   "summaries": {
-    "activeModels": {
-      "llm": null,
-      "tts": "Aura [aura]\nAura-2 [aura-2]",
-      "stt": "Flux [flux]\nNova-3 [nova-3]\nNova-2 [nova-2]\nNova [nova]\nEnhanced [enhanced]\nBase [base]\nWhisper Cloud [whisper-cloud]"
-    },
     "pricing": "Deepgram pricing varies by model and mode. Signup commonly includes $200 credit.",
     "limits": "Typical rate limits: Flux/Nova streaming up to ~225 concurrent; prerecorded ~50 concurrent; TTS REST ~15 concurrent and streaming ~60. Whisper Cloud has lower concurrency.",
     "region": "Deepgram-managed cloud; self-hosted/private options also exist.",
@@ -44,5 +38,7 @@ export const provider = defineProvider(
     "freeTier": "Yes: signup credit.",
     "integrationNotes": "Strong realtime speech stack. If you need a single speech specialist with both STT and TTS, Deepgram is one of the easier integrations."
   }
-} satisfies CatalogProvider,
+},
 );
+
+export const providerContext = createProviderContext(providerDefinition);

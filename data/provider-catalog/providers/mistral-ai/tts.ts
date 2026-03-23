@@ -1,6 +1,3 @@
-import { defineTtsModels } from "../../definitions";
-import type { CatalogTts } from "../../../../src/catalog/types";
+import { providerContext } from "./provider";
 
-export const tts = defineTtsModels(
-[] satisfies CatalogTts[],
-);
+export const tts = providerContext.defineTtsModels([]);

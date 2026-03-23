@@ -1,7 +1,6 @@
-import { defineProvider } from "../../definitions";
-import type { CatalogProvider } from "../../../../src/catalog/types";
+import { createProviderContext, defineProviderDefinition } from "../../definitions";
 
-export const provider = defineProvider(
+export const providerDefinition = defineProviderDefinition(
 {
   "providerId": "google-vertex-ai-studio",
   "providerName": "Google (Vertex / AI Studio)",
@@ -33,11 +32,6 @@ export const provider = defineProvider(
     "regionSplitRecommended": false
   },
   "summaries": {
-    "activeModels": {
-      "llm": "Gemini 2.5 Pro [gemini-2.5-pro]\nGemini 2.5 Flash [gemini-2.5-flash]\nGemini 2.5 Flash Image [gemini-2.5-flash-image]\nGemini Live API [gemini-live] — Realtime audio/text session family\nGemini 2.0 Flash [gemini-2.0-flash]\nGemini 2.0 Flash-Lite [gemini-2.0-flash-lite]\nGemini 3.1 Flash-Lite (preview) [gemini-3.1-flash-lite-preview]\nGemini 3.1 Flash Image (preview) [gemini-3.1-flash-image-preview]\nGemini 3.1 Pro (preview) [gemini-3.1-pro-preview]",
-      "tts": "Chirp 3 HD [Chirp 3 HD]\nInstant Custom Voice [Instant Custom Voice]\nNeural2 [Neural2]\nWaveNet [WaveNet]\nStudio [Studio]\nStandard [Standard]\nPolyglot (preview) [Polyglot]",
-      "stt": "Chirp 3 [chirp_3]"
-    },
     "pricing": "TTS examples: Standard/WaveNet $4/M chars, Neural2 $16/M, Studio $160/M, Chirp 3 HD $30/M, Instant Custom Voice $60/M, Polyglot preview $16/M. Gemini pricing varies by model/context.",
     "limits": "STT sync: up to 10 MB or ~1 minute; streaming chunks 25 KB and streams up to ~5 minutes; Chirp 3 supports longer audio (up to ~1 hour) but timestamp features are more limited.",
     "region": "Global and regional endpoints. Speech services document regions including us, eu, asia-southeast1, europe-west2, asia-northeast1 depending on feature.",
@@ -46,5 +40,7 @@ export const provider = defineProvider(
     "freeTier": "Yes for several Cloud Speech/Text-to-Speech quotas and AI Studio experiments; limits vary by service and region.",
     "integrationNotes": "Google splits LLM vs speech across AI Studio/Vertex and Cloud Speech/TTS. Normalize provider/service credentials separately."
   }
-} satisfies CatalogProvider,
+},
 );
+
+export const providerContext = createProviderContext(providerDefinition);

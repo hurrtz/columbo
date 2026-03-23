@@ -1,6 +1,3 @@
-import { defineLlms } from "../../definitions";
-import type { CatalogLlm } from "../../../../src/catalog/types";
+import { providerContext } from "./provider";
 
-export const llms = defineLlms(
-[] satisfies CatalogLlm[],
-);
+export const llms = providerContext.defineLlms([]);

@@ -1,5 +1,7 @@
 import {
+  createProviderContext,
   defineProviderDocument,
+  defineProviderDefinition,
   defineProviderDocuments,
 } from "../../data/provider-catalog/definitions";
 import type { CatalogProviderDocument } from "../../src/catalog";
@@ -79,6 +81,52 @@ function createDocument(
 }
 
 describe("catalog definitions", () => {
+  it("builds provider-scoped models and derives active model summaries", () => {
+    const providerDefinition = defineProviderDefinition({
+      ...createDocument().provider,
+      summaries: {
+        ...createDocument().provider.summaries,
+        activeModels: undefined,
+        pricing: "Provider pricing",
+        region: "Provider region",
+      },
+    });
+    const providerContext = createProviderContext(providerDefinition);
+    const llms = providerContext.defineLlms([
+      providerContext.llm({
+        modelId: "model-a",
+        publicName: "Model A",
+        status: "active",
+        limitsSummary: null,
+        languagesSummary: null,
+        notes: "Realtime text+audio",
+        supportsRealtime: true,
+        supportsBatch: true,
+        priceMeasurements: [],
+        constraints: [],
+        languageSupport: null,
+      }),
+    ]);
+    const document = providerContext.document({
+      llms,
+      stt: [],
+      tts: [],
+    });
+
+    expect(document.llms[0]).toMatchObject({
+      providerId: "provider-a",
+      providerName: "Provider A",
+      pricingSummary: "Provider pricing",
+      regionSummary: "Provider region",
+      officialSources: ["https://example.com"],
+    });
+    expect(document.provider.summaries.activeModels).toEqual({
+      llm: "Model A [model-a] — Realtime text+audio",
+      stt: null,
+      tts: null,
+    });
+  });
+
   it("rejects provider documents with mismatched model services", () => {
     expect(() =>
       defineProviderDocument({
@@ -114,5 +162,22 @@ describe("catalog definitions", () => {
         ],
       }),
     ).toThrow("Catalog alias collides with canonical model ID");
+  });
+
+  it("rejects alias collisions across services", () => {
+    expect(() =>
+      defineProviderDocument({
+        ...createDocument(),
+        stt: [
+          {
+            ...createDocument().llms[0],
+            service: "stt",
+            modelId: "speech-model",
+            publicName: "Speech Model",
+            aliases: ["model-a-latest"],
+          },
+        ],
+      }),
+    ).toThrow("Catalog alias collision across services");
   });
 });

@@ -1,196 +1,160 @@
-import { defineSttModels } from "../../definitions";
-import type { CatalogStt } from "../../../../src/catalog/types";
+import { providerContext } from "./provider";
 
-export const stt = defineSttModels(
-[
-  {
-    "providerId": "amazon-aws",
-    "providerName": "Amazon AWS",
-    "service": "stt",
-    "modelId": "transcribe",
-    "publicName": "Amazon Transcribe",
-    "status": "Documented active/current",
-    "catalogScope": "Dynamic/non-exhaustive",
-    "pricingSummary": "Polly: Standard $4/M chars, Neural $16/M, Generative $30/M, Long-Form $100/M. Transcribe billed per second (15-second minimum). Bedrock pricing varies by model.",
-    "limitsSummary": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits.",
-    "regionSummary": "Region-specific across AWS regions. Bedrock, Polly, and Transcribe each have separate regional availability matrices.",
-    "languagesSummary": "Transcribe supports 100+ languages/variants depending on mode.",
-    "notes": "Separate Bedrock model selection from Polly/Transcribe. Bedrock is dynamic; fetch live supported-model lists rather than hardcoding.",
-    "officialSources": [
-      "https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html",
-      "https://aws.amazon.com/polly/pricing/",
-      "https://docs.aws.amazon.com/transcribe/latest/dg/what-is.html"
-    ],
-    "openAiCompatible": null,
-    "supportsRealtime": true,
-    "supportsBatch": null,
-    "priceMeasurements": [
-      {
-        "amountUsd": 4.0,
-        "unit": "million_characters",
-        "sourceText": "$4/M chars"
-      }
-    ],
-    "constraints": [
-      {
-        "metric": "throughput_tps",
-        "comparator": "=",
-        "value": 80.0,
-        "unit": "tps",
-        "scope": "general",
-        "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
-      },
-      {
-        "metric": "throughput_tps",
-        "comparator": "=",
-        "value": 8.0,
-        "unit": "tps",
-        "scope": "general",
-        "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
-      },
-      {
-        "metric": "concurrency",
-        "comparator": "=",
-        "value": 26.0,
-        "unit": "count",
-        "scope": "general",
-        "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
-      }
-    ],
-    "languageSupport": {
-      "rawText": "Transcribe supports 100+ languages/variants depending on mode.",
-      "isMultilingual": true,
-      "languageCount": 100,
-      "voiceCount": null,
-      "listedLanguages": [],
-      "notes": []
+export const stt = providerContext.defineSttModels([
+  providerContext.stt(
+{
+  "modelId": "transcribe",
+  "publicName": "Amazon Transcribe",
+  "status": "Documented active/current",
+  "limitsSummary": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits.",
+  "notes": "Separate Bedrock model selection from Polly/Transcribe. Bedrock is dynamic; fetch live supported-model lists rather than hardcoding.",
+  "supportsRealtime": true,
+  "supportsBatch": null,
+  "priceMeasurements": [
+    {
+      "amountUsd": 4.0,
+      "unit": "million_characters",
+      "sourceText": "$4/M chars"
     }
-  },
-  {
-    "providerId": "amazon-aws",
-    "providerName": "Amazon AWS",
-    "service": "stt",
-    "modelId": "transcribe-medical",
-    "publicName": "Amazon Transcribe Medical",
-    "status": "Documented active/current",
-    "catalogScope": "Dynamic/non-exhaustive",
-    "pricingSummary": "Polly: Standard $4/M chars, Neural $16/M, Generative $30/M, Long-Form $100/M. Transcribe billed per second (15-second minimum). Bedrock pricing varies by model.",
-    "limitsSummary": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits.",
-    "regionSummary": "Region-specific across AWS regions. Bedrock, Polly, and Transcribe each have separate regional availability matrices.",
-    "languagesSummary": "Transcribe supports 100+ languages/variants depending on mode.",
-    "notes": "Separate Bedrock model selection from Polly/Transcribe. Bedrock is dynamic; fetch live supported-model lists rather than hardcoding.",
-    "officialSources": [
-      "https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html",
-      "https://aws.amazon.com/polly/pricing/",
-      "https://docs.aws.amazon.com/transcribe/latest/dg/what-is.html"
-    ],
-    "openAiCompatible": null,
-    "supportsRealtime": true,
-    "supportsBatch": null,
-    "priceMeasurements": [
-      {
-        "amountUsd": 4.0,
-        "unit": "million_characters",
-        "sourceText": "$4/M chars"
-      }
-    ],
-    "constraints": [
-      {
-        "metric": "throughput_tps",
-        "comparator": "=",
-        "value": 80.0,
-        "unit": "tps",
-        "scope": "general",
-        "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
-      },
-      {
-        "metric": "throughput_tps",
-        "comparator": "=",
-        "value": 8.0,
-        "unit": "tps",
-        "scope": "general",
-        "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
-      },
-      {
-        "metric": "concurrency",
-        "comparator": "=",
-        "value": 26.0,
-        "unit": "count",
-        "scope": "general",
-        "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
-      }
-    ],
-    "languageSupport": {
-      "rawText": "Transcribe supports 100+ languages/variants depending on mode.",
-      "isMultilingual": true,
-      "languageCount": 100,
-      "voiceCount": null,
-      "listedLanguages": [],
-      "notes": []
+  ],
+  "constraints": [
+    {
+      "metric": "throughput_tps",
+      "comparator": "=",
+      "value": 80.0,
+      "unit": "tps",
+      "scope": "general",
+      "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
+    },
+    {
+      "metric": "throughput_tps",
+      "comparator": "=",
+      "value": 8.0,
+      "unit": "tps",
+      "scope": "general",
+      "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
+    },
+    {
+      "metric": "concurrency",
+      "comparator": "=",
+      "value": 26.0,
+      "unit": "count",
+      "scope": "general",
+      "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
     }
-  },
-  {
-    "providerId": "amazon-aws",
-    "providerName": "Amazon AWS",
-    "service": "stt",
-    "modelId": "call-analytics",
-    "publicName": "Call Analytics",
-    "status": "Documented active/current",
-    "catalogScope": "Dynamic/non-exhaustive",
-    "pricingSummary": "Polly: Standard $4/M chars, Neural $16/M, Generative $30/M, Long-Form $100/M. Transcribe billed per second (15-second minimum). Bedrock pricing varies by model.",
-    "limitsSummary": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits.",
-    "regionSummary": "Region-specific across AWS regions. Bedrock, Polly, and Transcribe each have separate regional availability matrices.",
-    "languagesSummary": "Transcribe supports 100+ languages/variants depending on mode.",
-    "notes": "Separate Bedrock model selection from Polly/Transcribe. Bedrock is dynamic; fetch live supported-model lists rather than hardcoding.",
-    "officialSources": [
-      "https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html",
-      "https://aws.amazon.com/polly/pricing/",
-      "https://docs.aws.amazon.com/transcribe/latest/dg/what-is.html"
-    ],
-    "openAiCompatible": null,
-    "supportsRealtime": true,
-    "supportsBatch": null,
-    "priceMeasurements": [
-      {
-        "amountUsd": 4.0,
-        "unit": "million_characters",
-        "sourceText": "$4/M chars"
-      }
-    ],
-    "constraints": [
-      {
-        "metric": "throughput_tps",
-        "comparator": "=",
-        "value": 80.0,
-        "unit": "tps",
-        "scope": "general",
-        "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
-      },
-      {
-        "metric": "throughput_tps",
-        "comparator": "=",
-        "value": 8.0,
-        "unit": "tps",
-        "scope": "general",
-        "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
-      },
-      {
-        "metric": "concurrency",
-        "comparator": "=",
-        "value": 26.0,
-        "unit": "count",
-        "scope": "general",
-        "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
-      }
-    ],
-    "languageSupport": {
-      "rawText": "Transcribe supports 100+ languages/variants depending on mode.",
-      "isMultilingual": true,
-      "languageCount": 100,
-      "voiceCount": null,
-      "listedLanguages": [],
-      "notes": []
-    }
+  ],
+  "languageSupport": {
+    "rawText": "Transcribe supports 100+ languages/variants depending on mode.",
+    "isMultilingual": true,
+    "languageCount": 100,
+    "voiceCount": null,
+    "listedLanguages": [],
+    "notes": []
   }
-] satisfies CatalogStt[],
-);
+}
+  ),
+  providerContext.stt(
+{
+  "modelId": "transcribe-medical",
+  "publicName": "Amazon Transcribe Medical",
+  "status": "Documented active/current",
+  "limitsSummary": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits.",
+  "notes": "Separate Bedrock model selection from Polly/Transcribe. Bedrock is dynamic; fetch live supported-model lists rather than hardcoding.",
+  "supportsRealtime": true,
+  "supportsBatch": null,
+  "priceMeasurements": [
+    {
+      "amountUsd": 4.0,
+      "unit": "million_characters",
+      "sourceText": "$4/M chars"
+    }
+  ],
+  "constraints": [
+    {
+      "metric": "throughput_tps",
+      "comparator": "=",
+      "value": 80.0,
+      "unit": "tps",
+      "scope": "general",
+      "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
+    },
+    {
+      "metric": "throughput_tps",
+      "comparator": "=",
+      "value": 8.0,
+      "unit": "tps",
+      "scope": "general",
+      "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
+    },
+    {
+      "metric": "concurrency",
+      "comparator": "=",
+      "value": 26.0,
+      "unit": "count",
+      "scope": "general",
+      "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
+    }
+  ],
+  "languageSupport": {
+    "rawText": "Transcribe supports 100+ languages/variants depending on mode.",
+    "isMultilingual": true,
+    "languageCount": 100,
+    "voiceCount": null,
+    "listedLanguages": [],
+    "notes": []
+  }
+}
+  ),
+  providerContext.stt(
+{
+  "modelId": "call-analytics",
+  "publicName": "Call Analytics",
+  "status": "Documented active/current",
+  "limitsSummary": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits.",
+  "notes": "Separate Bedrock model selection from Polly/Transcribe. Bedrock is dynamic; fetch live supported-model lists rather than hardcoding.",
+  "supportsRealtime": true,
+  "supportsBatch": null,
+  "priceMeasurements": [
+    {
+      "amountUsd": 4.0,
+      "unit": "million_characters",
+      "sourceText": "$4/M chars"
+    }
+  ],
+  "constraints": [
+    {
+      "metric": "throughput_tps",
+      "comparator": "=",
+      "value": 80.0,
+      "unit": "tps",
+      "scope": "general",
+      "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
+    },
+    {
+      "metric": "throughput_tps",
+      "comparator": "=",
+      "value": 8.0,
+      "unit": "tps",
+      "scope": "general",
+      "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
+    },
+    {
+      "metric": "concurrency",
+      "comparator": "=",
+      "value": 26.0,
+      "unit": "count",
+      "scope": "general",
+      "sourceText": "Polly quotas vary by engine (e.g., ~80 TPS standard, ~8 TPS neural, ~26 concurrent long-form/generative). Transcribe quotas include job/stream TPS limits."
+    }
+  ],
+  "languageSupport": {
+    "rawText": "Transcribe supports 100+ languages/variants depending on mode.",
+    "isMultilingual": true,
+    "languageCount": 100,
+    "voiceCount": null,
+    "listedLanguages": [],
+    "notes": []
+  }
+}
+  ),
+]);
