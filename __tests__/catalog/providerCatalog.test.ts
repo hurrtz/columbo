@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 
 import {
-  getCatalogAppIntegrationNotes,
   getCatalogModel,
   getCatalogProvider,
   getCatalogRecordingConstraints,
@@ -12,55 +11,64 @@ import {
 } from "../../src/catalog";
 
 describe("provider catalog", () => {
-  it("matches the expected provider and model counts from the audit workbook", () => {
+  it("matches the normalized provider and model counts in the flattened catalog", () => {
     expect(getCatalogStats()).toEqual({
       providerCount: 56,
-      modelCount: 322,
+      modelCount: 317,
       serviceCounts: {
-        llm: 156,
+        llm: 152,
         stt: 76,
-        tts: 90,
+        tts: 89,
       },
     });
   });
 
-  it("writes one provider document and one model document per catalog entry", () => {
-    const providerDir = path.join(
+  it("exposes one typed provider document per provider with grouped model arrays", () => {
+    expect(PROVIDER_CATALOG.providerDocuments).toHaveLength(56);
+    expect(
+      PROVIDER_CATALOG.providerDocuments.every(
+        (document) =>
+          Array.isArray(document.llms) &&
+          Array.isArray(document.stt) &&
+          Array.isArray(document.tts),
+      ),
+    ).toBe(true);
+  });
+
+  it("keeps the catalog flattened to typed ts sources and removes legacy artifacts", () => {
+    const providersDir = path.join(
       process.cwd(),
       "data",
       "provider-catalog",
       "providers",
     );
+    const providerFiles = fs
+      .readdirSync(providersDir)
+      .filter((entry) => entry.endsWith(".ts") && entry !== "index.ts");
 
-    const providerDirectories = fs
-      .readdirSync(providerDir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory());
-
-    expect(providerDirectories).toHaveLength(56);
-
-    const providerFiles = providerDirectories.flatMap((entry) =>
-      fs
-        .readdirSync(path.join(providerDir, entry.name, "models"))
-        .map((file) => path.join(providerDir, entry.name, "models", file)),
-    );
-
-    expect(providerFiles).toHaveLength(322);
-
-    for (const provider of PROVIDER_CATALOG.providers) {
-      expect(
-        fs.existsSync(path.join(process.cwd(), provider.documents.providerPath)),
-      ).toBe(true);
-      for (const documentPath of provider.documents.modelDocumentPaths) {
-        expect(fs.existsSync(path.join(process.cwd(), documentPath))).toBe(true);
-      }
-    }
+    expect(providerFiles).toHaveLength(56);
+    expect(
+      fs.existsSync(
+        path.join(process.cwd(), "data", "provider-catalog", "catalog.snapshot.json"),
+      ),
+    ).toBe(false);
+    expect(
+      fs.existsSync(
+        path.join(
+          process.cwd(),
+          "data",
+          "provider-catalog",
+          "reports",
+          "compass-research-report.json",
+        ),
+      ),
+    ).toBe(false);
   });
 
-  it("preserves workbook support states even when the supplemental report is older", () => {
+  it("preserves workbook support states in the flattened provider document", () => {
     const mistral = getCatalogProvider("mistral-ai");
-    expect(mistral?.verifiedSupport.stt.state).toBe("native");
-    expect(mistral?.verifiedSupport.tts.state).toBe("unsupported");
-    expect(mistral?.supplementalResearch).not.toBeNull();
+    expect(mistral?.verifiedSupport.stt).toBe("native");
+    expect(mistral?.verifiedSupport.tts).toBe("unsupported");
   });
 
   it("captures derived recording safeguards for OpenAI transcription models", () => {
@@ -89,8 +97,8 @@ describe("provider catalog", () => {
   it("stores compatibility and dynamic-catalog hints from the supplemental report", () => {
     const groq = getCatalogProvider("groq");
 
-    expect(groq?.derived.hasDynamicCatalog).toBe(true);
-    expect(groq?.derived.needsLiveDiscovery).toBe(true);
+    expect(groq?.integration.hasDynamicCatalog).toBe(true);
+    expect(groq?.integration.needsLiveDiscovery).toBe(true);
     expect(isCatalogProviderOpenAiCompatible("groq")).toBe(true);
   });
 
@@ -106,7 +114,7 @@ describe("provider catalog", () => {
       "stt",
     );
 
-    expect(groqTts?.derived.priceMeasurements).toEqual(
+    expect(groqTts?.priceMeasurements).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           amountUsd: 22,
@@ -114,22 +122,6 @@ describe("provider catalog", () => {
         }),
       ]),
     );
-    expect(openaiStt?.derived.languageSupport.languageCount).toBe(98);
-  });
-
-  it("imports the workbook integration guidance into structured notes", () => {
-    const notes = getCatalogAppIntegrationNotes();
-
-    expect(notes).toHaveLength(14);
-    expect(notes).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          topic: "Separate provider, model, and voice IDs",
-        }),
-        expect.objectContaining({
-          topic: "Fallback strategy",
-        }),
-      ]),
-    );
+    expect(openaiStt?.languageSupport?.languageCount).toBe(98);
   });
 });

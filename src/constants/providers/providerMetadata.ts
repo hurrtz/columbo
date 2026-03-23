@@ -71,7 +71,8 @@ export const PROVIDER_NEEDS_LIVE_MODEL_DISCOVERY: Record<Provider, boolean> =
   Object.fromEntries(
     PROVIDER_ORDER.map((provider) => [
       provider,
-      getCatalogProviderForAppProvider(provider)?.derived.needsLiveDiscovery ?? false,
+      getCatalogProviderForAppProvider(provider)?.integration.needsLiveDiscovery ??
+        false,
     ]),
   ) as Record<Provider, boolean>;
 

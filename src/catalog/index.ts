@@ -1,36 +1,42 @@
+import {
+  PROVIDER_CATALOG_UPDATED_AT,
+  PROVIDER_DOCUMENTS,
+} from "../../data/provider-catalog";
+import { PROVIDER_CATALOG_SCHEMA_VERSION } from "./types";
 import type {
   CatalogConstraint,
   CatalogModelDocument,
+  CatalogProvider,
   CatalogProviderDocument,
   CatalogProviderEntry,
   CatalogService,
   CatalogSupportState,
-  ProviderCatalogSnapshot,
+  ProviderCatalogIndex,
 } from "./types";
 
 export * from "./types";
 export * from "./appProviders";
 
-const PROVIDER_CATALOG_SNAPSHOT = require("../../data/provider-catalog/catalog.snapshot.json") as ProviderCatalogSnapshot;
-
-const providersById = new Map<string, CatalogProviderDocument>(
-  PROVIDER_CATALOG_SNAPSHOT.providers.map((provider) => [
-    provider.providerId,
-    provider,
-  ]),
-);
-
+const providersById = new Map<string, CatalogProvider>();
+const providerDocumentsById = new Map<string, CatalogProviderDocument>();
 const modelsByProviderId = new Map<string, CatalogModelDocument[]>();
 const modelsByCompositeKey = new Map<string, CatalogModelDocument>();
 
-for (const model of PROVIDER_CATALOG_SNAPSHOT.models) {
-  const existing = modelsByProviderId.get(model.providerId) ?? [];
-  existing.push(model);
-  modelsByProviderId.set(model.providerId, existing);
-  modelsByCompositeKey.set(
-    `${model.providerId}::${model.service}::${model.modelId}`,
-    model,
-  );
+for (const document of PROVIDER_DOCUMENTS) {
+  const providerId = document.provider.providerId;
+  const models = [...document.llms, ...document.stt, ...document.tts];
+
+  providersById.set(providerId, document.provider);
+  providerDocumentsById.set(providerId, document);
+  modelsByProviderId.set(providerId, models);
+
+  for (const model of models) {
+    modelsByCompositeKey.set(`${providerId}::${model.service}::${model.modelId}`, model);
+
+    for (const alias of ("aliases" in model ? model.aliases : undefined) ?? []) {
+      modelsByCompositeKey.set(`${providerId}::${model.service}::${alias}`, model);
+    }
+  }
 }
 
 for (const models of modelsByProviderId.values()) {
@@ -43,20 +49,63 @@ for (const models of modelsByProviderId.values()) {
   });
 }
 
-export const PROVIDER_CATALOG = PROVIDER_CATALOG_SNAPSHOT;
+const providers = PROVIDER_DOCUMENTS.map((document) => document.provider);
+const models = [...modelsByCompositeKey.values()].filter(
+  (model, index, allModels) =>
+    allModels.findIndex(
+      (candidate) =>
+        candidate.providerId === model.providerId &&
+        candidate.service === model.service &&
+        candidate.modelId === model.modelId,
+    ) === index,
+);
+
+models.sort((left, right) => {
+  if (left.providerId !== right.providerId) {
+    return left.providerId.localeCompare(right.providerId);
+  }
+
+  if (left.service !== right.service) {
+    return left.service.localeCompare(right.service);
+  }
+
+  return left.publicName.localeCompare(right.publicName);
+});
+
+const stats = {
+  providerCount: providers.length,
+  modelCount: models.length,
+  serviceCounts: {
+    llm: models.filter((model) => model.service === "llm").length,
+    stt: models.filter((model) => model.service === "stt").length,
+    tts: models.filter((model) => model.service === "tts").length,
+  },
+};
+
+export const PROVIDER_CATALOG: ProviderCatalogIndex = {
+  schemaVersion: PROVIDER_CATALOG_SCHEMA_VERSION,
+  updatedAt: PROVIDER_CATALOG_UPDATED_AT,
+  providerDocuments: PROVIDER_DOCUMENTS,
+  providers,
+  models,
+  stats,
+};
 
 export function getCatalogStats() {
-  return PROVIDER_CATALOG_SNAPSHOT.stats;
+  return PROVIDER_CATALOG.stats;
 }
 
 export function listCatalogProviders() {
-  return [...PROVIDER_CATALOG_SNAPSHOT.providers];
+  return [...PROVIDER_CATALOG.providers];
 }
 
 export function listCatalogProviderEntries(): CatalogProviderEntry[] {
-  return PROVIDER_CATALOG_SNAPSHOT.providers.map((provider) => ({
-    provider,
-    models: getCatalogProviderModels(provider.providerId),
+  return PROVIDER_DOCUMENTS.map((document) => ({
+    provider: document.provider,
+    llms: [...document.llms],
+    stt: [...document.stt],
+    tts: [...document.tts],
+    models: [...document.llms, ...document.stt, ...document.tts],
   }));
 }
 
@@ -65,15 +114,18 @@ export function getCatalogProvider(providerId: string) {
 }
 
 export function getCatalogProviderEntry(providerId: string) {
-  const provider = getCatalogProvider(providerId);
+  const document = providerDocumentsById.get(providerId);
 
-  if (!provider) {
+  if (!document) {
     return null;
   }
 
   return {
-    provider,
-    models: getCatalogProviderModels(providerId),
+    provider: document.provider,
+    llms: [...document.llms],
+    stt: [...document.stt],
+    tts: [...document.tts],
+    models: [...document.llms, ...document.stt, ...document.tts],
   };
 }
 
@@ -81,13 +133,13 @@ export function getCatalogProviderModels(
   providerId: string,
   service?: CatalogService,
 ) {
-  const models = modelsByProviderId.get(providerId) ?? [];
+  const providerModels = modelsByProviderId.get(providerId) ?? [];
 
   if (!service) {
-    return [...models];
+    return [...providerModels];
   }
 
-  return models.filter((model) => model.service === service);
+  return providerModels.filter((model) => model.service === service);
 }
 
 export function getCatalogModel(
@@ -123,11 +175,11 @@ export function providerSupportsService(
     return false;
   }
 
-  return allowedStates.includes(provider.verifiedSupport[service].state);
+  return allowedStates.includes(provider.verifiedSupport[service]);
 }
 
 export function isCatalogProviderOpenAiCompatible(providerId: string) {
-  return getCatalogProvider(providerId)?.derived.openAiCompatible ?? null;
+  return getCatalogProvider(providerId)?.integration.openAiCompatible ?? null;
 }
 
 export function getCatalogModelConstraints(
@@ -135,7 +187,7 @@ export function getCatalogModelConstraints(
   modelId: string,
   service?: CatalogService,
 ) {
-  return getCatalogModel(providerId, modelId, service)?.derived.constraints ?? [];
+  return getCatalogModel(providerId, modelId, service)?.constraints ?? [];
 }
 
 export function getCatalogRecordingConstraints(
@@ -163,12 +215,4 @@ export function getStrictestCatalogMaxConstraint(
         (constraint.comparator === "<=" || constraint.comparator === "="),
     )
     .sort((left, right) => left.value - right.value)[0] ?? null;
-}
-
-export function getCatalogAppIntegrationNotes() {
-  return [...PROVIDER_CATALOG_SNAPSHOT.appIntegrationNotes];
-}
-
-export function getCatalogSupplementalReport() {
-  return PROVIDER_CATALOG_SNAPSHOT.supplementalReport;
 }

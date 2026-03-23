@@ -115,19 +115,6 @@ const PROVIDER_TTS_LANGUAGE_NOTES_BY_LANGUAGE: Partial<
   },
 };
 
-const CATALOG_SPEECH_LANGUAGE_MODEL_ALIASES: Partial<
-  Record<
-    "stt" | "tts",
-    Partial<Record<Provider, Record<string, string>>>
-  >
-> = {
-  stt: {
-    mistral: {
-      "voxtral-mini-latest": "voxtral-mini",
-    },
-  },
-};
-
 export function getNativeSttLanguageNote(language: AppLanguage) {
   return NATIVE_STT_LANGUAGE_NOTES_BY_LANGUAGE[language];
 }
@@ -167,13 +154,9 @@ function buildCatalogSpeechLanguageNote(params: {
   service: "stt" | "tts";
   language: AppLanguage;
 }) {
-  const resolvedModelId =
-    CATALOG_SPEECH_LANGUAGE_MODEL_ALIASES[params.service]?.[params.provider]?.[
-      params.modelId
-    ] ?? params.modelId;
   const model = getCatalogModelForAppProvider(
     params.provider,
-    resolvedModelId,
+    params.modelId,
     params.service,
   );
 
@@ -181,7 +164,12 @@ function buildCatalogSpeechLanguageNote(params: {
     return null;
   }
 
-  const languageSupport = model.derived.languageSupport;
+  const languageSupport = model.languageSupport;
+
+  if (!languageSupport) {
+    return null;
+  }
+
   const parts: string[] = [];
 
   if (languageSupport.voiceCount && languageSupport.languageCount) {

@@ -2,32 +2,12 @@ import { getCatalogModelForAppProvider } from "../../catalog";
 import { AppLanguage, Provider } from "../../types";
 import type { ModelInfo, TtsVoiceOption } from "./types";
 
-const CATALOG_SPEECH_LABEL_MODEL_ALIASES: Partial<
-  Record<
-    "stt" | "tts",
-    Partial<Record<Provider, Record<string, string>>>
-  >
-> = {
-  stt: {
-    mistral: {
-      "voxtral-mini-latest": "voxtral-mini",
-    },
-  },
-};
-
 function getCatalogSpeechModelLabel(
   provider: Provider,
   service: "stt" | "tts",
   modelId: string,
 ) {
-  const resolvedModelId =
-    CATALOG_SPEECH_LABEL_MODEL_ALIASES[service]?.[provider]?.[modelId] ??
-    modelId;
-
-  return (
-    getCatalogModelForAppProvider(provider, resolvedModelId, service)
-      ?.publicName ?? null
-  );
+  return getCatalogModelForAppProvider(provider, modelId, service)?.publicName ?? null;
 }
 
 function withCatalogSpeechLabels(

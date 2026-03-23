@@ -39,10 +39,7 @@ export function getCatalogVerifiedServiceStateForAppProvider(
   provider: Provider,
   service: CatalogService,
 ): CatalogSupportState {
-  return (
-    getCatalogProviderForAppProvider(provider)?.verifiedSupport[service].state ??
-    "unsupported"
-  );
+  return getCatalogProviderForAppProvider(provider)?.verifiedSupport[service] ?? "unsupported";
 }
 
 export function isCatalogServiceSupportedForAppProvider(
@@ -82,10 +79,7 @@ export function getCatalogPriceMeasurementsForAppProvider(
   modelId: string,
   service?: CatalogService,
 ): CatalogPriceMeasurement[] {
-  return (
-    getCatalogModelForAppProvider(provider, modelId, service)?.derived
-      .priceMeasurements ?? []
-  );
+  return getCatalogModelForAppProvider(provider, modelId, service)?.priceMeasurements ?? [];
 }
 
 export function getCatalogConstraintsForAppProvider(
@@ -93,10 +87,7 @@ export function getCatalogConstraintsForAppProvider(
   modelId: string,
   service?: CatalogService,
 ): CatalogConstraint[] {
-  return (
-    getCatalogModelForAppProvider(provider, modelId, service)?.derived
-      .constraints ?? []
-  );
+  return getCatalogModelForAppProvider(provider, modelId, service)?.constraints ?? [];
 }
 
 export function getCatalogLanguageSupportForAppProvider(
@@ -104,10 +95,7 @@ export function getCatalogLanguageSupportForAppProvider(
   modelId: string,
   service?: CatalogService,
 ): CatalogLanguageSupport | null {
-  return (
-    getCatalogModelForAppProvider(provider, modelId, service)?.derived
-      .languageSupport ?? null
-  );
+  return getCatalogModelForAppProvider(provider, modelId, service)?.languageSupport ?? null;
 }
 
 export function getCatalogRealtimeModelsForAppProvider(
@@ -115,6 +103,6 @@ export function getCatalogRealtimeModelsForAppProvider(
   service: CatalogService,
 ): CatalogModelDocument[] {
   return getCatalogModelsForAppProvider(provider, service).filter(
-    (model) => model.derived.supportsRealtime === true,
+    (model) => model.supportsRealtime === true,
   );
 }

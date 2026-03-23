@@ -1,6 +1,5 @@
 import {
   getCatalogModelForAppProvider,
-  getCatalogModelsForAppProvider,
   type CatalogModelDocument,
   PROVIDER_CATALOG,
 } from "../catalog";
@@ -19,69 +18,6 @@ export interface PricingAssumption {
 
 export const PRICING_ASSUMPTIONS_LAST_UPDATED = "2026-03-17";
 
-const APP_PROVIDERS: Provider[] = [
-  "openai",
-  "anthropic",
-  "gemini",
-  "cohere",
-  "deepseek",
-  "groq",
-  "mistral",
-  "nvidia",
-  "together",
-  "xai",
-];
-
-const CATALOG_PRICING_ALIAS_MODELS: Array<{
-  provider: Provider;
-  aliasModelId: string;
-  catalogModelId: string;
-  modelLabel: string;
-}> = [
-  {
-    provider: "mistral",
-    aliasModelId: "mistral-large-latest",
-    catalogModelId: "mistral-large-2512",
-    modelLabel: "Mistral Large 3",
-  },
-  {
-    provider: "mistral",
-    aliasModelId: "mistral-medium-latest",
-    catalogModelId: "mistral-medium-2508",
-    modelLabel: "Mistral Medium 3",
-  },
-  {
-    provider: "mistral",
-    aliasModelId: "mistral-small-latest",
-    catalogModelId: "mistral-small-3.2",
-    modelLabel: "Mistral Small 3.2",
-  },
-  {
-    provider: "mistral",
-    aliasModelId: "magistral-medium-latest",
-    catalogModelId: "magistral-medium-1.2",
-    modelLabel: "Magistral Medium",
-  },
-  {
-    provider: "mistral",
-    aliasModelId: "magistral-small-latest",
-    catalogModelId: "magistral-small-1.2",
-    modelLabel: "Magistral Small",
-  },
-  {
-    provider: "mistral",
-    aliasModelId: "ministral-8b-latest",
-    catalogModelId: "ministral-3-8b",
-    modelLabel: "Ministral 8B",
-  },
-  {
-    provider: "mistral",
-    aliasModelId: "codestral-latest",
-    catalogModelId: "codestral",
-    modelLabel: "Codestral 2",
-  },
-];
-
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -92,10 +28,10 @@ function createCatalogPricingAssumption(params: {
   modelId: string;
   modelLabel: string;
 }): PricingAssumption | null {
-  const inputPrice = params.model.derived.priceMeasurements.find(
+  const inputPrice = params.model.priceMeasurements.find(
     (measurement) => measurement.unit === "million_input_tokens",
   );
-  const outputPrice = params.model.derived.priceMeasurements.find(
+  const outputPrice = params.model.priceMeasurements.find(
     (measurement) => measurement.unit === "million_output_tokens",
   );
 
@@ -111,44 +47,8 @@ function createCatalogPricingAssumption(params: {
     outputUsdPerMillion: outputPrice.amountUsd,
     sourceLabel: `${params.model.providerName} catalog pricing`,
     sourceUrl: params.model.officialSources[0] ?? "",
-    checkedAt: PROVIDER_CATALOG.generatedAt.slice(0, 10),
+    checkedAt: PROVIDER_CATALOG.updatedAt,
   };
-}
-
-function createCatalogPricingAssumptions() {
-  const exactAssumptions = APP_PROVIDERS.flatMap((provider) =>
-    getCatalogModelsForAppProvider(provider, "llm")
-      .map((model) =>
-        createCatalogPricingAssumption({
-          provider,
-          model,
-          modelId: model.modelId,
-          modelLabel: model.publicName,
-        }),
-      )
-      .filter((assumption): assumption is PricingAssumption => assumption !== null),
-  );
-
-  const aliasAssumptions = CATALOG_PRICING_ALIAS_MODELS.map((aliasEntry) => {
-    const catalogModel = getCatalogModelForAppProvider(
-      aliasEntry.provider,
-      aliasEntry.catalogModelId,
-      "llm",
-    );
-
-    if (!catalogModel) {
-      return null;
-    }
-
-    return createCatalogPricingAssumption({
-      provider: aliasEntry.provider,
-      model: catalogModel,
-      modelId: aliasEntry.aliasModelId,
-      modelLabel: aliasEntry.modelLabel,
-    });
-  }).filter((assumption): assumption is PricingAssumption => assumption !== null);
-
-  return [...exactAssumptions, ...aliasAssumptions];
 }
 
 export const PRICING_ASSUMPTIONS: PricingAssumption[] = [
@@ -214,17 +114,25 @@ export const PRICING_ASSUMPTIONS: PricingAssumption[] = [
   },
 ];
 
-export const CATALOG_PRICING_ASSUMPTIONS: PricingAssumption[] =
-  createCatalogPricingAssumptions();
+function getCatalogPricingAssumption(provider: Provider, modelId: string) {
+  const model = getCatalogModelForAppProvider(provider, modelId, "llm");
 
-export const RUNTIME_PRICING_ASSUMPTIONS: PricingAssumption[] = [
-  ...CATALOG_PRICING_ASSUMPTIONS,
-  ...PRICING_ASSUMPTIONS,
-];
+  if (!model) {
+    return null;
+  }
+
+  return createCatalogPricingAssumption({
+    provider,
+    model,
+    modelId,
+    modelLabel: model.publicName,
+  });
+}
 
 export function findPricingAssumption(provider: Provider, model: string) {
   return (
-    RUNTIME_PRICING_ASSUMPTIONS.find(
+    getCatalogPricingAssumption(provider, model) ??
+    PRICING_ASSUMPTIONS.find(
       (entry) => entry.provider === provider && entry.modelPattern.test(model),
     ) ?? null
   );

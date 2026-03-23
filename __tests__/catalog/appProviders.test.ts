@@ -71,7 +71,7 @@ describe("app provider catalog bridge", () => {
     );
 
     expect(openAiModel?.publicName).toBe("GPT-4o Mini Transcribe");
-    expect(openAiModel?.derived.supportsRealtime).toBe(true);
+    expect(openAiModel?.supportsRealtime).toBe(true);
 
     expect(
       getCatalogConstraintsForAppProvider(

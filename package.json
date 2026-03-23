@@ -8,7 +8,6 @@
     "ios": "expo run:ios",
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "catalog:import": "python3 scripts/provider_catalog/import_workbook.py",
     "catalog:test": "jest __tests__/catalog --runInBand --watchman=false"
   },
   "dependencies": {
