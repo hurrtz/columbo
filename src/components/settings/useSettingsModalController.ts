@@ -7,6 +7,7 @@ import {
   PROVIDER_DEFAULT_TTS_MODELS,
   getNativeSttLanguageNote,
   getNativeTtsLanguageNote,
+  getProviderSttLimitNote,
   getProviderSttLanguageNote,
   getProviderSttModelOptions,
   getProviderTtsLanguageNote,
@@ -189,6 +190,16 @@ export function useSettingsModalController({
       : settings.sttProvider
         ? getProviderSttLanguageNote(settings.sttProvider, language)
         : null;
+  const sttLimitNote =
+    settings.sttMode === "provider" &&
+    settings.sttProvider &&
+    selectedSttProviderModel
+      ? getProviderSttLimitNote(
+          settings.sttProvider,
+          selectedSttProviderModel,
+          language,
+        )
+      : null;
   const ttsLanguageNote =
     settings.ttsMode === "native"
       ? getNativeTtsLanguageNote(language)
@@ -251,6 +262,7 @@ export function useSettingsModalController({
     selectedSttProviderModelOptions,
     selectedSttProviderModel,
     sttLanguageNote,
+    sttLimitNote,
     ttsLanguageNote,
     selectedPreviewProvider,
     selectedPreviewProviderModelOptions,

@@ -23,6 +23,7 @@ export const en: TranslationDictionary = {
     dark: "Dark",
     system: "System",
     languageCoverage: ({ note }) => `Language coverage: ${note}`,
+    recordingLimits: ({ note }) => `Recording limits: ${note}`,
     replyGenerationAction: "reply generation",
     speechTranscriptionAction: "speech transcription",
     instructionsTabDescription:
@@ -410,6 +411,8 @@ export const en: TranslationDictionary = {
     ttsTimeout: ({ provider }) => `${provider} speech output took too long.`,
     sttTimeout: ({ provider }) =>
       `${provider} speech transcription took too long.`,
+    sttFileSizeLimitExceeded: ({ provider, model, limit }) =>
+      `${provider} ${model} only accepts recordings up to ${limit}. Use a shorter clip or switch STT models.`,
     voiceInputCaptureIncomplete:
       "Voice input could not be captured cleanly. Please try again.",
     ttsDidNotReturnAudio: ({ provider }) =>

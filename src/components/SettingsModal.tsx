@@ -69,6 +69,7 @@ export function SettingsModal(props: SettingsModalProps) {
     selectedSttProviderModelOptions,
     selectedSttProviderModel,
     sttLanguageNote,
+    sttLimitNote,
     ttsLanguageNote,
     selectedPreviewProvider,
     selectedPreviewProviderModelOptions,
@@ -220,6 +221,7 @@ export function SettingsModal(props: SettingsModalProps) {
                 selectedSttProviderModelOptions={selectedSttProviderModelOptions}
                 selectedSttProviderModel={selectedSttProviderModel}
                 sttLanguageNote={sttLanguageNote}
+                sttLimitNote={sttLimitNote}
                 onUpdate={onUpdate}
                 onUpdateProviderSttModel={onUpdateProviderSttModel}
               />

@@ -16,6 +16,7 @@ interface SttTabProps {
   selectedSttProviderModelOptions: { id: string; name: string }[];
   selectedSttProviderModel: string;
   sttLanguageNote: string | null;
+  sttLimitNote: string | null;
   onUpdate: (
     partial: Partial<Omit<Settings, "apiKeys" | "providerModels">>,
   ) => void;
@@ -29,6 +30,7 @@ export function SttTab({
   selectedSttProviderModelOptions,
   selectedSttProviderModel,
   sttLanguageNote,
+  sttLimitNote,
   onUpdate,
   onUpdateProviderSttModel,
 }: SttTabProps) {
@@ -104,6 +106,11 @@ export function SttTab({
         {sttLanguageNote ? (
           <Text style={{ color: colors.textMuted }}>
             {t("languageCoverage", { note: sttLanguageNote })}
+          </Text>
+        ) : null}
+        {sttLimitNote ? (
+          <Text style={{ color: colors.textMuted }}>
+            {t("recordingLimits", { note: sttLimitNote })}
           </Text>
         ) : null}
       </PickerSection>

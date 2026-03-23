@@ -1,3 +1,4 @@
+import * as FileSystem from "expo-file-system/legacy";
 import { transcribeAudio } from "../../src/services/whisper";
 
 global.fetch = jest.fn();
@@ -15,6 +16,10 @@ jest.mock("expo-file-system/legacy", () => ({
 describe("transcribeAudio", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({
+      exists: true,
+      size: 8192,
+    });
   });
 
   it("returns a human-readable rate limit error for provider STT", async () => {
@@ -76,6 +81,27 @@ describe("transcribeAudio", () => {
     ).rejects.toMatchObject({
       name: "AbortError",
     });
+
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects uploads that exceed an exact catalog file-size limit", async () => {
+    (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({
+      exists: true,
+      size: 26_000_000,
+    });
+
+    await expect(
+      transcribeAudio({
+        fileUri: "/tmp/recording.m4a",
+        mode: "provider",
+        provider: "openai",
+        apiKey: "sk-test",
+        language: "en",
+      })
+    ).rejects.toThrow(
+      "OpenAI GPT-4o Mini Transcribe only accepts recordings up to 25 MB. Use a shorter clip or switch STT models."
+    );
 
     expect(fetch).not.toHaveBeenCalled();
   });

@@ -1,5 +1,9 @@
 import { AppLanguage, Provider } from "../../types";
 import {
+  getCatalogConstraintsForAppProvider,
+  getStrictestCatalogMaxConstraint,
+} from "../../catalog";
+import {
   NATIVE_STT_LANGUAGE_NOTE,
   NATIVE_TTS_LANGUAGE_NOTE,
   PROVIDER_CONFIGS,
@@ -134,6 +138,119 @@ export function getProviderSttLanguageNote(
   language: AppLanguage,
 ) {
   return PROVIDER_STT_LANGUAGE_NOTES_BY_LANGUAGE[language]?.[provider] ?? null;
+}
+
+function formatByteLimit(bytes: number) {
+  if (bytes >= 1_000_000_000) {
+    return `${(bytes / 1_000_000_000).toFixed(1).replace(/\.0$/, "")} GB`;
+  }
+
+  if (bytes >= 1_000_000) {
+    return `${(bytes / 1_000_000).toFixed(1).replace(/\.0$/, "")} MB`;
+  }
+
+  if (bytes >= 1_000) {
+    return `${(bytes / 1_000).toFixed(1).replace(/\.0$/, "")} KB`;
+  }
+
+  return `${bytes} B`;
+}
+
+function formatDurationLimit(seconds: number, language: AppLanguage) {
+  if (seconds % 3600 === 0) {
+    const hours = seconds / 3600;
+    return language === "de"
+      ? `${hours} ${hours === 1 ? "Stunde" : "Stunden"}`
+      : `${hours} ${hours === 1 ? "hour" : "hours"}`;
+  }
+
+  if (seconds % 60 === 0) {
+    const minutes = seconds / 60;
+    return language === "de"
+      ? `${minutes} ${minutes === 1 ? "Minute" : "Minuten"}`
+      : `${minutes} ${minutes === 1 ? "minute" : "minutes"}`;
+  }
+
+  return language === "de"
+    ? `${seconds} ${seconds === 1 ? "Sekunde" : "Sekunden"}`
+    : `${seconds} ${seconds === 1 ? "second" : "seconds"}`;
+}
+
+export function getProviderSttLimitNote(
+  provider: Provider,
+  modelId: string,
+  language: AppLanguage,
+) {
+  const constraints = getCatalogConstraintsForAppProvider(
+    provider,
+    modelId,
+    "stt",
+  );
+  const parts: string[] = [];
+
+  const exactFileSizeLimit = getStrictestCatalogMaxConstraint(
+    constraints,
+    "file_size_bytes",
+  );
+  const approximateFileSizeLimits = constraints
+    .filter(
+      (constraint) =>
+        constraint.metric === "file_size_bytes" && constraint.comparator === "~",
+    )
+    .sort((left, right) => left.value - right.value);
+
+  if (exactFileSizeLimit) {
+    parts.push(
+      language === "de"
+        ? `Datei-Upload bis ${formatByteLimit(exactFileSizeLimit.value)}`
+        : `File upload up to ${formatByteLimit(exactFileSizeLimit.value)}`,
+    );
+  } else if (approximateFileSizeLimits.length === 1) {
+    parts.push(
+      language === "de"
+        ? `Ungefaehrer Datei-Upload bis ${formatByteLimit(
+            approximateFileSizeLimits[0].value,
+          )}`
+        : `Approximate file upload limit ${formatByteLimit(
+            approximateFileSizeLimits[0].value,
+          )}`,
+    );
+  } else if (approximateFileSizeLimits.length > 1) {
+    parts.push(
+      language === "de"
+        ? `Ungefaehrer Datei-Upload zwischen ${formatByteLimit(
+            approximateFileSizeLimits[0].value,
+          )} und ${formatByteLimit(
+            approximateFileSizeLimits[approximateFileSizeLimits.length - 1].value,
+          )} je nach Tarif`
+        : `Approximate file upload limit ${formatByteLimit(
+            approximateFileSizeLimits[0].value,
+          )} to ${formatByteLimit(
+            approximateFileSizeLimits[approximateFileSizeLimits.length - 1].value,
+          )} depending on tier`,
+    );
+  }
+
+  const durationLimit = [
+    getStrictestCatalogMaxConstraint(constraints, "duration_seconds"),
+    getStrictestCatalogMaxConstraint(constraints, "session_duration_seconds"),
+  ]
+    .filter((constraint): constraint is NonNullable<typeof constraint> => !!constraint)
+    .sort((left, right) => left.value - right.value)[0];
+
+  if (durationLimit) {
+    parts.push(
+      language === "de"
+        ? `Audio bis ${formatDurationLimit(durationLimit.value, language)}`
+        : `Audio up to ${formatDurationLimit(durationLimit.value, language)}`,
+    );
+  }
+
+  if (!parts.length) {
+    return null;
+  }
+
+  return `${parts.join(". ")}.`;
 }
 
 export function getProviderTtsLanguageNote(
