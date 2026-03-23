@@ -26,6 +26,15 @@ import { useNativeSpeechRecognizer } from "../hooks/useNativeSpeechRecognizer";
 import { useConversations } from "../hooks/useConversations";
 import { useVoicePipeline } from "../hooks/useVoicePipeline";
 import { useLocalization } from "../i18n";
+import {
+  getDebugLogCaptureState,
+  installDebugLogConsoleCapture,
+  recoverPendingDebugLogCapture,
+  recordDebugLogEvent,
+  startDebugLogCapture,
+  stopDebugLogCapture,
+  subscribeToDebugLogCapture,
+} from "../services/debugLogCapture";
 import { validateProviderConnection } from "../services/llm";
 import { useTheme } from "../theme/ThemeContext";
 import {
@@ -104,6 +113,8 @@ export function MainScreen() {
     message: string;
     onRetry?: () => void;
   } | null>(null);
+  const [debugLogCaptureState, setDebugLogCaptureState] =
+    useState(getDebugLogCaptureState());
   const {
     settingsVisible,
     settingsFocusProvider,
@@ -178,6 +189,13 @@ export function MainScreen() {
       : (recorder.waveformVariant as WaveformVisualizationVariant);
 
   const showToast = useCallback((message: string, onRetry?: () => void) => {
+    recordDebugLogEvent({
+      event: "toast-shown",
+      payload: {
+        hasRetry: Boolean(onRetry),
+        message,
+      },
+    });
     setToast({ message, onRetry });
   }, []);
 
@@ -227,17 +245,48 @@ export function MainScreen() {
 
   const handleInstallLocalTtsLanguage = useCallback(
     async (languageCode: TtsListenLanguage) => {
+      recordDebugLogEvent({
+        event: "local-tts-pack-install-requested",
+        payload: {
+          languageCode,
+        },
+      });
+
       try {
         const status = await installLanguagePack(languageCode);
         const languageLabel = getTtsListenLanguageLabel(languageCode, language);
 
         if (status?.downloaded && !status.verified) {
+          recordDebugLogEvent({
+            event: "local-tts-pack-install-invalid",
+            level: "warn",
+            payload: {
+              languageCode,
+              verificationError: status.verificationError || null,
+            },
+          });
           showToast(status.verificationError || t("localTtsPackBroken"));
           return;
         }
 
+        recordDebugLogEvent({
+          event: "local-tts-pack-install-succeeded",
+          payload: {
+            downloaded: status?.downloaded ?? false,
+            languageCode,
+            verified: status?.verified ?? false,
+          },
+        });
         showToast(t("localTtsPackInstalled", { languageLabel }));
       } catch (error) {
+        recordDebugLogEvent({
+          event: "local-tts-pack-install-failed",
+          level: "error",
+          payload: {
+            languageCode,
+            message: error instanceof Error ? error.message : String(error),
+          },
+        });
         showToast(
           error instanceof Error
             ? error.message
@@ -251,10 +300,23 @@ export function MainScreen() {
   const handleRepeatMessage = useCallback(
     async (message: { id: string; content: string }) => {
       if (activeReplayMessageId === message.id) {
+        recordDebugLogEvent({
+          event: "reply-repeat-stop-requested",
+          payload: {
+            messageId: message.id,
+          },
+        });
         await stopReplay();
         return;
       }
 
+      recordDebugLogEvent({
+        event: "reply-repeat-requested",
+        payload: {
+          contentLength: message.content.length,
+          messageId: message.id,
+        },
+      });
       await handleRepeatLastReply(message.content, message.id);
     },
     [activeReplayMessageId, handleRepeatLastReply, stopReplay],
@@ -349,7 +411,24 @@ export function MainScreen() {
     (nextMode: ResponseMode) => {
       const nextProvider = settings.responseModes[nextMode].provider;
 
+      recordDebugLogEvent({
+        event: "response-mode-change-requested",
+        payload: {
+          currentMode: activeResponseMode,
+          nextMode,
+          nextProvider,
+        },
+      });
+
       if (!settings.apiKeys[nextProvider].trim()) {
+        recordDebugLogEvent({
+          event: "response-mode-change-blocked",
+          level: "warn",
+          payload: {
+            missingProviderKey: nextProvider,
+            nextMode,
+          },
+        });
         showToast(
           t("addProviderKeyToEnableProvider", {
             provider: PROVIDER_LABELS[nextProvider],
@@ -358,9 +437,23 @@ export function MainScreen() {
         return;
       }
 
+      recordDebugLogEvent({
+        event: "response-mode-change-applied",
+        payload: {
+          nextMode,
+          nextProvider,
+        },
+      });
       updateActiveResponseMode(nextMode);
     },
-    [settings.apiKeys, settings.responseModes, showToast, t, updateActiveResponseMode],
+    [
+      activeResponseMode,
+      settings.apiKeys,
+      settings.responseModes,
+      showToast,
+      t,
+      updateActiveResponseMode,
+    ],
   );
 
   const { handlePreviewVoice, stopPreviewVoice } = usePreviewVoiceController({
@@ -379,12 +472,37 @@ export function MainScreen() {
     async (nextProvider: Provider) => {
       const apiKey = settings.apiKeys[nextProvider].trim();
 
-      await validateProviderConnection({
-        provider: nextProvider,
-        model: getProviderValidationModel(settings, nextProvider),
-        apiKey,
-        language,
+      recordDebugLogEvent({
+        event: "provider-validation-requested",
+        payload: {
+          provider: nextProvider,
+        },
       });
+
+      try {
+        await validateProviderConnection({
+          provider: nextProvider,
+          model: getProviderValidationModel(settings, nextProvider),
+          apiKey,
+          language,
+        });
+        recordDebugLogEvent({
+          event: "provider-validation-succeeded",
+          payload: {
+            provider: nextProvider,
+          },
+        });
+      } catch (error) {
+        recordDebugLogEvent({
+          event: "provider-validation-failed",
+          level: "error",
+          payload: {
+            message: error instanceof Error ? error.message : String(error),
+            provider: nextProvider,
+          },
+        });
+        throw error;
+      }
     },
     [language, settings],
   );
@@ -433,6 +551,349 @@ export function MainScreen() {
     lastCompletedReplyRef.current = lastAssistantReply;
   }, [lastAssistantReply, lastCompletedReplyRef]);
 
+  const createDebugLogContext = useCallback(
+    () => ({
+      activeConversationId: activeConversation?.id ?? null,
+      activeConversationTitle: activeConversation?.title ?? null,
+      activeReplayMessageId,
+      activeResponseMode,
+      conversationCount: conversations.length,
+      conversationMenuVisible,
+      drawerVisible,
+      inputMode: settings.inputMode,
+      isBusy,
+      isPlaying: player.isPlaying,
+      isRecording,
+      memoryVisible,
+      messageCount: messages.length,
+      model,
+      pipelinePhase,
+      provider,
+      replayPhase,
+      settingsVisible,
+      setupGuideVisible,
+      statusDetailsVisible,
+      streamingTextLength: streamingText.length,
+      sttMode: settings.sttMode,
+      sttProvider,
+      transcriptVisible,
+      ttsMode: settings.ttsMode,
+      ttsProvider,
+      visualPhase,
+    }),
+    [
+      activeConversation?.id,
+      activeConversation?.title,
+      activeReplayMessageId,
+      activeResponseMode,
+      conversationMenuVisible,
+      conversations.length,
+      drawerVisible,
+      isBusy,
+      isRecording,
+      memoryVisible,
+      messages.length,
+      model,
+      pipelinePhase,
+      player.isPlaying,
+      provider,
+      replayPhase,
+      settings.inputMode,
+      settings.sttMode,
+      settings.ttsMode,
+      settingsVisible,
+      setupGuideVisible,
+      statusDetailsVisible,
+      streamingText.length,
+      sttProvider,
+      transcriptVisible,
+      ttsProvider,
+      visualPhase,
+    ],
+  );
+
+  const handleToggleDebugLogging = useCallback(
+    async (source: "main-screen" | "transcript-modal") => {
+      try {
+        if (debugLogCaptureState.active) {
+          const result = await stopDebugLogCapture({
+            source,
+            ...createDebugLogContext(),
+          });
+
+          if (!result) {
+            return;
+          }
+
+          const fileName =
+            result.path.split("/").filter(Boolean).pop() ?? result.sessionId;
+
+          showToast(
+            result.copiedToClipboard
+              ? t("debugLogCaptureStopped", {
+                  entryCount: result.entryCount,
+                  fileName,
+                })
+              : t("debugLogCaptureStoppedNoClipboard", {
+                  entryCount: result.entryCount,
+                  fileName,
+                }),
+          );
+          return;
+        }
+
+        startDebugLogCapture({
+          source,
+          ...createDebugLogContext(),
+        });
+        showToast(t("debugLogCaptureStarted"));
+      } catch (error) {
+        recordDebugLogEvent({
+          event: "debug-log-toggle-failed",
+          level: "error",
+          payload: {
+            message: error instanceof Error ? error.message : String(error),
+            source,
+          },
+        });
+        showToast(t("debugLogCaptureFailed"));
+      }
+    },
+    [createDebugLogContext, debugLogCaptureState.active, showToast, t],
+  );
+
+  useEffect(() => {
+    installDebugLogConsoleCapture();
+    const unsubscribe = subscribeToDebugLogCapture(() => {
+      setDebugLogCaptureState(getDebugLogCaptureState());
+    });
+
+    recordDebugLogEvent({
+      event: "main-screen-mounted",
+    });
+
+    return () => {
+      recordDebugLogEvent({
+        event: "main-screen-unmounted",
+      });
+      unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void recoverPendingDebugLogCapture()
+      .then((result) => {
+        if (cancelled || !result) {
+          return;
+        }
+
+        const fileName =
+          result.path.split("/").filter(Boolean).pop() ??
+          result.sessionId ??
+          "recovered-debug-log.log";
+
+        showToast(
+          result.copiedToClipboard
+            ? t("debugLogCaptureRecovered", {
+                entryCount: result.entryCount,
+                fileName,
+              })
+            : t("debugLogCaptureRecoveredNoClipboard", {
+                entryCount: result.entryCount,
+                fileName,
+              }),
+        );
+      })
+      .catch((error) => {
+        recordDebugLogEvent({
+          event: "debug-log-recovery-failed",
+          level: "error",
+          payload: {
+            message: error instanceof Error ? error.message : String(error),
+          },
+        });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [showToast, t]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "main-screen-loaded-state-changed",
+      payload: {
+        loaded,
+      },
+    });
+  }, [loaded]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "route-selection-changed",
+      payload: {
+        activeResponseMode,
+        inputMode: settings.inputMode,
+        model,
+        provider,
+        replyPlayback: settings.replyPlayback,
+        responseLength: settings.responseLength,
+        responseTone: settings.responseTone,
+        sttMode: settings.sttMode,
+        sttProvider,
+        ttsMode: settings.ttsMode,
+        ttsProvider,
+      },
+    });
+  }, [
+    activeResponseMode,
+    model,
+    provider,
+    settings.inputMode,
+    settings.replyPlayback,
+    settings.responseLength,
+    settings.responseTone,
+    settings.sttMode,
+    settings.ttsMode,
+    sttProvider,
+    ttsProvider,
+  ]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "pipeline-phase-changed",
+      payload: {
+        pipelinePhase,
+      },
+    });
+  }, [pipelinePhase]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "visual-phase-changed",
+      payload: {
+        visualPhase,
+      },
+    });
+  }, [visualPhase]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "recording-state-changed",
+      payload: {
+        isRecording,
+        sttMode: settings.sttMode,
+      },
+    });
+  }, [isRecording, settings.sttMode]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "audio-playback-state-changed",
+      payload: {
+        activeReplayMessageId,
+        isPlaying: player.isPlaying,
+        replayPhase,
+      },
+    });
+  }, [activeReplayMessageId, player.isPlaying, replayPhase]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "streaming-text-length-changed",
+      payload: {
+        length: streamingText.length,
+      },
+    });
+  }, [streamingText.length]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "active-conversation-changed",
+      payload: {
+        conversationCount: conversations.length,
+        id: activeConversation?.id ?? null,
+        title: activeConversation?.title ?? null,
+      },
+    });
+  }, [activeConversation?.id, activeConversation?.title, conversations.length]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "message-count-changed",
+      payload: {
+        count: messages.length,
+      },
+    });
+  }, [messages.length]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "settings-visibility-changed",
+      payload: {
+        focusProvider: settingsFocusProvider ?? null,
+        visible: settingsVisible,
+      },
+    });
+  }, [settingsFocusProvider, settingsVisible]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "drawer-visibility-changed",
+      payload: {
+        visible: drawerVisible,
+      },
+    });
+  }, [drawerVisible]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "transcript-visibility-changed",
+      payload: {
+        visible: transcriptVisible,
+      },
+    });
+  }, [transcriptVisible]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "status-details-visibility-changed",
+      payload: {
+        visible: statusDetailsVisible,
+      },
+    });
+  }, [statusDetailsVisible]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "conversation-menu-visibility-changed",
+      payload: {
+        visible: conversationMenuVisible,
+      },
+    });
+  }, [conversationMenuVisible]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "memory-modal-visibility-changed",
+      payload: {
+        conversationId: memoryConversation?.id ?? null,
+        visible: memoryVisible,
+      },
+    });
+  }, [memoryConversation?.id, memoryVisible]);
+
+  useEffect(() => {
+    recordDebugLogEvent({
+      event: "setup-guide-visibility-changed",
+      payload: {
+        visible: setupGuideVisible,
+      },
+    });
+  }, [setupGuideVisible]);
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -475,8 +936,13 @@ export function MainScreen() {
       <View style={styles.defaultLayout}>
         <MainScreenTopBar
           colors={colors}
+          debugLogLabel={t("debugLogLabel")}
+          isDebugLogging={debugLogCaptureState.active}
           onOpenDrawer={() => setDrawerVisible(true)}
           onOpenSettings={() => openSettings()}
+          onToggleDebugLogging={() => {
+            void handleToggleDebugLogging("main-screen");
+          }}
         />
 
         <ScrollView
@@ -546,8 +1012,10 @@ export function MainScreen() {
         activeReplayMessageId={activeReplayMessageId}
         colors={colors}
         conversationMenuVisible={conversationMenuVisible}
+        debugLogLabel={t("debugLogLabel")}
         insets={insets}
         isActive={isActive}
+        isDebugLogging={debugLogCaptureState.active}
         metering={metering}
         messages={messages}
         onClose={closeTranscript}
@@ -582,6 +1050,9 @@ export function MainScreen() {
         signalWaveformVariant={signalWaveformVariant}
         t={t}
         toggleConversationMenu={toggleConversationMenu}
+        onToggleDebugLogging={() => {
+          void handleToggleDebugLogging("transcript-modal");
+        }}
         usageDisplay={usageDisplay}
         visualPhase={visualPhase}
         waveformInputMode={settings.inputMode}

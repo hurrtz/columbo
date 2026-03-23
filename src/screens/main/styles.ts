@@ -331,11 +331,31 @@ export const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 14,
   },
+  expandedTopBarActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
   modalTitle: {
     flex: 1,
     fontSize: 24,
     lineHeight: 28,
     fontFamily: fonts.display,
+  },
+  transcriptLogButton: {
+    minWidth: 56,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 14,
+  },
+  transcriptLogButtonText: {
+    fontSize: 11,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    fontFamily: fonts.mono,
   },
   expandedTranscriptHeader: {
     flexDirection: "row",

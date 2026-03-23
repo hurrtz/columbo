@@ -1,0 +1,378 @@
+import * as Clipboard from "expo-clipboard";
+import * as FileSystem from "expo-file-system/legacy";
+
+type DebugLogLevel = "log" | "info" | "warn" | "error";
+type DebugLogCategory = "app" | "console" | "speech" | "waveform";
+
+interface DebugLogEntry {
+  category: DebugLogCategory;
+  elapsedMs: number;
+  event: string;
+  level: DebugLogLevel;
+  payload?: Record<string, unknown>;
+  timestamp: string;
+}
+
+interface ActiveDebugLogSession {
+  entries: DebugLogEntry[];
+  finalPath: string;
+  id: string;
+  livePath: string;
+  startedAtIso: string;
+  startedAtMs: number;
+}
+
+export interface DebugLogCaptureState {
+  active: boolean;
+  entryCount: number;
+  lastExportPath: string | null;
+  sessionId: string | null;
+  startedAt: string | null;
+}
+
+export interface DebugLogCaptureResult {
+  content: string;
+  copiedToClipboard: boolean;
+  entryCount: number;
+  path: string;
+  sessionId: string;
+}
+
+export interface RecoveredDebugLogCaptureResult {
+  copiedToClipboard: boolean;
+  entryCount: number;
+  path: string;
+  sessionId: string | null;
+}
+
+const listeners = new Set<() => void>();
+const ACTIVE_CAPTURE_FILE_NAME = "debug-log-active.log";
+const FLUSH_DELAY_MS = 250;
+
+let activeSession: ActiveDebugLogSession | null = null;
+let lastExportPath: string | null = null;
+let consoleCaptureInstalled = false;
+let flushTimer: ReturnType<typeof setTimeout> | null = null;
+let writeQueue = Promise.resolve();
+
+const originalConsole = {
+  error: console.error.bind(console),
+  info: console.info.bind(console),
+  log: console.log.bind(console),
+  warn: console.warn.bind(console),
+};
+
+function notifyListeners() {
+  listeners.forEach((listener) => {
+    listener();
+  });
+}
+
+function nextSessionId() {
+  return `debug-log-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function ensureLogsDirectory() {
+  const baseDirectory = FileSystem.documentDirectory ?? FileSystem.cacheDirectory;
+
+  if (!baseDirectory) {
+    throw new Error("No writable directory available for debug logs.");
+  }
+
+  return `${baseDirectory}debug-logs/`;
+}
+
+function getActiveCapturePath() {
+  return `${ensureLogsDirectory()}${ACTIVE_CAPTURE_FILE_NAME}`;
+}
+
+function safeStringify(value: unknown) {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return JSON.stringify(String(value));
+  }
+}
+
+function formatConsoleArgs(args: unknown[]) {
+  return args
+    .map((arg) => {
+      if (typeof arg === "string") {
+        return arg;
+      }
+
+      return safeStringify(arg);
+    })
+    .join(" ");
+}
+
+function formatLogEntry(entry: DebugLogEntry) {
+  const payloadSuffix =
+    entry.payload && Object.keys(entry.payload).length > 0
+      ? ` ${safeStringify(entry.payload)}`
+      : "";
+
+  return `[${entry.timestamp}] +${entry.elapsedMs}ms [${entry.level}] [${entry.category}] ${entry.event}${payloadSuffix}`;
+}
+
+function formatDebugLogSession(
+  session: ActiveDebugLogSession,
+  endedAtIso: string,
+  endedAtMs: number,
+  status: "active" | "complete",
+) {
+  const lines = [
+    "# SchnackAI Debug Log Capture",
+    `sessionId: ${session.id}`,
+    `startedAt: ${session.startedAtIso}`,
+    `endedAt: ${endedAtIso}`,
+    `durationMs: ${Math.max(0, endedAtMs - session.startedAtMs)}`,
+    `status: ${status}`,
+    `entryCount: ${session.entries.length}`,
+    "",
+    ...session.entries.map(formatLogEntry),
+  ];
+
+  return `${lines.join("\n")}\n`;
+}
+
+function recordEntry(entry: Omit<DebugLogEntry, "elapsedMs" | "timestamp">) {
+  if (!activeSession) {
+    return;
+  }
+
+  activeSession.entries.push({
+    ...entry,
+    elapsedMs: Date.now() - activeSession.startedAtMs,
+    timestamp: new Date().toISOString(),
+  });
+
+  notifyListeners();
+  scheduleFlush();
+}
+
+function queueWrite(task: () => Promise<void>) {
+  writeQueue = writeQueue.then(task).catch(() => undefined);
+  return writeQueue;
+}
+
+function scheduleFlush() {
+  if (!activeSession || flushTimer) {
+    return;
+  }
+
+  flushTimer = setTimeout(() => {
+    flushTimer = null;
+    void flushActiveSessionToDisk();
+  }, FLUSH_DELAY_MS);
+}
+
+async function flushActiveSessionToDisk(sessionOverride?: ActiveDebugLogSession) {
+  const session = sessionOverride ?? activeSession;
+
+  if (!session) {
+    return;
+  }
+
+  const content = formatDebugLogSession(
+    session,
+    new Date().toISOString(),
+    Date.now(),
+    "active",
+  );
+
+  await queueWrite(async () => {
+    await FileSystem.makeDirectoryAsync(ensureLogsDirectory(), {
+      intermediates: true,
+    });
+    await FileSystem.writeAsStringAsync(session.livePath, content);
+  });
+}
+
+function parseSessionMetadata(content: string) {
+  const entryCountMatch = content.match(/^entryCount: (\d+)/m);
+  const sessionIdMatch = content.match(/^sessionId: (.+)$/m);
+
+  return {
+    entryCount: entryCountMatch ? Number(entryCountMatch[1]) : 0,
+    sessionId: sessionIdMatch?.[1]?.trim() ?? null,
+  };
+}
+
+export function getDebugLogCaptureState(): DebugLogCaptureState {
+  return {
+    active: activeSession !== null,
+    entryCount: activeSession?.entries.length ?? 0,
+    lastExportPath,
+    sessionId: activeSession?.id ?? null,
+    startedAt: activeSession?.startedAtIso ?? null,
+  };
+}
+
+export function subscribeToDebugLogCapture(listener: () => void) {
+  listeners.add(listener);
+
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+export function installDebugLogConsoleCapture() {
+  if (consoleCaptureInstalled) {
+    return;
+  }
+
+  consoleCaptureInstalled = true;
+
+  (["log", "info", "warn", "error"] as const).forEach((level) => {
+    const original = originalConsole[level];
+
+    console[level] = (...args: unknown[]) => {
+      original(...args);
+      recordEntry({
+        category: "console",
+        event: "console-output",
+        level,
+        payload: {
+          message: formatConsoleArgs(args),
+        },
+      });
+    };
+  });
+}
+
+export function recordDebugLogEvent(params: {
+  category?: DebugLogCategory;
+  event: string;
+  level?: DebugLogLevel;
+  payload?: Record<string, unknown>;
+}) {
+  recordEntry({
+    category: params.category ?? "app",
+    event: params.event,
+    level: params.level ?? "info",
+    payload: params.payload,
+  });
+}
+
+export function startDebugLogCapture(payload: Record<string, unknown> = {}) {
+  installDebugLogConsoleCapture();
+
+  if (activeSession) {
+    return getDebugLogCaptureState();
+  }
+
+  const directory = ensureLogsDirectory();
+  const sessionId = nextSessionId();
+
+  const nextSession: ActiveDebugLogSession = {
+    entries: [],
+    finalPath: `${directory}${sessionId}.log`,
+    id: sessionId,
+    livePath: getActiveCapturePath(),
+    startedAtIso: new Date().toISOString(),
+    startedAtMs: Date.now(),
+  };
+
+  activeSession = nextSession;
+  recordDebugLogEvent({
+    event: "capture-started",
+    payload,
+  });
+  notifyListeners();
+  void flushActiveSessionToDisk(nextSession);
+
+  return getDebugLogCaptureState();
+}
+
+export async function stopDebugLogCapture(
+  payload: Record<string, unknown> = {},
+): Promise<DebugLogCaptureResult | null> {
+  if (!activeSession) {
+    return null;
+  }
+
+  recordDebugLogEvent({
+    event: "capture-stopping",
+    payload,
+  });
+
+  const session = activeSession;
+  if (flushTimer) {
+    clearTimeout(flushTimer);
+    flushTimer = null;
+  }
+
+  await flushActiveSessionToDisk(session);
+  const endedAtIso = new Date().toISOString();
+  const endedAtMs = Date.now();
+  const content = formatDebugLogSession(session, endedAtIso, endedAtMs, "complete");
+  const path = session.finalPath;
+
+  await queueWrite(async () => {
+    await FileSystem.makeDirectoryAsync(ensureLogsDirectory(), {
+      intermediates: true,
+    });
+    await FileSystem.writeAsStringAsync(path, content);
+    await FileSystem.deleteAsync(session.livePath, { idempotent: true });
+  });
+
+  let copiedToClipboard = false;
+  try {
+    await Clipboard.setStringAsync(content);
+    copiedToClipboard = true;
+  } catch {
+    copiedToClipboard = false;
+  }
+
+  activeSession = null;
+  lastExportPath = path;
+  notifyListeners();
+
+  return {
+    content,
+    copiedToClipboard,
+    entryCount: session.entries.length,
+    path,
+    sessionId: session.id,
+  };
+}
+
+export async function recoverPendingDebugLogCapture(): Promise<RecoveredDebugLogCaptureResult | null> {
+  const livePath = getActiveCapturePath();
+  const info = await FileSystem.getInfoAsync(livePath);
+
+  if (!info.exists) {
+    return null;
+  }
+
+  const content = await FileSystem.readAsStringAsync(livePath);
+  const metadata = parseSessionMetadata(content);
+  const recoveredPath = `${ensureLogsDirectory()}recovered-${Date.now()}.log`;
+
+  await queueWrite(async () => {
+    await FileSystem.makeDirectoryAsync(ensureLogsDirectory(), {
+      intermediates: true,
+    });
+    await FileSystem.writeAsStringAsync(recoveredPath, content);
+    await FileSystem.deleteAsync(livePath, { idempotent: true });
+  });
+
+  let copiedToClipboard = false;
+  try {
+    await Clipboard.setStringAsync(content);
+    copiedToClipboard = true;
+  } catch {
+    copiedToClipboard = false;
+  }
+
+  lastExportPath = recoveredPath;
+  notifyListeners();
+
+  return {
+    copiedToClipboard,
+    entryCount: metadata.entryCount,
+    path: recoveredPath,
+    sessionId: metadata.sessionId,
+  };
+}

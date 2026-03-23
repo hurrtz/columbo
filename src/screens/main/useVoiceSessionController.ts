@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from "react";
+import { recordDebugLogEvent } from "../../services/debugLogCapture";
 
 import { useVoiceCaptureLifecycle } from "./voiceSession/useVoiceCaptureLifecycle";
 import { useVoiceSessionAppState } from "./voiceSession/useVoiceSessionAppState";
@@ -106,6 +107,15 @@ export function useVoiceSessionController<Snapshot>({
   }, [recorder, showToast]);
 
   const handlePressIn = useCallback(async () => {
+    recordDebugLogEvent({
+      event: "voice-session-press-in",
+      payload: {
+        isBusy,
+        isRecording,
+        playerIsPlaying: player.isPlaying,
+      },
+    });
+
     if (player.isPlaying) {
       await cancelCurrentInteraction({ rollbackConversation: false });
       return;
@@ -125,6 +135,13 @@ export function useVoiceSessionController<Snapshot>({
     } catch (error) {
       const message =
         error instanceof Error ? error.message : t("couldntStartVoiceInput");
+      recordDebugLogEvent({
+        event: "voice-session-start-failed",
+        level: "error",
+        payload: {
+          message,
+        },
+      });
       showToast(message);
     }
   }, [
@@ -138,16 +155,39 @@ export function useVoiceSessionController<Snapshot>({
   ]);
 
   const handlePressOut = useCallback(async () => {
+    recordDebugLogEvent({
+      event: "voice-session-press-out",
+      payload: {
+        isRecording,
+      },
+    });
+
     try {
       await stopVoiceCapture();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : t("couldntProcessVoiceInput");
+      recordDebugLogEvent({
+        event: "voice-session-stop-failed",
+        level: "error",
+        payload: {
+          message,
+        },
+      });
       showToast(message);
     }
   }, [showToast, stopVoiceCapture, t]);
 
   const handleTogglePress = useCallback(async () => {
+    recordDebugLogEvent({
+      event: "voice-session-toggle-press",
+      payload: {
+        isBusy,
+        isRecording,
+        playerIsPlaying: player.isPlaying,
+      },
+    });
+
     if (
       !isRecording &&
       !player.isPlaying &&
@@ -181,6 +221,14 @@ export function useVoiceSessionController<Snapshot>({
           : isRecording
             ? t("couldntProcessVoiceInput")
             : t("couldntStartVoiceInput");
+      recordDebugLogEvent({
+        event: "voice-session-toggle-failed",
+        level: "error",
+        payload: {
+          isRecording,
+          message,
+        },
+      });
       showToast(message);
     }
   }, [
@@ -196,6 +244,15 @@ export function useVoiceSessionController<Snapshot>({
   ]);
 
   const resetVoiceSessionState = useCallback(async () => {
+    recordDebugLogEvent({
+      event: "voice-session-reset-requested",
+      payload: {
+        isRecording,
+        playerIsPlaying: player.isPlaying,
+        sttMode: settings.sttMode,
+      },
+    });
+
     resetPipelineState();
     lastCompletedReplyRef.current = "";
     resetVoiceTurnSnapshots();

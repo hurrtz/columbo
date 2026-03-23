@@ -1,5 +1,6 @@
 import { useCallback, useRef } from "react";
 
+import { recordDebugLogEvent } from "../../services/debugLogCapture";
 import { runVoicePipeline } from "../../services/voicePipeline";
 import type { UsageEstimate } from "../../types";
 import type { PipelinePhase, UseVoicePipelineParams } from "./types";
@@ -58,6 +59,14 @@ export function useVoiceCaptureHandler({
       audioUri?: string;
       transcriptionOverride?: string;
     }) => {
+      recordDebugLogEvent({
+        event: "voice-pipeline-handle-capture-start",
+        payload: {
+          hasAudioUri: !!audioUri,
+          hasTranscriptionOverride: !!transcriptionOverride,
+          ttsMode,
+        },
+      });
       setPipelinePhase(transcriptionOverride ? "thinking" : "transcribing");
       setStreamingText("");
       ttsFallbackToastShownRef.current = false;
@@ -93,6 +102,12 @@ export function useVoiceCaptureHandler({
           abortSignal: abortRef.current!.signal,
           callbacks: {
             onTranscription: (text) => {
+              recordDebugLogEvent({
+                event: "voice-pipeline-transcription-ready",
+                payload: {
+                  textLength: text.trim().length,
+                },
+              });
               setPipelinePhase("thinking");
               if (!activeConversation) {
                 createConversation(text, model, provider);
@@ -107,6 +122,14 @@ export function useVoiceCaptureHandler({
               }, 0);
             },
             onContextSummary: (summary, summarizedCount, usage) => {
+              recordDebugLogEvent({
+                event: "voice-pipeline-context-summary-updated",
+                payload: {
+                  summarizedCount,
+                  summaryLength: summary.trim().length,
+                  totalTokens: usage?.totalTokens ?? null,
+                },
+              });
               updateConversationContextSummary(
                 summary,
                 summarizedCount,
@@ -116,10 +139,23 @@ export function useVoiceCaptureHandler({
               );
             },
             onChunk: (text) => {
+              recordDebugLogEvent({
+                event: "voice-pipeline-stream-chunk",
+                payload: {
+                  chunkLength: text.length,
+                },
+              });
               setPipelinePhase("thinking");
               setStreamingText((prev) => prev + text);
             },
             onResponseDone: (fullText, usage?: UsageEstimate) => {
+              recordDebugLogEvent({
+                event: "voice-pipeline-response-done",
+                payload: {
+                  textLength: fullText.trim().length,
+                  totalTokens: usage?.totalTokens ?? null,
+                },
+              });
               setStreamingText("");
               setPipelinePhase(ttsMode === "native" ? "speaking" : "synthesizing");
               lastCompletedReplyRef.current = fullText;
@@ -132,16 +168,37 @@ export function useVoiceCaptureHandler({
               });
             },
             onAudioReady: (audioData, diagnostics) => {
+              recordDebugLogEvent({
+                event: "voice-pipeline-audio-ready",
+                payload: {
+                  requestId: diagnostics?.requestId ?? null,
+                  uri: audioData,
+                },
+              });
               setPipelinePhase("speaking");
               player.enqueueAudio(audioData, diagnostics);
             },
             onSpeechTextReady: (text, _voice, diagnostics) => {
+              recordDebugLogEvent({
+                event: "voice-pipeline-speech-text-ready",
+                payload: {
+                  requestId: diagnostics?.requestId ?? null,
+                  textLength: text.trim().length,
+                },
+              });
               setPipelinePhase("speaking");
               player.speakText(text, {
                 diagnostics,
               });
             },
             onTtsFallback: () => {
+              recordDebugLogEvent({
+                event: "voice-pipeline-tts-fallback",
+                level: "warn",
+                payload: {
+                  ttsMode,
+                },
+              });
               if (ttsFallbackToastShownRef.current) {
                 return;
               }
@@ -154,6 +211,15 @@ export function useVoiceCaptureHandler({
               );
             },
             onError: async (error) => {
+              recordDebugLogEvent({
+                event: "voice-pipeline-error",
+                level: "error",
+                payload: {
+                  hasAudioUri: !!audioUri,
+                  hasTranscriptionOverride: !!transcriptionOverride,
+                  message: error.message,
+                },
+              });
               await player.stopPlayback();
               setPipelinePhase("idle");
               const retryAction = lastCompletedReplyRef.current.trim()
@@ -173,17 +239,42 @@ export function useVoiceCaptureHandler({
         });
 
         if (!transcription) {
+          recordDebugLogEvent({
+            event: "voice-pipeline-no-transcription",
+            level: "warn",
+          });
           showToast(t("couldntCatchThatTryAgain"));
         }
       } catch (error) {
         if (abortRef.current?.signal.aborted) {
+          recordDebugLogEvent({
+            event: "voice-pipeline-aborted",
+            payload: {
+              hasAudioUri: !!audioUri,
+              hasTranscriptionOverride: !!transcriptionOverride,
+            },
+          });
           return;
         }
 
+        recordDebugLogEvent({
+          event: "voice-pipeline-catch-error",
+          level: "error",
+          payload: {
+            message:
+              error instanceof Error ? error.message : t("couldntProcessVoiceInput"),
+          },
+        });
         showToast(
           error instanceof Error ? error.message : t("couldntProcessVoiceInput"),
         );
       } finally {
+        recordDebugLogEvent({
+          event: "voice-pipeline-finalizing",
+          payload: {
+            hasPendingPlayback: player.hasPendingPlaybackNow(),
+          },
+        });
         if (player.hasPendingPlaybackNow()) {
           setPipelinePhase("speaking");
         }
@@ -192,6 +283,12 @@ export function useVoiceCaptureHandler({
           await player.waitForDrain();
         }
         setPipelinePhase("idle");
+        recordDebugLogEvent({
+          event: "voice-pipeline-finished",
+          payload: {
+            finalPhase: "idle",
+          },
+        });
       }
     },
     [

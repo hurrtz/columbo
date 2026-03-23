@@ -1,4 +1,5 @@
 import type { TtsBackendMode, TtsListenLanguage } from "../../types";
+import { recordDebugLogEvent } from "../debugLogCapture";
 
 export type SpeechDiagnosticSource =
   | "conversation"
@@ -93,6 +94,23 @@ export function recordSpeechDiagnostic(
     MAX_SPEECH_DIAGNOSTICS,
   );
   notifySpeechDiagnosticsListeners();
+  recordDebugLogEvent({
+    category: "speech",
+    event: entry.stage,
+    level: entry.stage === "tts-failed" ? "warn" : "info",
+    payload: {
+      actualRoute: entry.actualRoute ?? null,
+      fallbackReason: entry.fallbackReason ?? null,
+      language: entry.language ?? null,
+      message: entry.message ?? null,
+      provider: entry.provider ?? null,
+      requestId: entry.requestId ?? null,
+      requestedRoute: entry.requestedRoute ?? null,
+      source: entry.source,
+      textLength: entry.textLength ?? null,
+      voice: entry.voice ?? null,
+    },
+  });
 
   if (
     typeof __DEV__ !== "undefined" &&

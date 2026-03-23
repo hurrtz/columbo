@@ -209,6 +209,17 @@ export const en: TranslationDictionary = {
       `Add your ${provider} API key in Settings to use this provider.`,
     speechRecognitionUnavailableOnDevice:
       "Speech recognition is unavailable on this device.",
+    debugLogLabel: "LOG",
+    debugLogCaptureStarted: "Debug logging started.",
+    debugLogCaptureStopped: ({ entryCount, fileName }) =>
+      `Debug log saved as ${fileName} and copied to the clipboard (${entryCount} entries).`,
+    debugLogCaptureStoppedNoClipboard: ({ entryCount, fileName }) =>
+      `Debug log saved as ${fileName} (${entryCount} entries).`,
+    debugLogCaptureRecovered: ({ entryCount, fileName }) =>
+      `Recovered previous debug log ${fileName} and copied it to the clipboard (${entryCount} entries).`,
+    debugLogCaptureRecoveredNoClipboard: ({ entryCount, fileName }) =>
+      `Recovered previous debug log ${fileName} (${entryCount} entries).`,
+    debugLogCaptureFailed: "Couldn't save the debug log.",
     chooseSttBeforeVoiceSession:
       "Choose an enabled STT provider in Settings before starting a voice session.",
     chooseTtsBeforeSpokenReplies:
@@ -425,4 +436,3 @@ export const en: TranslationDictionary = {
       "Couldn't start native speech recognition.",
     microphonePermissionNotGranted: "Microphone permission not granted",
   }
-

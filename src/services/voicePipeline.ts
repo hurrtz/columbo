@@ -1,5 +1,6 @@
 import { streamChat } from "./llm";
 import type { Message } from "../types";
+import { recordDebugLogEvent } from "./debugLogCapture";
 import { cleanupCapturedAudio } from "./voicePipeline/cleanup";
 import { resolveContextualMessages } from "./voicePipeline/context";
 import { createVoicePipelineTtsQueue } from "./voicePipeline/ttsQueue";
@@ -41,6 +42,17 @@ export async function runVoicePipeline(
   let transcription: string | null = null;
 
   try {
+    recordDebugLogEvent({
+      event: "voice-pipeline-run-start",
+      payload: {
+        hasAudioUri: !!audioUri,
+        hasTranscriptionOverride: !!transcriptionOverride,
+        replyPlayback,
+        sttMode,
+        ttsMode,
+      },
+    });
+
     transcription = await resolvePipelineTranscription({
       abortSignal,
       audioUri,
@@ -52,11 +64,27 @@ export async function runVoicePipeline(
       transcriptionOverride,
     });
 
-    if (!transcription) return null;
-    if (abortSignal?.aborted) return transcription;
+    if (!transcription) {
+      recordDebugLogEvent({
+        event: "voice-pipeline-run-empty-transcription",
+        level: "warn",
+      });
+      return null;
+    }
+    if (abortSignal?.aborted) {
+      recordDebugLogEvent({
+        event: "voice-pipeline-run-aborted-after-transcription",
+      });
+      return transcription;
+    }
 
     callbacks.onTranscription(transcription);
-    if (abortSignal?.aborted) return transcription;
+    if (abortSignal?.aborted) {
+      recordDebugLogEvent({
+        event: "voice-pipeline-run-aborted-after-onTranscription",
+      });
+      return transcription;
+    }
 
     const contextResult = await resolveContextualMessages({
       abortSignal,
@@ -71,6 +99,9 @@ export async function runVoicePipeline(
     });
 
     if (contextResult.aborted) {
+      recordDebugLogEvent({
+        event: "voice-pipeline-run-context-aborted",
+      });
       return transcription;
     }
 
@@ -121,8 +152,20 @@ export async function runVoicePipeline(
       },
       onError: callbacks.onError,
     });
+    recordDebugLogEvent({
+      event: "voice-pipeline-run-complete",
+      payload: {
+        textLength: transcription.trim().length,
+      },
+    });
     return transcription;
   } finally {
+    recordDebugLogEvent({
+      event: "voice-pipeline-run-cleanup",
+      payload: {
+        hadAudioUri: !!audioUri,
+      },
+    });
     await cleanupCapturedAudio(audioUri);
   }
 }

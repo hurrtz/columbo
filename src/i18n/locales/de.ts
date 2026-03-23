@@ -211,6 +211,17 @@ export const de: TranslationDictionary = {
       `Füge in den Einstellungen deinen API-Schlüssel für ${provider} hinzu, um diesen Anbieter zu nutzen.`,
     speechRecognitionUnavailableOnDevice:
       "Spracherkennung ist auf diesem Gerät nicht verfügbar.",
+    debugLogLabel: "LOG",
+    debugLogCaptureStarted: "Debug-Logging gestartet.",
+    debugLogCaptureStopped: ({ entryCount, fileName }) =>
+      `Debug-Log als ${fileName} gespeichert und in die Zwischenablage kopiert (${entryCount} Einträge).`,
+    debugLogCaptureStoppedNoClipboard: ({ entryCount, fileName }) =>
+      `Debug-Log als ${fileName} gespeichert (${entryCount} Einträge).`,
+    debugLogCaptureRecovered: ({ entryCount, fileName }) =>
+      `Vorheriges Debug-Log ${fileName} wiederhergestellt und in die Zwischenablage kopiert (${entryCount} Einträge).`,
+    debugLogCaptureRecoveredNoClipboard: ({ entryCount, fileName }) =>
+      `Vorheriges Debug-Log ${fileName} wiederhergestellt (${entryCount} Einträge).`,
+    debugLogCaptureFailed: "Das Debug-Log konnte nicht gespeichert werden.",
     chooseSttBeforeVoiceSession:
       "Wähle in den Einstellungen einen aktivierten STT-Anbieter, bevor du eine Sprachsitzung startest.",
     chooseTtsBeforeSpokenReplies:
@@ -439,4 +450,3 @@ export const de: TranslationDictionary = {
     microphonePermissionNotGranted:
       "Berechtigung für das Mikrofon wurde nicht erteilt",
   }
-

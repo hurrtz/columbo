@@ -25,6 +25,7 @@ import {
   stopNativeWaveformRecording,
   subscribeToNativeWaveform,
 } from "../services/nativeWaveform";
+import { recordDebugLogEvent } from "../services/debugLogCapture";
 
 export interface RecorderState {
   isRecording: boolean;
@@ -89,6 +90,14 @@ export function useAudioRecorder() {
     }
 
     return subscribeToNativeWaveform((event) => {
+      recordDebugLogEvent({
+        event: "native-waveform-event",
+        payload: {
+          sessionId: "sessionId" in event ? event.sessionId : null,
+          type: event.type,
+        },
+      });
+
       if (
         event.type === "error" &&
         nativeSessionIdRef.current &&
@@ -154,8 +163,21 @@ export function useAudioRecorder() {
   ]);
 
   const startRecording = useCallback(async () => {
+    recordDebugLogEvent({
+      event: "recorder-start-requested",
+      payload: {
+        recorderRoute: usingNativeRecorder ? "native-waveform" : "expo-audio",
+      },
+    });
+
     if (usingNativeRecorder) {
       if (nativeRecording) {
+        recordDebugLogEvent({
+          event: "recorder-start-skipped",
+          payload: {
+            reason: "native-recorder-already-active",
+          },
+        });
         return;
       }
 
@@ -178,15 +200,37 @@ export function useAudioRecorder() {
         await startNativeWaveformRecording({ sessionId });
         startTimeRef.current = Date.now();
         setNativeRecording(true);
+        recordDebugLogEvent({
+          event: "recorder-started",
+          payload: {
+            recorderRoute: "native-waveform",
+            sessionId,
+          },
+        });
       } catch (error) {
         nativeSessionIdRef.current = null;
         setNativeRecording(false);
+        recordDebugLogEvent({
+          event: "recorder-start-failed",
+          level: "error",
+          payload: {
+            message: error instanceof Error ? error.message : String(error),
+            recorderRoute: "native-waveform",
+            sessionId,
+          },
+        });
         throw error;
       }
       return;
     }
 
     if (recorderState.isRecording) {
+      recordDebugLogEvent({
+        event: "recorder-start-skipped",
+        payload: {
+          reason: "expo-recorder-already-active",
+        },
+      });
       return;
     }
 
@@ -199,12 +243,31 @@ export function useAudioRecorder() {
     await recorder.prepareToRecordAsync(RECORDING_OPTIONS);
     recorder.record();
     startTimeRef.current = Date.now();
+    recordDebugLogEvent({
+      event: "recorder-started",
+      payload: {
+        recorderRoute: "expo-audio",
+      },
+    });
   }, [nativeRecording, recorder, recorderState.isRecording, t, usingNativeRecorder]);
 
   const stopRecording = useCallback(async (): Promise<string | null> => {
+    recordDebugLogEvent({
+      event: "recorder-stop-requested",
+      payload: {
+        recorderRoute: usingNativeRecorder ? "native-waveform" : "expo-audio",
+      },
+    });
+
     if (usingNativeRecorder) {
       const sessionId = nativeSessionIdRef.current;
       if (!sessionId) {
+        recordDebugLogEvent({
+          event: "recorder-stop-skipped",
+          payload: {
+            reason: "missing-native-session-id",
+          },
+        });
         return null;
       }
 
@@ -219,6 +282,15 @@ export function useAudioRecorder() {
           setNativeMeteringData(-160);
           setWaveformData(EMPTY_OSCILLOSCOPE_SAMPLES);
           startTimeRef.current = 0;
+          recordDebugLogEvent({
+            event: "recorder-stop-discarded",
+            payload: {
+              durationMs: duration,
+              recorderRoute: "native-waveform",
+              reason: "recording-too-short",
+              sessionId,
+            },
+          });
           return null;
         }
 
@@ -230,9 +302,27 @@ export function useAudioRecorder() {
         startTimeRef.current = 0;
 
         if (result.uri) {
+          recordDebugLogEvent({
+            event: "recorder-stop-succeeded",
+            payload: {
+              durationMs: duration,
+              recorderRoute: "native-waveform",
+              sessionId,
+              uri: result.uri,
+            },
+          });
           return result.uri;
         }
 
+        recordDebugLogEvent({
+          event: "recorder-stop-missing-uri",
+          level: "warn",
+          payload: {
+            durationMs: duration,
+            recorderRoute: "native-waveform",
+            sessionId,
+          },
+        });
         throw new Error(t("couldntProcessVoiceInput"));
       } catch (error) {
         inputReferenceLevelRef.current = INPUT_WAVEFORM_REFERENCE_FLOOR;
@@ -240,6 +330,16 @@ export function useAudioRecorder() {
         setNativeMeteringData(-160);
         setWaveformData(EMPTY_OSCILLOSCOPE_SAMPLES);
         startTimeRef.current = 0;
+        recordDebugLogEvent({
+          event: "recorder-stop-failed",
+          level: "error",
+          payload: {
+            durationMs: duration,
+            message: error instanceof Error ? error.message : String(error),
+            recorderRoute: "native-waveform",
+            sessionId,
+          },
+        });
         throw error;
       }
     }
@@ -251,6 +351,12 @@ export function useAudioRecorder() {
       !recorderState.canRecord &&
       !statusBeforeStop.canRecord
     ) {
+      recordDebugLogEvent({
+        event: "recorder-stop-skipped",
+        payload: {
+          reason: "expo-recorder-not-ready",
+        },
+      });
       return null;
     }
 
@@ -259,15 +365,39 @@ export function useAudioRecorder() {
     startTimeRef.current = 0;
 
     if (duration < 300) {
+      recordDebugLogEvent({
+        event: "recorder-stop-discarded",
+        payload: {
+          durationMs: duration,
+          recorderRoute: "expo-audio",
+          reason: "recording-too-short",
+        },
+      });
       return null;
     }
 
     const resolvedUri = await resolveStoppedRecordingUri();
 
     if (resolvedUri) {
+      recordDebugLogEvent({
+        event: "recorder-stop-succeeded",
+        payload: {
+          durationMs: duration,
+          recorderRoute: "expo-audio",
+          uri: resolvedUri,
+        },
+      });
       return resolvedUri;
     }
 
+    recordDebugLogEvent({
+      event: "recorder-stop-missing-uri",
+      level: "warn",
+      payload: {
+        durationMs: duration,
+        recorderRoute: "expo-audio",
+      },
+    });
     throw new Error(t("couldntProcessVoiceInput"));
   }, [
     recorder,

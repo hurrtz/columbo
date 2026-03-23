@@ -1,4 +1,5 @@
 import { useCallback, useRef } from "react";
+import { recordDebugLogEvent } from "../../../services/debugLogCapture";
 
 import type {
   AudioPlayerController,
@@ -27,7 +28,20 @@ export function useVoiceCaptureLifecycle({
   const recordingStartedRef = useRef<Promise<void> | null>(null);
 
   const startVoiceCapture = useCallback(async () => {
+    recordDebugLogEvent({
+      event: "voice-capture-start-requested",
+      payload: {
+        sttMode,
+      },
+    });
+
     await player.waitForPlaybackRouteSettle();
+    recordDebugLogEvent({
+      event: "voice-capture-route-settled",
+      payload: {
+        sttMode,
+      },
+    });
 
     const startPromise =
       sttMode === "native"
@@ -38,6 +52,12 @@ export function useVoiceCaptureLifecycle({
 
     try {
       await startPromise;
+      recordDebugLogEvent({
+        event: "voice-capture-started",
+        payload: {
+          sttMode,
+        },
+      });
     } finally {
       if (recordingStartedRef.current === startPromise) {
         recordingStartedRef.current = null;
@@ -46,12 +66,27 @@ export function useVoiceCaptureLifecycle({
   }, [nativeStt, player, recorder, sttMode]);
 
   const stopVoiceCapture = useCallback(async () => {
+    recordDebugLogEvent({
+      event: "voice-capture-stop-requested",
+      payload: {
+        sttMode,
+      },
+    });
+
     const startPromise = recordingStartedRef.current;
 
     if (startPromise) {
       try {
         await startPromise;
       } catch {
+        recordDebugLogEvent({
+          event: "voice-capture-stop-aborted",
+          level: "warn",
+          payload: {
+            reason: "start-promise-rejected",
+            sttMode,
+          },
+        });
         return;
       } finally {
         if (recordingStartedRef.current === startPromise) {
@@ -64,7 +99,22 @@ export function useVoiceCaptureLifecycle({
       const transcription = await nativeStt.stopRecognition();
 
       if (transcription) {
+        recordDebugLogEvent({
+          event: "voice-capture-transcription-ready",
+          payload: {
+            sttMode,
+            textLength: transcription.trim().length,
+          },
+        });
         void processCapturedVoiceTurn({ transcriptionOverride: transcription });
+      } else {
+        recordDebugLogEvent({
+          event: "voice-capture-transcription-missing",
+          level: "warn",
+          payload: {
+            sttMode,
+          },
+        });
       }
 
       return;
@@ -73,7 +123,22 @@ export function useVoiceCaptureLifecycle({
     const uri = await recorder.stopRecording();
 
     if (uri) {
+      recordDebugLogEvent({
+        event: "voice-capture-audio-ready",
+        payload: {
+          sttMode,
+          uri,
+        },
+      });
       void processCapturedVoiceTurn({ audioUri: uri });
+    } else {
+      recordDebugLogEvent({
+        event: "voice-capture-audio-missing",
+        level: "warn",
+        payload: {
+          sttMode,
+        },
+      });
     }
   }, [nativeStt, processCapturedVoiceTurn, recorder, sttMode]);
 

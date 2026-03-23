@@ -1,5 +1,6 @@
 import { useCallback, useRef } from "react";
 
+import { recordDebugLogEvent } from "../../services/debugLogCapture";
 import type { SpeechDiagnosticsContext } from "../../services/speech/diagnostics";
 import { createSpeechRequestId } from "../../services/speech/diagnostics";
 import { getLocalTtsInstallStatus } from "../../services/localTts";
@@ -72,6 +73,22 @@ export function usePreviewVoiceController({
         return;
       }
 
+      const previewLanguage =
+        request.mode === "provider"
+          ? request.previewLanguage
+          : request.mode === "local"
+            ? request.localLanguage
+            : null;
+
+      recordDebugLogEvent({
+        event: "voice-preview-requested",
+        payload: {
+          mode: request.mode,
+          previewLanguage,
+          textLength: trimmed.length,
+        },
+      });
+
       const previewSessionId = previewSessionRef.current + 1;
       previewSessionRef.current = previewSessionId;
       previewAbortRef.current?.abort();
@@ -108,6 +125,12 @@ export function usePreviewVoiceController({
           });
           callbacks?.onPlaybackStarted?.();
           await player.waitForDrain();
+          recordDebugLogEvent({
+            event: "voice-preview-finished",
+            payload: {
+              mode: request.mode,
+            },
+          });
           return;
         }
 
@@ -140,6 +163,13 @@ export function usePreviewVoiceController({
           player.enqueueAudio(audioUri, speechDiagnostics);
           callbacks?.onPlaybackStarted?.();
           await player.waitForDrain();
+          recordDebugLogEvent({
+            event: "voice-preview-finished",
+            payload: {
+              mode: request.mode,
+              route: "provider-audio",
+            },
+          });
           return;
         }
 
@@ -190,6 +220,13 @@ export function usePreviewVoiceController({
         player.enqueueAudio(audioUri, speechDiagnostics);
         callbacks?.onPlaybackStarted?.();
         await player.waitForDrain();
+        recordDebugLogEvent({
+          event: "voice-preview-finished",
+          payload: {
+            mode: request.mode,
+            route: "local-audio",
+          },
+        });
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
           return;
@@ -201,6 +238,14 @@ export function usePreviewVoiceController({
 
         const message =
           error instanceof Error ? error.message : t("couldntPreviewVoice");
+        recordDebugLogEvent({
+          event: "voice-preview-failed",
+          level: "error",
+          payload: {
+            message,
+            mode: request.mode,
+          },
+        });
         showToast(message);
       } finally {
         if (previewAbortRef.current === previewAbortController) {
@@ -224,6 +269,9 @@ export function usePreviewVoiceController({
   );
 
   const stopPreviewVoice = useCallback(async () => {
+    recordDebugLogEvent({
+      event: "voice-preview-stop-requested",
+    });
     previewSessionRef.current += 1;
     previewAbortRef.current?.abort();
     previewAbortRef.current = null;

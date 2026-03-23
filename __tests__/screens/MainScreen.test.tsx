@@ -25,6 +25,20 @@ jest.mock("expo-status-bar", () => ({
   StatusBar: () => null,
 }));
 
+jest.mock("expo-clipboard", () => ({
+  setStringAsync: jest.fn(async () => undefined),
+}));
+
+jest.mock("expo-file-system/legacy", () => ({
+  cacheDirectory: "file:///tmp/",
+  documentDirectory: "file:///tmp/",
+  deleteAsync: jest.fn(async () => undefined),
+  getInfoAsync: jest.fn(async () => ({ exists: false })),
+  makeDirectoryAsync: jest.fn(async () => undefined),
+  readAsStringAsync: jest.fn(async () => ""),
+  writeAsStringAsync: jest.fn(async () => undefined),
+}));
+
 jest.mock("../../src/context/SettingsContext", () => ({
   useSharedSettings: jest.fn(() => ({
     settings: require("../../src/types").DEFAULT_SETTINGS,

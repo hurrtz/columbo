@@ -1,7 +1,15 @@
+import { recordDebugLogEvent } from "../services/debugLogCapture";
+
 export function logWaveformDebug(
   event: string,
   payload: Record<string, unknown> = {},
 ) {
+  recordDebugLogEvent({
+    category: "waveform",
+    event,
+    payload,
+  });
+
   if (
     typeof __DEV__ === "undefined" ||
     !__DEV__ ||
