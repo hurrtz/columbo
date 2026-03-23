@@ -9,7 +9,7 @@ import {
   estimateMessageTokens,
   estimateTextTokens,
 } from "../services/conversationContext";
-import { PRICING_ASSUMPTIONS } from "../constants/usagePricing";
+import { findPricingAssumption } from "../constants/usagePricing";
 
 export interface ConversationUsageTotals {
   promptTokens: number;
@@ -35,11 +35,7 @@ export interface ConversationUsageRouteTotals {
 }
 
 function findPricing(provider: Provider, model: string) {
-  const matcher = PRICING_ASSUMPTIONS.find(
-    (entry) => entry.provider === provider && entry.modelPattern.test(model),
-  );
-
-  return matcher ?? null;
+  return findPricingAssumption(provider, model);
 }
 
 function tokensToUsd(tokens: number, usdPerMillion: number) {

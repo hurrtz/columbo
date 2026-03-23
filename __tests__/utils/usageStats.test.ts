@@ -48,6 +48,43 @@ describe("usageStats", () => {
     expect(usage.totalCostUsd).toBeNull();
   });
 
+  it("uses exact catalog pricing for models outside the manual assumptions list", () => {
+    const usage = estimateChatUsage({
+      provider: "mistral",
+      model: "mistral-medium-2508",
+      kind: "reply",
+      systemPrompt: "You are helpful.",
+      messages: [
+        {
+          role: "user",
+          content: "Summarize orbital rendezvous in plain English.",
+        },
+      ],
+      completionText:
+        "Two spacecraft meet by carefully matching their orbit and timing.",
+    });
+
+    expect(usage.totalCostUsd).not.toBeNull();
+  });
+
+  it("keeps pricing for alias-based picker models via safe fallbacks", () => {
+    const usage = estimateChatUsage({
+      provider: "mistral",
+      model: "mistral-medium-latest",
+      kind: "reply",
+      systemPrompt: "You are helpful.",
+      messages: [
+        {
+          role: "user",
+          content: "What is a transfer orbit?",
+        },
+      ],
+      completionText: "It is a path used to move from one orbit to another.",
+    });
+
+    expect(usage.totalCostUsd).not.toBeNull();
+  });
+
   it("aggregates message usage and summary events per conversation", () => {
     const totals = aggregateConversationUsage({
       messages: [
