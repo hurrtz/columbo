@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "rev-ai",
+  "providerName": "Rev.ai",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "service": "stt",
+  "publicName": "Reverb Turbo / Low Cost",
+  "modelId": "low_cost",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Mostly exhaustive",
+  "catalogScopeId": "mostly-exhaustive",
+  "pricingSummary": "Speech pricing varies by deployment/model; human transcription is priced separately from ASR.",
+  "limitsSummary": "Multipart uploads <2 GB. Many languages allow up to ~17h file duration; Telugu noted lower (~6h).",
+  "regionSummary": "US and EU deployment options exist.",
+  "languagesSummary": "Broad multilingual support; exact matrix is model/deployment dependent.",
+  "notes": "US deployment naming",
+  "officialSources": [
+    "https://docs.rev.ai/",
+    "https://www.rev.ai/pricing",
+    "https://www.rev.ai/"
+  ],
+  "derived": {
+    "openAiCompatible": null,
+    "supportsRealtime": true,
+    "supportsBatch": true,
+    "priceMeasurements": [],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": "Broad multilingual support; exact matrix is model/deployment dependent.",
+      "isMultilingual": true,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "resemble-ai",
+  "providerName": "Resemble AI",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "hq": "CA",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✗",
+    "tts": "✓",
+    "stt": "✗",
+    "notes": "TTS with deepfake detection. Voice cloning, on-prem deployment. Enterprise security focus."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Changed",
+    "catalogType": "Speech-first platform",
+    "catalogTypeId": "speech-first-platform",
+    "coverage": "Mostly exhaustive",
+    "coverageId": "mostly-exhaustive",
+    "activeModelsSummary": {
+      "llm": null,
+      "tts": "Chatterbox [tts-v4]\nChatterbox Turbo [tts-v4-turbo]\nChatterbox Multilingual [tts-v4] — Multilingual variant",
+      "stt": "Resemble STT [stt]\nSpeech-to-Speech / Voice Changer [speech-to-speech] — Adjacency feature"
+    },
+    "priceRangeSummary": "Examples: TTS ~$0.0005/sec, voice agents ~$0.001/sec, voice changer ~$0.0005/sec. Start-free/onboarding access exists.",
+    "limitsSummary": "STT files up to ~500 MB and ~20 min. WebSocket streaming on Business+; ~20 simultaneous sessions and ~20 parallel connections/API key in docs reviewed.",
+    "regionSummary": "Cloud plus enterprise/on-prem options.",
+    "ttsLanguagesSummary": "23 languages for multilingual Chatterbox.",
+    "sttLanguagesSummary": "Public STT exists; verify exact language matrix live.",
+    "freeTierSummary": "Yes: start-free style onboarding.",
+    "appIntegrationNotes": "Your sheet is outdated: Resemble is not just TTS anymore; it also has STT and speech-to-speech tooling.",
+    "officialSources": [
+      "https://app.resemble.ai/docs",
+      "https://www.resemble.ai/pricing",
+      "https://www.resemble.ai/"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 2,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": null,
+    "protocols": [],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/resemble-ai/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/resemble-ai/models/stt--stt.json",
+      "data/provider-catalog/providers/resemble-ai/models/stt--speech-to-speech.json",
+      "data/provider-catalog/providers/resemble-ai/models/tts--tts-v4.json",
+      "data/provider-catalog/providers/resemble-ai/models/tts--tts-v4--chatterbox-multilingual.json",
+      "data/provider-catalog/providers/resemble-ai/models/tts--tts-v4-turbo.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "stt",
+      "modelId": "stt",
+      "publicName": "Resemble STT",
+      "documentPath": "data/provider-catalog/providers/resemble-ai/models/stt--stt.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "speech-to-speech",
+      "publicName": "Speech-to-Speech / Voice Changer",
+      "documentPath": "data/provider-catalog/providers/resemble-ai/models/stt--speech-to-speech.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "tts-v4",
+      "publicName": "Chatterbox",
+      "documentPath": "data/provider-catalog/providers/resemble-ai/models/tts--tts-v4.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "tts-v4",
+      "publicName": "Chatterbox Multilingual",
+      "documentPath": "data/provider-catalog/providers/resemble-ai/models/tts--tts-v4--chatterbox-multilingual.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "tts-v4-turbo",
+      "publicName": "Chatterbox Turbo",
+      "documentPath": "data/provider-catalog/providers/resemble-ai/models/tts--tts-v4-turbo.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "49. Resemble AI (Canada) — TTS ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 49. Resemble AI (Canada) — TTS ✓\n\n**Status:** Active. Voice cloning + deepfake detection focus.\n\nChatterbox models (HD: ~$40/1M chars). **60+ languages** (23 for multilingual Chatterbox). Open-source (MIT). Zero-shot voice cloning. PerTh watermarking. Deepfake detection (DETECT-3B). On-premises available. Free plan available.",
+    "extractedBlocks": {},
+    "openAiCompatible": null,
+    "protocols": []
+  }
+}

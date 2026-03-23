@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "bytedance-doubao-seed",
+  "providerName": "ByteDance (Doubao/Seed)",
+  "categoryId": "chinese-providers",
+  "categoryName": "Chinese Providers",
+  "service": "tts",
+  "publicName": "Volcano Engine Voice Tech TTS",
+  "modelId": "voice-tech-tts",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Dynamic/non-exhaustive",
+  "catalogScopeId": "dynamic-non-exhaustive",
+  "pricingSummary": "Pricing varies across Doubao/Voice Tech product lines; official calculators are service-specific.",
+  "limitsSummary": "Volcano Engine splits capability across LLM, voice-tech, and realtime speech APIs. Exact model IDs are less uniform than western API catalogs.",
+  "regionSummary": "Primarily China/Asia infrastructure; exact region availability varies by Volcano Engine product.",
+  "languagesSummary": "Broad speech/TTS offering, especially for Chinese; multilingual availability exists but is product-specific.",
+  "notes": "Technically a full stack provider, but integration is fragmented across product surfaces. Plan for extra onboarding effort.",
+  "officialSources": [
+    "https://www.volcengine.com/",
+    "https://www.volcengine.com/product/doubao",
+    "https://www.volcengine.com/product/voice-tech"
+  ],
+  "derived": {
+    "openAiCompatible": null,
+    "supportsRealtime": true,
+    "supportsBatch": null,
+    "priceMeasurements": [],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": "Broad speech/TTS offering, especially for Chinese; multilingual availability exists but is product-specific.",
+      "isMultilingual": true,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [
+        "Broad speech/TTS offering",
+        "especially for Chinese; multilingual availability exists but is product-specific"
+      ],
+      "notes": []
+    }
+  }
+}

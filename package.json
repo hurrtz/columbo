@@ -7,7 +7,9 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "catalog:import": "python3 scripts/provider_catalog/import_workbook.py",
+    "catalog:test": "jest __tests__/catalog/providerCatalog.test.ts --runInBand --watchman=false"
   },
   "dependencies": {
     "@dr.pogodin/react-native-fs": "^2.37.0",

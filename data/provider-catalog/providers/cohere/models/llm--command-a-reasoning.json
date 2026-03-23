@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "cohere",
+  "providerName": "Cohere",
+  "categoryId": "major-western-providers",
+  "categoryName": "Major Western Providers",
+  "service": "llm",
+  "publicName": "Command A Reasoning",
+  "modelId": "command-a-reasoning",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Mostly exhaustive",
+  "catalogScopeId": "mostly-exhaustive",
+  "pricingSummary": "Examples from pricing docs: Command $1/M input, $2/M output; Command R $0.50/$1.50; Command R+ $2.50/$10; Aya Expanse $0.50/$1.50.",
+  "limitsSummary": "No public native TTS/STT. LLM quotas vary by plan and endpoint.",
+  "regionSummary": "Cohere-hosted; sovereign/private deployments also available through partners.",
+  "languagesSummary": null,
+  "notes": "Useful enterprise LLM provider, but treat it as text/multimodal-only for your speech app.",
+  "officialSources": [
+    "https://docs.cohere.com/docs/models",
+    "https://cohere.com/pricing",
+    "https://docs.cohere.com/"
+  ],
+  "derived": {
+    "openAiCompatible": false,
+    "supportsRealtime": true,
+    "supportsBatch": null,
+    "priceMeasurements": [
+      {
+        "amountUsd": 1.0,
+        "unit": "million_input_tokens",
+        "sourceText": "$1/M input, $2/M output"
+      },
+      {
+        "amountUsd": 2.0,
+        "unit": "million_output_tokens",
+        "sourceText": "$1/M input, $2/M output"
+      }
+    ],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": null,
+      "isMultilingual": false,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

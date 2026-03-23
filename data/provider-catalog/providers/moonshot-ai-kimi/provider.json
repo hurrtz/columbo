@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "moonshot-ai-kimi",
+  "providerName": "Moonshot AI (Kimi)",
+  "categoryId": "chinese-providers",
+  "categoryName": "Chinese Providers",
+  "hq": "CN",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✓",
+    "tts": "✗",
+    "stt": "✗",
+    "notes": "Kimi K2.5. Strong reasoning, 128K+ context. No audio APIs."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "Fixed first-party LLM catalog",
+    "catalogTypeId": "fixed-first-party-llm-catalog",
+    "coverage": "Mostly exhaustive",
+    "coverageId": "mostly-exhaustive",
+    "activeModelsSummary": {
+      "llm": "Kimi K2.5 [kimi-k2.5]\nKimi K2 0905 Preview [kimi-k2-0905-preview]\nKimi K2 Turbo Preview [kimi-k2-turbo-preview]\nKimi K2 0711 Preview [kimi-k2-0711-preview]\nKimi K2 Thinking [kimi-k2-thinking]",
+      "tts": null,
+      "stt": null
+    },
+    "priceRangeSummary": "Examples: K2.5 cache hit $0.10/M, input $0.60/M, output $3.00/M. Some earlier K2 preview variants price near $0.60 input / $2.50 output.",
+    "limitsSummary": "256K context on K2.5. No native public TTS/STT API verified.",
+    "regionSummary": "Moonshot cloud; public region specifics not prominent.",
+    "ttsLanguagesSummary": null,
+    "sttLanguagesSummary": null,
+    "freeTierSummary": "No permanent free tier; platform often requires recharge (e.g., minimum initial top-up).",
+    "appIntegrationNotes": "Good reasoning/text provider, but no native speech stack.",
+    "officialSources": [
+      "https://platform.moonshot.ai/",
+      "https://platform.moonshot.ai/docs",
+      "https://platform.moonshot.ai/pricing"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 1,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": false,
+    "lowConfidence": false,
+    "openAiCompatible": true,
+    "protocols": [],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/moonshot-ai-kimi/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/moonshot-ai-kimi/models/llm--kimi-k2-0711-preview.json",
+      "data/provider-catalog/providers/moonshot-ai-kimi/models/llm--kimi-k2-0905-preview.json",
+      "data/provider-catalog/providers/moonshot-ai-kimi/models/llm--kimi-k2-thinking.json",
+      "data/provider-catalog/providers/moonshot-ai-kimi/models/llm--kimi-k2-turbo-preview.json",
+      "data/provider-catalog/providers/moonshot-ai-kimi/models/llm--kimi-k2.5.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "kimi-k2-0711-preview",
+      "publicName": "Kimi K2 0711 Preview",
+      "documentPath": "data/provider-catalog/providers/moonshot-ai-kimi/models/llm--kimi-k2-0711-preview.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "kimi-k2-0905-preview",
+      "publicName": "Kimi K2 0905 Preview",
+      "documentPath": "data/provider-catalog/providers/moonshot-ai-kimi/models/llm--kimi-k2-0905-preview.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "kimi-k2-thinking",
+      "publicName": "Kimi K2 Thinking",
+      "documentPath": "data/provider-catalog/providers/moonshot-ai-kimi/models/llm--kimi-k2-thinking.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "kimi-k2-turbo-preview",
+      "publicName": "Kimi K2 Turbo Preview",
+      "documentPath": "data/provider-catalog/providers/moonshot-ai-kimi/models/llm--kimi-k2-turbo-preview.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "kimi-k2.5",
+      "publicName": "Kimi K2.5",
+      "documentPath": "data/provider-catalog/providers/moonshot-ai-kimi/models/llm--kimi-k2.5.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "20. Moonshot AI / Kimi (China) — LLM ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 20. Moonshot AI / Kimi (China) — LLM ✓\n\n**Status:** Active. OpenAI-compatible at `api.moonshot.ai/v1`.\n\n`kimi-k2.5` ($0.60/$2.50, 256K context, multimodal). Automatic context caching (75% savings). Also on Groq, OpenRouter, SiliconFlow. No free API tier (min $1 recharge). China-based datacenters.",
+    "extractedBlocks": {},
+    "openAiCompatible": true,
+    "protocols": []
+  }
+}

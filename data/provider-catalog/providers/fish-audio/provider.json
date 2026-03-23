@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "fish-audio",
+  "providerName": "Fish Audio",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "hq": "CN/US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✗",
+    "tts": "✓",
+    "stt": "✗",
+    "notes": "TTS: 30+ languages, 2M+ community voices, voice cloning from 15s. Developer-focused."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Changed",
+    "catalogType": "Speech-first platform",
+    "catalogTypeId": "speech-first-platform",
+    "coverage": "Mostly exhaustive",
+    "coverageId": "mostly-exhaustive",
+    "activeModelsSummary": {
+      "llm": null,
+      "tts": "S2 Pro [s2-pro]\nS1 [s1]",
+      "stt": "Fish Audio ASR [/v1/asr]"
+    },
+    "priceRangeSummary": "TTS about $15/M UTF-8 bytes; STT about $0.36/hour.",
+    "limitsSummary": "Voice/model creation and cloning supported. Community voice ecosystem is large.",
+    "regionSummary": "Fish Audio cloud; region detail limited.",
+    "ttsLanguagesSummary": "S2 Pro: 80+ languages with auto language detection. S1: 13 languages (EN, ZH, JA, DE, FR, ES, KO, AR, RU, NL, IT, PL, PT).",
+    "sttLanguagesSummary": "Public ASR exists; exact official language matrix should be validated live.",
+    "freeTierSummary": "Trial/free usage may exist by account state.",
+    "appIntegrationNotes": "Your sheet is outdated: Fish Audio now has a public STT endpoint, not just TTS.",
+    "officialSources": [
+      "https://docs.fish.audio/",
+      "https://fish.audio/",
+      "https://docs.fish.audio/api-reference"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 2,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": null,
+    "protocols": [
+      "websocket"
+    ],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/fish-audio/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/fish-audio/models/stt--__v1__asr.json",
+      "data/provider-catalog/providers/fish-audio/models/tts--s1.json",
+      "data/provider-catalog/providers/fish-audio/models/tts--s2-pro.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "stt",
+      "modelId": "/v1/asr",
+      "publicName": "Fish Audio ASR",
+      "documentPath": "data/provider-catalog/providers/fish-audio/models/stt--__v1__asr.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "s1",
+      "publicName": "S1",
+      "documentPath": "data/provider-catalog/providers/fish-audio/models/tts--s1.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "s2-pro",
+      "publicName": "S2 Pro",
+      "documentPath": "data/provider-catalog/providers/fish-audio/models/tts--s2-pro.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "48. Fish Audio (China/US) — TTS ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 48. Fish Audio (China/US) — TTS ✓\n\n**Status:** Active. Open-source Fish Speech (Apache 2.0).\n\n`s2-pro` and `s1` ($15/1M UTF-8 bytes, ~$1.25/hr of speech). **80+ languages**. 2M+ community voices. Voice cloning (10–30s audio). 50+ emotion tags. WebSocket streaming. Self-hosting available. Free monthly generations.",
+    "extractedBlocks": {},
+    "openAiCompatible": null,
+    "protocols": [
+      "websocket"
+    ]
+  }
+}

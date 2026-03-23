@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "siliconflow",
+  "providerName": "SiliconFlow",
+  "categoryId": "inference-platforms",
+  "categoryName": "Inference Platforms",
+  "hq": "CN",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✓",
+    "tts": "✗",
+    "stt": "✗",
+    "notes": "500+ models, OpenAI-compatible API. Cheap inference. No audio."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "~",
+      "state": "partial"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Changed",
+    "catalogType": "Dynamic hosting platform",
+    "catalogTypeId": "dynamic-hosting-platform",
+    "coverage": "Dynamic/non-exhaustive",
+    "coverageId": "dynamic-non-exhaustive",
+    "activeModelsSummary": {
+      "llm": "Hosted model catalog [dynamic] — 500+ models claimed",
+      "tts": "Fish Speech V1.5 [fish-speech-v1.5]\nCosyVoice2 0.5B [cosyvoice2-0.5b]\nIndexTTS-2 [indextts-2]",
+      "stt": "Speech catalog [dynamic] — Speech support exists at platform level but official public STT detail was less explicit"
+    },
+    "priceRangeSummary": "Examples: Fish Speech V1.5 ~$15/M UTF-8 bytes; CosyVoice2 0.5B and IndexTTS-2 ~$7.15/M UTF-8 bytes. LLM rates vary widely.",
+    "limitsSummary": "International service and China service are split across domains; exact speech quotas depend on model.",
+    "regionSummary": "International services are separate from mainland-China service; exact model-level data center details not clearly published.",
+    "ttsLanguagesSummary": "Depends on selected speech model.",
+    "sttLanguagesSummary": "Platform-level speech support exists, but verify exact model/language live before launch.",
+    "freeTierSummary": "Trial credits may exist; check current dashboard.",
+    "appIntegrationNotes": "Good low-cost platform, but keep .cn vs international environments distinct. STT evidence is weaker than TTS based on official docs reviewed.",
+    "officialSources": [
+      "https://docs.siliconflow.com/",
+      "https://cloud.siliconflow.com/",
+      "https://www.siliconflow.com/"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 3,
+    "hasDynamicCatalog": true,
+    "needsLiveDiscovery": true,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": true,
+    "protocols": [],
+    "regionSplitRecommended": true
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/siliconflow/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/siliconflow/models/llm--dynamic.json",
+      "data/provider-catalog/providers/siliconflow/models/stt--dynamic.json",
+      "data/provider-catalog/providers/siliconflow/models/tts--cosyvoice2-0.5b.json",
+      "data/provider-catalog/providers/siliconflow/models/tts--fish-speech-v1.5.json",
+      "data/provider-catalog/providers/siliconflow/models/tts--indextts-2.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "dynamic",
+      "publicName": "Hosted model catalog",
+      "documentPath": "data/provider-catalog/providers/siliconflow/models/llm--dynamic.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "dynamic",
+      "publicName": "Speech catalog",
+      "documentPath": "data/provider-catalog/providers/siliconflow/models/stt--dynamic.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "cosyvoice2-0.5b",
+      "publicName": "CosyVoice2 0.5B",
+      "documentPath": "data/provider-catalog/providers/siliconflow/models/tts--cosyvoice2-0.5b.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "fish-speech-v1.5",
+      "publicName": "Fish Speech V1.5",
+      "documentPath": "data/provider-catalog/providers/siliconflow/models/tts--fish-speech-v1.5.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "indextts-2",
+      "publicName": "IndexTTS-2",
+      "documentPath": "data/provider-catalog/providers/siliconflow/models/tts--indextts-2.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "33. SiliconFlow (China) — LLM ✓ TTS ✓ STT ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 33. SiliconFlow (China) — LLM ✓ TTS ✓ STT ✓\n\n**Status:** Active. 500+ models. OpenAI-compatible. International access via siliconflow.com.\n\nLLM: DeepSeek-V3.2 ($0.27/$0.42), Step-3.5-Flash ($0.10/$0.30). TTS: CosyVoice2 ($7.15/1M UTF-8 bytes), Fish Speech 1.5 ($15/1M bytes). Some models **completely free**. $1 free credit.",
+    "extractedBlocks": {},
+    "openAiCompatible": true,
+    "protocols": []
+  }
+}

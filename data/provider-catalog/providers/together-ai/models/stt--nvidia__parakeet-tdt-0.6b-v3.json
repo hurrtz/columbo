@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "together-ai",
+  "providerName": "Together AI",
+  "categoryId": "inference-platforms",
+  "categoryName": "Inference Platforms",
+  "service": "stt",
+  "publicName": "Parakeet TDT 0.6B v3",
+  "modelId": "nvidia/parakeet-tdt-0.6b-v3",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Dynamic/non-exhaustive",
+  "catalogScopeId": "dynamic-non-exhaustive",
+  "pricingSummary": "Examples: Kokoro ~$4/M chars, Cartesia Sonic ~$65/M chars, Whisper Large v3 ~$0.0015/audio min. LLM prices vary by hosted model.",
+  "limitsSummary": "Dynamic catalog and prices change often. Validate per-model concurrency and context windows at runtime.",
+  "regionSummary": "Together-managed cloud; region exposure is limited compared with hyperscalers.",
+  "languagesSummary": "Depends on model (e.g., Whisper multilingual, Parakeet family).",
+  "notes": "Your sheet is outdated: Together now exposes both STT and TTS. Always fetch the live serverless catalog rather than hardcoding model lists.",
+  "officialSources": [
+    "https://docs.together.ai/docs/serverless-models",
+    "https://docs.together.ai/reference/audio-speech",
+    "https://docs.together.ai/reference/audio-transcriptions"
+  ],
+  "derived": {
+    "openAiCompatible": true,
+    "supportsRealtime": null,
+    "supportsBatch": true,
+    "priceMeasurements": [
+      {
+        "amountUsd": 4.0,
+        "unit": "million_characters",
+        "sourceText": "$4/M chars"
+      },
+      {
+        "amountUsd": 65.0,
+        "unit": "million_characters",
+        "sourceText": "$65/M chars"
+      },
+      {
+        "amountUsd": 0.0015,
+        "unit": "minute",
+        "sourceText": "$0.0015/audio min"
+      }
+    ],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": "Depends on model (e.g., Whisper multilingual, Parakeet family).",
+      "isMultilingual": true,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [
+        "Depends on model (e.g",
+        "Whisper multilingual",
+        "Parakeet family"
+      ],
+      "notes": []
+    }
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "alibaba-qwen-dashscope",
+  "providerName": "Alibaba / Qwen (DashScope)",
+  "categoryId": "chinese-providers",
+  "categoryName": "Chinese Providers",
+  "hq": "CN",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✓",
+    "tts": "✓",
+    "stt": "✓",
+    "notes": "Qwen3.5 Plus/Max. TTS: Qwen3-TTS (10 languages incl. German, voice cloning). STT: Paraformer. International API via Singapore/US."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "Multi-service platform",
+    "catalogTypeId": "multi-service-platform",
+    "coverage": "Dynamic/non-exhaustive",
+    "coverageId": "dynamic-non-exhaustive",
+    "activeModelsSummary": {
+      "llm": "Qwen3 Max [qwen3-max]\nQwen3.5 Plus [qwen3.5-plus]\nQwen Omni Turbo [qwen-omni-turbo]\nQwen Omni Turbo Latest [qwen-omni-turbo-latest]\nQwen VL Max [qwen-vl-max]\nQwen3 VL family [qwen3-vl-*]",
+      "tts": "Qwen3 TTS Flash Realtime [qwen3-tts-flash-realtime]\nQwen TTS Realtime [qwen-tts-realtime]\nQwen Voice Enrollment [qwen-voice-enrollment]",
+      "stt": "Realtime Speech Recognition [fun-asr-realtime]\nQwen speech recognition family [qwen-audio-*] — Naming varies by doc surface"
+    },
+    "priceRangeSummary": "Broad pricing spread by model. DashScope commonly offers temporary free quotas for Model Studio activation; omni and realtime speech pricing varies separately from token models.",
+    "limitsSummary": "Separate international vs mainland modes. Model availability, quotas, and data region behavior differ by mode.",
+    "regionSummary": "International mode may use Singapore, US Virginia, Frankfurt, or Hong Kong depending on service/mode. Mainland China has separate routing/compliance.",
+    "ttsLanguagesSummary": "Multilingual with cross-language same-voice support and dialect options.",
+    "sttLanguagesSummary": "Multilingual; realtime ASR docs mention multilingual recognition and speech features such as emotion/VAD.",
+    "freeTierSummary": "Yes: temporary/model-specific quotas are often available.",
+    "appIntegrationNotes": "For your app, treat DashScope as two logical products: mainland-China vs international. Credential, compliance, and region handling differ.",
+    "officialSources": [
+      "https://www.alibabacloud.com/help/en/model-studio/",
+      "https://dashscope.console.aliyun.com/",
+      "https://www.alibabacloud.com/help/en/model-studio/developer-reference/"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 3,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": true,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": true,
+    "protocols": [],
+    "regionSplitRecommended": true
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/alibaba-qwen-dashscope/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/alibaba-qwen-dashscope/models/llm--qwen-omni-turbo.json",
+      "data/provider-catalog/providers/alibaba-qwen-dashscope/models/llm--qwen-omni-turbo-latest.json",
+      "data/provider-catalog/providers/alibaba-qwen-dashscope/models/llm--qwen-vl-max.json",
+      "data/provider-catalog/providers/alibaba-qwen-dashscope/models/llm--qwen3-max.json",
+      "data/provider-catalog/providers/alibaba-qwen-dashscope/models/llm--qwen3-vl.json",
+      "data/provider-catalog/providers/alibaba-qwen-dashscope/models/llm--qwen3.5-plus.json",
+      "data/provider-catalog/providers/alibaba-qwen-dashscope/models/stt--qwen-audio.json",
+      "data/provider-catalog/providers/alibaba-qwen-dashscope/models/stt--fun-asr-realtime.json",
+      "data/provider-catalog/providers/alibaba-qwen-dashscope/models/tts--qwen-tts-realtime.json",
+      "data/provider-catalog/providers/alibaba-qwen-dashscope/models/tts--qwen-voice-enrollment.json",
+      "data/provider-catalog/providers/alibaba-qwen-dashscope/models/tts--qwen3-tts-flash-realtime.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "qwen-omni-turbo",
+      "publicName": "Qwen Omni Turbo",
+      "documentPath": "data/provider-catalog/providers/alibaba-qwen-dashscope/models/llm--qwen-omni-turbo.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "qwen-omni-turbo-latest",
+      "publicName": "Qwen Omni Turbo Latest",
+      "documentPath": "data/provider-catalog/providers/alibaba-qwen-dashscope/models/llm--qwen-omni-turbo-latest.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "qwen-vl-max",
+      "publicName": "Qwen VL Max",
+      "documentPath": "data/provider-catalog/providers/alibaba-qwen-dashscope/models/llm--qwen-vl-max.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "qwen3-max",
+      "publicName": "Qwen3 Max",
+      "documentPath": "data/provider-catalog/providers/alibaba-qwen-dashscope/models/llm--qwen3-max.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "qwen3-vl-*",
+      "publicName": "Qwen3 VL family",
+      "documentPath": "data/provider-catalog/providers/alibaba-qwen-dashscope/models/llm--qwen3-vl.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "qwen3.5-plus",
+      "publicName": "Qwen3.5 Plus",
+      "documentPath": "data/provider-catalog/providers/alibaba-qwen-dashscope/models/llm--qwen3.5-plus.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "qwen-audio-*",
+      "publicName": "Qwen speech recognition family",
+      "documentPath": "data/provider-catalog/providers/alibaba-qwen-dashscope/models/stt--qwen-audio.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "fun-asr-realtime",
+      "publicName": "Realtime Speech Recognition",
+      "documentPath": "data/provider-catalog/providers/alibaba-qwen-dashscope/models/stt--fun-asr-realtime.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "qwen-tts-realtime",
+      "publicName": "Qwen TTS Realtime",
+      "documentPath": "data/provider-catalog/providers/alibaba-qwen-dashscope/models/tts--qwen-tts-realtime.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "qwen-voice-enrollment",
+      "publicName": "Qwen Voice Enrollment",
+      "documentPath": "data/provider-catalog/providers/alibaba-qwen-dashscope/models/tts--qwen-voice-enrollment.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "qwen3-tts-flash-realtime",
+      "publicName": "Qwen3 TTS Flash Realtime",
+      "documentPath": "data/provider-catalog/providers/alibaba-qwen-dashscope/models/tts--qwen3-tts-flash-realtime.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "15. Alibaba/Qwen DashScope (China) — LLM ✓ TTS ✓ STT ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 15. Alibaba/Qwen DashScope (China) — LLM ✓ TTS ✓ STT ✓\n\n**Status:** Active. **Best all-in-one Chinese provider for international access.**\n\n**LLMs:** `qwen3-max` ($1.20/$6.00), `qwen3.5-plus` ($0.40/$2.40), `qwen3.5-flash` ($0.10/$0.40), `qwen-plus` ($0.40/$1.20). Free: 1M tokens/model for 90 days.\n\n**TTS:** `qwen3-tts-flash` and `qwen3-tts-flash-realtime` (~$13/1M chars). **10 languages** (ZH, EN, JA, KO, DE, FR, RU, PT, ES, IT). 9+ premium voices. Voice cloning from 3-second audio.\n\n**STT:** `qwen3-asr-flash` and `qwen3-asr-flash-realtime`. **52 languages** + 22 Chinese dialects. Async file transcription up to 12h audio.\n\n**OpenAI-compatible** endpoint: `https://dashscope-intl.aliyuncs.com/compatible-mode/v1`. Regions: **Singapore, US (Virginia), Frankfurt, Hong Kong, Beijing**. USD billing. No Chinese phone required.",
+    "extractedBlocks": {},
+    "openAiCompatible": true,
+    "protocols": []
+  }
+}

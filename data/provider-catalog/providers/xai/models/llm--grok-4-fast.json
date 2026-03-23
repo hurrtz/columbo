@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "xai",
+  "providerName": "xAI",
+  "categoryId": "major-western-providers",
+  "categoryName": "Major Western Providers",
+  "service": "llm",
+  "publicName": "Grok 4 Fast",
+  "modelId": "grok-4-fast",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Mostly exhaustive",
+  "catalogScopeId": "mostly-exhaustive",
+  "pricingSummary": "TTS API: $4.20/M chars. Voice Agent API: $0.05/min. LLM pricing varies by Grok model.",
+  "limitsSummary": "TTS max 15,000 chars/request. Voice Agent max 30 min/session, 100 concurrent sessions/team.",
+  "regionSummary": "Voice Agent docs point to us-east-1 and region-specific endpoint format <region>.api.x.ai; generic global endpoint api.x.ai also documented.",
+  "languagesSummary": null,
+  "notes": "Public standalone STT endpoint was not verified. Treat xAI as LLM+TTS unless you use the bundled Voice Agent flow.",
+  "officialSources": [
+    "https://docs.x.ai/",
+    "https://x.ai/api",
+    "https://docs.x.ai/docs/models"
+  ],
+  "derived": {
+    "openAiCompatible": true,
+    "supportsRealtime": true,
+    "supportsBatch": true,
+    "priceMeasurements": [
+      {
+        "amountUsd": 4.2,
+        "unit": "million_characters",
+        "sourceText": "$4.20/M chars"
+      },
+      {
+        "amountUsd": 0.05,
+        "unit": "minute",
+        "sourceText": "$0.05/min"
+      }
+    ],
+    "constraints": [
+      {
+        "metric": "session_duration_seconds",
+        "comparator": "<=",
+        "value": 1800.0,
+        "unit": "seconds",
+        "scope": "session",
+        "sourceText": "TTS max 15,000 chars/request. Voice Agent max 30 min/session, 100 concurrent sessions/team."
+      },
+      {
+        "metric": "concurrency",
+        "comparator": "=",
+        "value": 100.0,
+        "unit": "count",
+        "scope": "general",
+        "sourceText": "TTS max 15,000 chars/request. Voice Agent max 30 min/session, 100 concurrent sessions/team."
+      }
+    ],
+    "languageSupport": {
+      "rawText": null,
+      "isMultilingual": false,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

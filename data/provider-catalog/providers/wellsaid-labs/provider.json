@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "wellsaid-labs",
+  "providerName": "WellSaid Labs",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "hq": "US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✗",
+    "tts": "✓",
+    "stt": "✗",
+    "notes": "Studio-quality TTS for enterprise. Brand voices. Limited language coverage."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "TTS-first platform",
+    "catalogTypeId": "tts-first-platform",
+    "coverage": "Mostly exhaustive",
+    "coverageId": "mostly-exhaustive",
+    "activeModelsSummary": {
+      "llm": null,
+      "tts": "WellSaid API voice models [voice-based] — Docs emphasize speaker IDs/avatars more than a small global model list",
+      "stt": null
+    },
+    "priceRangeSummary": "Subscription/custom pricing; free trial account available.",
+    "limitsSummary": "Default API rate ~3 req/sec and ~1,000 chars/request.",
+    "regionSummary": "WellSaid cloud; public region detail limited.",
+    "ttsLanguagesSummary": "English plus selected non-English languages/accents; coverage is materially narrower than ElevenLabs/Google/Azure.",
+    "sttLanguagesSummary": null,
+    "freeTierSummary": "Yes: 14-day trial key.",
+    "appIntegrationNotes": "Voice/avatar selection matters more than 'model ID'. Limited multilingual coverage may matter for a speech app with global users.",
+    "officialSources": [
+      "https://docs.wellsaidlabs.com/docs/getting-started",
+      "https://docs.wellsaidlabs.com/reference/model-selection-with-the-api",
+      "https://wellsaidlabs.com/"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 1,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": null,
+    "protocols": [],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/wellsaid-labs/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/wellsaid-labs/models/tts--voice-based.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "tts",
+      "modelId": "voice-based",
+      "publicName": "WellSaid API voice models",
+      "documentPath": "data/provider-catalog/providers/wellsaid-labs/models/tts--voice-based.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "50. WellSaid Labs (US) — TTS ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 50. WellSaid Labs (US) — TTS ✓\n\n**Status:** Active. Enterprise-focused. 120+ voice types, 53+ avatars. Primarily **English-focused**. Creative: $50/month/user. Business/Enterprise: custom. 7-day free trial only. SOC 2. API typically requires Business+ tier. ⚠️ Limited multilingual support.",
+    "extractedBlocks": {},
+    "openAiCompatible": null,
+    "protocols": []
+  }
+}

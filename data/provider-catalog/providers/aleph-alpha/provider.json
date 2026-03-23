@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "aleph-alpha",
+  "providerName": "Aleph Alpha",
+  "categoryId": "major-western-providers",
+  "categoryName": "Major Western Providers",
+  "hq": "DE",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✓",
+    "tts": "✗",
+    "stt": "✗",
+    "notes": "Luminous models. EU-sovereign, explainable AI focus. No audio."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "Enterprise/private sovereign platform",
+    "catalogTypeId": "enterprise-private-sovereign-platform",
+    "coverage": "Low-confidence / enterprise-only",
+    "coverageId": "low-confidence-enterprise-only",
+    "activeModelsSummary": {
+      "llm": "Pharia-1 LLM 7B Control [pharia-1-llm-7b-control]\nLlama 3.1 8B [llama-3.1-8b] — Available in manager examples\nLlama 3.3 70B [llama-3.3-70b] — Available in manager examples\nLlama Guard 3 8B [llama-guard-3-8b] — Safety model in manager examples",
+      "tts": null,
+      "stt": null
+    },
+    "priceRangeSummary": "Custom/enterprise pricing; no broad public self-serve price card located.",
+    "limitsSummary": "Current public material emphasizes private deployment/sovereign AI rather than open self-serve API.",
+    "regionSummary": "Customer-controlled / sovereign / on-prem / private cloud options.",
+    "ttsLanguagesSummary": null,
+    "sttLanguagesSummary": null,
+    "freeTierSummary": "No public free tier found.",
+    "appIntegrationNotes": "Exists, but the public self-serve SaaS story is much weaker than older Luminous-era expectations. Best treated as enterprise/private infrastructure.",
+    "officialSources": [
+      "https://aleph-alpha.com/",
+      "https://docs.aleph-alpha.com/",
+      "https://docs.aleph-alpha.com/docs/phariaai/overview"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 1,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": false,
+    "lowConfidence": true,
+    "openAiCompatible": null,
+    "protocols": [],
+    "regionSplitRecommended": true
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/aleph-alpha/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/aleph-alpha/models/llm--llama-3.1-8b.json",
+      "data/provider-catalog/providers/aleph-alpha/models/llm--llama-3.3-70b.json",
+      "data/provider-catalog/providers/aleph-alpha/models/llm--llama-guard-3-8b.json",
+      "data/provider-catalog/providers/aleph-alpha/models/llm--pharia-1-llm-7b-control.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "llama-3.1-8b",
+      "publicName": "Llama 3.1 8B",
+      "documentPath": "data/provider-catalog/providers/aleph-alpha/models/llm--llama-3.1-8b.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "llama-3.3-70b",
+      "publicName": "Llama 3.3 70B",
+      "documentPath": "data/provider-catalog/providers/aleph-alpha/models/llm--llama-3.3-70b.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "llama-guard-3-8b",
+      "publicName": "Llama Guard 3 8B",
+      "documentPath": "data/provider-catalog/providers/aleph-alpha/models/llm--llama-guard-3-8b.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "pharia-1-llm-7b-control",
+      "publicName": "Pharia-1 LLM 7B Control",
+      "documentPath": "data/provider-catalog/providers/aleph-alpha/models/llm--pharia-1-llm-7b-control.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "12. Aleph Alpha (Germany) — ⚠️ PIVOTED",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 12. Aleph Alpha (Germany) — ⚠️ PIVOTED\n\n**Status:** Pivoted to enterprise/government sovereign AI platform (PhariaAI). No public self-service API pricing. Models (Luminous, Pharia-1) behind enterprise sales. **Not suitable for a public BYOK app.** Strong GDPR positioning (German HQ, EU data sovereignty).",
+    "extractedBlocks": {},
+    "openAiCompatible": null,
+    "protocols": []
+  }
+}

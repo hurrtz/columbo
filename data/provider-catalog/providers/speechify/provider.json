@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "speechify",
+  "providerName": "Speechify",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "hq": "US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✗",
+    "tts": "✓",
+    "stt": "✗",
+    "notes": "TTS API. Multiple voices/languages. Generous free tier. Content focused."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "TTS-first platform",
+    "catalogTypeId": "tts-first-platform",
+    "coverage": "Exhaustive",
+    "coverageId": "exhaustive",
+    "activeModelsSummary": {
+      "llm": null,
+      "tts": "Simba English [simba-english]\nSimba Multilingual [simba-multilingual]",
+      "stt": null
+    },
+    "priceRangeSummary": "Plan-based; public messaging emphasizes generous free testing. API pricing depends on contract/usage tier.",
+    "limitsSummary": "Speech endpoint ~2,000 chars/request; stream endpoint ~20,000 chars. Voice cloning uses 10-30 sec sample under ~5 MB. simba-base and simba-turbo are deprecated.",
+    "regionSummary": "Speechify cloud.",
+    "ttsLanguagesSummary": "6 fully supported langs + ~17 beta langs in docs reviewed (examples: en, fr-FR, de-DE, es-ES, pt-BR, pt-PT plus many beta locales).",
+    "sttLanguagesSummary": null,
+    "freeTierSummary": "Yes.",
+    "appIntegrationNotes": "Clear model IDs, but language support is tiered (fully supported vs beta). Store support quality, not just a flat boolean.",
+    "officialSources": [
+      "https://docs.sws.speechify.com/",
+      "https://docs.sws.speechify.com/v1/docs/get-started/models",
+      "https://docs.sws.speechify.com/docs/features/language-support"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 1,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": null,
+    "protocols": [],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/speechify/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/speechify/models/tts--simba-english.json",
+      "data/provider-catalog/providers/speechify/models/tts--simba-multilingual.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "tts",
+      "modelId": "simba-english",
+      "publicName": "Simba English",
+      "documentPath": "data/provider-catalog/providers/speechify/models/tts--simba-english.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "simba-multilingual",
+      "publicName": "Simba Multilingual",
+      "documentPath": "data/provider-catalog/providers/speechify/models/tts--simba-multilingual.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "52. Speechify (US) — TTS ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 52. Speechify (US) — TTS ✓\n\n**Status:** Active. 50M+ consumer users. Apple Design Award 2025.\n\nAPI: **$10/1M chars** (~2,000 min audio). 1,000+ voices, **50+ languages**. ~300ms latency. SSML support. Voice cloning via API. On-premise option. Free tier available. ⚠️ Some reports of API waitlist.",
+    "extractedBlocks": {},
+    "openAiCompatible": null,
+    "protocols": []
+  }
+}

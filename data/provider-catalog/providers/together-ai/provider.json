@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "together-ai",
+  "providerName": "Together AI",
+  "categoryId": "inference-platforms",
+  "categoryName": "Inference Platforms",
+  "hq": "US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✓",
+    "tts": "✗",
+    "stt": "✗",
+    "notes": "Hosts 100+ open models. Fine-tuning support. No audio."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Changed",
+    "catalogType": "Dynamic hosting platform",
+    "catalogTypeId": "dynamic-hosting-platform",
+    "coverage": "Dynamic/non-exhaustive",
+    "coverageId": "dynamic-non-exhaustive",
+    "activeModelsSummary": {
+      "llm": "Serverless model catalog [dynamic] — 100+ open-source/partner models; use live serverless catalog",
+      "tts": "Orpheus 3B 0.1 FT [canopylabs/orpheus-3b-0.1-ft]\nKokoro 82M [hexgrad/Kokoro-82M]\nCartesia Sonic 3 [cartesia/sonic-3]\nCartesia Sonic 2 [cartesia/sonic-2]\nCartesia Sonic [cartesia/sonic]",
+      "stt": "Whisper Large v3 [openai/whisper-large-v3]\nParakeet TDT 0.6B v3 [nvidia/parakeet-tdt-0.6b-v3]"
+    },
+    "priceRangeSummary": "Examples: Kokoro ~$4/M chars, Cartesia Sonic ~$65/M chars, Whisper Large v3 ~$0.0015/audio min. LLM prices vary by hosted model.",
+    "limitsSummary": "Dynamic catalog and prices change often. Validate per-model concurrency and context windows at runtime.",
+    "regionSummary": "Together-managed cloud; region exposure is limited compared with hyperscalers.",
+    "ttsLanguagesSummary": "Depends on model (e.g., Kokoro vs Cartesia).",
+    "sttLanguagesSummary": "Depends on model (e.g., Whisper multilingual, Parakeet family).",
+    "freeTierSummary": "Free/test access may be available depending on account plan; not uniform across all models.",
+    "appIntegrationNotes": "Your sheet is outdated: Together now exposes both STT and TTS. Always fetch the live serverless catalog rather than hardcoding model lists.",
+    "officialSources": [
+      "https://docs.together.ai/docs/serverless-models",
+      "https://docs.together.ai/reference/audio-speech",
+      "https://docs.together.ai/reference/audio-transcriptions"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 3,
+    "hasDynamicCatalog": true,
+    "needsLiveDiscovery": true,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": true,
+    "protocols": [],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/together-ai/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/together-ai/models/llm--dynamic.json",
+      "data/provider-catalog/providers/together-ai/models/stt--nvidia__parakeet-tdt-0.6b-v3.json",
+      "data/provider-catalog/providers/together-ai/models/stt--openai__whisper-large-v3.json",
+      "data/provider-catalog/providers/together-ai/models/tts--cartesia__sonic.json",
+      "data/provider-catalog/providers/together-ai/models/tts--cartesia__sonic-2.json",
+      "data/provider-catalog/providers/together-ai/models/tts--cartesia__sonic-3.json",
+      "data/provider-catalog/providers/together-ai/models/tts--hexgrad__Kokoro-82M.json",
+      "data/provider-catalog/providers/together-ai/models/tts--canopylabs__orpheus-3b-0.1-ft.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "dynamic",
+      "publicName": "Serverless model catalog",
+      "documentPath": "data/provider-catalog/providers/together-ai/models/llm--dynamic.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "nvidia/parakeet-tdt-0.6b-v3",
+      "publicName": "Parakeet TDT 0.6B v3",
+      "documentPath": "data/provider-catalog/providers/together-ai/models/stt--nvidia__parakeet-tdt-0.6b-v3.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "openai/whisper-large-v3",
+      "publicName": "Whisper Large v3",
+      "documentPath": "data/provider-catalog/providers/together-ai/models/stt--openai__whisper-large-v3.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "cartesia/sonic",
+      "publicName": "Cartesia Sonic",
+      "documentPath": "data/provider-catalog/providers/together-ai/models/tts--cartesia__sonic.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "cartesia/sonic-2",
+      "publicName": "Cartesia Sonic 2",
+      "documentPath": "data/provider-catalog/providers/together-ai/models/tts--cartesia__sonic-2.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "cartesia/sonic-3",
+      "publicName": "Cartesia Sonic 3",
+      "documentPath": "data/provider-catalog/providers/together-ai/models/tts--cartesia__sonic-3.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "hexgrad/Kokoro-82M",
+      "publicName": "Kokoro 82M",
+      "documentPath": "data/provider-catalog/providers/together-ai/models/tts--hexgrad__Kokoro-82M.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "canopylabs/orpheus-3b-0.1-ft",
+      "publicName": "Orpheus 3B 0.1 FT",
+      "documentPath": "data/provider-catalog/providers/together-ai/models/tts--canopylabs__orpheus-3b-0.1-ft.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "26. Together AI (US) — LLM ✓ TTS ✓ STT ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 26. Together AI (US) — LLM ✓ TTS ✓ STT ✓\n\n**Status:** Active. **200+ models**. OpenAI-compatible. $5 free credit.\n\nLLM pricing: Gemma 3n $0.02/MTok to DeepSeek-R1 $7.00/MTok. TTS: Cartesia Sonic-2/3 ($65/1M chars). STT: Whisper v3 ($0.0015/min). Batch: 50% off. Dedicated GPUs: H100 $3.99/hr, H200 $5.49/hr.",
+    "extractedBlocks": {},
+    "openAiCompatible": true,
+    "protocols": []
+  }
+}

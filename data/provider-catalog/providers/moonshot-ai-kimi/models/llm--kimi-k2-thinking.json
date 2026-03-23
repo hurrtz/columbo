@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "moonshot-ai-kimi",
+  "providerName": "Moonshot AI (Kimi)",
+  "categoryId": "chinese-providers",
+  "categoryName": "Chinese Providers",
+  "service": "llm",
+  "publicName": "Kimi K2 Thinking",
+  "modelId": "kimi-k2-thinking",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Mostly exhaustive",
+  "catalogScopeId": "mostly-exhaustive",
+  "pricingSummary": "Examples: K2.5 cache hit $0.10/M, input $0.60/M, output $3.00/M. Some earlier K2 preview variants price near $0.60 input / $2.50 output.",
+  "limitsSummary": "256K context on K2.5. No native public TTS/STT API verified.",
+  "regionSummary": "Moonshot cloud; public region specifics not prominent.",
+  "languagesSummary": null,
+  "notes": "Good reasoning/text provider, but no native speech stack.",
+  "officialSources": [
+    "https://platform.moonshot.ai/",
+    "https://platform.moonshot.ai/docs",
+    "https://platform.moonshot.ai/pricing"
+  ],
+  "derived": {
+    "openAiCompatible": true,
+    "supportsRealtime": null,
+    "supportsBatch": null,
+    "priceMeasurements": [
+      {
+        "amountUsd": 0.1,
+        "unit": "million_input_tokens",
+        "sourceText": "$0.10/M, input $0.60/M, output"
+      },
+      {
+        "amountUsd": 0.6,
+        "unit": "million_output_tokens",
+        "sourceText": "$0.10/M, input $0.60/M, output"
+      }
+    ],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": null,
+      "isMultilingual": false,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

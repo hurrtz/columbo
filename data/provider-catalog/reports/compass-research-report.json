@@ -1,0 +1,48 @@
+{
+  "title": "BYOK Speech App: 56-Provider API Research Report (March 2026)",
+  "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+  "sections": [
+    {
+      "title": "Part 1: The nine core BYOK providers",
+      "markdown": "These are the direct API integrations the app must support. They receive the most detailed treatment.",
+      "bullets": []
+    },
+    {
+      "title": "Part 2: Major Western providers (non-core)",
+      "markdown": "",
+      "bullets": []
+    },
+    {
+      "title": "Part 3: Chinese providers",
+      "markdown": "### 16. Zhipu AI / Z.AI (China) — LLM ✓ TTS ✗ STT ✓\n\n**Status:** Active. International platform at Z.AI.\n\n`glm-5` ($1.00/$3.20, MIT license), `glm-4.7` ($0.60/$2.20), `glm-4.7-flash` (**FREE**), `glm-4.5-flash` (**FREE**). STT: `glm-asr-2512` ($0.03/MTok). ⚠️ No dedicated TTS API found internationally. OpenAI-compatible (`https://api.z.ai/api/paas/v4/`).",
+      "bullets": []
+    },
+    {
+      "title": "Part 4: Inference platforms",
+      "markdown": "",
+      "bullets": []
+    },
+    {
+      "title": "Part 5: Speech-focused providers",
+      "markdown": "",
+      "bullets": []
+    },
+    {
+      "title": "Critical findings and integration guidance",
+      "markdown": "### Three providers have shut down or pivoted since mid-2025\n\n**PlayHT** (acquired by Meta, services terminated December 31, 2025), **Lepton AI** (acquired by NVIDIA, now a GPU marketplace), and **Aleph Alpha** (pivoted to enterprise-only sovereign AI). Additionally, **Baichuan** pivoted to healthcare and **01.AI/Yi** stopped pre-training. All five should be excluded from active BYOK integration.\n\n### API compatibility determines integration cost\n\nThe vast majority of providers now support the **OpenAI-compatible API format**, making them near-drop-in replacements. Notable exceptions requiring custom integration:\n\n- **Anthropic** — Messages API (different request/response format)\n- **Cohere** — Chat API v2 (own format, native RAG)\n- **IBM watsonx** — Proprietary IBM REST API\n- **Baidu ERNIE** — Proprietary Qianfan API\n- **Google Cloud Speech/TTS** — gRPC/REST with Google-specific auth (though Gemini LLM supports OpenAI-compatible mode)\n- **Azure Speech** — Speech SDK + REST (though Azure OpenAI LLMs use OpenAI-compatible format)\n- **ElevenLabs, Deepgram, AssemblyAI** — Each has unique REST/WebSocket APIs\n- **NVIDIA Riva** — gRPC + WebSocket (own protocol)\n\n### GDPR-optimal provider selection\n\nFor EU compliance, the strongest providers are **Mistral AI** (French HQ, EU data processing by default), **Gladia** (French, SOC 2 Type 2), and **Speechmatics** (UK, on-prem option). Google Vertex AI, Azure, and AWS all offer EU data residency. **DeepSeek** and most Chinese providers have **no GDPR adequacy** — data processed in mainland China under Chinese law.\n\n### Best free tiers for BYOK default provider\n\n**Groq** stands out with no-credit-card free access, ultra-fast Whisper STT, and multiple free LLM models. **xAI** offers up to $175/month free. **Deepgram** provides $200 free credit (no expiry). **Google AI Studio** offers generous free Gemini access. **Cerebras** has a completely free inference tier.\n\n### Recommended minimum viable integration set\n\nFor the nine core providers, the app should prioritize:\n\n- **LLM:** OpenAI, Anthropic, Google, Groq (free default), Mistral, Cohere, DeepSeek, xAI, NVIDIA — all confirmed active with clear model IDs\n- **TTS:** OpenAI `gpt-4o-mini-tts`, Google Cloud TTS / Gemini TTS, xAI TTS (5 voices, WebSocket), NVIDIA Riva Magpie\n- **STT:** OpenAI `gpt-4o-mini-transcribe`, Google Chirp 3, Groq `whisper-large-v3-turbo` (free default)\n\nFor speech-specialized needs beyond the core nine, **ElevenLabs** (best TTS quality, 70+ languages), **Deepgram** (best STT value with $200 free credit), and **Cartesia** (fastest latency at 40ms) are the strongest additions.\n\n---\n\n*All pricing, model IDs, and availability data verified against provider documentation and third-party sources as of March 23, 2026. Prices are subject to change. Model IDs with date suffixes (e.g., `-2026-03-05`) pin to specific snapshots; aliases without dates auto-update to latest versions.*",
+      "bullets": [
+        "**Anthropic** — Messages API (different request/response format)",
+        "**Cohere** — Chat API v2 (own format, native RAG)",
+        "**IBM watsonx** — Proprietary IBM REST API",
+        "**Baidu ERNIE** — Proprietary Qianfan API",
+        "**Google Cloud Speech/TTS** — gRPC/REST with Google-specific auth (though Gemini LLM supports OpenAI-compatible mode)",
+        "**Azure Speech** — Speech SDK + REST (though Azure OpenAI LLMs use OpenAI-compatible format)",
+        "**ElevenLabs, Deepgram, AssemblyAI** — Each has unique REST/WebSocket APIs",
+        "**NVIDIA Riva** — gRPC + WebSocket (own protocol)",
+        "**LLM:** OpenAI, Anthropic, Google, Groq (free default), Mistral, Cohere, DeepSeek, xAI, NVIDIA — all confirmed active with clear model IDs",
+        "**TTS:** OpenAI `gpt-4o-mini-tts`, Google Cloud TTS / Gemini TTS, xAI TTS (5 voices, WebSocket), NVIDIA Riva Magpie",
+        "**STT:** OpenAI `gpt-4o-mini-transcribe`, Google Chirp 3, Groq `whisper-large-v3-turbo` (free default)"
+      ]
+    }
+  ]
+}

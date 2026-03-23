@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "rev-ai",
+  "providerName": "Rev.ai",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "hq": "US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✗",
+    "tts": "✗",
+    "stt": "✓",
+    "notes": "STT: AI + human hybrid transcription. Good for accuracy-critical use cases."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "Fixed speech-first STT catalog",
+    "catalogTypeId": "fixed-speech-first-stt-catalog",
+    "coverage": "Mostly exhaustive",
+    "coverageId": "mostly-exhaustive",
+    "activeModelsSummary": {
+      "llm": null,
+      "tts": null,
+      "stt": "Reverb [reverb]\nReverb Turbo / Low Cost [low_cost] — US deployment naming"
+    },
+    "priceRangeSummary": "Speech pricing varies by deployment/model; human transcription is priced separately from ASR.",
+    "limitsSummary": "Multipart uploads <2 GB. Many languages allow up to ~17h file duration; Telugu noted lower (~6h).",
+    "regionSummary": "US and EU deployment options exist.",
+    "ttsLanguagesSummary": null,
+    "sttLanguagesSummary": "Broad multilingual support; exact matrix is model/deployment dependent.",
+    "freeTierSummary": "No broad permanent free tier found.",
+    "appIntegrationNotes": "Useful if you want both ASR and optional human transcription workflows in one vendor.",
+    "officialSources": [
+      "https://docs.rev.ai/",
+      "https://www.rev.ai/pricing",
+      "https://www.rev.ai/"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 1,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": null,
+    "protocols": [
+      "websocket"
+    ],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/rev-ai/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/rev-ai/models/stt--reverb.json",
+      "data/provider-catalog/providers/rev-ai/models/stt--low_cost.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "stt",
+      "modelId": "reverb",
+      "publicName": "Reverb",
+      "documentPath": "data/provider-catalog/providers/rev-ai/models/stt--reverb.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "low_cost",
+      "publicName": "Reverb Turbo / Low Cost",
+      "documentPath": "data/provider-catalog/providers/rev-ai/models/stt--low_cost.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "42. Rev.ai (US) — STT ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 42. Rev.ai (US) — STT ✓\n\n**Status:** Active. AI + human hybrid.\n\n`Reverb` ($0.20/hr English), `Reverb Turbo` ($0.10/hr), `Reverb Foreign Language` ($0.30/hr, 57+ languages). Human transcription: $1.99/min. WebSocket streaming (9 languages). Free: 5 hrs credits. SOC 2, HIPAA.",
+    "extractedBlocks": {},
+    "openAiCompatible": null,
+    "protocols": [
+      "websocket"
+    ]
+  }
+}

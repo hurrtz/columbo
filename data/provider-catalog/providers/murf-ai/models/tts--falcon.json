@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "murf-ai",
+  "providerName": "Murf.ai",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "service": "tts",
+  "publicName": "Falcon",
+  "modelId": "falcon",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Mostly exhaustive",
+  "catalogScopeId": "mostly-exhaustive",
+  "pricingSummary": "Falcon is marketed at about $0.01/minute and also shown as ~$0.01 per 1,000 characters on pricing materials. Other studio/API plans vary.",
+  "limitsSummary": "Docs/marketing cite ~5 concurrent sessions and ~1,000 RPM on free, ~15 concurrent and ~10,000 RPM on paid. Marketing also claims 10,000 concurrent calls globally for Falcon.",
+  "regionSummary": "Edge deployment across 10+ regions is marketed for Falcon.",
+  "languagesSummary": "Around 35 languages / 10+ accents in current marketing; exact counts vary across pages.",
+  "notes": "Good cost-focused conversational TTS candidate. Note that Murf’s published counts (voices/languages) differ slightly across pages.",
+  "officialSources": [
+    "https://murf.ai/api",
+    "https://murf.ai/api/docs/text-to-speech-models/falcon",
+    "https://murf.ai/falcon"
+  ],
+  "derived": {
+    "openAiCompatible": null,
+    "supportsRealtime": null,
+    "supportsBatch": null,
+    "priceMeasurements": [
+      {
+        "amountUsd": 0.01,
+        "unit": "minute",
+        "sourceText": "$0.01/minute"
+      }
+    ],
+    "constraints": [
+      {
+        "metric": "concurrency",
+        "comparator": "=",
+        "value": 5.0,
+        "unit": "count",
+        "scope": "general",
+        "sourceText": "Docs/marketing cite ~5 concurrent sessions and ~1,000 RPM on free, ~15 concurrent and ~10,000 RPM on paid. Marketing also claims 10,000 concurrent calls globally for Falcon."
+      },
+      {
+        "metric": "concurrency",
+        "comparator": "=",
+        "value": 15.0,
+        "unit": "count",
+        "scope": "general",
+        "sourceText": "Docs/marketing cite ~5 concurrent sessions and ~1,000 RPM on free, ~15 concurrent and ~10,000 RPM on paid. Marketing also claims 10,000 concurrent calls globally for Falcon."
+      },
+      {
+        "metric": "concurrency",
+        "comparator": "=",
+        "value": 0.0,
+        "unit": "count",
+        "scope": "general",
+        "sourceText": "Docs/marketing cite ~5 concurrent sessions and ~1,000 RPM on free, ~15 concurrent and ~10,000 RPM on paid. Marketing also claims 10,000 concurrent calls globally for Falcon."
+      }
+    ],
+    "languageSupport": {
+      "rawText": "Around 35 languages / 10+ accents in current marketing; exact counts vary across pages.",
+      "isMultilingual": true,
+      "languageCount": 35,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

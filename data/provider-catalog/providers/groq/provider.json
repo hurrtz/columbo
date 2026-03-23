@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "groq",
+  "providerName": "Groq",
+  "categoryId": "inference-platforms",
+  "categoryName": "Inference Platforms",
+  "hq": "US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✓",
+    "tts": "✗",
+    "stt": "✓",
+    "notes": "Ultra-fast LPU inference. Hosts Llama, Mixtral, Gemma, etc. STT: Whisper (free tier). No TTS."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Changed",
+    "catalogType": "Dynamic hosting platform",
+    "catalogTypeId": "dynamic-hosting-platform",
+    "coverage": "Dynamic/non-exhaustive",
+    "coverageId": "dynamic-non-exhaustive",
+    "activeModelsSummary": {
+      "llm": "Compound [groq/compound]\nCompound Mini [groq/compound-mini]\nHosted open models [dynamic] — Catalog changes frequently; includes Qwen, Kimi, OSS, etc.",
+      "tts": "Orpheus v1 English [canopylabs/orpheus-v1-english]\nOrpheus Arabic Saudi [canopylabs/orpheus-arabic-saudi]",
+      "stt": "Whisper Large v3 [whisper-large-v3]\nWhisper Large v3 Turbo [whisper-large-v3-turbo]"
+    },
+    "priceRangeSummary": "TTS: ~$22/M chars for English Orpheus, ~$40/M chars for Arabic. STT billed per audio minute with free/dev limits. LLM pricing depends on hosted model.",
+    "limitsSummary": "TTS max ~200 chars/request. STT file limits: ~25 MB on free tier, ~100 MB on dev tier; larger audio via URL. Minimum STT billing ~10 sec.",
+    "regionSummary": "Groq-hosted cloud; regional granularity is more limited publicly than hyperscalers.",
+    "ttsLanguagesSummary": "English; Arabic (Saudi) on currently documented Orpheus models.",
+    "sttLanguagesSummary": "Multilingual via Whisper family.",
+    "freeTierSummary": "Yes.",
+    "appIntegrationNotes": "Your sheet is outdated here: Groq now has public TTS in addition to LLM hosting and Whisper STT.",
+    "officialSources": [
+      "https://console.groq.com/docs/models",
+      "https://console.groq.com/docs/text-to-speech",
+      "https://console.groq.com/docs/speech-to-text"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 3,
+    "hasDynamicCatalog": true,
+    "needsLiveDiscovery": true,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": true,
+    "protocols": [],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/groq/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/groq/models/llm--groq__compound.json",
+      "data/provider-catalog/providers/groq/models/llm--groq__compound-mini.json",
+      "data/provider-catalog/providers/groq/models/llm--dynamic.json",
+      "data/provider-catalog/providers/groq/models/stt--whisper-large-v3.json",
+      "data/provider-catalog/providers/groq/models/stt--whisper-large-v3-turbo.json",
+      "data/provider-catalog/providers/groq/models/tts--canopylabs__orpheus-arabic-saudi.json",
+      "data/provider-catalog/providers/groq/models/tts--canopylabs__orpheus-v1-english.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "groq/compound",
+      "publicName": "Compound",
+      "documentPath": "data/provider-catalog/providers/groq/models/llm--groq__compound.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "groq/compound-mini",
+      "publicName": "Compound Mini",
+      "documentPath": "data/provider-catalog/providers/groq/models/llm--groq__compound-mini.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "dynamic",
+      "publicName": "Hosted open models",
+      "documentPath": "data/provider-catalog/providers/groq/models/llm--dynamic.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "whisper-large-v3",
+      "publicName": "Whisper Large v3",
+      "documentPath": "data/provider-catalog/providers/groq/models/stt--whisper-large-v3.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "whisper-large-v3-turbo",
+      "publicName": "Whisper Large v3 Turbo",
+      "documentPath": "data/provider-catalog/providers/groq/models/stt--whisper-large-v3-turbo.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "canopylabs/orpheus-arabic-saudi",
+      "publicName": "Orpheus Arabic Saudi",
+      "documentPath": "data/provider-catalog/providers/groq/models/tts--canopylabs__orpheus-arabic-saudi.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "canopylabs/orpheus-v1-english",
+      "publicName": "Orpheus v1 English",
+      "documentPath": "data/provider-catalog/providers/groq/models/tts--canopylabs__orpheus-v1-english.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "4. Groq (US) — LLM ✓ TTS ✓ (preview) STT ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 4. Groq (US) — LLM ✓ TTS ✓ (preview) STT ✓\n\n**Status:** Active. The designated **free default** provider. Base URL: `https://api.groq.com/openai/v1`\n\n**LLM models:**\n\n| Model ID | Input $/1M | Output $/1M | Context | Speed |\n|---|---|---|---|---|\n| `llama-3.1-8b-instant` | $0.05 | $0.08 | 131K | 560 t/s |\n| `llama-3.3-70b-versatile` | $0.59 | $0.79 | 131K | 280 t/s |\n| `openai/gpt-oss-120b` | $0.15 | $0.60 | 131K | 500 t/s |\n| `openai/gpt-oss-20b` | $0.075 | $0.30 | 131K | 1,000 t/s |\n| `meta-llama/llama-4-scout-17b-16e-instruct` | $0.11 | $0.34 | 131K | 750 t/s (preview) |\n| `moonshotai/kimi-k2-instruct-0905` | $1.00 | $3.00 | 262K | 200 t/s (preview) |\n| `qwen/qwen3-32b` | $0.29 | $0.59 | 131K | 400 t/s (preview) |\n\nGroq Compound (agentic system): `groq/compound`, `groq/compound-mini`.\n\n**STT (Whisper on LPU):**\n\n| Model ID | Pricing | Speed | Rate Limit |\n|---|---|---|---|\n| `whisper-large-v3` | **$0.111/hr** | 217–299× real-time | 200K ASH, 300 RPM |\n| `whisper-large-v3-turbo` | **$0.04/hr** | 228–262× real-time | 400K ASH, 400 RPM |\n\n57+ languages. Max file size: 100 MB (paid, via URL). Min billing: 10 seconds. OpenAI-compatible endpoint.\n\n**TTS (Preview):**\n\n| Model ID | Pricing | Language |\n|---|---|---|\n| `canopylabs/orpheus-v1-english` | $22/1M chars | English |\n| `canopylabs/orpheus-arabic-saudi` | $40/1M chars | Arabic (Saudi) |\n\n**Free tier:** No credit card required. Free API key from console.groq.com. Lower rate limits than paid. **This is the most important free tier for the app's default provider.**\n\n**Paid tiers:** Developer (pay-as-you-go, 10× higher limits, 25% cost discounts). Enterprise (custom). Prompt caching: 50% off. Batch API: 50% off.\n\n**Datacenters:** US (Dallas), Canada, Finland (Helsinki), Saudi Arabia. SOC 2, GDPR, HIPAA compliant.\n\n**Integration notes:** Fully **OpenAI-compatible API**. Drop-in replacement — change base_url only. Official Python/JS SDK. Works with OpenAI SDK.\n\n---",
+    "extractedBlocks": {
+      "freeTier": "No credit card required. Free API key from console.groq.com. Lower rate limits than paid. **This is the most important free tier for the app's default provider.**",
+      "paidTiers": "Developer (pay-as-you-go, 10× higher limits, 25% cost discounts). Enterprise (custom). Prompt caching: 50% off. Batch API: 50% off.",
+      "integrationNotes": "Fully **OpenAI-compatible API**. Drop-in replacement — change base_url only. Official Python/JS SDK. Works with OpenAI SDK.",
+      "datacenters": "US (Dallas), Canada, Finland (Helsinki), Saudi Arabia. SOC 2, GDPR, HIPAA compliant."
+    },
+    "openAiCompatible": true,
+    "protocols": []
+  }
+}

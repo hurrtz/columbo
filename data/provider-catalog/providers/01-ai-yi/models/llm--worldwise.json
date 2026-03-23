@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "01-ai-yi",
+  "providerName": "01.AI (Yi)",
+  "categoryId": "chinese-providers",
+  "categoryName": "Chinese Providers",
+  "service": "llm",
+  "publicName": "WorldWise platform",
+  "modelId": "worldwise",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Low-confidence / public self-serve unclear",
+  "catalogScopeId": "low-confidence-public-self-serve-unclear",
+  "pricingSummary": "Current first-party public hosted pricing was not clearly retrievable from official sources reviewed.",
+  "limitsSummary": "Provider definitely exists, but current public self-serve catalog/pricing is much less explicit than the open-weight Yi family.",
+  "regionSummary": "Enterprise/platform specific; not clearly centralized publicly.",
+  "languagesSummary": null,
+  "notes": "Enterprise/platform emphasis",
+  "officialSources": [
+    "https://www.01.ai/",
+    "https://www.lingyiwanwu.com/en",
+    "https://github.com/01-ai/Yi"
+  ],
+  "derived": {
+    "openAiCompatible": null,
+    "supportsRealtime": null,
+    "supportsBatch": null,
+    "priceMeasurements": [],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": null,
+      "isMultilingual": false,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

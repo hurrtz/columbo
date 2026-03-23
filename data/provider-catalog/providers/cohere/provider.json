@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "cohere",
+  "providerName": "Cohere",
+  "categoryId": "major-western-providers",
+  "categoryName": "Major Western Providers",
+  "hq": "CA",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✓",
+    "tts": "✗",
+    "stt": "✗",
+    "notes": "Command R/R+. Strong at RAG and enterprise search. No audio."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "Fixed first-party LLM catalog",
+    "catalogTypeId": "fixed-first-party-llm-catalog",
+    "coverage": "Mostly exhaustive",
+    "coverageId": "mostly-exhaustive",
+    "activeModelsSummary": {
+      "llm": "Command A [command-a] — Exact dated aliases may vary\nCommand A Translate [command-a-translate]\nCommand A Reasoning [command-a-reasoning]\nCommand A Vision [command-a-vision]\nCommand R7B [command-r7b]\nCommand R+ [command-r-plus]\nCommand R [command-r]\nCommand [command]\nAya Expanse 8B [aya-expanse-8b]\nAya Expanse 32B [aya-expanse-32b]\nAya Vision [aya-vision]",
+      "tts": null,
+      "stt": null
+    },
+    "priceRangeSummary": "Examples from pricing docs: Command $1/M input, $2/M output; Command R $0.50/$1.50; Command R+ $2.50/$10; Aya Expanse $0.50/$1.50.",
+    "limitsSummary": "No public native TTS/STT. LLM quotas vary by plan and endpoint.",
+    "regionSummary": "Cohere-hosted; sovereign/private deployments also available through partners.",
+    "ttsLanguagesSummary": null,
+    "sttLanguagesSummary": null,
+    "freeTierSummary": "Yes: trial API key available.",
+    "appIntegrationNotes": "Useful enterprise LLM provider, but treat it as text/multimodal-only for your speech app.",
+    "officialSources": [
+      "https://docs.cohere.com/docs/models",
+      "https://cohere.com/pricing",
+      "https://docs.cohere.com/"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 1,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": false,
+    "lowConfidence": false,
+    "openAiCompatible": false,
+    "protocols": [],
+    "regionSplitRecommended": true
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/cohere/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/cohere/models/llm--aya-expanse-32b.json",
+      "data/provider-catalog/providers/cohere/models/llm--aya-expanse-8b.json",
+      "data/provider-catalog/providers/cohere/models/llm--aya-vision.json",
+      "data/provider-catalog/providers/cohere/models/llm--command.json",
+      "data/provider-catalog/providers/cohere/models/llm--command-a.json",
+      "data/provider-catalog/providers/cohere/models/llm--command-a-reasoning.json",
+      "data/provider-catalog/providers/cohere/models/llm--command-a-translate.json",
+      "data/provider-catalog/providers/cohere/models/llm--command-a-vision.json",
+      "data/provider-catalog/providers/cohere/models/llm--command-r.json",
+      "data/provider-catalog/providers/cohere/models/llm--command-r-plus.json",
+      "data/provider-catalog/providers/cohere/models/llm--command-r7b.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "aya-expanse-32b",
+      "publicName": "Aya Expanse 32B",
+      "documentPath": "data/provider-catalog/providers/cohere/models/llm--aya-expanse-32b.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "aya-expanse-8b",
+      "publicName": "Aya Expanse 8B",
+      "documentPath": "data/provider-catalog/providers/cohere/models/llm--aya-expanse-8b.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "aya-vision",
+      "publicName": "Aya Vision",
+      "documentPath": "data/provider-catalog/providers/cohere/models/llm--aya-vision.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "command",
+      "publicName": "Command",
+      "documentPath": "data/provider-catalog/providers/cohere/models/llm--command.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "command-a",
+      "publicName": "Command A",
+      "documentPath": "data/provider-catalog/providers/cohere/models/llm--command-a.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "command-a-reasoning",
+      "publicName": "Command A Reasoning",
+      "documentPath": "data/provider-catalog/providers/cohere/models/llm--command-a-reasoning.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "command-a-translate",
+      "publicName": "Command A Translate",
+      "documentPath": "data/provider-catalog/providers/cohere/models/llm--command-a-translate.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "command-a-vision",
+      "publicName": "Command A Vision",
+      "documentPath": "data/provider-catalog/providers/cohere/models/llm--command-a-vision.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "command-r",
+      "publicName": "Command R",
+      "documentPath": "data/provider-catalog/providers/cohere/models/llm--command-r.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "command-r-plus",
+      "publicName": "Command R+",
+      "documentPath": "data/provider-catalog/providers/cohere/models/llm--command-r-plus.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "command-r7b",
+      "publicName": "Command R7B",
+      "documentPath": "data/provider-catalog/providers/cohere/models/llm--command-r7b.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "7. Cohere (Canada) — LLM ✓ TTS ✗ STT ✗",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 7. Cohere (Canada) — LLM ✓ TTS ✗ STT ✗\n\n**Status:** Active.\n\n**Models:**\n\n| Model ID | Input $/1M | Output $/1M | Context |\n|---|---|---|---|\n| `command-a-03-2025` | ~$2.50 | ~$10.00 | 256K |\n| `command-r-plus-08-2024` | $2.50 | $10.00 | 128K |\n| `command-r-08-2024` | $0.15 | $0.60 | 128K |\n| `command-r7b-12-2024` | $0.0375 | $0.15 | 128K |\n\nCommand A also has Reasoning, Vision, and Translate variants. Aya multilingual models available.\n\n**Free tier:** Generous trial API key — **1,000 calls/month**, rate-limited. Not for production/commercial use. No time limit.\n\n**Datacenters:** GCP US-Central. Private deployments on AWS, Azure, Oracle, on-prem for EU data residency.\n\n**GDPR:** SOC 2 Type II, ISO 27001/42001, HIPAA. DPA available. Data opt-out for training.\n\n**Integration notes:** Cohere uses its own Chat API v2 (`/v2/chat`) — **not OpenAI-compatible**. Native RAG with grounded citations. Streaming supported.\n\n---",
+    "extractedBlocks": {
+      "freeTier": "Generous trial API key — **1,000 calls/month**, rate-limited. Not for production/commercial use. No time limit.",
+      "integrationNotes": "Cohere uses its own Chat API v2 (`/v2/chat`) — **not OpenAI-compatible**. Native RAG with grounded citations. Streaming supported.",
+      "datacenters": "GCP US-Central. Private deployments on AWS, Azure, Oracle, on-prem for EU data residency."
+    },
+    "openAiCompatible": false,
+    "protocols": []
+  }
+}

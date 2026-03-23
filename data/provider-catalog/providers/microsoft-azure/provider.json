@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "microsoft-azure",
+  "providerName": "Microsoft Azure",
+  "categoryId": "major-western-providers",
+  "categoryName": "Major Western Providers",
+  "hq": "US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✓",
+    "tts": "✓",
+    "stt": "✓",
+    "notes": "OpenAI models + own. TTS: 400+ voices, 140+ languages, Custom Neural Voice. STT: Whisper + custom models."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "Multi-service platform",
+    "catalogTypeId": "multi-service-platform",
+    "coverage": "Dynamic/non-exhaustive",
+    "coverageId": "dynamic-non-exhaustive",
+    "activeModelsSummary": {
+      "llm": "Azure OpenAI / Azure AI Foundry catalog [dynamic] — Includes GPT, Phi, Llama, Mistral, Cohere and partner models; use live catalog\nGPT-5 family on Azure [dynamic]\nGPT-4.1 family on Azure [dynamic]\nGPT-4o family on Azure [dynamic]\nPhi family [dynamic]",
+      "tts": "Azure Speech voices [voice-based] — Service uses voice names rather than a small fixed model catalog\nCustom Neural Voice [custom]",
+      "stt": "Azure Speech recognition [speech]\nAzure Whisper [whisper]\nCustom Speech [custom]"
+    },
+    "priceRangeSummary": "Azure OpenAI pricing depends on selected partner model and region. Azure Speech has F0 (free) and S0 paid tiers; voice and STT pricing vary by feature/region.",
+    "limitsSummary": "Speech preview docs cite <300 MB and <120 min/file for some batch flows. Voice Live sessions max ~60 min/connection. Model retirement cadence matters on Azure OpenAI.",
+    "regionSummary": "Region-specific Azure deployment; customer chooses region where offered. Speech/LLM availability is not uniform across all Azure regions.",
+    "ttsLanguagesSummary": "400+ voices across 140+ languages/variants.",
+    "sttLanguagesSummary": "Broad multilingual support; Whisper plus Azure speech/custom models.",
+    "freeTierSummary": "Yes: Azure Speech F0; separate trial/credits may apply for Azure/OpenAI subscriptions.",
+    "appIntegrationNotes": "Treat Azure OpenAI and Azure Speech as separate product surfaces under one billing umbrella. Add model retirement monitoring.",
+    "officialSources": [
+      "https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/",
+      "https://azure.microsoft.com/en-us/pricing/details/cognitive-services/speech-services/",
+      "https://learn.microsoft.com/azure/ai-services/speech-service/"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 3,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": true,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": null,
+    "protocols": [
+      "websocket"
+    ],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/microsoft-azure/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/microsoft-azure/models/llm--dynamic.json",
+      "data/provider-catalog/providers/microsoft-azure/models/llm--dynamic--gpt-4-1-family-on-azure.json",
+      "data/provider-catalog/providers/microsoft-azure/models/llm--dynamic--gpt-4o-family-on-azure.json",
+      "data/provider-catalog/providers/microsoft-azure/models/llm--dynamic--gpt-5-family-on-azure.json",
+      "data/provider-catalog/providers/microsoft-azure/models/llm--dynamic--phi-family.json",
+      "data/provider-catalog/providers/microsoft-azure/models/stt--speech.json",
+      "data/provider-catalog/providers/microsoft-azure/models/stt--whisper.json",
+      "data/provider-catalog/providers/microsoft-azure/models/stt--custom.json",
+      "data/provider-catalog/providers/microsoft-azure/models/tts--voice-based.json",
+      "data/provider-catalog/providers/microsoft-azure/models/tts--custom.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "dynamic",
+      "publicName": "Azure OpenAI / Azure AI Foundry catalog",
+      "documentPath": "data/provider-catalog/providers/microsoft-azure/models/llm--dynamic.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "dynamic",
+      "publicName": "GPT-4.1 family on Azure",
+      "documentPath": "data/provider-catalog/providers/microsoft-azure/models/llm--dynamic--gpt-4-1-family-on-azure.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "dynamic",
+      "publicName": "GPT-4o family on Azure",
+      "documentPath": "data/provider-catalog/providers/microsoft-azure/models/llm--dynamic--gpt-4o-family-on-azure.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "dynamic",
+      "publicName": "GPT-5 family on Azure",
+      "documentPath": "data/provider-catalog/providers/microsoft-azure/models/llm--dynamic--gpt-5-family-on-azure.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "dynamic",
+      "publicName": "Phi family",
+      "documentPath": "data/provider-catalog/providers/microsoft-azure/models/llm--dynamic--phi-family.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "speech",
+      "publicName": "Azure Speech recognition",
+      "documentPath": "data/provider-catalog/providers/microsoft-azure/models/stt--speech.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "whisper",
+      "publicName": "Azure Whisper",
+      "documentPath": "data/provider-catalog/providers/microsoft-azure/models/stt--whisper.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "custom",
+      "publicName": "Custom Speech",
+      "documentPath": "data/provider-catalog/providers/microsoft-azure/models/stt--custom.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "voice-based",
+      "publicName": "Azure Speech voices",
+      "documentPath": "data/provider-catalog/providers/microsoft-azure/models/tts--voice-based.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "custom",
+      "publicName": "Custom Neural Voice",
+      "documentPath": "data/provider-catalog/providers/microsoft-azure/models/tts--custom.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "4. Microsoft Azure (US) — LLM ✓ TTS ✓ STT ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 4. Microsoft Azure (US) — LLM ✓ TTS ✓ STT ✓\n\n**Status:** Active. Full speech stack.\n\nAzure OpenAI offers GPT-5.x, GPT-4.1, o-series models at **identical pricing to direct OpenAI**. Fine-tuning adds $1.70–$3.00/hr overhead.\n\n**Azure Speech TTS:** **500+ neural voices** across **140+ languages**. Neural voices: **$16/1M chars**. HD voices (LLM-powered emotion): available. Custom Neural Voice: $24/1M chars. Free tier: **0.5M chars/month** (always free). SSML fully supported. WebSocket streaming via Speech SDK. Regions: 50+ Azure regions.\n\n**Azure Speech STT:** **$1.00/hr** real-time, **$0.36/hr** batch. 100+ languages. Free tier: **5 hrs/month** (always free). Custom models, diarization, language ID. WebSocket streaming. Commitment: volume tiers down to $0.50/hr.\n\nGDPR: Full EU data residency, 50+ compliance certifications including HIPAA, FedRAMP.",
+    "extractedBlocks": {},
+    "openAiCompatible": null,
+    "protocols": [
+      "websocket"
+    ]
+  }
+}

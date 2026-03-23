@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "baidu-ernie-qianfan",
+  "providerName": "Baidu (ERNIE / Qianfan)",
+  "categoryId": "chinese-providers",
+  "categoryName": "Chinese Providers",
+  "hq": "CN",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✓",
+    "tts": "✓",
+    "stt": "✓",
+    "notes": "ERNIE 5.0/4.5/X1. TTS + STT via Baidu AI Cloud. Primarily Chinese-focused."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "Multi-service platform",
+    "catalogTypeId": "multi-service-platform",
+    "coverage": "Mostly exhaustive",
+    "coverageId": "mostly-exhaustive",
+    "activeModelsSummary": {
+      "llm": "ERNIE 5.0 [ernie-5.0]\nERNIE X1.1 Preview [ernie-x1.1-preview]\nERNIE 4.5 Turbo VL [ernie-4.5-turbo-vl]\nERNIE 4.5 Turbo [ernie-4.5-turbo]\nERNIE 5.0 Thinking Preview [ernie-5.0-thinking-preview]\nERNIE 4.5 VL 28B A3B [ernie-4.5-vl-28b-a3b]",
+      "tts": "Baidu AI Cloud TTS [baidu-tts]",
+      "stt": "Baidu AI Cloud STT [baidu-stt]"
+    },
+    "priceRangeSummary": "Qianfan model pricing varies by ERNIE tier/context. Speech pricing follows separate AI Cloud product rates.",
+    "limitsSummary": "Primarily China-focused documentation and operations; model IDs and quotas may differ between Qianfan and AI Cloud product surfaces.",
+    "regionSummary": "China-centric; public international region detail is more limited than western hyperscalers.",
+    "ttsLanguagesSummary": "Broad but China-centric speech offering.",
+    "sttLanguagesSummary": "Broad speech recognition offering; exact language matrix depends on product tier.",
+    "freeTierSummary": "Often yes for trial quotas in Qianfan/AI Cloud, but account type matters.",
+    "appIntegrationNotes": "Good full-stack Chinese provider, but expect localization friction for non-China deployments.",
+    "officialSources": [
+      "https://qianfan.cloud.baidu.com/",
+      "https://cloud.baidu.com/product/wenxinworkshop",
+      "https://cloud.baidu.com/product/speech"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 3,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": false,
+    "protocols": [],
+    "regionSplitRecommended": true
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/baidu-ernie-qianfan/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/baidu-ernie-qianfan/models/llm--ernie-4.5-turbo.json",
+      "data/provider-catalog/providers/baidu-ernie-qianfan/models/llm--ernie-4.5-turbo-vl.json",
+      "data/provider-catalog/providers/baidu-ernie-qianfan/models/llm--ernie-4.5-vl-28b-a3b.json",
+      "data/provider-catalog/providers/baidu-ernie-qianfan/models/llm--ernie-5.0.json",
+      "data/provider-catalog/providers/baidu-ernie-qianfan/models/llm--ernie-5.0-thinking-preview.json",
+      "data/provider-catalog/providers/baidu-ernie-qianfan/models/llm--ernie-x1.1-preview.json",
+      "data/provider-catalog/providers/baidu-ernie-qianfan/models/stt--baidu-stt.json",
+      "data/provider-catalog/providers/baidu-ernie-qianfan/models/tts--baidu-tts.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "ernie-4.5-turbo",
+      "publicName": "ERNIE 4.5 Turbo",
+      "documentPath": "data/provider-catalog/providers/baidu-ernie-qianfan/models/llm--ernie-4.5-turbo.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "ernie-4.5-turbo-vl",
+      "publicName": "ERNIE 4.5 Turbo VL",
+      "documentPath": "data/provider-catalog/providers/baidu-ernie-qianfan/models/llm--ernie-4.5-turbo-vl.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "ernie-4.5-vl-28b-a3b",
+      "publicName": "ERNIE 4.5 VL 28B A3B",
+      "documentPath": "data/provider-catalog/providers/baidu-ernie-qianfan/models/llm--ernie-4.5-vl-28b-a3b.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "ernie-5.0",
+      "publicName": "ERNIE 5.0",
+      "documentPath": "data/provider-catalog/providers/baidu-ernie-qianfan/models/llm--ernie-5.0.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "ernie-5.0-thinking-preview",
+      "publicName": "ERNIE 5.0 Thinking Preview",
+      "documentPath": "data/provider-catalog/providers/baidu-ernie-qianfan/models/llm--ernie-5.0-thinking-preview.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "ernie-x1.1-preview",
+      "publicName": "ERNIE X1.1 Preview",
+      "documentPath": "data/provider-catalog/providers/baidu-ernie-qianfan/models/llm--ernie-x1.1-preview.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "baidu-stt",
+      "publicName": "Baidu AI Cloud STT",
+      "documentPath": "data/provider-catalog/providers/baidu-ernie-qianfan/models/stt--baidu-stt.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "baidu-tts",
+      "publicName": "Baidu AI Cloud TTS",
+      "documentPath": "data/provider-catalog/providers/baidu-ernie-qianfan/models/tts--baidu-tts.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "18. Baidu ERNIE/Qianfan (China) — LLM ✓ TTS ⚠️ STT ⚠️",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 18. Baidu ERNIE/Qianfan (China) — LLM ✓ TTS ⚠️ STT ⚠️\n\n**Status:** Active but **poor international access**. Registration often requires Chinese phone.\n\n`ernie-4.5` ($0.55/$2.20), `ernie-x1` ($0.28/$1.10). ERNIE 5.0 announced but public API status unclear. Legacy TTS/STT available but Chinese-focused. Proprietary API (not OpenAI-compatible). **Not recommended** for international BYOK app.",
+    "extractedBlocks": {},
+    "openAiCompatible": false,
+    "protocols": []
+  }
+}

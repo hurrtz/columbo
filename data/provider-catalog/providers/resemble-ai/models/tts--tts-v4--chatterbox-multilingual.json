@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "resemble-ai",
+  "providerName": "Resemble AI",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "service": "tts",
+  "publicName": "Chatterbox Multilingual",
+  "modelId": "tts-v4",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Mostly exhaustive",
+  "catalogScopeId": "mostly-exhaustive",
+  "pricingSummary": "Examples: TTS ~$0.0005/sec, voice agents ~$0.001/sec, voice changer ~$0.0005/sec. Start-free/onboarding access exists.",
+  "limitsSummary": "STT files up to ~500 MB and ~20 min. WebSocket streaming on Business+; ~20 simultaneous sessions and ~20 parallel connections/API key in docs reviewed.",
+  "regionSummary": "Cloud plus enterprise/on-prem options.",
+  "languagesSummary": "23 languages for multilingual Chatterbox.",
+  "notes": "Multilingual variant",
+  "officialSources": [
+    "https://app.resemble.ai/docs",
+    "https://www.resemble.ai/pricing",
+    "https://www.resemble.ai/"
+  ],
+  "derived": {
+    "openAiCompatible": null,
+    "supportsRealtime": true,
+    "supportsBatch": null,
+    "priceMeasurements": [],
+    "constraints": [
+      {
+        "metric": "file_size_bytes",
+        "comparator": "~",
+        "value": 500000000.0,
+        "unit": "bytes",
+        "scope": "file",
+        "sourceText": "STT files up to ~500 MB and ~20 min. WebSocket streaming on Business+; ~20 simultaneous sessions and ~20 parallel connections/API key in docs reviewed."
+      },
+      {
+        "metric": "session_duration_seconds",
+        "comparator": "~",
+        "value": 1200.0,
+        "unit": "seconds",
+        "scope": "session",
+        "sourceText": "STT files up to ~500 MB and ~20 min. WebSocket streaming on Business+; ~20 simultaneous sessions and ~20 parallel connections/API key in docs reviewed."
+      }
+    ],
+    "languageSupport": {
+      "rawText": "23 languages for multilingual Chatterbox.",
+      "isMultilingual": true,
+      "languageCount": 23,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

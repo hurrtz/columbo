@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "google-vertex-ai-studio",
+  "providerName": "Google (Vertex / AI Studio)",
+  "categoryId": "major-western-providers",
+  "categoryName": "Major Western Providers",
+  "hq": "US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✓",
+    "tts": "✓",
+    "stt": "✓",
+    "notes": "Gemini 3.x Pro/Flash. TTS: 380+ voices, 75+ languages (WaveNet, Neural2, Studio, Chirp 3 HD). STT: Chirp, 125+ languages."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "Multi-service platform",
+    "catalogTypeId": "multi-service-platform",
+    "coverage": "Dynamic/non-exhaustive",
+    "coverageId": "dynamic-non-exhaustive",
+    "activeModelsSummary": {
+      "llm": "Gemini 2.5 Pro [gemini-2.5-pro]\nGemini 2.5 Flash [gemini-2.5-flash]\nGemini 2.5 Flash Image [gemini-2.5-flash-image]\nGemini Live API [gemini-live] — Realtime audio/text session family\nGemini 2.0 Flash [gemini-2.0-flash]\nGemini 2.0 Flash-Lite [gemini-2.0-flash-lite]\nGemini 3.1 Flash-Lite (preview) [gemini-3.1-flash-lite-preview]\nGemini 3.1 Flash Image (preview) [gemini-3.1-flash-image-preview]\nGemini 3.1 Pro (preview) [gemini-3.1-pro-preview]",
+      "tts": "Chirp 3 HD [Chirp 3 HD]\nInstant Custom Voice [Instant Custom Voice]\nNeural2 [Neural2]\nWaveNet [WaveNet]\nStudio [Studio]\nStandard [Standard]\nPolyglot (preview) [Polyglot]",
+      "stt": "Chirp 3 [chirp_3]"
+    },
+    "priceRangeSummary": "TTS examples: Standard/WaveNet $4/M chars, Neural2 $16/M, Studio $160/M, Chirp 3 HD $30/M, Instant Custom Voice $60/M, Polyglot preview $16/M. Gemini pricing varies by model/context.",
+    "limitsSummary": "STT sync: up to 10 MB or ~1 minute; streaming chunks 25 KB and streams up to ~5 minutes; Chirp 3 supports longer audio (up to ~1 hour) but timestamp features are more limited.",
+    "regionSummary": "Global and regional endpoints. Speech services document regions including us, eu, asia-southeast1, europe-west2, asia-northeast1 depending on feature.",
+    "ttsLanguagesSummary": "380+ voices across 75+ languages.",
+    "sttLanguagesSummary": "125+ languages.",
+    "freeTierSummary": "Yes for several Cloud Speech/Text-to-Speech quotas and AI Studio experiments; limits vary by service and region.",
+    "appIntegrationNotes": "Google splits LLM vs speech across AI Studio/Vertex and Cloud Speech/TTS. Normalize provider/service credentials separately.",
+    "officialSources": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/models",
+      "https://cloud.google.com/text-to-speech",
+      "https://cloud.google.com/speech-to-text"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 3,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": true,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": true,
+    "protocols": [
+      "grpc",
+      "rest",
+      "websocket"
+    ],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/google-vertex-ai-studio/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-2.0-flash.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-2.0-flash-lite.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-2.5-flash.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-2.5-flash-image.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-2.5-pro.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-3.1-flash-image-preview.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-3.1-flash-lite-preview.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-3.1-pro-preview.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-live.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/stt--chirp_3.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/tts--Chirp-3-HD.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/tts--Instant-Custom-Voice.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/tts--Neural2.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/tts--Polyglot.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/tts--Standard.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/tts--Studio.json",
+      "data/provider-catalog/providers/google-vertex-ai-studio/models/tts--WaveNet.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "gemini-2.0-flash",
+      "publicName": "Gemini 2.0 Flash",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-2.0-flash.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "gemini-2.0-flash-lite",
+      "publicName": "Gemini 2.0 Flash-Lite",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-2.0-flash-lite.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "gemini-2.5-flash",
+      "publicName": "Gemini 2.5 Flash",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-2.5-flash.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "gemini-2.5-flash-image",
+      "publicName": "Gemini 2.5 Flash Image",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-2.5-flash-image.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "gemini-2.5-pro",
+      "publicName": "Gemini 2.5 Pro",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-2.5-pro.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "gemini-3.1-flash-image-preview",
+      "publicName": "Gemini 3.1 Flash Image (preview)",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-3.1-flash-image-preview.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "gemini-3.1-flash-lite-preview",
+      "publicName": "Gemini 3.1 Flash-Lite (preview)",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-3.1-flash-lite-preview.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "gemini-3.1-pro-preview",
+      "publicName": "Gemini 3.1 Pro (preview)",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-3.1-pro-preview.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "gemini-live",
+      "publicName": "Gemini Live API",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/llm--gemini-live.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "chirp_3",
+      "publicName": "Chirp 3",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/stt--chirp_3.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "Chirp 3 HD",
+      "publicName": "Chirp 3 HD",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/tts--Chirp-3-HD.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "Instant Custom Voice",
+      "publicName": "Instant Custom Voice",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/tts--Instant-Custom-Voice.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "Neural2",
+      "publicName": "Neural2",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/tts--Neural2.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "Polyglot",
+      "publicName": "Polyglot (preview)",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/tts--Polyglot.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "Standard",
+      "publicName": "Standard",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/tts--Standard.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "Studio",
+      "publicName": "Studio",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/tts--Studio.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "WaveNet",
+      "publicName": "WaveNet",
+      "documentPath": "data/provider-catalog/providers/google-vertex-ai-studio/models/tts--WaveNet.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "3. Google (US) — LLM ✓ TTS ✓ STT ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 3. Google (US) — LLM ✓ TTS ✓ STT ✓\n\n**Status:** Active. Two platforms: Google AI Studio (API key auth, free tier) and Vertex AI (service account, enterprise).\n\n**LLM models (Gemini):**\n\n| Model ID | Input $/1M | Output $/1M | Context | Status |\n|---|---|---|---|---|\n| `gemini-3.1-pro-preview` | $2.00 (≤200K) / $4.00 (>200K) | $12.00 / $18.00 | 1M | Preview, paid only |\n| `gemini-3-flash-preview` | $0.50 | $3.00 | 1M | Preview |\n| `gemini-3.1-flash-lite-preview` | $0.25 | $1.50 | 1M | Preview |\n| `gemini-2.5-pro` | $1.25 (≤200K) / $2.50 (>200K) | $10.00 / $15.00 | 1M | **Stable GA** |\n| `gemini-2.5-flash` | $0.30 | $2.50 | 1M | Stable GA |\n| `gemini-2.5-flash-lite` | $0.10 | $0.40 | 1M | Stable GA |\n\n`gemini-2.0-flash` deprecated, retiring June 1, 2026. Batch API: 50% off. Context caching: ~10% of input rate.\n\n**Gemini TTS (via Gemini API):**\n\n| Model ID | Text In $/1M | Audio Out $/1M | Notes |\n|---|---|---|---|\n| `gemini-2.5-flash-preview-tts` | $0.50 | $10.00 | 30 speakers, 70-80+ locales |\n| `gemini-2.5-pro-preview-tts` | $1.00 | $20.00 | Higher fidelity |\n\n**Cloud TTS pricing:**\n\n| Voice Type | $/1M chars | Free Monthly |\n|---|---|---|\n| Chirp 3: HD | $30.00 | 1M chars |\n| Studio | $160.00 | 1M chars |\n| Neural2 | $16.00 | 1M chars |\n| WaveNet | $4.00 | 4M chars |\n| Standard | $4.00 | 4M chars |\n\nChirp 3 HD: 30 voice styles across **31+ languages**, partial SSML support. Voice names: `<locale>-Chirp3-HD-<voice>` (e.g., `en-US-Chirp3-HD-Kore`). Instant Custom Voice (cloning): $60/1M chars.\n\n**Cloud STT:**\n\n| Feature | Price |\n|---|---|\n| Standard (0–500K min) | $0.016/min |\n| Dynamic Batch | $0.003/min |\n| Medical models | $0.078/min |\n\nChirp 3 model: **85+ languages**, streaming support. Free tier: 60 min/month. Max sync audio: ~1 min; batch: unlimited. APIs: gRPC and REST.\n\n**Free tier (AI Studio):** No credit card. Full 1M token context. Gemini 2.5 Pro: 5 RPM/100 RPD. Gemini 2.5 Flash: 10 RPM/250 RPD. Data may be used to improve Google products on free tier only. $300 cloud credit for new Google Cloud accounts.\n\n**Datacenters:** Multi-region: us-central1, europe-west4, asia-southeast1, and many more. Full EU data residency on Vertex AI.\n\n**GDPR:** Full compliance on Vertex AI. DPA, CMEK support, SOC 2, ISO 27001. AI Studio paid tier: data NOT used to improve products.\n\n**Integration notes:** Unified `google-genai` SDK for both AI Studio and Vertex AI. OpenAI-compatible endpoint available. gRPC support on Vertex AI. WebSocket for Live API.\n\n---",
+    "extractedBlocks": {
+      "integrationNotes": "Unified `google-genai` SDK for both AI Studio and Vertex AI. OpenAI-compatible endpoint available. gRPC support on Vertex AI. WebSocket for Live API.",
+      "datacenters": "Multi-region: us-central1, europe-west4, asia-southeast1, and many more. Full EU data residency on Vertex AI.",
+      "pricing": "| Voice Type | $/1M chars | Free Monthly |"
+    },
+    "openAiCompatible": true,
+    "protocols": [
+      "grpc",
+      "rest",
+      "websocket"
+    ]
+  }
+}

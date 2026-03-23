@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "bytedance-doubao-seed",
+  "providerName": "ByteDance (Doubao/Seed)",
+  "categoryId": "chinese-providers",
+  "categoryName": "Chinese Providers",
+  "service": "stt",
+  "publicName": "Recording File Recognition",
+  "modelId": "file-stt",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Dynamic/non-exhaustive",
+  "catalogScopeId": "dynamic-non-exhaustive",
+  "pricingSummary": "Pricing varies across Doubao/Voice Tech product lines; official calculators are service-specific.",
+  "limitsSummary": "Volcano Engine splits capability across LLM, voice-tech, and realtime speech APIs. Exact model IDs are less uniform than western API catalogs.",
+  "regionSummary": "Primarily China/Asia infrastructure; exact region availability varies by Volcano Engine product.",
+  "languagesSummary": "ASR available via Volcano Engine, including streaming and integrated end-to-end voice modes.",
+  "notes": "Technically a full stack provider, but integration is fragmented across product surfaces. Plan for extra onboarding effort.",
+  "officialSources": [
+    "https://www.volcengine.com/",
+    "https://www.volcengine.com/product/doubao",
+    "https://www.volcengine.com/product/voice-tech"
+  ],
+  "derived": {
+    "openAiCompatible": null,
+    "supportsRealtime": true,
+    "supportsBatch": null,
+    "priceMeasurements": [],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": "ASR available via Volcano Engine, including streaming and integrated end-to-end voice modes.",
+      "isMultilingual": false,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [
+        "ASR available via Volcano Engine",
+        "including streaming",
+        "integrated end-to-end voice modes"
+      ],
+      "notes": []
+    }
+  }
+}

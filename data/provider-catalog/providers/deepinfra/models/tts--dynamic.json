@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "deepinfra",
+  "providerName": "DeepInfra",
+  "categoryId": "inference-platforms",
+  "categoryName": "Inference Platforms",
+  "service": "tts",
+  "publicName": "TTS catalog",
+  "modelId": "dynamic",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Dynamic/non-exhaustive",
+  "catalogScopeId": "dynamic-non-exhaustive",
+  "pricingSummary": "Varies by model page. Example speech prices depend on chosen hosted model.",
+  "limitsSummary": "Catalog is dynamic; speech model capabilities and quotas differ by hosted model.",
+  "regionSummary": "Public model-level region/data center detail is limited.",
+  "languagesSummary": "Depends on chosen hosted model (e.g., Qwen3-TTS supports ~10 languages).",
+  "notes": "Your sheet is outdated here: DeepInfra now exposes TTS and speech-recognition categories at platform level.",
+  "officialSources": [
+    "https://deepinfra.com/docs",
+    "https://deepinfra.com/models",
+    "https://deepinfra.com/"
+  ],
+  "derived": {
+    "openAiCompatible": true,
+    "supportsRealtime": null,
+    "supportsBatch": null,
+    "priceMeasurements": [],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": "Depends on chosen hosted model (e.g., Qwen3-TTS supports ~10 languages).",
+      "isMultilingual": true,
+      "languageCount": 10,
+      "voiceCount": null,
+      "listedLanguages": [
+        "Depends on chosen hosted model (e.g",
+        "Qwen3-TTS supports ~10 languages"
+      ],
+      "notes": []
+    }
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "reka",
+  "providerName": "Reka",
+  "categoryId": "major-western-providers",
+  "categoryName": "Major Western Providers",
+  "hq": "US/UK",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✓",
+    "tts": "✗",
+    "stt": "✗",
+    "notes": "Reka Core/Flash/Edge. Multimodal LLM. No audio generation."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "Fixed first-party multimodal LLM catalog",
+    "catalogTypeId": "fixed-first-party-multimodal-llm-catalog",
+    "coverage": "Mostly exhaustive",
+    "coverageId": "mostly-exhaustive",
+    "activeModelsSummary": {
+      "llm": "Reka Core [reka-core]\nReka Flash [reka-flash]\nReka Edge [reka-edge]",
+      "tts": null,
+      "stt": null
+    },
+    "priceRangeSummary": "Examples: Spark tier about $0.05 in/out; Flash ~$0.80/M input and $2/M output; Core ~$2/$6. Audio input is billed per minute for multimodal input.",
+    "limitsSummary": "Multimodal/audio input exists, but no dedicated public TTS or STT output API was verified.",
+    "regionSummary": "Reka-hosted cloud; public region details are limited.",
+    "ttsLanguagesSummary": null,
+    "sttLanguagesSummary": null,
+    "freeTierSummary": "Not clearly documented as permanent free tier.",
+    "appIntegrationNotes": "For a speech app, Reka is best treated as an LLM that can consume audio, not as a full speech provider.",
+    "officialSources": [
+      "https://www.reka.ai/",
+      "https://www.reka.ai/pricing",
+      "https://docs.reka.ai/"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 1,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": false,
+    "lowConfidence": false,
+    "openAiCompatible": true,
+    "protocols": [],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/reka/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/reka/models/llm--reka-core.json",
+      "data/provider-catalog/providers/reka/models/llm--reka-edge.json",
+      "data/provider-catalog/providers/reka/models/llm--reka-flash.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "reka-core",
+      "publicName": "Reka Core",
+      "documentPath": "data/provider-catalog/providers/reka/models/llm--reka-core.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "reka-edge",
+      "publicName": "Reka Edge",
+      "documentPath": "data/provider-catalog/providers/reka/models/llm--reka-edge.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "reka-flash",
+      "publicName": "Reka Flash",
+      "documentPath": "data/provider-catalog/providers/reka/models/llm--reka-flash.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "11. Reka (US/UK) — LLM ✓ (+ Speech)",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 11. Reka (US/UK) — LLM ✓ (+ Speech)\n\n**Status:** Active. Multimodal (text, image, video, audio).\n\n`reka-spark` ($0.05/$0.05), `reka-flash` ($0.80/$2.00), `reka-core` ($2.00/$6.00). 128K context. OpenAI-compatible. Has a **Reka Speech** product for audio transcription/translation. Pay-as-you-go.",
+    "extractedBlocks": {},
+    "openAiCompatible": true,
+    "protocols": []
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "openai",
+  "providerName": "OpenAI",
+  "categoryId": "major-western-providers",
+  "categoryName": "Major Western Providers",
+  "service": "llm",
+  "publicName": "GPT-5.4 nano",
+  "modelId": "gpt-5.4-nano",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Mostly exhaustive",
+  "catalogScopeId": "mostly-exhaustive",
+  "pricingSummary": "Examples: GPT-5.4 $2.50/M input, $15/M output; speech models use minute/character/audio pricing depending on endpoint.",
+  "limitsSummary": "STT upload limit 25 MB/file; common audio formats only. Some diarization workflows need >30s audio. Realtime uses WebSocket sessions.",
+  "regionSummary": "Global by default; regional data residency endpoints available for supported models (e.g., EU/US) at premium pricing.",
+  "languagesSummary": null,
+  "notes": "Strongest single-vendor native speech stack for text, STT, TTS, and realtime speech-to-speech. Distinguish model ID from voice selection.",
+  "officialSources": [
+    "https://platform.openai.com/docs/models",
+    "https://openai.com/api/pricing/",
+    "https://platform.openai.com/docs/guides/speech-to-text"
+  ],
+  "derived": {
+    "openAiCompatible": null,
+    "supportsRealtime": true,
+    "supportsBatch": true,
+    "priceMeasurements": [
+      {
+        "amountUsd": 2.5,
+        "unit": "million_input_tokens",
+        "sourceText": "$2.50/M input, $15/M output"
+      },
+      {
+        "amountUsd": 15.0,
+        "unit": "million_output_tokens",
+        "sourceText": "$2.50/M input, $15/M output"
+      }
+    ],
+    "constraints": [
+      {
+        "metric": "file_size_bytes",
+        "comparator": "<=",
+        "value": 25000000.0,
+        "unit": "bytes",
+        "scope": "file",
+        "sourceText": "STT upload limit 25 MB/file; common audio formats only. Some diarization workflows need >30s audio. Realtime uses WebSocket sessions."
+      },
+      {
+        "metric": "duration_seconds",
+        "comparator": ">=",
+        "value": 30.0,
+        "unit": "seconds",
+        "scope": "audio",
+        "sourceText": "STT upload limit 25 MB/file; common audio formats only. Some diarization workflows need >30s audio. Realtime uses WebSocket sessions."
+      }
+    ],
+    "languageSupport": {
+      "rawText": null,
+      "isMultilingual": false,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

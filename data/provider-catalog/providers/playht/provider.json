@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "playht",
+  "providerName": "PlayHT",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "hq": "US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✗",
+    "tts": "✓",
+    "stt": "✗",
+    "notes": "TTS: PlayHT 3.0. Voice cloning, 140+ languages. Good for content creation."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "TTS-first platform",
+    "catalogTypeId": "tts-first-platform",
+    "coverage": "Mostly exhaustive",
+    "coverageId": "mostly-exhaustive",
+    "activeModelsSummary": {
+      "llm": null,
+      "tts": "PlayDialog Turbo [PlayDialog-turbo]\nPlayHT TTS API [tts] — Voice-based model/engine selection beyond Turbo",
+      "stt": null
+    },
+    "priceRangeSummary": "Plan-based/pricing-page driven. Official site markets a free version for limited testing.",
+    "limitsSummary": "Rate limits depend on plan/API. Public docs are more voice-centric than model-centric; voice IDs matter more than engine IDs.",
+    "regionSummary": "PlayHT cloud; region details limited in public docs.",
+    "ttsLanguagesSummary": "30+ to 40+ languages depending on marketing page/version.",
+    "sttLanguagesSummary": null,
+    "freeTierSummary": "Yes: limited testing/free version.",
+    "appIntegrationNotes": "Use voice IDs plus engine selection. Public docs clearly show Dialog Turbo, but broader engine naming is less standardized than some competitors.",
+    "officialSources": [
+      "https://docs.play.ht/reference/models",
+      "https://docs.play.ht/reference/groq",
+      "https://play.ht/"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 1,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": null,
+    "protocols": [],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/playht/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/playht/models/tts--PlayDialog-turbo.json",
+      "data/provider-catalog/providers/playht/models/tts--tts.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "tts",
+      "modelId": "PlayDialog-turbo",
+      "publicName": "PlayDialog Turbo",
+      "documentPath": "data/provider-catalog/providers/playht/models/tts--PlayDialog-turbo.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "tts",
+      "publicName": "PlayHT TTS API",
+      "documentPath": "data/provider-catalog/providers/playht/models/tts--tts.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "45. PlayHT (US) — ⛔ SHUT DOWN",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 45. PlayHT (US) — ⛔ SHUT DOWN\n\n**Status:** Acquired by Meta (July 2025). API offline July 26, 2025. Services permanently shut down December 31, 2025. **Remove from all integration plans.** Replacements: ElevenLabs, Cartesia, Fish Audio, LMNT.",
+    "extractedBlocks": {},
+    "openAiCompatible": null,
+    "protocols": []
+  }
+}

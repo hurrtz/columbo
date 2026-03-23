@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "picovoice",
+  "providerName": "Picovoice",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "hq": "CA",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✗",
+    "tts": "✗",
+    "stt": "✓",
+    "notes": "On-device STT (no cloud). Cheetah/Leopard engines. Privacy-first, edge deployment."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Changed",
+    "catalogType": "On-device / edge catalog",
+    "catalogTypeId": "on-device-edge-catalog",
+    "coverage": "Mostly exhaustive",
+    "coverageId": "mostly-exhaustive",
+    "activeModelsSummary": {
+      "llm": "picoLLM [picollm]",
+      "tts": "Orca [orca]",
+      "stt": "Cheetah [cheetah]\nCheetah Fast [cheetah-fast]\nLeopard [leopard]"
+    },
+    "priceRangeSummary": "On-device SDK pricing/plans vary by product and deployment.",
+    "limitsSummary": "Offline/edge deployment; device constraints matter more than cloud file-size quotas. Language coverage is narrower than cloud hyperscalers.",
+    "regionSummary": "Not applicable for on-device inference; processing stays on device unless you wrap it yourself.",
+    "ttsLanguagesSummary": "English, French, German, Italian, Japanese, Korean, Portuguese, Spanish.",
+    "sttLanguagesSummary": "Cheetah/Cheetah Fast languages include English, French, German, Italian, Portuguese, Spanish.",
+    "freeTierSummary": "Evaluation/free developer access exists for many SDKs.",
+    "appIntegrationNotes": "Your sheet is outdated: Picovoice is now LLM + TTS + STT on-device. This is strategically important if privacy/offline mode matters.",
+    "officialSources": [
+      "https://picovoice.ai/docs/",
+      "https://picovoice.ai/platform/",
+      "https://picovoice.ai/pricing/"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 3,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": null,
+    "protocols": [],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/picovoice/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/picovoice/models/llm--picollm.json",
+      "data/provider-catalog/providers/picovoice/models/stt--cheetah.json",
+      "data/provider-catalog/providers/picovoice/models/stt--cheetah-fast.json",
+      "data/provider-catalog/providers/picovoice/models/stt--leopard.json",
+      "data/provider-catalog/providers/picovoice/models/tts--orca.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "picollm",
+      "publicName": "picoLLM",
+      "documentPath": "data/provider-catalog/providers/picovoice/models/llm--picollm.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "cheetah",
+      "publicName": "Cheetah",
+      "documentPath": "data/provider-catalog/providers/picovoice/models/stt--cheetah.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "cheetah-fast",
+      "publicName": "Cheetah Fast",
+      "documentPath": "data/provider-catalog/providers/picovoice/models/stt--cheetah-fast.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "leopard",
+      "publicName": "Leopard",
+      "documentPath": "data/provider-catalog/providers/picovoice/models/stt--leopard.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "orca",
+      "publicName": "Orca",
+      "documentPath": "data/provider-catalog/providers/picovoice/models/tts--orca.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "53. Picovoice (Canada) — STT ✓ TTS ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 53. Picovoice (Canada) — STT ✓ TTS ✓\n\n**Status:** Active. **100% on-device** — no cloud processing whatsoever.\n\n**Cheetah** (streaming STT), **Leopard** (batch STT), **Orca** (TTS). **8 languages** (en, fr, de, it, ja, ko, pt, es). Free plan: 250 min STT/month + 100K chars TTS/month. Foundation: $6,000/year. Enterprise: $30,000/year. Annual contracts only. Cross-platform SDKs. **Inherently HIPAA/GDPR compliant** (no data leaves device). Models <20MB footprint.",
+    "extractedBlocks": {},
+    "openAiCompatible": null,
+    "protocols": []
+  }
+}

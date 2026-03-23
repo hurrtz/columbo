@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "ibm-watsonx",
+  "providerName": "IBM (watsonx)",
+  "categoryId": "major-western-providers",
+  "categoryName": "Major Western Providers",
+  "service": "llm",
+  "publicName": "Granite 3.x family",
+  "modelId": "granite-3.x",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Mostly exhaustive",
+  "catalogScopeId": "mostly-exhaustive",
+  "pricingSummary": "Lite tiers include ~500 STT minutes/month and ~10k TTS chars/month; paid pricing varies by plan/region/service generation.",
+  "limitsSummary": "TTS language/voice availability differs by voice family. STT model choice varies by language. IBM has begun partnering with Deepgram but native services still exist.",
+  "regionSummary": "IBM Cloud regions vary by service instance; exact model-level data center is not always public.",
+  "languagesSummary": null,
+  "notes": "Still available in many deployments",
+  "officialSources": [
+    "https://cloud.ibm.com/apidocs/watsonx-ai",
+    "https://cloud.ibm.com/catalog/services/text-to-speech",
+    "https://cloud.ibm.com/catalog/services/speech-to-text"
+  ],
+  "derived": {
+    "openAiCompatible": false,
+    "supportsRealtime": true,
+    "supportsBatch": true,
+    "priceMeasurements": [],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": null,
+      "isMultilingual": false,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

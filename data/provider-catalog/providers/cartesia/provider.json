@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "cartesia",
+  "providerName": "Cartesia",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "hq": "US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✗",
+    "tts": "✓",
+    "stt": "✗",
+    "notes": "Sonic-3 TTS. 90ms TTFA, 40+ languages. Voice cloning from 3 seconds. Voice agent focused."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Changed",
+    "catalogType": "Speech-first realtime stack",
+    "catalogTypeId": "speech-first-realtime-stack",
+    "coverage": "Mostly exhaustive",
+    "coverageId": "mostly-exhaustive",
+    "activeModelsSummary": {
+      "llm": null,
+      "tts": "Sonic [sonic]\nSonic-2 [sonic-2]\nSonic-3 [sonic-3]",
+      "stt": "Ink Whisper [ink-whisper]"
+    },
+    "priceRangeSummary": "Credit-based. Batch STT has been documented at 1 credit per 2 seconds. Voice cloning uses separate credit schedules by clone type.",
+    "limitsSummary": "Plan concurrency examples: Free ~2 TTS / 8 STT; Pro ~3/12; Startup ~5/20; Scale ~15/60. Older Sonic snapshots can have EOL dates.",
+    "regionSummary": "Cartesia cloud; low-latency realtime focus.",
+    "ttsLanguagesSummary": "40+ languages.",
+    "sttLanguagesSummary": "Whisper-based multilingual STT.",
+    "freeTierSummary": "Yes.",
+    "appIntegrationNotes": "Your source sheet is outdated: Cartesia now has both TTS and STT. It is a strong developer-first realtime voice provider.",
+    "officialSources": [
+      "https://docs.cartesia.ai/",
+      "https://cartesia.ai/pricing",
+      "https://docs.cartesia.ai/api-reference"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 2,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": null,
+    "protocols": [
+      "websocket"
+    ],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/cartesia/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/cartesia/models/stt--ink-whisper.json",
+      "data/provider-catalog/providers/cartesia/models/tts--sonic.json",
+      "data/provider-catalog/providers/cartesia/models/tts--sonic-2.json",
+      "data/provider-catalog/providers/cartesia/models/tts--sonic-3.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "stt",
+      "modelId": "ink-whisper",
+      "publicName": "Ink Whisper",
+      "documentPath": "data/provider-catalog/providers/cartesia/models/stt--ink-whisper.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "sonic",
+      "publicName": "Sonic",
+      "documentPath": "data/provider-catalog/providers/cartesia/models/tts--sonic.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "sonic-2",
+      "publicName": "Sonic-2",
+      "documentPath": "data/provider-catalog/providers/cartesia/models/tts--sonic-2.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "sonic-3",
+      "publicName": "Sonic-3",
+      "documentPath": "data/provider-catalog/providers/cartesia/models/tts--sonic-3.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "44. Cartesia (US) — TTS ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 44. Cartesia (US) — TTS ✓\n\n**Status:** Active. Fastest time-to-first-audio in market.\n\n`sonic-3` (90ms TTFA), `sonic-turbo` (**40ms TTFA**). **40+ languages**. Credit-based: Free (20K chars), Pro ($4/100K), Startup ($39/1.25M), Scale ($239/8M). WebSocket streaming. Voice cloning (instant + pro). SOC 2 Type II, HIPAA (Enterprise).",
+    "extractedBlocks": {},
+    "openAiCompatible": null,
+    "protocols": [
+      "websocket"
+    ]
+  }
+}

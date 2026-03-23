@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "lmnt",
+  "providerName": "LMNT",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "service": "tts",
+  "publicName": "Aurora (alias to Blizzard)",
+  "modelId": "aurora",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Exhaustive",
+  "catalogScopeId": "exhaustive",
+  "pricingSummary": "Plan-based; account endpoint exposes character and voice limits.",
+  "limitsSummary": "Real-time streaming sessions supported. Account plan determines character_limit and voice-cloning quotas.",
+  "regionSummary": "LMNT cloud.",
+  "languagesSummary": "Primarily English-focused in current docs/positioning.",
+  "notes": "Alias",
+  "officialSources": [
+    "https://docs.lmnt.com/",
+    "https://docs.lmnt.com/guides/models",
+    "https://docs.lmnt.com/api-reference/account-info"
+  ],
+  "derived": {
+    "openAiCompatible": null,
+    "supportsRealtime": true,
+    "supportsBatch": null,
+    "priceMeasurements": [],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": "Primarily English-focused in current docs/positioning.",
+      "isMultilingual": false,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

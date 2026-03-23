@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "deepinfra",
+  "providerName": "DeepInfra",
+  "categoryId": "inference-platforms",
+  "categoryName": "Inference Platforms",
+  "service": "llm",
+  "publicName": "Hosted open/partner model catalog",
+  "modelId": "dynamic",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Dynamic/non-exhaustive",
+  "catalogScopeId": "dynamic-non-exhaustive",
+  "pricingSummary": "Varies by model page. Example speech prices depend on chosen hosted model.",
+  "limitsSummary": "Catalog is dynamic; speech model capabilities and quotas differ by hosted model.",
+  "regionSummary": "Public model-level region/data center detail is limited.",
+  "languagesSummary": null,
+  "notes": "Your sheet is outdated here: DeepInfra now exposes TTS and speech-recognition categories at platform level.",
+  "officialSources": [
+    "https://deepinfra.com/docs",
+    "https://deepinfra.com/models",
+    "https://deepinfra.com/"
+  ],
+  "derived": {
+    "openAiCompatible": true,
+    "supportsRealtime": null,
+    "supportsBatch": null,
+    "priceMeasurements": [],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": null,
+      "isMultilingual": false,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

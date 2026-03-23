@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "deepseek",
+  "providerName": "DeepSeek",
+  "categoryId": "chinese-providers",
+  "categoryName": "Chinese Providers",
+  "service": "llm",
+  "publicName": "DeepSeek Reasoner",
+  "modelId": "deepseek-reasoner",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Exhaustive",
+  "catalogScopeId": "exhaustive",
+  "pricingSummary": "deepseek-chat: cache hit $0.07/M, cache miss $0.27/M, output $1.10/M; deepseek-reasoner: cache hit $0.14/M, miss $0.55/M, output $2.19/M.",
+  "limitsSummary": "No native public TTS/STT.",
+  "regionSummary": "DeepSeek-hosted; region specifics are not deeply public.",
+  "languagesSummary": null,
+  "notes": "V3.2 thinking mode",
+  "officialSources": [
+    "https://api-docs.deepseek.com/",
+    "https://api-docs.deepseek.com/quick_start/pricing",
+    "https://api-docs.deepseek.com/quick_start/models"
+  ],
+  "derived": {
+    "openAiCompatible": true,
+    "supportsRealtime": true,
+    "supportsBatch": null,
+    "priceMeasurements": [],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": null,
+      "isMultilingual": false,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

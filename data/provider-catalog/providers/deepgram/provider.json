@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "deepgram",
+  "providerName": "Deepgram",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "hq": "US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✗",
+    "tts": "✓",
+    "stt": "✓",
+    "notes": "Nova-3 STT + Aura-2 TTS. Unified voice agent API. Sub-250ms latency. Strong real-time."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "Fixed speech-first catalog",
+    "catalogTypeId": "fixed-speech-first-catalog",
+    "coverage": "Mostly exhaustive",
+    "coverageId": "mostly-exhaustive",
+    "activeModelsSummary": {
+      "llm": null,
+      "tts": "Aura [aura]\nAura-2 [aura-2]",
+      "stt": "Flux [flux]\nNova-3 [nova-3]\nNova-2 [nova-2]\nNova [nova]\nEnhanced [enhanced]\nBase [base]\nWhisper Cloud [whisper-cloud]"
+    },
+    "priceRangeSummary": "Deepgram pricing varies by model and mode. Signup commonly includes $200 credit.",
+    "limitsSummary": "Typical rate limits: Flux/Nova streaming up to ~225 concurrent; prerecorded ~50 concurrent; TTS REST ~15 concurrent and streaming ~60. Whisper Cloud has lower concurrency.",
+    "regionSummary": "Deepgram-managed cloud; self-hosted/private options also exist.",
+    "ttsLanguagesSummary": "Aura/Aura-2 support English, Spanish, German, French, Dutch, Italian, Japanese.",
+    "sttLanguagesSummary": "Varies by model; Nova/Flux broad multilingual coverage, Whisper Cloud model-size dependent.",
+    "freeTierSummary": "Yes: signup credit.",
+    "appIntegrationNotes": "Strong realtime speech stack. If you need a single speech specialist with both STT and TTS, Deepgram is one of the easier integrations.",
+    "officialSources": [
+      "https://developers.deepgram.com/docs/models-languages-overview",
+      "https://developers.deepgram.com/docs/text-to-speech",
+      "https://deepgram.com/pricing"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 2,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": null,
+    "protocols": [
+      "websocket"
+    ],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/deepgram/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/deepgram/models/stt--base.json",
+      "data/provider-catalog/providers/deepgram/models/stt--enhanced.json",
+      "data/provider-catalog/providers/deepgram/models/stt--flux.json",
+      "data/provider-catalog/providers/deepgram/models/stt--nova.json",
+      "data/provider-catalog/providers/deepgram/models/stt--nova-2.json",
+      "data/provider-catalog/providers/deepgram/models/stt--nova-3.json",
+      "data/provider-catalog/providers/deepgram/models/stt--whisper-cloud.json",
+      "data/provider-catalog/providers/deepgram/models/tts--aura.json",
+      "data/provider-catalog/providers/deepgram/models/tts--aura-2.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "stt",
+      "modelId": "base",
+      "publicName": "Base",
+      "documentPath": "data/provider-catalog/providers/deepgram/models/stt--base.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "enhanced",
+      "publicName": "Enhanced",
+      "documentPath": "data/provider-catalog/providers/deepgram/models/stt--enhanced.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "flux",
+      "publicName": "Flux",
+      "documentPath": "data/provider-catalog/providers/deepgram/models/stt--flux.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "nova",
+      "publicName": "Nova",
+      "documentPath": "data/provider-catalog/providers/deepgram/models/stt--nova.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "nova-2",
+      "publicName": "Nova-2",
+      "documentPath": "data/provider-catalog/providers/deepgram/models/stt--nova-2.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "nova-3",
+      "publicName": "Nova-3",
+      "documentPath": "data/provider-catalog/providers/deepgram/models/stt--nova-3.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "whisper-cloud",
+      "publicName": "Whisper Cloud",
+      "documentPath": "data/provider-catalog/providers/deepgram/models/stt--whisper-cloud.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "aura",
+      "publicName": "Aura",
+      "documentPath": "data/provider-catalog/providers/deepgram/models/tts--aura.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "aura-2",
+      "publicName": "Aura-2",
+      "documentPath": "data/provider-catalog/providers/deepgram/models/tts--aura-2.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "39. Deepgram (US) — TTS ✓ STT ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 39. Deepgram (US) — TTS ✓ STT ✓\n\n**Status:** Active. **$200 free credit** (no expiry, no card required).\n\n**STT:** `nova-3` (streaming: $0.0077/min, pre-recorded: $0.0043/min). 45+ languages. `flux` model for conversational voice agents. Sub-300ms latency. WebSocket streaming.\n\n**TTS:** `aura-2` ($30/1M chars). 7 languages (expanding). ~90ms latency.\n\n**Voice Agent API:** Standard $0.08/min, BYO LLM+TTS $0.04/min.\n\nEU endpoint: `api.eu.deepgram.com`. SOC 2 Type 1 & 2. HIPAA. On-premise available.",
+    "extractedBlocks": {},
+    "openAiCompatible": null,
+    "protocols": [
+      "websocket"
+    ]
+  }
+}

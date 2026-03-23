@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "wellsaid-labs",
+  "providerName": "WellSaid Labs",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "service": "tts",
+  "publicName": "WellSaid API voice models",
+  "modelId": "voice-based",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Mostly exhaustive",
+  "catalogScopeId": "mostly-exhaustive",
+  "pricingSummary": "Subscription/custom pricing; free trial account available.",
+  "limitsSummary": "Default API rate ~3 req/sec and ~1,000 chars/request.",
+  "regionSummary": "WellSaid cloud; public region detail limited.",
+  "languagesSummary": "English plus selected non-English languages/accents; coverage is materially narrower than ElevenLabs/Google/Azure.",
+  "notes": "Docs emphasize speaker IDs/avatars more than a small global model list",
+  "officialSources": [
+    "https://docs.wellsaidlabs.com/docs/getting-started",
+    "https://docs.wellsaidlabs.com/reference/model-selection-with-the-api",
+    "https://wellsaidlabs.com/"
+  ],
+  "derived": {
+    "openAiCompatible": null,
+    "supportsRealtime": null,
+    "supportsBatch": null,
+    "priceMeasurements": [],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": "English plus selected non-English languages/accents; coverage is materially narrower than ElevenLabs/Google/Azure.",
+      "isMultilingual": false,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

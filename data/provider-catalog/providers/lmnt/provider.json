@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "lmnt",
+  "providerName": "LMNT",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "hq": "US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✗",
+    "tts": "✓",
+    "stt": "✗",
+    "notes": "Ultra-low-latency TTS for voice agents. Voice cloning. English-focused."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "TTS-first platform",
+    "catalogTypeId": "tts-first-platform",
+    "coverage": "Exhaustive",
+    "coverageId": "exhaustive",
+    "activeModelsSummary": {
+      "llm": null,
+      "tts": "Blizzard [blizzard]\nAurora (alias to Blizzard) [aurora] — Alias",
+      "stt": null
+    },
+    "priceRangeSummary": "Plan-based; account endpoint exposes character and voice limits.",
+    "limitsSummary": "Real-time streaming sessions supported. Account plan determines character_limit and voice-cloning quotas.",
+    "regionSummary": "LMNT cloud.",
+    "ttsLanguagesSummary": "Primarily English-focused in current docs/positioning.",
+    "sttLanguagesSummary": null,
+    "freeTierSummary": "Limited/free access may exist by plan, but not a broad always-on free tier statement.",
+    "appIntegrationNotes": "Simple low-latency TTS integration. One of the cleanest model catalogs because it is effectively a single production model plus alias.",
+    "officialSources": [
+      "https://docs.lmnt.com/",
+      "https://docs.lmnt.com/guides/models",
+      "https://docs.lmnt.com/api-reference/account-info"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 1,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": null,
+    "protocols": [
+      "websocket"
+    ],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/lmnt/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/lmnt/models/tts--aurora.json",
+      "data/provider-catalog/providers/lmnt/models/tts--blizzard.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "tts",
+      "modelId": "aurora",
+      "publicName": "Aurora (alias to Blizzard)",
+      "documentPath": "data/provider-catalog/providers/lmnt/models/tts--aurora.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "blizzard",
+      "publicName": "Blizzard",
+      "documentPath": "data/provider-catalog/providers/lmnt/models/tts--blizzard.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "46. LMNT (US) — TTS ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 46. LMNT (US) — TTS ✓\n\n**Status:** Active. `blizzard` model. **24 languages**. Indie $10/mo (200K chars), Starter $49/mo (1.25M chars). Overage: $0.035–$0.05/1K chars. 150–200ms latency. **No concurrency limits** on paid plans. **Unlimited voice clones** on all plans (including Free). Free: 15K chars/month. WebSocket streaming.",
+    "extractedBlocks": {},
+    "openAiCompatible": null,
+    "protocols": [
+      "websocket"
+    ]
+  }
+}

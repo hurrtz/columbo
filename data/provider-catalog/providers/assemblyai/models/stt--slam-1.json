@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "assemblyai",
+  "providerName": "AssemblyAI",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "service": "stt",
+  "publicName": "Slam-1",
+  "modelId": "slam-1",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Mostly exhaustive",
+  "catalogScopeId": "mostly-exhaustive",
+  "pricingSummary": "Pricing varies by speech model and add-on intelligence features. New accounts have commonly received ~$50 credits.",
+  "limitsSummary": "Docs cite rate/request ceilings (e.g., 20,000 requests per 5 minutes). Language and diarization coverage differs by feature. No public native TTS.",
+  "regionSummary": "AssemblyAI cloud; region controls more limited than hyperscalers.",
+  "languagesSummary": "99 languages for Universal batch; fewer for some streaming/intelligence features.",
+  "notes": "Speech-language model / transcript intelligence",
+  "officialSources": [
+    "https://www.assemblyai.com/docs",
+    "https://www.assemblyai.com/pricing",
+    "https://www.assemblyai.com/"
+  ],
+  "derived": {
+    "openAiCompatible": true,
+    "supportsRealtime": true,
+    "supportsBatch": true,
+    "priceMeasurements": [],
+    "constraints": [
+      {
+        "metric": "duration_seconds",
+        "comparator": "=",
+        "value": 300.0,
+        "unit": "seconds",
+        "scope": "audio",
+        "sourceText": "Docs cite rate/request ceilings (e.g., 20,000 requests per 5 minutes). Language and diarization coverage differs by feature. No public native TTS."
+      }
+    ],
+    "languageSupport": {
+      "rawText": "99 languages for Universal batch; fewer for some streaming/intelligence features.",
+      "isMultilingual": true,
+      "languageCount": 99,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

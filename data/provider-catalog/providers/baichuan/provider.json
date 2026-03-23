@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "baichuan",
+  "providerName": "Baichuan",
+  "categoryId": "chinese-providers",
+  "categoryName": "Chinese Providers",
+  "hq": "CN",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✓",
+    "tts": "✗",
+    "stt": "✗",
+    "notes": "Baichuan series. Chinese-focused LLM. No audio APIs."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "Fixed first-party LLM catalog",
+    "catalogTypeId": "fixed-first-party-llm-catalog",
+    "coverage": "Mostly exhaustive",
+    "coverageId": "mostly-exhaustive",
+    "activeModelsSummary": {
+      "llm": "Baichuan M3 Plus [baichuan-m3-plus]\nBaichuan M3 [baichuan-m3]\nBaichuan M2 Plus [baichuan-m2-plus]\nBaichuan M2 [baichuan-m2]\nBaichuan4 Turbo [baichuan4-turbo]\nBaichuan4 Air [baichuan4-air]\nBaichuan4 [baichuan4]\nBaichuan3 Turbo [baichuan3-turbo]\nBaichuan3 Turbo 128k [baichuan3-turbo-128k]\nBaichuan2 Turbo [baichuan2-turbo]\nBaichuan2 53B [baichuan2-53b]",
+      "tts": null,
+      "stt": null
+    },
+    "priceRangeSummary": "Examples in RMB/1K tokens: Baichuan-M3-Plus input ~0.005 RMB, output ~0.009 RMB; Baichuan4-Air ~0.00098 RMB/1K all-in.",
+    "limitsSummary": "No public native TTS/STT found.",
+    "regionSummary": "China-centric.",
+    "ttsLanguagesSummary": null,
+    "sttLanguagesSummary": null,
+    "freeTierSummary": "Trial quotas may exist but not clearly standardized.",
+    "appIntegrationNotes": "Strong China-focused LLM catalog, but no public speech stack verified.",
+    "officialSources": [
+      "https://platform.baichuan-ai.com/",
+      "https://platform.baichuan-ai.com/pricing",
+      "https://platform.baichuan-ai.com/docs"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 1,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": false,
+    "lowConfidence": false,
+    "openAiCompatible": null,
+    "protocols": [],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/baichuan/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/baichuan/models/llm--baichuan-m2.json",
+      "data/provider-catalog/providers/baichuan/models/llm--baichuan-m2-plus.json",
+      "data/provider-catalog/providers/baichuan/models/llm--baichuan-m3.json",
+      "data/provider-catalog/providers/baichuan/models/llm--baichuan-m3-plus.json",
+      "data/provider-catalog/providers/baichuan/models/llm--baichuan2-53b.json",
+      "data/provider-catalog/providers/baichuan/models/llm--baichuan2-turbo.json",
+      "data/provider-catalog/providers/baichuan/models/llm--baichuan3-turbo.json",
+      "data/provider-catalog/providers/baichuan/models/llm--baichuan3-turbo-128k.json",
+      "data/provider-catalog/providers/baichuan/models/llm--baichuan4.json",
+      "data/provider-catalog/providers/baichuan/models/llm--baichuan4-air.json",
+      "data/provider-catalog/providers/baichuan/models/llm--baichuan4-turbo.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "baichuan-m2",
+      "publicName": "Baichuan M2",
+      "documentPath": "data/provider-catalog/providers/baichuan/models/llm--baichuan-m2.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "baichuan-m2-plus",
+      "publicName": "Baichuan M2 Plus",
+      "documentPath": "data/provider-catalog/providers/baichuan/models/llm--baichuan-m2-plus.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "baichuan-m3",
+      "publicName": "Baichuan M3",
+      "documentPath": "data/provider-catalog/providers/baichuan/models/llm--baichuan-m3.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "baichuan-m3-plus",
+      "publicName": "Baichuan M3 Plus",
+      "documentPath": "data/provider-catalog/providers/baichuan/models/llm--baichuan-m3-plus.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "baichuan2-53b",
+      "publicName": "Baichuan2 53B",
+      "documentPath": "data/provider-catalog/providers/baichuan/models/llm--baichuan2-53b.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "baichuan2-turbo",
+      "publicName": "Baichuan2 Turbo",
+      "documentPath": "data/provider-catalog/providers/baichuan/models/llm--baichuan2-turbo.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "baichuan3-turbo",
+      "publicName": "Baichuan3 Turbo",
+      "documentPath": "data/provider-catalog/providers/baichuan/models/llm--baichuan3-turbo.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "baichuan3-turbo-128k",
+      "publicName": "Baichuan3 Turbo 128k",
+      "documentPath": "data/provider-catalog/providers/baichuan/models/llm--baichuan3-turbo-128k.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "baichuan4",
+      "publicName": "Baichuan4",
+      "documentPath": "data/provider-catalog/providers/baichuan/models/llm--baichuan4.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "baichuan4-air",
+      "publicName": "Baichuan4 Air",
+      "documentPath": "data/provider-catalog/providers/baichuan/models/llm--baichuan4-air.json"
+    },
+    {
+      "service": "llm",
+      "modelId": "baichuan4-turbo",
+      "publicName": "Baichuan4 Turbo",
+      "documentPath": "data/provider-catalog/providers/baichuan/models/llm--baichuan4-turbo.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "22. Baichuan (China) — ⚠️ PIVOTED",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 22. Baichuan (China) — ⚠️ PIVOTED\n\n**Status:** Pivoted to **healthcare AI**. `Baichuan-M3-235B` is medical-focused (Apache 2.0, open-source). No active general-purpose public API. **Not recommended** for BYOK speech app.",
+    "extractedBlocks": {},
+    "openAiCompatible": null,
+    "protocols": []
+  }
+}

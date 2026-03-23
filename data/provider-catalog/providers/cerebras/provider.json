@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "cerebras",
+  "providerName": "Cerebras",
+  "categoryId": "inference-platforms",
+  "categoryName": "Inference Platforms",
+  "hq": "US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✓",
+    "tts": "✗",
+    "stt": "✗",
+    "notes": "Wafer-scale inference. Extremely fast. Hosts Llama. No audio."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "Dynamic fast-LLM hosting",
+    "catalogTypeId": "dynamic-fast-llm-hosting",
+    "coverage": "Dynamic/non-exhaustive",
+    "coverageId": "dynamic-non-exhaustive",
+    "activeModelsSummary": {
+      "llm": "Fast hosted LLM catalog [dynamic] — Examples change quickly; voice examples use external speech providers",
+      "tts": null,
+      "stt": null
+    },
+    "priceRangeSummary": "Cerebras emphasizes ultra-fast LLM inference; pricing depends on model/plan.",
+    "limitsSummary": "Official public docs reviewed did not show first-party native TTS/STT; voice examples pair Cerebras with third-party speech components.",
+    "regionSummary": "Cerebras cloud; public region granularity limited.",
+    "ttsLanguagesSummary": null,
+    "sttLanguagesSummary": null,
+    "freeTierSummary": "Yes: 'free to get started' style access has been promoted.",
+    "appIntegrationNotes": "Treat Cerebras as an LLM compute/inference provider, not a native speech provider.",
+    "officialSources": [
+      "https://inference-docs.cerebras.ai/",
+      "https://www.cerebras.ai/",
+      "https://inference-docs.cerebras.ai/capabilities/voice-ai"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 1,
+    "hasDynamicCatalog": true,
+    "needsLiveDiscovery": true,
+    "supportsSpeech": false,
+    "lowConfidence": false,
+    "openAiCompatible": true,
+    "protocols": [],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/cerebras/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/cerebras/models/llm--dynamic.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "dynamic",
+      "publicName": "Fast hosted LLM catalog",
+      "documentPath": "data/provider-catalog/providers/cerebras/models/llm--dynamic.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "29. Cerebras (US) — LLM ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 29. Cerebras (US) — LLM ✓\n\n**Status:** Active. **Fastest inference** (2,264 t/s on Llama 8B). Wafer-Scale Engine-3. OpenAI-compatible at `https://api.cerebras.ai/v1`.\n\nFree tier: all models, 8,192 token context. Developer: from $10. Models: `llama-3.1-8b` ($0.10/MTok), `gpt-oss-120b` ($0.45/MTok), `glm-4.7`. No TTS/STT.",
+    "extractedBlocks": {},
+    "openAiCompatible": true,
+    "protocols": []
+  }
+}

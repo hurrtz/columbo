@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "replicate",
+  "providerName": "Replicate",
+  "categoryId": "inference-platforms",
+  "categoryName": "Inference Platforms",
+  "hq": "US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✓",
+    "tts": "✓",
+    "stt": "✓",
+    "notes": "Hosts thousands of models incl. TTS (Bark, XTTS) and STT (Whisper). Pay-per-prediction."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✓",
+      "state": "native"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "Dynamic model marketplace",
+    "catalogTypeId": "dynamic-model-marketplace",
+    "coverage": "Dynamic/non-exhaustive",
+    "coverageId": "dynamic-non-exhaustive",
+    "activeModelsSummary": {
+      "llm": "LLM marketplace [dynamic] — Thousands of models; use collections/search APIs",
+      "tts": "MiniMax Speech 2.8 Turbo [minimax/speech-2.8-turbo]\nMiniMax Speech 2.8 HD [minimax/speech-2.8-hd]\nPlay Dialog [playht/play-dialog]\nChatterbox Turbo [resemble-ai/chatterbox-turbo]",
+      "stt": "Whisper collection [openai/whisper-*]\nSTT marketplace [dynamic]"
+    },
+    "priceRangeSummary": "Pay-per-prediction and model-specific. Example TTS on Replicate: MiniMax Turbo ~$30/M chars, HD ~$50/M chars; cloning may be priced per voice creation.",
+    "limitsSummary": "Marketplace is huge and changes continuously. Model-level constraints come from each model page, not a unified global contract.",
+    "regionSummary": "Replicate-managed infrastructure; exact region varies and is not fixed per marketplace model.",
+    "ttsLanguagesSummary": "Depends on chosen model.",
+    "sttLanguagesSummary": "Depends on chosen model.",
+    "freeTierSummary": "No broad permanent free tier; sometimes limited credits for onboarding.",
+    "appIntegrationNotes": "For BYOK apps, Replicate is a broker/marketplace rather than a stable canonical model namespace. Store provider+model slug together.",
+    "officialSources": [
+      "https://replicate.com/explore",
+      "https://replicate.com/collections/text-to-speech",
+      "https://replicate.com/collections/speech-to-text"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 3,
+    "hasDynamicCatalog": true,
+    "needsLiveDiscovery": true,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": false,
+    "protocols": [
+      "rest",
+      "sse"
+    ],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/replicate/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/replicate/models/llm--dynamic.json",
+      "data/provider-catalog/providers/replicate/models/stt--dynamic.json",
+      "data/provider-catalog/providers/replicate/models/stt--openai__whisper.json",
+      "data/provider-catalog/providers/replicate/models/tts--resemble-ai__chatterbox-turbo.json",
+      "data/provider-catalog/providers/replicate/models/tts--minimax__speech-2.8-hd.json",
+      "data/provider-catalog/providers/replicate/models/tts--minimax__speech-2.8-turbo.json",
+      "data/provider-catalog/providers/replicate/models/tts--playht__play-dialog.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "llm",
+      "modelId": "dynamic",
+      "publicName": "LLM marketplace",
+      "documentPath": "data/provider-catalog/providers/replicate/models/llm--dynamic.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "dynamic",
+      "publicName": "STT marketplace",
+      "documentPath": "data/provider-catalog/providers/replicate/models/stt--dynamic.json"
+    },
+    {
+      "service": "stt",
+      "modelId": "openai/whisper-*",
+      "publicName": "Whisper collection",
+      "documentPath": "data/provider-catalog/providers/replicate/models/stt--openai__whisper.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "resemble-ai/chatterbox-turbo",
+      "publicName": "Chatterbox Turbo",
+      "documentPath": "data/provider-catalog/providers/replicate/models/tts--resemble-ai__chatterbox-turbo.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "minimax/speech-2.8-hd",
+      "publicName": "MiniMax Speech 2.8 HD",
+      "documentPath": "data/provider-catalog/providers/replicate/models/tts--minimax__speech-2.8-hd.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "minimax/speech-2.8-turbo",
+      "publicName": "MiniMax Speech 2.8 Turbo",
+      "documentPath": "data/provider-catalog/providers/replicate/models/tts--minimax__speech-2.8-turbo.json"
+    },
+    {
+      "service": "tts",
+      "modelId": "playht/play-dialog",
+      "publicName": "Play Dialog",
+      "documentPath": "data/provider-catalog/providers/replicate/models/tts--playht__play-dialog.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "31. Replicate (US) — LLM ✓ TTS ✓ STT ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 31. Replicate (US) — LLM ✓ TTS ✓ STT ✓\n\n**Status:** Active (acquired by Cloudflare). Per-second billing by GPU tier.\n\nTTS: MiniMax Speech 2.8 HD/Turbo, Tortoise-TTS, Orpheus-3B. STT: Whisper variants, GPT-4o-transcribe, WhisperX (diarization). Custom REST API (not OpenAI-compatible). SSE streaming + webhooks.",
+    "extractedBlocks": {},
+    "openAiCompatible": false,
+    "protocols": [
+      "rest",
+      "sse"
+    ]
+  }
+}

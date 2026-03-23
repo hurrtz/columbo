@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "cerebras",
+  "providerName": "Cerebras",
+  "categoryId": "inference-platforms",
+  "categoryName": "Inference Platforms",
+  "service": "llm",
+  "publicName": "Fast hosted LLM catalog",
+  "modelId": "dynamic",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Dynamic/non-exhaustive",
+  "catalogScopeId": "dynamic-non-exhaustive",
+  "pricingSummary": "Cerebras emphasizes ultra-fast LLM inference; pricing depends on model/plan.",
+  "limitsSummary": "Official public docs reviewed did not show first-party native TTS/STT; voice examples pair Cerebras with third-party speech components.",
+  "regionSummary": "Cerebras cloud; public region granularity limited.",
+  "languagesSummary": null,
+  "notes": "Examples change quickly; voice examples use external speech providers",
+  "officialSources": [
+    "https://inference-docs.cerebras.ai/",
+    "https://www.cerebras.ai/",
+    "https://inference-docs.cerebras.ai/capabilities/voice-ai"
+  ],
+  "derived": {
+    "openAiCompatible": true,
+    "supportsRealtime": null,
+    "supportsBatch": null,
+    "priceMeasurements": [],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": null,
+      "isMultilingual": false,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}

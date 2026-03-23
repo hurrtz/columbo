@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "documentType": "provider",
+  "providerId": "murf-ai",
+  "providerName": "Murf.ai",
+  "categoryId": "speech-focused-providers",
+  "categoryName": "Speech-Focused Providers",
+  "hq": "US",
+  "existsStatus": {
+    "raw": "Yes",
+    "normalized": "yes"
+  },
+  "sourceOverview": {
+    "llm": "✗",
+    "tts": "✓",
+    "stt": "✗",
+    "notes": "TTS with studio UI. 20+ languages. Content creator focused."
+  },
+  "originalSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "verifiedSupport": {
+    "llm": {
+      "raw": "✗",
+      "state": "unsupported"
+    },
+    "tts": {
+      "raw": "✓",
+      "state": "native"
+    },
+    "stt": {
+      "raw": "✗",
+      "state": "unsupported"
+    }
+  },
+  "audit": {
+    "inputVsCurrent": "Match",
+    "catalogType": "TTS-first platform",
+    "catalogTypeId": "tts-first-platform",
+    "coverage": "Mostly exhaustive",
+    "coverageId": "mostly-exhaustive",
+    "activeModelsSummary": {
+      "llm": null,
+      "tts": "Falcon [falcon]",
+      "stt": null
+    },
+    "priceRangeSummary": "Falcon is marketed at about $0.01/minute and also shown as ~$0.01 per 1,000 characters on pricing materials. Other studio/API plans vary.",
+    "limitsSummary": "Docs/marketing cite ~5 concurrent sessions and ~1,000 RPM on free, ~15 concurrent and ~10,000 RPM on paid. Marketing also claims 10,000 concurrent calls globally for Falcon.",
+    "regionSummary": "Edge deployment across 10+ regions is marketed for Falcon.",
+    "ttsLanguagesSummary": "Around 35 languages / 10+ accents in current marketing; exact counts vary across pages.",
+    "sttLanguagesSummary": null,
+    "freeTierSummary": "Yes: e.g., 100,000 characters on free API access offers.",
+    "appIntegrationNotes": "Good cost-focused conversational TTS candidate. Note that Murf’s published counts (voices/languages) differ slightly across pages.",
+    "officialSources": [
+      "https://murf.ai/api",
+      "https://murf.ai/api/docs/text-to-speech-models/falcon",
+      "https://murf.ai/falcon"
+    ]
+  },
+  "derived": {
+    "verifiedServiceCount": 1,
+    "hasDynamicCatalog": false,
+    "needsLiveDiscovery": false,
+    "supportsSpeech": true,
+    "lowConfidence": false,
+    "openAiCompatible": null,
+    "protocols": [],
+    "regionSplitRecommended": false
+  },
+  "documents": {
+    "providerPath": "data/provider-catalog/providers/murf-ai/provider.json",
+    "modelDocumentPaths": [
+      "data/provider-catalog/providers/murf-ai/models/tts--falcon.json"
+    ]
+  },
+  "models": [
+    {
+      "service": "tts",
+      "modelId": "falcon",
+      "publicName": "Falcon",
+      "documentPath": "data/provider-catalog/providers/murf-ai/models/tts--falcon.json"
+    }
+  ],
+  "supplementalResearch": {
+    "title": "51. Murf.ai (US) — TTS ✓",
+    "sourcePath": "/Users/tobias.winkler/Downloads/compass_artifact_wf-b33581ad-754a-4a5a-b05f-ef15056377e0_text_markdown.md",
+    "markdown": "### 51. Murf.ai (US) — TTS ✓\n\n**Status:** Active. **Murf Falcon** engine: 55ms latency, $0.01/min, 150+ voices.\n\nAPI: $0.03/1K chars PAYG. Free trial: 100K chars API. Studio: 30+ languages. Dubbing: 44 languages. On-premise Falcon deployment. SOC 2. 50M free chars for startup incubator program.",
+    "extractedBlocks": {},
+    "openAiCompatible": null,
+    "protocols": []
+  }
+}

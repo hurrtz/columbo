@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "documentType": "model",
+  "providerId": "fireworks-ai",
+  "providerName": "Fireworks AI",
+  "categoryId": "inference-platforms",
+  "categoryName": "Inference Platforms",
+  "service": "llm",
+  "publicName": "Hosted open/partner model catalog",
+  "modelId": "dynamic",
+  "status": "Documented active/current",
+  "statusId": "documented-active-current",
+  "catalogScope": "Dynamic/non-exhaustive",
+  "catalogScopeId": "dynamic-non-exhaustive",
+  "pricingSummary": "STT examples: Whisper-v3-large ~$0.0015/audio min; turbo ~$0.0009/audio min; diarization +40%; batch discount ~40%. LLM prices vary by model.",
+  "limitsSummary": "Transcriptions API max file size ~1 GB and no duration limit. Public native TTS was not verified from official docs reviewed.",
+  "regionSummary": "Fireworks cloud; region specifics are not heavily surfaced publicly.",
+  "languagesSummary": null,
+  "notes": "LLM catalog changes frequently",
+  "officialSources": [
+    "https://docs.fireworks.ai/models/",
+    "https://docs.fireworks.ai/api-reference/audio-transcriptions",
+    "https://fireworks.ai/pricing"
+  ],
+  "derived": {
+    "openAiCompatible": true,
+    "supportsRealtime": true,
+    "supportsBatch": true,
+    "priceMeasurements": [
+      {
+        "amountUsd": 0.0015,
+        "unit": "minute",
+        "sourceText": "$0.0015/audio min"
+      },
+      {
+        "amountUsd": 0.0009,
+        "unit": "minute",
+        "sourceText": "$0.0009/audio min"
+      }
+    ],
+    "constraints": [],
+    "languageSupport": {
+      "rawText": null,
+      "isMultilingual": false,
+      "languageCount": null,
+      "voiceCount": null,
+      "listedLanguages": [],
+      "notes": []
+    }
+  }
+}
