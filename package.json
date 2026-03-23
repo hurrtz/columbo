@@ -9,7 +9,7 @@
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "catalog:import": "python3 scripts/provider_catalog/import_workbook.py",
-    "catalog:test": "jest __tests__/catalog/providerCatalog.test.ts --runInBand --watchman=false"
+    "catalog:test": "jest __tests__/catalog --runInBand --watchman=false"
   },
   "dependencies": {
     "@dr.pogodin/react-native-fs": "^2.37.0",

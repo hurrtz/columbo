@@ -9,6 +9,7 @@ import type {
 } from "./types";
 
 export * from "./types";
+export * from "./appProviders";
 
 const PROVIDER_CATALOG_SNAPSHOT = require("../../data/provider-catalog/catalog.snapshot.json") as ProviderCatalogSnapshot;
 

@@ -1,3 +1,8 @@
+import {
+  APP_PROVIDER_CATALOG_IDS,
+  getCatalogProviderForAppProvider,
+  getCatalogVerifiedServiceStateForAppProvider,
+} from "../../catalog";
 import { Provider } from "../../types";
 import type { ModelInfo } from "./types";
 import { PROVIDER_CONFIGS, PROVIDER_ORDER } from "./catalogData";
@@ -34,6 +39,41 @@ export const PROVIDER_API_KEY_PLACEHOLDERS: Record<Provider, string> =
 export const PROVIDER_API_KEY_URLS: Record<Provider, string> = Object.fromEntries(
   PROVIDER_ORDER.map((provider) => [provider, PROVIDER_CONFIGS[provider].apiKeyUrl]),
 ) as Record<Provider, string>;
+
+export const PROVIDER_CATALOG_IDS: Record<Provider, string> = APP_PROVIDER_CATALOG_IDS;
+
+export const PROVIDER_CATALOG_VERIFIED_SUPPORT: Record<
+  Provider,
+  {
+    llm: ReturnType<typeof getCatalogVerifiedServiceStateForAppProvider>;
+    stt: ReturnType<typeof getCatalogVerifiedServiceStateForAppProvider>;
+    tts: ReturnType<typeof getCatalogVerifiedServiceStateForAppProvider>;
+  }
+> = Object.fromEntries(
+  PROVIDER_ORDER.map((provider) => [
+    provider,
+    {
+      llm: getCatalogVerifiedServiceStateForAppProvider(provider, "llm"),
+      stt: getCatalogVerifiedServiceStateForAppProvider(provider, "stt"),
+      tts: getCatalogVerifiedServiceStateForAppProvider(provider, "tts"),
+    },
+  ]),
+) as Record<
+  Provider,
+  {
+    llm: ReturnType<typeof getCatalogVerifiedServiceStateForAppProvider>;
+    stt: ReturnType<typeof getCatalogVerifiedServiceStateForAppProvider>;
+    tts: ReturnType<typeof getCatalogVerifiedServiceStateForAppProvider>;
+  }
+>;
+
+export const PROVIDER_NEEDS_LIVE_MODEL_DISCOVERY: Record<Provider, boolean> =
+  Object.fromEntries(
+    PROVIDER_ORDER.map((provider) => [
+      provider,
+      getCatalogProviderForAppProvider(provider)?.derived.needsLiveDiscovery ?? false,
+    ]),
+  ) as Record<Provider, boolean>;
 
 export const PROVIDER_STT_SUPPORT: Record<Provider, "none" | "provider"> =
   Object.fromEntries(
