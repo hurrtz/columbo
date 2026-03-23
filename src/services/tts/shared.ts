@@ -34,6 +34,16 @@ export class TtsRequestError extends Error {
   }
 }
 
+export class TtsTimeoutError extends Error {
+  readonly provider: Provider;
+
+  constructor(params: { message: string; provider: Provider }) {
+    super(params.message);
+    this.name = "TtsTimeoutError";
+    this.provider = params.provider;
+  }
+}
+
 type BinaryTtsConfig = {
   kind: "binary";
   endpoint: string;
@@ -241,11 +251,12 @@ export function createTtsTimeoutError(params: {
   provider: Provider;
   language: AppLanguage;
 }) {
-  return new Error(
-    translate(params.language, "ttsTimeout", {
+  return new TtsTimeoutError({
+    provider: params.provider,
+    message: translate(params.language, "ttsTimeout", {
       provider: PROVIDER_LABELS[params.provider],
     }),
-  );
+  });
 }
 
 export function getProviderTtsTimeoutMs(text: string) {

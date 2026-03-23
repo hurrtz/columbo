@@ -14,8 +14,44 @@ import {
   getSelectedProviderVoice,
   requireProviderKey,
   TTS_PROVIDER_CONFIGS,
+  TtsRequestError,
+  TtsTimeoutError,
   writeBlobAudioFile,
 } from "./shared";
+
+const GEMINI_TTS_RETRY_DELAYS_MS = [400, 1200];
+
+function wait(ms: number) {
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function isRetryableGeminiTransportError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  if (error.name === "AbortError") {
+    return false;
+  }
+
+  if (error instanceof TtsTimeoutError) {
+    return true;
+  }
+
+  if (error instanceof TtsRequestError) {
+    return error.status === 429 || error.status >= 500;
+  }
+
+  const normalized = error.message.toLowerCase();
+
+  return (
+    normalized.includes("network request failed") ||
+    normalized.includes("failed to fetch") ||
+    normalized.includes("load failed")
+  );
+}
 
 export async function synthesizeProviderSpeech(params: {
   text: string;
@@ -58,70 +94,86 @@ export async function synthesizeProviderSpeech(params: {
   });
 
   if (config.kind === "gemini") {
-    const response = await fetchWithTimeout(
-      `${config.endpointBase}/${selectedModel}:generateContent`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": requireProviderKey(provider, apiKey, language),
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
+    for (let attempt = 0; attempt <= GEMINI_TTS_RETRY_DELAYS_MS.length; attempt += 1) {
+      try {
+        const response = await fetchWithTimeout(
+          `${config.endpointBase}/${selectedModel}:generateContent`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-goog-api-key": requireProviderKey(provider, apiKey, language),
+            },
+            body: JSON.stringify({
+              contents: [
                 {
-                  text: `Read the following text aloud exactly as written without adding or removing words:\n\n${text}`,
+                  parts: [
+                    {
+                      text: `Read the following text aloud exactly as written without adding or removing words:\n\n${text}`,
+                    },
+                  ],
                 },
               ],
-            },
-          ],
-          generationConfig: {
-            responseModalities: ["AUDIO"],
-            speechConfig: {
-              voiceConfig: {
-                prebuiltVoiceConfig: {
-                  voiceName: selectedVoice,
+              generationConfig: {
+                responseModalities: ["AUDIO"],
+                speechConfig: {
+                  voiceConfig: {
+                    prebuiltVoiceConfig: {
+                      voiceName: selectedVoice,
+                    },
+                  },
                 },
               },
-            },
+            }),
           },
-        }),
-      },
-      timeoutMs,
-      () => createTtsTimeoutError({ provider, language }),
-      abortSignal,
-    );
+          timeoutMs,
+          () => createTtsTimeoutError({ provider, language }),
+          abortSignal,
+        );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw buildTtsRequestError({
-        provider,
-        status: response.status,
-        errorText,
-        language,
-      });
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw buildTtsRequestError({
+            provider,
+            status: response.status,
+            errorText,
+            language,
+          });
+        }
+
+        const data = await response.json();
+        const audioPart = getGeminiAudioPart(data);
+        const pcmBase64 = audioPart?.data;
+
+        if (!pcmBase64) {
+          throw new Error(
+            translate(language, "ttsDidNotReturnAudio", {
+              provider: PROVIDER_LABELS[provider],
+            }),
+          );
+        }
+
+        const mimeType = audioPart?.mimeType as string | undefined;
+        const sampleRate = Number(mimeType?.match(/rate=(\d+)/i)?.[1]) || 24000;
+        return buildWavAudioFileFromPcm({
+          pcmBase64,
+          sampleRate,
+          language,
+        });
+      } catch (error) {
+        const shouldRetry =
+          attempt < GEMINI_TTS_RETRY_DELAYS_MS.length &&
+          isRetryableGeminiTransportError(error);
+
+        if (!shouldRetry) {
+          throw error;
+        }
+
+        await wait(GEMINI_TTS_RETRY_DELAYS_MS[attempt]);
+      }
     }
 
-    const data = await response.json();
-    const audioPart = getGeminiAudioPart(data);
-    const pcmBase64 = audioPart?.data;
-
-    if (!pcmBase64) {
-      throw new Error(
-        translate(language, "ttsDidNotReturnAudio", {
-          provider: PROVIDER_LABELS[provider],
-        }),
-      );
-    }
-
-    const mimeType = audioPart?.mimeType as string | undefined;
-    const sampleRate = Number(mimeType?.match(/rate=(\d+)/i)?.[1]) || 24000;
-    return buildWavAudioFileFromPcm({
-      pcmBase64,
-      sampleRate,
-      language,
-    });
+    throw createTtsTimeoutError({ provider, language });
   }
 
   const requestBody =

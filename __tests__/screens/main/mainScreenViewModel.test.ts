@@ -112,4 +112,38 @@ describe("getMainScreenViewModel", () => {
     expect(viewModel.routeModelLabel).toContain("GPT-5.4");
     expect(viewModel.activeConversationTitle).toBe("Planning");
   });
+
+  it("keeps the speaking visual phase while playback is about to start", () => {
+    const viewModel = getMainScreenViewModel({
+      activeConversation: null,
+      availableTtsProviders: ["openai"],
+      isRecording: false,
+      language: "en",
+      localTtsPackStates: {},
+      model: "gpt-5.4",
+      pipelinePhase: "speaking",
+      player: {
+        isPlaying: false,
+        meteringData: -160,
+        waveformData: undefined,
+        waveformVariant: "bars",
+      },
+      provider: "openai",
+      recordingMetering: -10,
+      recordingLevels: [0.2, 0.3],
+      recordingWaveformVariant: "oscilloscope",
+      selectedSttModel: "",
+      selectedTtsModel: "gpt-4o-mini-tts",
+      selectedTtsVoice: "alloy",
+      settings: DEFAULT_SETTINGS,
+      streamingText: "",
+      sttProvider: null,
+      t,
+      ttsApiKey: "sk-test",
+      ttsProvider: "openai",
+    });
+
+    expect(viewModel.visualPhase).toBe("speaking");
+    expect(viewModel.isActive).toBe(true);
+  });
 });

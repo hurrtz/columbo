@@ -41,6 +41,14 @@ const RECORDING_OPTIONS = {
   numberOfChannels: 1,
 };
 const RECORDER_STATUS_INTERVAL_MS = 150;
+const STOPPED_RECORDING_URI_ATTEMPTS = 12;
+const STOPPED_RECORDING_URI_RETRY_MS = 50;
+
+function wait(ms: number) {
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 export function useAudioRecorder() {
   const { t } = useLocalization();
@@ -57,6 +65,23 @@ export function useAudioRecorder() {
   const [waveformData, setWaveformData] = useState(
     usingNativeRecorder ? EMPTY_OSCILLOSCOPE_SAMPLES : EMPTY_VISUAL_LEVELS
   );
+
+  const resolveStoppedRecordingUri = useCallback(async () => {
+    for (let attempt = 0; attempt < STOPPED_RECORDING_URI_ATTEMPTS; attempt += 1) {
+      const status = recorder.getStatus();
+      const resolvedUri = recorder.uri ?? status.url ?? recorderState.url;
+
+      if (resolvedUri) {
+        return resolvedUri;
+      }
+
+      if (attempt < STOPPED_RECORDING_URI_ATTEMPTS - 1) {
+        await wait(STOPPED_RECORDING_URI_RETRY_MS);
+      }
+    }
+
+    return null;
+  }, [recorder, recorderState.url]);
 
   useEffect(() => {
     if (!usingNativeRecorder) {
@@ -193,6 +218,7 @@ export function useAudioRecorder() {
           setNativeRecording(false);
           setNativeMeteringData(-160);
           setWaveformData(EMPTY_OSCILLOSCOPE_SAMPLES);
+          startTimeRef.current = 0;
           return null;
         }
 
@@ -201,34 +227,55 @@ export function useAudioRecorder() {
         setNativeRecording(false);
         setNativeMeteringData(-160);
         setWaveformData(EMPTY_OSCILLOSCOPE_SAMPLES);
+        startTimeRef.current = 0;
 
-        return result.uri ?? null;
+        if (result.uri) {
+          return result.uri;
+        }
+
+        throw new Error(t("couldntProcessVoiceInput"));
       } catch (error) {
         inputReferenceLevelRef.current = INPUT_WAVEFORM_REFERENCE_FLOOR;
         setNativeRecording(false);
         setNativeMeteringData(-160);
         setWaveformData(EMPTY_OSCILLOSCOPE_SAMPLES);
+        startTimeRef.current = 0;
         throw error;
       }
     }
 
-    if (!recorderState.isRecording && !recorderState.canRecord) {
+    const statusBeforeStop = recorder.getStatus();
+    if (
+      !recorderState.isRecording &&
+      !statusBeforeStop.isRecording &&
+      !recorderState.canRecord &&
+      !statusBeforeStop.canRecord
+    ) {
       return null;
     }
 
     const duration = Date.now() - startTimeRef.current;
     await recorder.stop();
+    startTimeRef.current = 0;
 
     if (duration < 300) {
       return null;
     }
 
-    return recorder.uri ?? recorderState.url;
+    const resolvedUri = await resolveStoppedRecordingUri();
+
+    if (resolvedUri) {
+      return resolvedUri;
+    }
+
+    throw new Error(t("couldntProcessVoiceInput"));
   }, [
     recorder,
     recorderState.canRecord,
     recorderState.isRecording,
     recorderState.url,
+    resolveStoppedRecordingUri,
+    t,
     usingNativeRecorder,
   ]);
 

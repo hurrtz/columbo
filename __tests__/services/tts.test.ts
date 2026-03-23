@@ -301,6 +301,43 @@ describe("synthesizeSpeech", () => {
     ).toBe("Aoede");
   });
 
+  it("retries Gemini TTS after a transient transport failure", async () => {
+    (fetch as jest.Mock)
+      .mockRejectedValueOnce(new Error("Network request failed"))
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            candidates: [
+              {
+                content: {
+                  parts: [
+                    {
+                      inlineData: {
+                        mimeType: "audio/L16;rate=24000",
+                        data: "AQACAAMABAA=",
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          }),
+      });
+
+    const result = await synthesizeSpeech({
+      text: "Retry this once",
+      voice: "Kore",
+      mode: "provider",
+      provider: "gemini",
+      apiKey: "AIza-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.wav$/);
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
   it("uses the German local voice pack before any fallback", async () => {
     mockInstalledLocalVoice("de", "thorsten-medium");
     synthesizeLocalSpeech.mockResolvedValueOnce("/tmp/local-de.wav");

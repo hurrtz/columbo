@@ -195,15 +195,21 @@ export function useRecognitionControls({
       const fileUri = recording.uri ?? null;
 
       if (!fileUri) {
-        return null;
+        throw new Error(t("couldntProcessVoiceInput"));
       }
 
-      return transcribeRecordedFile({
+      const transcription = await transcribeRecordedFile({
         fileUri,
         finalTranscriptRef,
         latestTranscriptRef,
         t,
       });
+
+      if (!transcription) {
+        throw new Error(t("couldntCatchThatTryAgain"));
+      }
+
+      return transcription;
     }
 
     stopRequestedRef.current = true;

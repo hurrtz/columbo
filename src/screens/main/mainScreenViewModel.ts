@@ -157,7 +157,7 @@ export function getMainScreenViewModel({
     ? "recording"
     : pipelinePhase === "transcribing"
       ? "transcribing"
-      : player.isPlaying
+      : player.isPlaying || pipelinePhase === "speaking"
         ? "speaking"
         : pipelinePhase === "synthesizing"
           ? "synthesizing"

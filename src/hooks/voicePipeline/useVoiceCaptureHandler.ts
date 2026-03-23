@@ -132,9 +132,11 @@ export function useVoiceCaptureHandler({
               });
             },
             onAudioReady: (audioData, diagnostics) => {
+              setPipelinePhase("speaking");
               player.enqueueAudio(audioData, diagnostics);
             },
             onSpeechTextReady: (text, _voice, diagnostics) => {
+              setPipelinePhase("speaking");
               player.speakText(text, {
                 diagnostics,
               });
