@@ -22,6 +22,7 @@ describe("app provider catalog bridge", () => {
     expect(PROVIDER_CATALOG_IDS).toEqual({
       openai: "openai",
       anthropic: "anthropic",
+      "ai21-labs": "ai21-labs",
       "alibaba-qwen-dashscope": "alibaba-qwen-dashscope",
       baichuan: "baichuan",
       "bytedance-doubao-seed": "bytedance-doubao-seed",

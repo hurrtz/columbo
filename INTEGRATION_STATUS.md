@@ -11,10 +11,10 @@ Catalog updated: 2026-03-23
 ## Summary
 
 - Catalog providers: 40
-- Providers with any runtime integration: 26
+- Providers with any runtime integration: 27
 - Catalog models: 455
-- Integrated models: 133
-- LLM: 120/294 integrated
+- Integrated models: 135
+- LLM: 122/294 integrated
 - STT: 9/71 integrated
 - TTS: 4/90 integrated
 - Unresolved runtime manifest entries: 56
@@ -40,14 +40,14 @@ Catalog updated: 2026-03-23
 
 ## AI21 Labs `ai21-labs`
 
-- Runtime provider: catalog-only
-- Model integration: 0/2 integrated
+- Runtime provider: `ai21-labs`
+- Model integration: 2/2 integrated
 - Verified support: LLM `native`, STT `unsupported`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `jamba-large-1.7-2025-07` | Jamba Large | Not integrated | — |
-| LLM | `jamba-mini-2-2026-01` | Jamba Mini | Not integrated | — |
+| LLM | `jamba-large-1.7-2025-07` | Jamba Large | Integrated | `jamba-large-1.7-2025-07` |
+| LLM | `jamba-mini-2-2026-01` | Jamba Mini | Integrated | `jamba-mini-2-2026-01` |
 
 ## Aleph Alpha `aleph-alpha`
 

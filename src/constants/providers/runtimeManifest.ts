@@ -3,6 +3,7 @@ import type { CatalogProviderId } from "../../catalog/types";
 export type RuntimeAppProviderId =
   | "openai"
   | "anthropic"
+  | "ai21-labs"
   | "alibaba-qwen-dashscope"
   | "baichuan"
   | "bytedance-doubao-seed"
@@ -123,6 +124,7 @@ function voice(
 export const RUNTIME_PROVIDER_ORDER = [
   "openai",
   "anthropic",
+  "ai21-labs",
   "alibaba-qwen-dashscope",
   "bytedance-doubao-seed",
   "gemini",
@@ -259,6 +261,35 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         namedModel("claude-opus-4-20250522", "Claude Opus 4", "2025-05-22"),
         namedModel("claude-sonnet-4-20250514", "Claude Sonnet 4", "2025-05-14"),
         namedModel("claude-3-haiku-20240307", "Claude 3 Haiku", "2024-03-07"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
+  "ai21-labs": {
+    appProvider: "ai21-labs",
+    catalogProviderId: "ai21-labs",
+    label: "AI21",
+    shortLabel: "AI21",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint: "Unlocks AI21 Jamba chat models through the hosted Jamba API.",
+    apiKeyUrl: "https://docs.ai21.com/docs/create-api-key",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://api.ai21.com/studio/v1/chat/completions",
+      defaultModel: "jamba-mini-2-2026-01",
+      models: [
+        model("jamba-mini-2-2026-01"),
+        model("jamba-large-1.7-2025-07"),
       ],
     },
     stt: {
