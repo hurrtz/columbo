@@ -81,6 +81,13 @@ function buildBinaryTtsRequestBody(params: {
           bit_rate: 128000,
         },
       };
+    case "groq-speech":
+      return {
+        model: params.selectedModel,
+        voice: params.selectedVoice,
+        input: params.text,
+        response_format: "wav",
+      };
     case "openai-speech":
     default:
       return {
@@ -92,9 +99,27 @@ function buildBinaryTtsRequestBody(params: {
   }
 }
 
+function getBinaryTtsFileExtension(requestFormat: RuntimeTtsBinaryRequestFormat) {
+  return requestFormat === "groq-speech" ? "wav" : "mp3";
+}
+
 function getDashScopeAudioUrl(data: any) {
   const url = data?.output?.audio?.url;
   return typeof url === "string" ? url : null;
+}
+
+function getDeepgramVoiceModel(selectedModel: string, selectedVoice: string) {
+  if (selectedModel === "aura-2") {
+    return selectedVoice.startsWith("aura-2-")
+      ? selectedVoice
+      : "aura-2-thalia-en";
+  }
+
+  if (selectedModel === "aura-1") {
+    return selectedVoice.startsWith("aura-2-") ? "aura-asteria-en" : selectedVoice;
+  }
+
+  return selectedVoice || "aura-asteria-en";
 }
 
 export async function synthesizeProviderSpeech(params: {
@@ -286,6 +311,71 @@ export async function synthesizeProviderSpeech(params: {
     return writeBlobAudioFile(await audioResponse.blob(), "wav");
   }
 
+  if (config.kind === "deepgram") {
+    const voiceModel = getDeepgramVoiceModel(selectedModel, selectedVoice);
+    const response = await fetchWithTimeout(
+      `${config.endpointBase}/speak?model=${encodeURIComponent(voiceModel)}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${requireProviderKey(provider, apiKey, language)}`,
+        },
+        body: JSON.stringify({
+          text,
+        }),
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw buildTtsRequestError({
+        provider,
+        status: response.status,
+        errorText,
+        language,
+      });
+    }
+
+    return writeBlobAudioFile(await response.blob());
+  }
+
+  if (config.kind === "elevenlabs") {
+    const response = await fetchWithTimeout(
+      `${config.endpointBase}/text-to-speech/${encodeURIComponent(selectedVoice)}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "xi-api-key": requireProviderKey(provider, apiKey, language),
+        },
+        body: JSON.stringify({
+          text,
+          model_id: selectedModel,
+          output_format: "mp3_44100_128",
+        }),
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw buildTtsRequestError({
+        provider,
+        status: response.status,
+        errorText,
+        language,
+      });
+    }
+
+    return writeBlobAudioFile(await response.blob());
+  }
+
   const requestBody = buildBinaryTtsRequestBody({
     requestFormat: config.requestFormat,
     selectedModel,
@@ -318,5 +408,8 @@ export async function synthesizeProviderSpeech(params: {
     });
   }
 
-  return writeBlobAudioFile(await response.blob());
+  return writeBlobAudioFile(
+    await response.blob(),
+    getBinaryTtsFileExtension(config.requestFormat),
+  );
 }

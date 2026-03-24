@@ -25,7 +25,7 @@ function expandProviderDefaults(
 export const PROVIDER_DEFAULT_MODELS: ProviderModelSelections = Object.fromEntries(
   PROVIDER_ORDER.map((provider) => [
     provider,
-    RUNTIME_PROVIDER_MANIFEST[provider].llm.defaultModel,
+    RUNTIME_PROVIDER_MANIFEST[provider].llm.defaultModel ?? "",
   ]),
 ) as ProviderModelSelections;
 

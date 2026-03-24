@@ -216,6 +216,64 @@ describe("transcribeAudio", () => {
     );
   });
 
+  it("uses the Deepgram pre-recorded upload endpoint for native speech models", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        results: {
+          channels: [
+            {
+              alternatives: [
+                {
+                  transcript: "Hello from Deepgram",
+                },
+              ],
+            },
+          ],
+        },
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "deepgram",
+      apiKey: "deepgram-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from Deepgram");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://api.deepgram.com/v1/listen?model=nova-3&smart_format=true",
+    );
+    expect(options.headers.Authorization).toBe("Token deepgram-test");
+    expect(options.headers["Content-Type"]).toBe("audio/m4a");
+  });
+
+  it("uses the ElevenLabs multipart transcription endpoint for scribe models", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        text: "Hello from ElevenLabs",
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "elevenlabs",
+      apiKey: "elevenlabs-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from ElevenLabs");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.elevenlabs.io/v1/speech-to-text");
+    expect(options.headers["xi-api-key"]).toBe("elevenlabs-test");
+    expect((options.body as FormData).get("model_id")).toBe("scribe_v2");
+  });
+
   it("aborts before starting the provider request when the signal is already cancelled", async () => {
     const controller = new AbortController();
     controller.abort();

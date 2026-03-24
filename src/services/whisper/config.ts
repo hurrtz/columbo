@@ -21,6 +21,18 @@ export type AssemblyAiPreRecordedTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type DeepgramPreRecordedTranscriptionConfig = {
+  kind: "deepgram-pre-recorded";
+  endpointBase: string;
+  defaultModel: string;
+};
+
+export type ElevenLabsTranscriptionConfig = {
+  kind: "elevenlabs";
+  endpoint: string;
+  defaultModel: string;
+};
+
 export type GeminiTranscriptionConfig = {
   kind: "gemini";
   endpointBase: string;
@@ -46,7 +58,9 @@ const sttProviderConfigEntries: Array<
     | MultipartTranscriptionConfig
     | GeminiTranscriptionConfig
     | OpenAiAudioInputTranscriptionConfig
-    | AssemblyAiPreRecordedTranscriptionConfig,
+    | AssemblyAiPreRecordedTranscriptionConfig
+    | DeepgramPreRecordedTranscriptionConfig
+    | ElevenLabsTranscriptionConfig,
   ]
 > = [];
 
@@ -115,6 +129,36 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       },
     ]);
   }
+
+  if (
+    manifest.stt.transport === "deepgram-pre-recorded" &&
+    manifest.stt.endpointBase &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "deepgram-pre-recorded",
+        endpointBase: manifest.stt.endpointBase,
+        defaultModel: manifest.stt.defaultModel,
+      },
+    ]);
+  }
+
+  if (
+    manifest.stt.transport === "elevenlabs" &&
+    manifest.stt.endpoint &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "elevenlabs",
+        endpoint: manifest.stt.endpoint,
+        defaultModel: manifest.stt.defaultModel,
+      },
+    ]);
+  }
 }
 
 export const STT_PROVIDER_CONFIGS: Partial<
@@ -124,5 +168,7 @@ export const STT_PROVIDER_CONFIGS: Partial<
     | GeminiTranscriptionConfig
     | OpenAiAudioInputTranscriptionConfig
     | AssemblyAiPreRecordedTranscriptionConfig
+    | DeepgramPreRecordedTranscriptionConfig
+    | ElevenLabsTranscriptionConfig
   >
 > = Object.fromEntries(sttProviderConfigEntries);

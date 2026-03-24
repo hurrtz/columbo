@@ -10,6 +10,8 @@ import { STT_PROVIDER_CONFIGS } from "./whisper/config";
 import { waitForRecordedFileReady } from "./whisper/recordedFileReady";
 import {
   transcribeWithAssemblyAiPreRecordedProvider,
+  transcribeWithDeepgramPreRecordedProvider,
+  transcribeWithElevenLabsProvider,
   transcribeWithGeminiProvider,
   transcribeWithMultipartProvider,
   transcribeWithOpenAiAudioInputProvider,
@@ -138,6 +140,30 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "assemblyai-pre-recorded") {
     return transcribeWithAssemblyAiPreRecordedProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: selectedModel,
+    });
+  }
+
+  if (config.kind === "deepgram-pre-recorded") {
+    return transcribeWithDeepgramPreRecordedProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: selectedModel,
+    });
+  }
+
+  if (config.kind === "elevenlabs") {
+    return transcribeWithElevenLabsProvider({
       abortSignal,
       apiKey,
       config,

@@ -28,6 +28,8 @@ describe("app provider catalog bridge", () => {
       baichuan: "baichuan",
       "baidu-ernie-qianfan": "baidu-ernie-qianfan",
       "bytedance-doubao-seed": "bytedance-doubao-seed",
+      deepgram: "deepgram",
+      elevenlabs: "elevenlabs",
       gemini: "google-vertex-ai-studio",
       cerebras: "cerebras",
       cohere: "cohere",
@@ -59,6 +61,8 @@ describe("app provider catalog bridge", () => {
     expect(getAppProviderForCatalogProviderId("baidu-ernie-qianfan")).toBe(
       "baidu-ernie-qianfan",
     );
+    expect(getAppProviderForCatalogProviderId("deepgram")).toBe("deepgram");
+    expect(getAppProviderForCatalogProviderId("elevenlabs")).toBe("elevenlabs");
     expect(isCatalogProviderId("google-vertex-ai-studio")).toBe(true);
     expect(isCatalogProviderId("not-a-provider")).toBe(false);
     expect(listCatalogProviderIds()).toContain("z-ai-zhipu-ai");

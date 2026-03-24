@@ -11,12 +11,12 @@ Catalog updated: 2026-03-23
 ## Summary
 
 - Catalog providers: 40
-- Providers with any runtime integration: 29
+- Providers with any runtime integration: 31
 - Catalog models: 455
-- Integrated models: 271
+- Integrated models: 291
 - LLM: 243/294 integrated
-- STT: 18/71 integrated
-- TTS: 10/90 integrated
+- STT: 29/71 integrated
+- TTS: 19/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -251,23 +251,23 @@ Catalog updated: 2026-03-23
 
 ## Deepgram `deepgram`
 
-- Runtime provider: catalog-only
-- Model integration: 0/11 integrated
+- Runtime provider: `deepgram`
+- Model integration: 11/11 integrated
 - Verified support: LLM `routed`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| STT | `whisper` | Deepgram Whisper Cloud | Not integrated | — |
-| STT | `flux-general-en` | Flux General English | Not integrated | — |
-| STT | `legacy-base-family` | Legacy Base Family | Not integrated | — |
-| STT | `legacy-enhanced-family` | Legacy Enhanced Family | Not integrated | — |
-| STT | `legacy-nova-family` | Legacy Nova Family | Not integrated | — |
-| STT | `nova-2` | Nova-2 General | Not integrated | — |
-| STT | `nova-2-verticals` | Nova-2 Vertical Variants | Not integrated | — |
-| STT | `nova-3` | Nova-3 General | Not integrated | — |
-| STT | `nova-3-medical` | Nova-3 Medical | Not integrated | — |
-| TTS | `aura-1` | Aura-1 Voice Family | Not integrated | — |
-| TTS | `aura-2` | Aura-2 Voice Family | Not integrated | — |
+| STT | `whisper` | Deepgram Whisper Cloud | Integrated | `whisper` |
+| STT | `flux-general-en` | Flux General English | Integrated | `flux-general-en` |
+| STT | `legacy-base-family` | Legacy Base Family | Integrated | `legacy-base-family` |
+| STT | `legacy-enhanced-family` | Legacy Enhanced Family | Integrated | `legacy-enhanced-family` |
+| STT | `legacy-nova-family` | Legacy Nova Family | Integrated | `legacy-nova-family` |
+| STT | `nova-2` | Nova-2 General | Integrated | `nova-2` |
+| STT | `nova-2-verticals` | Nova-2 Vertical Variants | Integrated | `nova-2-verticals` |
+| STT | `nova-3` | Nova-3 General | Integrated | `nova-3` |
+| STT | `nova-3-medical` | Nova-3 Medical | Integrated | `nova-3-medical` |
+| TTS | `aura-1` | Aura-1 Voice Family | Integrated | `aura-1` |
+| TTS | `aura-2` | Aura-2 Voice Family | Integrated | `aura-2` |
 
 ## DeepInfra `deepinfra`
 
@@ -301,22 +301,22 @@ Catalog updated: 2026-03-23
 
 ## Elevenlabs `elevenlabs`
 
-- Runtime provider: catalog-only
-- Model integration: 0/10 integrated
+- Runtime provider: `elevenlabs`
+- Model integration: 9/10 integrated
 - Verified support: LLM `partial`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| STT | `scribe_v1` | Scribe v1 | Not integrated | — |
-| STT | `scribe_v2` | Scribe v2 | Not integrated | — |
+| STT | `scribe_v1` | Scribe v1 | Integrated | `scribe_v1` |
+| STT | `scribe_v2` | Scribe v2 | Integrated | `scribe_v2` |
 | STT | `scribe_v2_realtime` | Scribe v2 Realtime | Not integrated | — |
-| TTS | `eleven_flash_v2_5` | Eleven Flash v2.5 | Not integrated | — |
-| TTS | `eleven_monolingual_v1` | Eleven Monolingual v1 | Not integrated | — |
-| TTS | `eleven_multilingual_v1` | Eleven Multilingual v1 | Not integrated | — |
-| TTS | `eleven_multilingual_v2` | Eleven Multilingual v2 | Not integrated | — |
-| TTS | `eleven_turbo_v2` | Eleven Turbo v2 | Not integrated | — |
-| TTS | `eleven_turbo_v2_5` | Eleven Turbo v2.5 | Not integrated | — |
-| TTS | `eleven_v3` | Eleven v3 | Not integrated | — |
+| TTS | `eleven_flash_v2_5` | Eleven Flash v2.5 | Integrated | `eleven_flash_v2_5` |
+| TTS | `eleven_monolingual_v1` | Eleven Monolingual v1 | Integrated | `eleven_monolingual_v1` |
+| TTS | `eleven_multilingual_v1` | Eleven Multilingual v1 | Integrated | `eleven_multilingual_v1` |
+| TTS | `eleven_multilingual_v2` | Eleven Multilingual v2 | Integrated | `eleven_multilingual_v2` |
+| TTS | `eleven_turbo_v2` | Eleven Turbo v2 | Integrated | `eleven_turbo_v2` |
+| TTS | `eleven_turbo_v2_5` | Eleven Turbo v2.5 | Integrated | `eleven_turbo_v2_5` |
+| TTS | `eleven_v3` | Eleven v3 | Integrated | `eleven_v3` |
 
 ## Fireworks AI `fireworks-ai`
 

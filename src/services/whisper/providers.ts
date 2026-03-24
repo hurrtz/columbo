@@ -7,6 +7,8 @@ import { fetchWithTimeout } from "./abort";
 import { STT_TIMEOUT_MS } from "./config";
 import type {
   AssemblyAiPreRecordedTranscriptionConfig,
+  DeepgramPreRecordedTranscriptionConfig,
+  ElevenLabsTranscriptionConfig,
   GeminiTranscriptionConfig,
   OpenAiAudioInputTranscriptionConfig,
   MultipartTranscriptionConfig,
@@ -444,4 +446,121 @@ export async function transcribeWithAssemblyAiPreRecordedProvider(
   }
 
   throw createSttTimeoutError({ provider, language });
+}
+
+export async function transcribeWithDeepgramPreRecordedProvider(
+  params: SharedProviderParams & {
+    config: DeepgramPreRecordedTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const apiKeyValue = requireProviderKey(provider, apiKey, language);
+  const modelId = providerModel || config.defaultModel;
+  const fileBytes = base64ToBytes(
+    await FileSystem.readAsStringAsync(fileUri, {
+      encoding: "base64",
+    }),
+  );
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      `${config.endpointBase}/listen?model=${encodeURIComponent(modelId)}&smart_format=true`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Token ${apiKeyValue}`,
+          "Content-Type": getFileAudioMimeType(fileUri),
+        },
+        body: fileBytes,
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const text = data?.results?.channels?.[0]?.alternatives?.[0]?.transcript?.trim();
+  return text ? text : null;
+}
+
+export async function transcribeWithElevenLabsProvider(
+  params: SharedProviderParams & {
+    config: ElevenLabsTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const formData = new FormData();
+
+  formData.append(
+    "file",
+    {
+      uri: fileUri,
+      type: getFileAudioMimeType(fileUri),
+      name: fileUri.split("/").pop() || "recording.m4a",
+    } as any,
+  );
+  formData.append("model_id", providerModel || config.defaultModel);
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      config.endpoint,
+      {
+        method: "POST",
+        headers: {
+          "xi-api-key": requireProviderKey(provider, apiKey, language),
+        },
+        body: formData,
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const text = data?.text?.trim();
+  return text ? text : null;
 }

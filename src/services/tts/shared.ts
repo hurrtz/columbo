@@ -70,10 +70,26 @@ type DashScopeTtsConfig = {
   voiceFallback: string;
 };
 
+type DeepgramTtsConfig = {
+  kind: "deepgram";
+  endpointBase: string;
+  defaultModel: string;
+  voiceFallback: string;
+};
+
+type ElevenLabsTtsConfig = {
+  kind: "elevenlabs";
+  endpointBase: string;
+  defaultModel: string;
+  voiceFallback: string;
+};
+
 export type ProviderTtsConfig =
   | BinaryTtsConfig
   | GeminiTtsConfig
-  | DashScopeTtsConfig;
+  | DashScopeTtsConfig
+  | DeepgramTtsConfig
+  | ElevenLabsTtsConfig;
 
 const ttsProviderConfigEntries: Array<[Provider, ProviderTtsConfig]> = [];
 
@@ -110,6 +126,40 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       {
         kind: "dashscope",
         endpoint: manifest.tts.endpoint,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
+    manifest.tts.transport === "deepgram" &&
+    manifest.tts.endpointBase &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "deepgram",
+        endpointBase: manifest.tts.endpointBase,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
+    manifest.tts.transport === "elevenlabs" &&
+    manifest.tts.endpointBase &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "elevenlabs",
+        endpointBase: manifest.tts.endpointBase,
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,
       },

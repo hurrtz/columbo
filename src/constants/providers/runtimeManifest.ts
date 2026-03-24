@@ -10,6 +10,8 @@ export type RuntimeAppProviderId =
   | "baichuan"
   | "baidu-ernie-qianfan"
   | "bytedance-doubao-seed"
+  | "deepgram"
+  | "elevenlabs"
   | "gemini"
   | "cerebras"
   | "cohere"
@@ -33,6 +35,7 @@ export type RuntimeAppProviderId =
   | "z-ai-zhipu-ai";
 
 export type RuntimeLlmTransport =
+  | "none"
   | "openai-compatible"
   | "anthropic"
   | "cohere";
@@ -41,12 +44,21 @@ export type RuntimeSttTransport =
   | "multipart"
   | "gemini"
   | "openai-audio-input"
-  | "assemblyai-pre-recorded";
-export type RuntimeTtsTransport = "none" | "binary" | "gemini" | "dashscope";
+  | "assemblyai-pre-recorded"
+  | "deepgram-pre-recorded"
+  | "elevenlabs";
+export type RuntimeTtsTransport =
+  | "none"
+  | "binary"
+  | "gemini"
+  | "dashscope"
+  | "deepgram"
+  | "elevenlabs";
 export type RuntimeTtsBinaryRequestFormat =
   | "openai-speech"
   | "together-speech"
-  | "xai-speech";
+  | "xai-speech"
+  | "groq-speech";
 export type RuntimeLanguageHintKey = "mistral-stt-language-code";
 
 export interface RuntimeModelSpec {
@@ -61,12 +73,22 @@ export interface RuntimeVoiceOption {
   localizedLabels?: Partial<Record<"de", string>>;
 }
 
-interface RuntimeLlmManifest {
-  transport: RuntimeLlmTransport;
+interface RuntimeLlmProviderManifest {
+  support: "provider";
+  transport: Exclude<RuntimeLlmTransport, "none">;
   endpoint?: string;
   defaultModel: string;
   models: RuntimeModelSpec[];
 }
+
+interface RuntimeLlmDisabledManifest {
+  support: "none";
+  transport: "none";
+  models: [];
+  defaultModel?: string;
+}
+
+type RuntimeLlmManifest = RuntimeLlmProviderManifest | RuntimeLlmDisabledManifest;
 
 interface RuntimeSttManifest {
   support: "none" | "provider";
@@ -176,6 +198,8 @@ export const RUNTIME_PROVIDER_ORDER = [
   "alibaba-qwen-dashscope",
   "baidu-ernie-qianfan",
   "bytedance-doubao-seed",
+  "deepgram",
+  "elevenlabs",
   "gemini",
   "xai",
   "groq",
@@ -214,6 +238,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks OpenAI models and OpenAI-hosted speech when you choose provider STT or TTS.",
     apiKeyUrl: "https://platform.openai.com/settings/organization/api-keys",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.openai.com/v1/chat/completions",
       defaultModel: "gpt-5.4",
@@ -294,6 +319,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     apiKeyHint: "Unlocks Anthropic models in the main stage.",
     apiKeyUrl: "https://platform.claude.com/settings/keys",
     llm: {
+      support: "provider",
       transport: "anthropic",
       defaultModel: "claude-sonnet-4-6",
       models: catalogModelSpecs("anthropic", "llm"),
@@ -320,6 +346,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks AssemblyAI LLM Gateway models and AssemblyAI pre-recorded speech-to-text.",
     apiKeyUrl: "https://www.assemblyai.com/dashboard/signup",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://llm-gateway.assemblyai.com/v1/chat/completions",
       defaultModel: "claude-sonnet-4-6",
@@ -353,6 +380,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     apiKeyHint: "Unlocks AI21 Jamba chat models through the hosted Jamba API.",
     apiKeyUrl: "https://docs.ai21.com/docs/create-api-key",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.ai21.com/studio/v1/chat/completions",
       defaultModel: "jamba-mini-2-2026-01",
@@ -381,6 +409,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     apiKeyUrl:
       "https://www.alibabacloud.com/help/en/model-studio/compatibility-of-openai-with-dashscope",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint:
         "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
@@ -430,6 +459,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks Baichuan hosted models through its OpenAI-style chat completions API.",
     apiKeyUrl: "https://platform.baichuan-ai.com/docs/api",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.baichuan-ai.com/v1/chat/completions",
       defaultModel: "Baichuan4-Air",
@@ -457,6 +487,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks Baidu Qianfan / ERNIE models through Qianfan's OpenAI-compatible chat API.",
     apiKeyUrl: "https://cloud.baidu.com/product-s/qianfan_home",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://qianfan.baidubce.com/v2/chat/completions",
       defaultModel: "ernie-5.0",
@@ -484,6 +515,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks Doubao / Seed hosted models through Volcano Engine Ark's OpenAI-compatible chat API.",
     apiKeyUrl: "https://www.volcengine.com/docs/82379/1298459",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
       defaultModel: "doubao-seed-2-0-lite-260215",
@@ -501,6 +533,94 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       voiceOptions: [],
     },
   },
+  deepgram: {
+    appProvider: "deepgram",
+    catalogProviderId: "deepgram",
+    label: "Deepgram",
+    shortLabel: "DEEPGRAM",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks Deepgram native speech-to-text and text-to-speech APIs.",
+    apiKeyUrl: "https://console.deepgram.com/signup",
+    llm: {
+      support: "none",
+      transport: "none",
+      models: [],
+      defaultModel: "",
+    },
+    stt: {
+      support: "provider",
+      transport: "deepgram-pre-recorded",
+      endpointBase: "https://api.deepgram.com/v1",
+      defaultModel: "nova-3",
+      models: catalogModelSpecs("deepgram", "stt"),
+      languageNote:
+        "Deepgram exposes broad multilingual STT coverage. Flux is English-only, while Nova and Whisper families have broader multilingual coverage. Uploads can reach 2 GB, though Deepgram recommends keeping pre-recorded jobs under roughly 10 minutes for Nova/Base/Enhanced and under 20 minutes for Whisper to avoid gateway timeouts.",
+    },
+    tts: {
+      support: "provider",
+      transport: "deepgram",
+      endpointBase: "https://api.deepgram.com/v1",
+      defaultModel: "aura-2",
+      defaultVoice: "aura-2-thalia-en",
+      voiceFallback: "aura-2-thalia-en",
+      models: catalogModelSpecs("deepgram", "tts"),
+      voiceOptions: [
+        voice("aura-2-thalia-en", "Aura 2 · Thalia"),
+        voice("aura-2-asteria-en", "Aura 2 · Asteria"),
+        voice("aura-2-apollo-en", "Aura 2 · Apollo"),
+        voice("aura-2-helena-en", "Aura 2 · Helena"),
+        voice("aura-asteria-en", "Aura 1 · Asteria"),
+        voice("aura-luna-en", "Aura 1 · Luna"),
+        voice("aura-orion-en", "Aura 1 · Orion"),
+        voice("aura-zeus-en", "Aura 1 · Zeus"),
+      ],
+      languageNote:
+        "Deepgram Aura voices are language- and voice-specific. Aura 2 currently documents English, Spanish, German, French, Dutch, Italian, and Japanese; Aura 1 is older and should be treated as a compatibility fallback.",
+    },
+  },
+  elevenlabs: {
+    appProvider: "elevenlabs",
+    catalogProviderId: "elevenlabs",
+    label: "ElevenLabs",
+    shortLabel: "ELEVEN",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks ElevenLabs speech-to-text and text-to-speech APIs.",
+    apiKeyUrl: "https://elevenlabs.io/app/settings/api-keys",
+    llm: {
+      support: "none",
+      transport: "none",
+      models: [],
+      defaultModel: "",
+    },
+    stt: {
+      support: "provider",
+      transport: "elevenlabs",
+      endpoint: "https://api.elevenlabs.io/v1/speech-to-text",
+      defaultModel: "scribe_v2",
+      models: [
+        namedModel("scribe_v2", "Scribe v2"),
+        namedModel("scribe_v1", "Scribe v1"),
+      ],
+      languageNote:
+        "ElevenLabs STT supports 90+ languages. The current upload endpoint accepts scribe_v2 and scribe_v1; the realtime scribe_v2_realtime model remains catalog-only until the app gains a WebSocket transcription transport.",
+    },
+    tts: {
+      support: "provider",
+      transport: "elevenlabs",
+      endpointBase: "https://api.elevenlabs.io/v1",
+      defaultModel: "eleven_flash_v2_5",
+      defaultVoice: "JBFqnCBsd6RMkjVDRZzb",
+      voiceFallback: "JBFqnCBsd6RMkjVDRZzb",
+      models: catalogModelSpecs("elevenlabs", "tts"),
+      voiceOptions: [
+        voice("JBFqnCBsd6RMkjVDRZzb", "Docs Example Voice"),
+      ],
+      languageNote:
+        "ElevenLabs voices are live-discovered and dynamic. The current runtime uses a documented example voice as the default fallback; the TTS models themselves remain selectable and the voice catalog can be expanded later with live discovery.",
+    },
+  },
   gemini: {
     appProvider: "gemini",
     catalogProviderId: "google-vertex-ai-studio",
@@ -511,6 +631,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks Gemini models plus Google-hosted speech features through the Gemini API.",
     apiKeyUrl: "https://aistudio.google.com/app/apikey",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint:
         "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
@@ -598,6 +719,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks Cerebras hosted models through its OpenAI-compatible inference API.",
     apiKeyUrl: "https://inference-docs.cerebras.ai/introduction",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.cerebras.ai/v1/chat/completions",
       defaultModel: "gpt-oss-120b",
@@ -625,6 +747,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks DeepInfra hosted models through its OpenAI-compatible API.",
     apiKeyUrl: "https://deepinfra.com/docs/openai_api",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.deepinfra.com/v1/openai/chat/completions",
       defaultModel: "deepseek-ai/DeepSeek-V3.2",
@@ -651,6 +774,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     apiKeyHint: "Unlocks Grok models from xAI.",
     apiKeyUrl: "https://console.x.ai/team/default/api-keys",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.x.ai/v1/chat/completions",
       defaultModel: "grok-4",
@@ -691,6 +815,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Groq offers a free tier and unlocks fast hosted inference models.",
     apiKeyUrl: "https://console.groq.com/keys",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.groq.com/openai/v1/chat/completions",
       defaultModel: "llama-3.3-70b-versatile",
@@ -723,6 +848,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     apiKeyHint: "Unlocks DeepSeek chat and reasoning models.",
     apiKeyUrl: "https://platform.deepseek.com/api_keys",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.deepseek.com/chat/completions",
       defaultModel: "deepseek-chat",
@@ -750,6 +876,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks Fireworks hosted models through its OpenAI-compatible inference API.",
     apiKeyUrl: "https://docs.fireworks.ai/getting-started/introduction",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.fireworks.ai/inference/v1/chat/completions",
       defaultModel: "accounts/fireworks/models/gpt-oss-20b",
@@ -777,6 +904,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks Hugging Face routed models through its OpenAI-compatible inference providers API.",
     apiKeyUrl: "https://huggingface.co/docs/inference-providers/index",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://router.huggingface.co/v1/chat/completions",
       defaultModel: "openai/gpt-oss-20b",
@@ -804,6 +932,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks Hyperbolic hosted models through its OpenAI-compatible inference API.",
     apiKeyUrl: "https://docs.hyperbolic.xyz/docs/inference-api",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.hyperbolic.xyz/v1/chat/completions",
       defaultModel: "gpt-oss-120b",
@@ -830,6 +959,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     apiKeyHint: "Unlocks Mistral hosted models.",
     apiKeyUrl: "https://console.mistral.ai/api-keys",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.mistral.ai/v1/chat/completions",
       defaultModel: "mistral-medium-latest",
@@ -862,6 +992,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks MiniMax hosted models through its OpenAI-compatible text generation API.",
     apiKeyUrl: "https://www.minimax.io/platform/document/ChatCompletion%20v4",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.minimax.io/v1/chat/completions",
       defaultModel: "MiniMax-M2.5",
@@ -889,6 +1020,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks Kimi models through Moonshot's OpenAI-compatible API.",
     apiKeyUrl: "https://platform.moonshot.ai/docs/guide/start-using-kimi-api",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.moonshot.ai/v1/chat/completions",
       defaultModel: "kimi-k2.5",
@@ -915,6 +1047,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     apiKeyHint: "Unlocks Cohere command models.",
     apiKeyUrl: "https://dashboard.cohere.com/api-keys",
     llm: {
+      support: "provider",
       transport: "cohere",
       defaultModel: "command-a-03-2025",
       models: catalogModelSpecs("cohere", "llm"),
@@ -941,6 +1074,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks Perplexity Sonar models through the chat completions-compatible Sonar API.",
     apiKeyUrl: "https://docs.perplexity.ai/docs/sonar/quickstart",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.perplexity.ai/chat/completions",
       defaultModel: "sonar",
@@ -968,6 +1102,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks SambaNova hosted models through its OpenAI-compatible SambaCloud API.",
     apiKeyUrl: "https://docs.sambanova.ai/docs/en/get-started/api-keys-urls",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.sambanova.ai/v1/chat/completions",
       defaultModel: "DeepSeek-V3.1",
@@ -995,6 +1130,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks SiliconFlow models through its OpenAI-compatible chat API.",
     apiKeyUrl: "https://docs.siliconflow.com/en/userguide/quickstart",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.siliconflow.com/v1/chat/completions",
       defaultModel: "deepseek-ai/DeepSeek-V3.2",
@@ -1026,6 +1162,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks StepFun hosted models through its OpenAI-compatible API.",
     apiKeyUrl: "https://platform.stepfun.com/docs/zh/overview/quickstart",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.stepfun.com/v1/chat/completions",
       defaultModel: "step-3.5-flash",
@@ -1056,6 +1193,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     apiKeyHint: "Unlocks Together-hosted open models.",
     apiKeyUrl: "https://api.together.ai/settings/api-keys",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.together.xyz/v1/chat/completions",
       defaultModel: "openai/gpt-oss-20b",
@@ -1109,6 +1247,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     apiKeyHint: "Unlocks NVIDIA hosted models.",
     apiKeyUrl: "https://build.nvidia.com",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://integrate.api.nvidia.com/v1/chat/completions",
       defaultModel: "nemotron-3-super-120b-a12b",
@@ -1136,6 +1275,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks Novita hosted models through its OpenAI-compatible API.",
     apiKeyUrl: "https://novita.ai/docs/api-reference/model-apis-introduction",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.novita.ai/openai/v1/chat/completions",
       defaultModel: "deepseek/deepseek-v3.2",
@@ -1163,6 +1303,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       "Unlocks Z.ai hosted models through its OpenAI-compatible global chat API.",
     apiKeyUrl: "https://docs.z.ai/api-reference/llm/chat-completion",
     llm: {
+      support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.z.ai/api/paas/v4/chat/completions",
       defaultModel: "glm-4.7-flashx",

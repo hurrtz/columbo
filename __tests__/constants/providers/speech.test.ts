@@ -46,6 +46,21 @@ describe("speech provider constants", () => {
       { id: "FunAudioLLM/SenseVoiceSmall", name: "SenseVoiceSmall" },
       { id: "TeleAI/TeleSpeechASR", name: "TeleSpeechASR" },
     ]);
+    expect(getProviderSttModelOptions("deepgram")).toEqual([
+      { id: "flux-general-en", name: "Flux General English" },
+      { id: "nova-3", name: "Nova-3 General" },
+      { id: "nova-3-medical", name: "Nova-3 Medical" },
+      { id: "nova-2", name: "Nova-2 General" },
+      { id: "nova-2-verticals", name: "Nova-2 Vertical Variants" },
+      { id: "legacy-nova-family", name: "Legacy Nova Family" },
+      { id: "legacy-enhanced-family", name: "Legacy Enhanced Family" },
+      { id: "legacy-base-family", name: "Legacy Base Family" },
+      { id: "whisper", name: "Deepgram Whisper Cloud" },
+    ]);
+    expect(getProviderSttModelOptions("elevenlabs")).toEqual([
+      { id: "scribe_v2", name: "Scribe v2" },
+      { id: "scribe_v1", name: "Scribe v1" },
+    ]);
   });
 
   it("uses catalog labels for exact TTS model matches", () => {
@@ -63,6 +78,19 @@ describe("speech provider constants", () => {
         (option) => option.id === "gemini-2.5-flash-tts",
       )?.name,
     ).toBe("Gemini 2.5 Flash TTS");
+    expect(getProviderTtsModelOptions("deepgram")).toEqual([
+      { id: "aura-2", name: "Aura-2 Voice Family" },
+      { id: "aura-1", name: "Aura-1 Voice Family" },
+    ]);
+    expect(getProviderTtsModelOptions("elevenlabs")).toEqual([
+      { id: "eleven_v3", name: "Eleven v3" },
+      { id: "eleven_multilingual_v2", name: "Eleven Multilingual v2" },
+      { id: "eleven_flash_v2_5", name: "Eleven Flash v2.5" },
+      { id: "eleven_turbo_v2_5", name: "Eleven Turbo v2.5" },
+      { id: "eleven_turbo_v2", name: "Eleven Turbo v2" },
+      { id: "eleven_monolingual_v1", name: "Eleven Monolingual v1" },
+      { id: "eleven_multilingual_v1", name: "Eleven Multilingual v1" },
+    ]);
   });
 
   it("keeps xAI TTS aligned to the canonical catalog service id", () => {

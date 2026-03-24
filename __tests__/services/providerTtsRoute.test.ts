@@ -67,4 +67,56 @@ describe("synthesizeProviderSpeech", () => {
       "https://dashscope.example/audio.wav",
     );
   });
+
+  it("uses Deepgram native speak and sends the selected voice model", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "aura-2-thalia-en",
+      provider: "deepgram",
+      apiKey: "deepgram-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://api.deepgram.com/v1/speak?model=aura-2-thalia-en",
+    );
+    expect(options.headers.Authorization).toBe("Token deepgram-test");
+    expect(JSON.parse(options.body)).toEqual({
+      text: "Hello world",
+    });
+  });
+
+  it("uses ElevenLabs TTS with the selected voice id and model id", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "JBFqnCBsd6RMkjVDRZzb",
+      provider: "elevenlabs",
+      apiKey: "elevenlabs-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://api.elevenlabs.io/v1/text-to-speech/JBFqnCBsd6RMkjVDRZzb",
+    );
+    expect(options.headers["xi-api-key"]).toBe("elevenlabs-test");
+    expect(JSON.parse(options.body)).toEqual({
+      text: "Hello world",
+      model_id: "eleven_flash_v2_5",
+      output_format: "mp3_44100_128",
+    });
+  });
 });

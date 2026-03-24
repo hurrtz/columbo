@@ -27,6 +27,10 @@ const llmProviderConfigEntries: Array<[Provider, ProviderLlmConfig]> = [];
 for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
   const manifest = RUNTIME_PROVIDER_MANIFEST[provider];
 
+  if (manifest.llm.support !== "provider") {
+    continue;
+  }
+
   switch (manifest.llm.transport) {
     case "openai-compatible":
       if (!manifest.llm.endpoint) {
@@ -53,10 +57,9 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
   }
 }
 
-export const LLM_PROVIDER_CONFIGS: Record<Provider, ProviderLlmConfig> =
-  Object.fromEntries(llmProviderConfigEntries) as Record<
-    Provider,
-    ProviderLlmConfig
+export const LLM_PROVIDER_CONFIGS: Partial<Record<Provider, ProviderLlmConfig>> =
+  Object.fromEntries(llmProviderConfigEntries) as Partial<
+    Record<Provider, ProviderLlmConfig>
   >;
 
 export function toAPIMessages(messages: ChatMessage[]) {
