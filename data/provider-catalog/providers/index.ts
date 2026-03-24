@@ -26,7 +26,6 @@ import HuggingFaceInferenceApiDocument from "./hugging-face-inference-api";
 import HyperbolicDocument from "./hyperbolic";
 import IbmWatsonxDocument from "./ibm-watsonx";
 import LeptonAiDocument from "./lepton-ai";
-import LmntDocument from "./lmnt";
 import MicrosoftAzureDocument from "./microsoft-azure";
 import MinimaxDocument from "./minimax";
 import MistralAiDocument from "./mistral-ai";
@@ -36,7 +35,6 @@ import NvidiaNimDocument from "./nvidia-nim";
 import OpenaiDocument from "./openai";
 import PerplexityDocument from "./perplexity";
 import ReplicateDocument from "./replicate";
-import ResembleAiDocument from "./resemble-ai";
 import SambanovaDocument from "./sambanova";
 import SiliconflowDocument from "./siliconflow";
 import StepfunDocument from "./stepfun";
@@ -70,7 +68,6 @@ export const PROVIDER_DOCUMENTS = defineProviderDocuments([
   HyperbolicDocument,
   IbmWatsonxDocument,
   LeptonAiDocument,
-  LmntDocument,
   MicrosoftAzureDocument,
   MinimaxDocument,
   MistralAiDocument,
@@ -80,7 +77,6 @@ export const PROVIDER_DOCUMENTS = defineProviderDocuments([
   OpenaiDocument,
   PerplexityDocument,
   ReplicateDocument,
-  ResembleAiDocument,
   SambanovaDocument,
   SiliconflowDocument,
   StepfunDocument,

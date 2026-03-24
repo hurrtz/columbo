@@ -46,10 +46,10 @@ describe("ProviderSelectionGrid", () => {
       </ThemeProvider>,
     );
 
-    expect(screen.getAllByRole("button")).toHaveLength(42);
+    expect(screen.getAllByRole("button")).toHaveLength(40);
     expect(
       screen.getByText(
-        "Showing 32 extra catalog-only providers here for UI inspection. Only the wired providers can be configured and called right now.",
+        "Showing 30 extra catalog-only providers here for UI inspection. Only the wired providers can be configured and called right now.",
       ),
     ).toBeTruthy();
 
