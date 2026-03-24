@@ -1,7 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
-import { PROVIDER_ORDER } from "../../constants/models";
 import type { Provider, ProviderApiKeys, Settings } from "../../types";
+import {
+  RUNTIME_PROVIDER_IDS,
+} from "../../constants/providers/runtimeState";
 import {
   API_KEY_STORAGE_PREFIX,
   type LegacyStoredSettings,
@@ -26,7 +28,7 @@ export function persistPublicSettings(settings: Settings) {
 
 export async function loadStoredApiKeys(): Promise<ProviderApiKeys> {
   const apiKeyEntries = await Promise.all(
-    PROVIDER_ORDER.map(async (provider) => {
+    RUNTIME_PROVIDER_IDS.map(async (provider) => {
       const stored = await SecureStore.getItemAsync(getApiKeyStorageKey(provider));
       return [provider, stored?.trim() ?? ""] as const;
     }),

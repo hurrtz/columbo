@@ -6,6 +6,10 @@ import {
   DEFAULT_RESPONSE_MODES,
   PROVIDER_DEFAULT_MODELS,
 } from "./constants/providers/defaults";
+import {
+  DEFAULT_RUNTIME_PROVIDER_ID,
+  createRuntimeProviderStringRecord,
+} from "./constants/providers/runtimeState";
 import type { RuntimeAppProviderId } from "./constants/providers/runtimeManifest";
 
 export type Provider = RuntimeAppProviderId;
@@ -151,29 +155,18 @@ export const DEFAULT_SETTINGS: Settings = {
   language: "en",
   theme: "system",
   setupGuideDismissed: false,
-  lastProvider: "openai",
+  lastProvider: DEFAULT_RUNTIME_PROVIDER_ID,
   sttMode: "provider",
-  sttProvider: "openai",
+  sttProvider: DEFAULT_RUNTIME_PROVIDER_ID,
   ttsMode: "provider",
-  ttsProvider: "openai",
+  ttsProvider: DEFAULT_RUNTIME_PROVIDER_ID,
   ttsListenLanguages: getDefaultTtsListenLanguages("en"),
   localTtsVoices: LOCAL_TTS_DEFAULT_VOICES,
   assistantInstructions: getDefaultAssistantInstructions("en"),
   responseLength: "normal",
   responseTone: "professional",
   showUsageStats: false,
-  apiKeys: {
-    openai: "",
-    anthropic: "",
-    gemini: "",
-    cohere: "",
-    deepseek: "",
-    groq: "",
-    mistral: "",
-    nvidia: "",
-    together: "",
-    xai: "",
-  },
+  apiKeys: createRuntimeProviderStringRecord(),
 };
 
 export interface Message {

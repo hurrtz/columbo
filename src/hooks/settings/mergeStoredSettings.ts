@@ -6,6 +6,11 @@ import {
   getProviderTtsModelOptions,
 } from "../../constants/models";
 import {
+  createRuntimeProviderStringRecord,
+  extractRuntimeProviderStringRecord,
+  isRuntimeProviderId,
+} from "../../constants/providers/runtimeState";
+import {
   type LocalTtsVoiceSelections,
   type Provider,
   type ProviderApiKeys,
@@ -33,7 +38,7 @@ import {
 } from "./types";
 
 function isProvider(value: unknown): value is Provider {
-  return typeof value === "string" && PROVIDER_ORDER.includes(value as Provider);
+  return isRuntimeProviderId(value);
 }
 
 function isResponseMode(value: unknown): value is ResponseMode {
@@ -47,15 +52,20 @@ function extractStoredProviderModels(
     return {};
   }
 
+  const extractedModels = extractRuntimeProviderStringRecord(
+    storedSettings.providerModels,
+  );
+
   return PROVIDER_ORDER.reduce((accumulator, provider) => {
     const providerModels = storedSettings.providerModels?.[provider];
     const legacyValue = storedSettings[LEGACY_MODEL_FIELD_KEYS[provider]];
     const value =
-      typeof providerModels === "string" && providerModels
+      extractedModels[provider] ??
+      (typeof providerModels === "string" && providerModels
         ? providerModels
         : typeof legacyValue === "string" && legacyValue
           ? legacyValue
-          : undefined;
+          : undefined);
 
     if (value) {
       accumulator[provider] = value;
@@ -73,8 +83,9 @@ function extractStoredProviderTtsVoices(
   }
 
   const storedProviderVoices =
-    (storedSettings.providerTtsVoices as Partial<ProviderTtsVoiceSelections> | undefined) ??
-    {};
+    extractRuntimeProviderStringRecord(
+      storedSettings.providerTtsVoices,
+    ) as Partial<ProviderTtsVoiceSelections>;
   const legacyTtsVoice =
     typeof storedSettings.ttsVoice === "string" && storedSettings.ttsVoice
       ? storedSettings.ttsVoice
@@ -100,39 +111,17 @@ function extractStoredProviderTtsVoices(
 function extractStoredProviderTtsModels(
   storedSettings?: LegacyStoredSettings,
 ): Partial<ProviderTtsModelSelections> {
-  if (!storedSettings?.providerTtsModels) {
-    return {};
-  }
-
-  return Object.entries(storedSettings.providerTtsModels).reduce(
-    (accumulator, [provider, value]) => {
-      if (typeof value === "string" && value.trim()) {
-        accumulator[provider as Provider] = value.trim();
-      }
-
-      return accumulator;
-    },
-    {} as Partial<ProviderTtsModelSelections>,
-  );
+  return extractRuntimeProviderStringRecord(
+    storedSettings?.providerTtsModels,
+  ) as Partial<ProviderTtsModelSelections>;
 }
 
 function extractStoredProviderSttModels(
   storedSettings?: LegacyStoredSettings,
 ): Partial<ProviderSttModelSelections> {
-  if (!storedSettings?.providerSttModels) {
-    return {};
-  }
-
-  return Object.entries(storedSettings.providerSttModels).reduce(
-    (accumulator, [provider, value]) => {
-      if (typeof value === "string" && value.trim()) {
-        accumulator[provider as Provider] = value.trim();
-      }
-
-      return accumulator;
-    },
-    {} as Partial<ProviderSttModelSelections>,
-  );
+  return extractRuntimeProviderStringRecord(
+    storedSettings?.providerSttModels,
+  ) as Partial<ProviderSttModelSelections>;
 }
 
 function extractStoredLocalTtsVoices(
@@ -232,9 +221,11 @@ export function mergeSettings(
       ? storedSettings.assistantInstructions
       : getDefaultAssistantInstructions(language);
   const mergedApiKeys = {
-    ...DEFAULT_SETTINGS.apiKeys,
-    ...(storedSettings?.apiKeys ?? {}),
-    ...storedApiKeys,
+    ...createRuntimeProviderStringRecord(
+      "",
+      extractRuntimeProviderStringRecord(storedSettings?.apiKeys),
+    ),
+    ...extractRuntimeProviderStringRecord(storedApiKeys),
   };
   const mergedProviderModels = {
     ...DEFAULT_SETTINGS.providerModels,
