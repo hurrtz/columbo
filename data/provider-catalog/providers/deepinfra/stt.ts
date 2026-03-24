@@ -1,0 +1,78 @@
+import { providerContext } from "./provider";
+
+export const stt = providerContext.defineSttModels([
+  providerContext.stt(
+    {
+      "providerId": "deepinfra",
+      "providerName": "DeepInfra",
+      "service": "stt",
+      "modelId": "dynamic",
+      "publicName": "ASR catalog",
+      "status": "Documented active/current",
+      "catalogScope": "Dynamic/non-exhaustive",
+      "pricingSummary": "Varies by model page. Example speech prices depend on chosen hosted model.",
+      "limitsSummary": "Catalog is dynamic; speech model capabilities and quotas differ by hosted model.",
+      "regionSummary": "Public model-level region/data center detail is limited.",
+      "languagesSummary": "Depends on chosen hosted model (e.g., Whisper multilingual).",
+      "notes": "Your sheet is outdated here: DeepInfra now exposes TTS and speech-recognition categories at platform level.",
+      "officialSources": [
+        "https://deepinfra.com/docs",
+        "https://deepinfra.com/models",
+        "https://deepinfra.com/"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": null,
+      "supportsBatch": null,
+      "priceMeasurements": [],
+      "constraints": [],
+      "languageSupport": {
+        "rawText": "Depends on chosen hosted model (e.g., Whisper multilingual).",
+        "isMultilingual": true,
+        "languageCount": null,
+        "voiceCount": null,
+        "listedLanguages": [
+          "Depends on chosen hosted model (e.g",
+          "Whisper multilingual"
+        ],
+        "notes": []
+      }
+    }
+  ),
+  providerContext.stt(
+    {
+      "providerId": "deepinfra",
+      "providerName": "DeepInfra",
+      "service": "stt",
+      "modelId": "openai/whisper-large",
+      "publicName": "Whisper Large",
+      "status": "Documented active/current",
+      "catalogScope": "Dynamic/non-exhaustive",
+      "pricingSummary": "Varies by model page. Example speech prices depend on chosen hosted model.",
+      "limitsSummary": "Catalog is dynamic; speech model capabilities and quotas differ by hosted model.",
+      "regionSummary": "Public model-level region/data center detail is limited.",
+      "languagesSummary": "Depends on chosen hosted model (e.g., Whisper multilingual).",
+      "notes": "Your sheet is outdated here: DeepInfra now exposes TTS and speech-recognition categories at platform level.",
+      "officialSources": [
+        "https://deepinfra.com/docs",
+        "https://deepinfra.com/models",
+        "https://deepinfra.com/"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": null,
+      "supportsBatch": null,
+      "priceMeasurements": [],
+      "constraints": [],
+      "languageSupport": {
+        "rawText": "Depends on chosen hosted model (e.g., Whisper multilingual).",
+        "isMultilingual": true,
+        "languageCount": null,
+        "voiceCount": null,
+        "listedLanguages": [
+          "Depends on chosen hosted model (e.g",
+          "Whisper multilingual"
+        ],
+        "notes": []
+      }
+    }
+  ),
+]);
