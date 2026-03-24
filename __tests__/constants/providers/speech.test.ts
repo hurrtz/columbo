@@ -91,6 +91,41 @@ describe("speech provider constants", () => {
       { id: "eleven_monolingual_v1", name: "Eleven Monolingual v1" },
       { id: "eleven_multilingual_v1", name: "Eleven Multilingual v1" },
     ]);
+    expect(getProviderTtsModelOptions("groq")).toEqual([
+      {
+        id: "canopylabs/orpheus-v1-english",
+        name: "Canopy Labs Orpheus V1 English",
+      },
+      {
+        id: "canopylabs/orpheus-arabic-saudi",
+        name: "Canopy Labs Orpheus Arabic Saudi",
+      },
+    ]);
+    expect(getProviderTtsModelOptions("siliconflow")).toEqual([
+      { id: "fishaudio/fish-speech-1.5", name: "Fish-Speech-1.5" },
+    ]);
+    expect(getProviderTtsModelOptions("stepfun")).toEqual([
+      { id: "step-tts-2", name: "Step TTS 2" },
+      { id: "step-tts-mini", name: "Step TTS Mini" },
+      { id: "step-tts-vivid", name: "Step TTS Vivid" },
+    ]);
+    expect(getProviderTtsModelOptions("z-ai-zhipu-ai")).toEqual([
+      { id: "glm-tts", name: "GLM-TTS" },
+    ]);
+    expect(getProviderTtsModelOptions("together")).toEqual([
+      { id: "canopylabs/orpheus-3b-0.1-ft", name: "Orpheus 3B" },
+      { id: "hexgrad/Kokoro-82M", name: "Kokoro" },
+      { id: "cartesia/sonic", name: "Cartesia Sonic" },
+      { id: "cartesia/sonic-2", name: "Cartesia Sonic 2" },
+      { id: "cartesia/sonic-3", name: "Cartesia Sonic 3" },
+      { id: "deepgram/deepgram-aura-2", name: "Deepgram Aura 2" },
+      { id: "rime-labs/rime-arcana-v3-turbo", name: "Rime Arcana v3 Turbo" },
+      { id: "rime-labs/rime-arcana-v3", name: "Rime Arcana v3" },
+      { id: "rime-labs/rime-arcana-v2", name: "Rime Arcana v2" },
+      { id: "rime-labs/rime-mist-v3", name: "Rime Mist v3" },
+      { id: "rime-labs/rime-mist-v2", name: "Rime Mist v2" },
+      { id: "minimax/speech-2.6-turbo", name: "Minimax Speech 2.6 Turbo" },
+    ]);
   });
 
   it("keeps xAI TTS aligned to the canonical catalog service id", () => {

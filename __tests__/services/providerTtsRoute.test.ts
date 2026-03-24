@@ -119,4 +119,135 @@ describe("synthesizeProviderSpeech", () => {
       output_format: "mp3_44100_128",
     });
   });
+
+  it("uses Groq TTS with a model-specific fallback voice and wav output", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "groq",
+      apiKey: "groq-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.wav$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.groq.com/openai/v1/audio/speech");
+    expect(options.headers.Authorization).toBe("Bearer groq-test");
+    expect(JSON.parse(options.body)).toEqual({
+      model: "canopylabs/orpheus-v1-english",
+      voice: "troy",
+      input: "Hello world",
+      response_format: "wav",
+    });
+  });
+
+  it("normalizes Together voices for non-Kokoro speech models", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "af_alloy",
+      provider: "together",
+      providerModel: "canopylabs/orpheus-3b-0.1-ft",
+      apiKey: "together-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.together.xyz/v1/audio/speech");
+    expect(JSON.parse(options.body)).toEqual({
+      model: "canopylabs/orpheus-3b-0.1-ft",
+      voice: "tara",
+      input: "Hello world",
+      response_format: "mp3",
+      language: "en",
+    });
+  });
+
+  it("uses SiliconFlow TTS with prefixed preset voice ids", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "siliconflow",
+      apiKey: "siliconflow-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.siliconflow.com/v1/audio/speech");
+    expect(JSON.parse(options.body)).toEqual({
+      model: "fishaudio/fish-speech-1.5",
+      voice: "fishaudio/fish-speech-1.5:alex",
+      input: "Hello world",
+      response_format: "mp3",
+      stream: false,
+      sample_rate: 44100,
+    });
+  });
+
+  it("uses StepFun TTS with the documented speech endpoint", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "stepfun",
+      apiKey: "stepfun-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.stepfun.com/v1/audio/speech");
+    expect(JSON.parse(options.body)).toEqual({
+      model: "step-tts-2",
+      voice: "cixingnansheng",
+      input: "Hello world",
+      response_format: "mp3",
+    });
+  });
+
+  it("uses mainland BigModel TTS for Z.ai with wav output", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "z-ai-zhipu-ai",
+      apiKey: "zai-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.wav$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://open.bigmodel.cn/api/paas/v4/audio/speech");
+    expect(JSON.parse(options.body)).toEqual({
+      model: "glm-tts",
+      voice: "tongtong",
+      input: "Hello world",
+      response_format: "wav",
+      stream: false,
+    });
+  });
 });

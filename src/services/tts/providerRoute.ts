@@ -88,6 +88,23 @@ function buildBinaryTtsRequestBody(params: {
         input: params.text,
         response_format: "wav",
       };
+    case "siliconflow-speech":
+      return {
+        model: params.selectedModel,
+        voice: params.selectedVoice,
+        input: params.text,
+        response_format: "mp3",
+        stream: false,
+        sample_rate: 44100,
+      };
+    case "zai-speech":
+      return {
+        model: params.selectedModel,
+        voice: params.selectedVoice,
+        input: params.text,
+        response_format: "wav",
+        stream: false,
+      };
     case "openai-speech":
     default:
       return {
@@ -100,7 +117,9 @@ function buildBinaryTtsRequestBody(params: {
 }
 
 function getBinaryTtsFileExtension(requestFormat: RuntimeTtsBinaryRequestFormat) {
-  return requestFormat === "groq-speech" ? "wav" : "mp3";
+  return requestFormat === "groq-speech" || requestFormat === "zai-speech"
+    ? "wav"
+    : "mp3";
 }
 
 function getDashScopeAudioUrl(data: any) {
@@ -120,6 +139,197 @@ function getDeepgramVoiceModel(selectedModel: string, selectedVoice: string) {
   }
 
   return selectedVoice || "aura-asteria-en";
+}
+
+const TOGETHER_KOKORO_VOICES = new Set([
+  "af_heart",
+  "af_alloy",
+  "af_aoede",
+  "af_bella",
+  "af_jessica",
+  "af_kore",
+  "af_nicole",
+  "af_nova",
+  "af_river",
+  "af_sarah",
+  "af_sky",
+  "am_adam",
+  "am_echo",
+  "am_eric",
+  "am_fenrir",
+  "am_liam",
+]);
+
+const TOGETHER_ORPHEUS_VOICES = new Set([
+  "tara",
+  "leah",
+  "jess",
+  "leo",
+  "dan",
+  "mia",
+  "zac",
+  "zoe",
+]);
+
+const TOGETHER_CARTESIA_VOICES = new Set([
+  "friendly sidekick",
+]);
+
+const TOGETHER_RIME_ARCANA_VOICES = new Set([
+  "albion",
+  "arcade",
+  "astra",
+  "atrium",
+  "bond",
+  "cupola",
+  "eliphas",
+  "estelle",
+  "eucalyptus",
+  "fern",
+  "lintel",
+  "luna",
+  "lyra",
+  "marlu",
+  "masonry",
+  "moss",
+  "oculus",
+  "parapet",
+  "pilaster",
+  "sirius",
+  "stucco",
+  "transom",
+  "truss",
+  "vashti",
+  "vespera",
+  "walnut",
+]);
+
+const TOGETHER_RIME_MIST_VOICES = new Set([
+  "cove",
+  "eucalyptus",
+  "lagoon",
+  "mari",
+  "marlu",
+  "mesa_extra",
+  "moon",
+  "moraine",
+  "peak",
+  "summit",
+  "talon",
+  "thunder",
+  "tundra",
+  "wildflower",
+]);
+
+const TOGETHER_MINIMAX_VOICES = new Set([
+  "English_DeterminedMan",
+  "English_TrustworthMan",
+  "English_GracefulLady",
+  "English_WiseWoman",
+]);
+
+function getGroqVoice(selectedModel: string, selectedVoice: string) {
+  if (selectedModel === "canopylabs/orpheus-arabic-saudi") {
+    return ["fahad", "sultan", "lulwa", "noura"].includes(selectedVoice)
+      ? selectedVoice
+      : "noura";
+  }
+
+  return [
+    "autumn",
+    "diana",
+    "hannah",
+    "austin",
+    "daniel",
+    "troy",
+  ].includes(selectedVoice)
+    ? selectedVoice
+    : "troy";
+}
+
+function getSiliconflowVoice(selectedModel: string, selectedVoice: string) {
+  if (selectedVoice.startsWith(`${selectedModel}:`)) {
+    return selectedVoice;
+  }
+
+  const normalizedVoice = selectedVoice.includes(":")
+    ? selectedVoice.split(":").pop()
+    : selectedVoice;
+
+  return `${selectedModel}:${normalizedVoice || "alex"}`;
+}
+
+function getTogetherVoice(selectedModel: string, selectedVoice: string) {
+  if (selectedModel === "hexgrad/Kokoro-82M") {
+    return TOGETHER_KOKORO_VOICES.has(selectedVoice) ? selectedVoice : "af_alloy";
+  }
+
+  if (selectedModel === "canopylabs/orpheus-3b-0.1-ft") {
+    return TOGETHER_ORPHEUS_VOICES.has(selectedVoice) ? selectedVoice : "tara";
+  }
+
+  if (selectedModel.startsWith("cartesia/sonic")) {
+    return TOGETHER_CARTESIA_VOICES.has(selectedVoice)
+      ? selectedVoice
+      : "friendly sidekick";
+  }
+
+  if (selectedModel === "deepgram/deepgram-aura-2") {
+    return selectedVoice.startsWith("aura-2-")
+      ? selectedVoice
+      : "aura-2-thalia-en";
+  }
+
+  if (selectedModel.startsWith("rime-labs/rime-arcana")) {
+    return TOGETHER_RIME_ARCANA_VOICES.has(selectedVoice) ? selectedVoice : "luna";
+  }
+
+  if (selectedModel.startsWith("rime-labs/rime-mist")) {
+    return TOGETHER_RIME_MIST_VOICES.has(selectedVoice) ? selectedVoice : "cove";
+  }
+
+  if (selectedModel === "minimax/speech-2.6-turbo") {
+    return TOGETHER_MINIMAX_VOICES.has(selectedVoice)
+      ? selectedVoice
+      : "English_DeterminedMan";
+  }
+
+  return selectedVoice || "af_alloy";
+}
+
+function getZaiVoice(selectedVoice: string) {
+  return [
+    "tongtong",
+    "chuichui",
+    "xiaochen",
+    "jam",
+    "kazi",
+    "douji",
+    "luodo",
+  ].includes(selectedVoice)
+    ? selectedVoice
+    : "tongtong";
+}
+
+function getBinaryTtsVoice(params: {
+  requestFormat: RuntimeTtsBinaryRequestFormat;
+  selectedModel: string;
+  selectedVoice: string;
+}) {
+  switch (params.requestFormat) {
+    case "groq-speech":
+      return getGroqVoice(params.selectedModel, params.selectedVoice);
+    case "siliconflow-speech":
+      return getSiliconflowVoice(params.selectedModel, params.selectedVoice);
+    case "together-speech":
+      return getTogetherVoice(params.selectedModel, params.selectedVoice);
+    case "zai-speech":
+      return getZaiVoice(params.selectedVoice);
+    case "xai-speech":
+    case "openai-speech":
+    default:
+      return params.selectedVoice;
+  }
 }
 
 export async function synthesizeProviderSpeech(params: {
@@ -376,10 +586,16 @@ export async function synthesizeProviderSpeech(params: {
     return writeBlobAudioFile(await response.blob());
   }
 
-  const requestBody = buildBinaryTtsRequestBody({
+  const resolvedVoice = getBinaryTtsVoice({
     requestFormat: config.requestFormat,
     selectedModel,
     selectedVoice,
+  });
+
+  const requestBody = buildBinaryTtsRequestBody({
+    requestFormat: config.requestFormat,
+    selectedModel,
+    selectedVoice: resolvedVoice,
     text,
   });
 

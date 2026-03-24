@@ -13,10 +13,10 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 31
 - Catalog models: 455
-- Integrated models: 291
+- Integrated models: 309
 - LLM: 243/294 integrated
 - STT: 29/71 integrated
-- TTS: 19/90 integrated
+- TTS: 37/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -372,7 +372,7 @@ Catalog updated: 2026-03-23
 ## Groq `groq`
 
 - Runtime provider: `groq`
-- Model integration: 12/14 integrated
+- Model integration: 14/14 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -389,8 +389,8 @@ Catalog updated: 2026-03-23
 | LLM | `openai/gpt-oss-safeguard-20b` | Safety GPT OSS 20B | Integrated | `openai/gpt-oss-safeguard-20b` |
 | STT | `whisper-large-v3` | Whisper Large V3 | Integrated | `whisper-large-v3` |
 | STT | `whisper-large-v3-turbo` | Whisper Large V3 Turbo | Integrated | `whisper-large-v3-turbo` |
-| TTS | `canopylabs/orpheus-arabic-saudi` | Canopy Labs Orpheus Arabic Saudi | Not integrated | — |
-| TTS | `canopylabs/orpheus-v1-english` | Canopy Labs Orpheus V1 English | Not integrated | — |
+| TTS | `canopylabs/orpheus-arabic-saudi` | Canopy Labs Orpheus Arabic Saudi | Integrated | `canopylabs/orpheus-arabic-saudi` |
+| TTS | `canopylabs/orpheus-v1-english` | Canopy Labs Orpheus V1 English | Integrated | `canopylabs/orpheus-v1-english` |
 
 ## Hugging Face Inference API `hugging-face-inference-api`
 
@@ -706,7 +706,7 @@ Catalog updated: 2026-03-23
 ## Siliconflow `siliconflow`
 
 - Runtime provider: `siliconflow`
-- Model integration: 7/10 integrated
+- Model integration: 8/10 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -719,13 +719,13 @@ Catalog updated: 2026-03-23
 | STT | `FunAudioLLM/SenseVoiceSmall` | SenseVoiceSmall | Integrated | `FunAudioLLM/SenseVoiceSmall` |
 | STT | `TeleAI/TeleSpeechASR` | TeleSpeechASR | Integrated | `TeleAI/TeleSpeechASR` |
 | TTS | `FunAudioLLM/CosyVoice2-0.5B` | CosyVoice2-0.5B | Not integrated | — |
-| TTS | `fishaudio/fish-speech-1.5` | Fish-Speech-1.5 | Not integrated | — |
+| TTS | `fishaudio/fish-speech-1.5` | Fish-Speech-1.5 | Integrated | `fishaudio/fish-speech-1.5` |
 | TTS | `IndexTeam/IndexTTS-2` | IndexTTS-2 | Not integrated | — |
 
 ## Stepfun `stepfun`
 
 - Runtime provider: `stepfun`
-- Model integration: 9/13 integrated
+- Model integration: 12/13 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -740,14 +740,14 @@ Catalog updated: 2026-03-23
 | STT | `step-asr` | Step ASR | Integrated | `step-asr` |
 | STT | `step-asr-1.1` | Step ASR 1.1 | Integrated | `step-asr-1.1` |
 | STT | `step-asr-1.1-stream` | Step ASR 1.1 Stream | Not integrated | — |
-| TTS | `step-tts-2` | Step TTS 2 | Not integrated | — |
-| TTS | `step-tts-mini` | Step TTS Mini | Not integrated | — |
-| TTS | `step-tts-vivid` | Step TTS Vivid | Not integrated | — |
+| TTS | `step-tts-2` | Step TTS 2 | Integrated | `step-tts-2` |
+| TTS | `step-tts-mini` | Step TTS Mini | Integrated | `step-tts-mini` |
+| TTS | `step-tts-vivid` | Step TTS Vivid | Integrated | `step-tts-vivid` |
 
 ## Together AI `together-ai`
 
 - Runtime provider: `together`
-- Model integration: 9/20 integrated
+- Model integration: 20/20 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -760,18 +760,18 @@ Catalog updated: 2026-03-23
 | STT | `nvidia/parakeet-tdt-0.6b-v3` | Parakeet TDT 0.6B v3 | Integrated | `nvidia/parakeet-tdt-0.6b-v3` |
 | STT | `mistralai/Voxtral-Mini-3B-2507` | Voxtral Mini 3B | Integrated | `mistralai/Voxtral-Mini-3B-2507` |
 | STT | `openai/whisper-large-v3` | Whisper Large v3 | Integrated | `openai/whisper-large-v3` |
-| TTS | `cartesia/sonic` | Cartesia Sonic | Not integrated | — |
-| TTS | `cartesia/sonic-2` | Cartesia Sonic 2 | Not integrated | — |
-| TTS | `cartesia/sonic-3` | Cartesia Sonic 3 | Not integrated | — |
-| TTS | `deepgram/deepgram-aura-2` | Deepgram Aura 2 | Not integrated | — |
+| TTS | `cartesia/sonic` | Cartesia Sonic | Integrated | `cartesia/sonic` |
+| TTS | `cartesia/sonic-2` | Cartesia Sonic 2 | Integrated | `cartesia/sonic-2` |
+| TTS | `cartesia/sonic-3` | Cartesia Sonic 3 | Integrated | `cartesia/sonic-3` |
+| TTS | `deepgram/deepgram-aura-2` | Deepgram Aura 2 | Integrated | `deepgram/deepgram-aura-2` |
 | TTS | `hexgrad/Kokoro-82M` | Kokoro | Integrated | `hexgrad/Kokoro-82M` |
-| TTS | `minimax/speech-2.6-turbo` | Minimax Speech 2.6 Turbo | Not integrated | — |
-| TTS | `canopylabs/orpheus-3b-0.1-ft` | Orpheus 3B | Not integrated | — |
-| TTS | `rime-labs/rime-arcana-v2` | Rime Arcana v2 | Not integrated | — |
-| TTS | `rime-labs/rime-arcana-v3` | Rime Arcana v3 | Not integrated | — |
-| TTS | `rime-labs/rime-arcana-v3-turbo` | Rime Arcana v3 Turbo | Not integrated | — |
-| TTS | `rime-labs/rime-mist-v2` | Rime Mist v2 | Not integrated | — |
-| TTS | `rime-labs/rime-mist-v3` | Rime Mist v3 | Not integrated | — |
+| TTS | `minimax/speech-2.6-turbo` | Minimax Speech 2.6 Turbo | Integrated | `minimax/speech-2.6-turbo` |
+| TTS | `canopylabs/orpheus-3b-0.1-ft` | Orpheus 3B | Integrated | `canopylabs/orpheus-3b-0.1-ft` |
+| TTS | `rime-labs/rime-arcana-v2` | Rime Arcana v2 | Integrated | `rime-labs/rime-arcana-v2` |
+| TTS | `rime-labs/rime-arcana-v3` | Rime Arcana v3 | Integrated | `rime-labs/rime-arcana-v3` |
+| TTS | `rime-labs/rime-arcana-v3-turbo` | Rime Arcana v3 Turbo | Integrated | `rime-labs/rime-arcana-v3-turbo` |
+| TTS | `rime-labs/rime-mist-v2` | Rime Mist v2 | Integrated | `rime-labs/rime-mist-v2` |
+| TTS | `rime-labs/rime-mist-v3` | Rime Mist v3 | Integrated | `rime-labs/rime-mist-v3` |
 
 ## xAI `xai`
 
@@ -807,7 +807,7 @@ Catalog updated: 2026-03-23
 ## Z.ai / Zhipu AI `z-ai-zhipu-ai`
 
 - Runtime provider: `z-ai-zhipu-ai`
-- Model integration: 16/21 integrated
+- Model integration: 17/21 integrated
 - Verified support: LLM `native`, STT `native`, TTS `partial`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -831,7 +831,7 @@ Catalog updated: 2026-03-23
 | TTS | `glm-4-voice` | GLM-4-Voice | Not integrated | — |
 | TTS | `glm-realtime-air` | GLM-Realtime-Air | Not integrated | — |
 | TTS | `glm-realtime-flash` | GLM-Realtime-Flash | Not integrated | — |
-| TTS | `glm-tts` | GLM-TTS | Not integrated | — |
+| TTS | `glm-tts` | GLM-TTS | Integrated | `glm-tts` |
 | TTS | `glm-tts-clone` | GLM-TTS-Clone | Not integrated | — |
 
 ## Unresolved Runtime Entries

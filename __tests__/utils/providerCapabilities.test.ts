@@ -35,6 +35,7 @@ describe("provider capability selectors", () => {
     expect(getEnabledTtsProviders(settings)).toEqual([
       "gemini",
       "xai",
+      "groq",
       "together",
     ]);
   });
