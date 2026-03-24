@@ -9,6 +9,7 @@ import { AppLanguage, Provider, SttBackendMode } from "../types";
 import { STT_PROVIDER_CONFIGS } from "./whisper/config";
 import { waitForRecordedFileReady } from "./whisper/recordedFileReady";
 import {
+  transcribeWithAssemblyAiPreRecordedProvider,
   transcribeWithGeminiProvider,
   transcribeWithMultipartProvider,
   transcribeWithOpenAiAudioInputProvider,
@@ -125,6 +126,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "openai-audio-input") {
     return transcribeWithOpenAiAudioInputProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: selectedModel,
+    });
+  }
+
+  if (config.kind === "assemblyai-pre-recorded") {
+    return transcribeWithAssemblyAiPreRecordedProvider({
       abortSignal,
       apiKey,
       config,

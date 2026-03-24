@@ -11,11 +11,11 @@ Catalog updated: 2026-03-23
 ## Summary
 
 - Catalog providers: 40
-- Providers with any runtime integration: 28
+- Providers with any runtime integration: 29
 - Catalog models: 455
-- Integrated models: 247
-- LLM: 221/294 integrated
-- STT: 16/71 integrated
+- Integrated models: 271
+- LLM: 243/294 integrated
+- STT: 18/71 integrated
 - TTS: 10/90 integrated
 - Unresolved runtime manifest entries: 31
 
@@ -120,36 +120,36 @@ Catalog updated: 2026-03-23
 
 ## AssemblyAI `assemblyai`
 
-- Runtime provider: catalog-only
-- Model integration: 0/28 integrated
+- Runtime provider: `assemblyai`
+- Model integration: 24/28 integrated
 - Verified support: LLM `routed`, STT `native`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `chatgpt-4o` | ChatGPT-4o | Not integrated | — |
-| LLM | `claude-3-haiku-20240307` | Claude 3.0 Haiku | Not integrated | — |
-| LLM | `claude-opus-4-20250514` | Claude 4 Opus | Not integrated | — |
-| LLM | `claude-sonnet-4-20250514` | Claude 4 Sonnet | Not integrated | — |
-| LLM | `claude-haiku-4-5-20251001` | Claude 4.5 Haiku | Not integrated | — |
-| LLM | `claude-sonnet-4-5-20250929` | Claude 4.5 Sonnet | Not integrated | — |
-| LLM | `claude-opus-4-5-20251101` | Claude Opus 4.5 | Not integrated | — |
-| LLM | `claude-opus-4-6` | Claude Opus 4.6 | Not integrated | — |
-| LLM | `claude-sonnet-4-6` | Claude Sonnet 4.6 | Not integrated | — |
-| LLM | `gemini-2.5-flash` | Gemini 2.5 Flash | Not integrated | — |
-| LLM | `gemini-2.5-flash-lite` | Gemini 2.5 Flash-Lite | Not integrated | — |
-| LLM | `gemini-2.5-pro` | Gemini 2.5 Pro | Not integrated | — |
-| LLM | `gemini-3-flash-preview` | Gemini 3 Flash Preview | Not integrated | — |
-| LLM | `gemini-3-pro-preview` | Gemini 3 Pro Preview | Not integrated | — |
-| LLM | `gpt-4.1` | GPT-4.1 | Not integrated | — |
-| LLM | `gpt-5` | GPT-5 | Not integrated | — |
-| LLM | `gpt-5-mini` | GPT-5 mini | Not integrated | — |
-| LLM | `gpt-5-nano` | GPT-5 nano | Not integrated | — |
-| LLM | `gpt-5.1` | GPT-5.1 | Not integrated | — |
-| LLM | `gpt-5.2` | GPT-5.2 | Not integrated | — |
-| LLM | `gpt-oss-120b` | gpt-oss-120b | Not integrated | — |
-| LLM | `gpt-oss-20b` | gpt-oss-20b | Not integrated | — |
-| STT | `universal-2` | Universal-2 | Not integrated | — |
-| STT | `universal-3-pro` | Universal-3 Pro | Not integrated | — |
+| LLM | `chatgpt-4o` | ChatGPT-4o | Integrated | `chatgpt-4o` |
+| LLM | `claude-3-haiku-20240307` | Claude 3.0 Haiku | Integrated | `claude-3-haiku-20240307` |
+| LLM | `claude-opus-4-20250514` | Claude 4 Opus | Integrated | `claude-opus-4-20250514` |
+| LLM | `claude-sonnet-4-20250514` | Claude 4 Sonnet | Integrated | `claude-sonnet-4-20250514` |
+| LLM | `claude-haiku-4-5-20251001` | Claude 4.5 Haiku | Integrated | `claude-haiku-4-5-20251001` |
+| LLM | `claude-sonnet-4-5-20250929` | Claude 4.5 Sonnet | Integrated | `claude-sonnet-4-5-20250929` |
+| LLM | `claude-opus-4-5-20251101` | Claude Opus 4.5 | Integrated | `claude-opus-4-5-20251101` |
+| LLM | `claude-opus-4-6` | Claude Opus 4.6 | Integrated | `claude-opus-4-6` |
+| LLM | `claude-sonnet-4-6` | Claude Sonnet 4.6 | Integrated | `claude-sonnet-4-6` |
+| LLM | `gemini-2.5-flash` | Gemini 2.5 Flash | Integrated | `gemini-2.5-flash` |
+| LLM | `gemini-2.5-flash-lite` | Gemini 2.5 Flash-Lite | Integrated | `gemini-2.5-flash-lite` |
+| LLM | `gemini-2.5-pro` | Gemini 2.5 Pro | Integrated | `gemini-2.5-pro` |
+| LLM | `gemini-3-flash-preview` | Gemini 3 Flash Preview | Integrated | `gemini-3-flash-preview` |
+| LLM | `gemini-3-pro-preview` | Gemini 3 Pro Preview | Integrated | `gemini-3-pro-preview` |
+| LLM | `gpt-4.1` | GPT-4.1 | Integrated | `gpt-4.1` |
+| LLM | `gpt-5` | GPT-5 | Integrated | `gpt-5` |
+| LLM | `gpt-5-mini` | GPT-5 mini | Integrated | `gpt-5-mini` |
+| LLM | `gpt-5-nano` | GPT-5 nano | Integrated | `gpt-5-nano` |
+| LLM | `gpt-5.1` | GPT-5.1 | Integrated | `gpt-5.1` |
+| LLM | `gpt-5.2` | GPT-5.2 | Integrated | `gpt-5.2` |
+| LLM | `gpt-oss-120b` | gpt-oss-120b | Integrated | `gpt-oss-120b` |
+| LLM | `gpt-oss-20b` | gpt-oss-20b | Integrated | `gpt-oss-20b` |
+| STT | `universal-2` | Universal-2 | Integrated | `universal-2` |
+| STT | `universal-3-pro` | Universal-3 Pro | Integrated | `universal-3-pro` |
 | STT | `u3-rt-pro` | Universal-3 Pro Streaming | Not integrated | — |
 | STT | `universal-streaming-english` | Universal-Streaming English | Not integrated | — |
 | STT | `universal-streaming-multilingual` | Universal-Streaming Multilingual | Not integrated | — |

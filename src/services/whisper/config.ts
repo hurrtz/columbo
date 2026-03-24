@@ -15,6 +15,12 @@ export type OpenAiAudioInputTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type AssemblyAiPreRecordedTranscriptionConfig = {
+  kind: "assemblyai-pre-recorded";
+  endpointBase: string;
+  defaultModel: string;
+};
+
 export type GeminiTranscriptionConfig = {
   kind: "gemini";
   endpointBase: string;
@@ -39,7 +45,8 @@ const sttProviderConfigEntries: Array<
     Provider,
     | MultipartTranscriptionConfig
     | GeminiTranscriptionConfig
-    | OpenAiAudioInputTranscriptionConfig,
+    | OpenAiAudioInputTranscriptionConfig
+    | AssemblyAiPreRecordedTranscriptionConfig,
   ]
 > = [];
 
@@ -93,6 +100,21 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       },
     ]);
   }
+
+  if (
+    manifest.stt.transport === "assemblyai-pre-recorded" &&
+    manifest.stt.endpointBase &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "assemblyai-pre-recorded",
+        endpointBase: manifest.stt.endpointBase,
+        defaultModel: manifest.stt.defaultModel,
+      },
+    ]);
+  }
 }
 
 export const STT_PROVIDER_CONFIGS: Partial<
@@ -101,5 +123,6 @@ export const STT_PROVIDER_CONFIGS: Partial<
     | MultipartTranscriptionConfig
     | GeminiTranscriptionConfig
     | OpenAiAudioInputTranscriptionConfig
+    | AssemblyAiPreRecordedTranscriptionConfig
   >
 > = Object.fromEntries(sttProviderConfigEntries);

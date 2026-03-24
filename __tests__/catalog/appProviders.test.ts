@@ -22,6 +22,7 @@ describe("app provider catalog bridge", () => {
     expect(PROVIDER_CATALOG_IDS).toEqual({
       openai: "openai",
       anthropic: "anthropic",
+      assemblyai: "assemblyai",
       "ai21-labs": "ai21-labs",
       "alibaba-qwen-dashscope": "alibaba-qwen-dashscope",
       baichuan: "baichuan",
@@ -54,6 +55,7 @@ describe("app provider catalog bridge", () => {
       "google-vertex-ai-studio",
     );
     expect(getAppProviderForCatalogProviderId("openai")).toBe("openai");
+    expect(getAppProviderForCatalogProviderId("assemblyai")).toBe("assemblyai");
     expect(getAppProviderForCatalogProviderId("baidu-ernie-qianfan")).toBe(
       "baidu-ernie-qianfan",
     );

@@ -28,6 +28,10 @@ describe("speech provider constants", () => {
   });
 
   it("surfaces newly wired catalog-backed STT providers through the runtime manifest", () => {
+    expect(getProviderSttModelOptions("assemblyai")).toEqual([
+      { id: "universal-3-pro", name: "Universal-3 Pro" },
+      { id: "universal-2", name: "Universal-2" },
+    ]);
     expect(getProviderSttModelOptions("z-ai-zhipu-ai")).toEqual([
       { id: "glm-asr-2512", name: "GLM-ASR-2512" },
     ]);

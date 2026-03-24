@@ -86,6 +86,55 @@ describe("transcribeAudio", () => {
     expect(url).toBe("https://api.z.ai/api/paas/v4/audio/transcriptions");
   });
 
+  it("uses the AssemblyAI upload and transcript flow for pre-recorded STT", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          upload_url: "https://cdn.assemblyai.com/upload/test-file",
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          id: "assemblyai-transcript-1",
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          status: "completed",
+          text: "Hello from AssemblyAI",
+        }),
+      });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "assemblyai",
+      apiKey: "assemblyai-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from AssemblyAI");
+    const [uploadUrl, uploadOptions] = (fetch as jest.Mock).mock.calls[0];
+    expect(uploadUrl).toBe("https://api.assemblyai.com/v2/upload");
+    expect(uploadOptions.headers.Authorization).toBe("assemblyai-test");
+
+    const [submitUrl, submitOptions] = (fetch as jest.Mock).mock.calls[1];
+    expect(submitUrl).toBe("https://api.assemblyai.com/v2/transcript");
+    expect(JSON.parse(submitOptions.body)).toEqual({
+      audio_url: "https://cdn.assemblyai.com/upload/test-file",
+      speech_model: "universal-3-pro",
+      speech_models: ["universal-3-pro"],
+    });
+
+    const [pollUrl] = (fetch as jest.Mock).mock.calls[2];
+    expect(pollUrl).toBe(
+      "https://api.assemblyai.com/v2/transcript/assemblyai-transcript-1",
+    );
+  });
+
   it("uses the configured multipart endpoint for StepFun STT", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

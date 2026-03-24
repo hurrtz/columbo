@@ -4,6 +4,7 @@ import { PROVIDER_DOCUMENTS } from "../../../data/providers";
 export type RuntimeAppProviderId =
   | "openai"
   | "anthropic"
+  | "assemblyai"
   | "ai21-labs"
   | "alibaba-qwen-dashscope"
   | "baichuan"
@@ -39,7 +40,8 @@ export type RuntimeSttTransport =
   | "none"
   | "multipart"
   | "gemini"
-  | "openai-audio-input";
+  | "openai-audio-input"
+  | "assemblyai-pre-recorded";
 export type RuntimeTtsTransport = "none" | "binary" | "gemini" | "dashscope";
 export type RuntimeTtsBinaryRequestFormat =
   | "openai-speech"
@@ -169,6 +171,7 @@ function catalogModelSpecs(
 export const RUNTIME_PROVIDER_ORDER = [
   "openai",
   "anthropic",
+  "assemblyai",
   "ai21-labs",
   "alibaba-qwen-dashscope",
   "baidu-ernie-qianfan",
@@ -299,6 +302,40 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "none",
       transport: "none",
       models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
+  assemblyai: {
+    appProvider: "assemblyai",
+    catalogProviderId: "assemblyai",
+    label: "AssemblyAI",
+    shortLabel: "ASSEMBLY",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks AssemblyAI LLM Gateway models and AssemblyAI pre-recorded speech-to-text.",
+    apiKeyUrl: "https://www.assemblyai.com/dashboard/signup",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://llm-gateway.assemblyai.com/v1/chat/completions",
+      defaultModel: "claude-sonnet-4-6",
+      models: catalogModelSpecs("assemblyai", "llm"),
+    },
+    stt: {
+      support: "provider",
+      transport: "assemblyai-pre-recorded",
+      endpointBase: "https://api.assemblyai.com/v2",
+      defaultModel: "universal-3-pro",
+      models: [
+        namedModel("universal-3-pro", "Universal-3 Pro"),
+        namedModel("universal-2", "Universal-2"),
+      ],
+      languageNote:
+        "AssemblyAI is currently wired for its pre-recorded STT models universal-3-pro and universal-2. Streaming-only models like u3-rt-pro, universal-streaming-english, universal-streaming-multilingual, and whisper-rt still need a realtime transport path.",
     },
     tts: {
       support: "none",

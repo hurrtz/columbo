@@ -244,6 +244,40 @@ describe("streamChat", () => {
     expect(JSON.parse(options.body).model).toBe("jamba-mini-2-2026-01");
   });
 
+  it("uses the AssemblyAI LLM Gateway chat-completions endpoint", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "claude-sonnet-4-6",
+      provider: "assemblyai",
+      apiKey: "assemblyai-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi"]);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://llm-gateway.assemblyai.com/v1/chat/completions");
+    expect(JSON.parse(options.body).model).toBe("claude-sonnet-4-6");
+  });
+
   it("emits a chunk when openai-compatible streaming falls back to a full response", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
