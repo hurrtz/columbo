@@ -113,6 +113,41 @@ describe("transcribeAudio", () => {
     );
   });
 
+  it("uses IBM Speech to Text with basic auth and the selected locale model", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        results: [
+          {
+            alternatives: [
+              {
+                transcript: "Hello from IBM",
+              },
+            ],
+          },
+        ],
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "ibm-watsonx",
+      apiKey:
+        "https://us-south.ml.cloud.ibm.com|watsonx-key|project-123|https://api.us-south.speech-to-text.watson.cloud.ibm.com|stt-key|https://api.us-south.text-to-speech.watson.cloud.ibm.com|tts-key",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from IBM");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://api.us-south.speech-to-text.watson.cloud.ibm.com/v1/recognize?model=en-US",
+    );
+    expect(options.headers.Authorization).toBe("Basic YXBpa2V5OnN0dC1rZXk=");
+    expect(options.headers["Content-Type"]).toBe("audio/m4a");
+    expect(options.body).toBeInstanceOf(Uint8Array);
+  });
+
   it("uses the AssemblyAI upload and transcript flow for pre-recorded STT", async () => {
     (fetch as jest.Mock)
       .mockResolvedValueOnce({

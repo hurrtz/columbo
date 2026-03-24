@@ -23,6 +23,7 @@ import {
   requestOpenAICompatibleChat,
   requestOpenAICompatibleChatStream,
 } from "./llm/providers/openaiCompatible";
+import { requestIbmWatsonxChat } from "./llm/providers/ibmWatsonx";
 import {
   ChatMessage,
   LLM_PROVIDER_CONFIGS,
@@ -107,6 +108,16 @@ const LLM_TEXT_REQUESTERS = {
       systemPrompt: params.systemPrompt,
       abortSignal: params.abortSignal,
     }),
+  "ibm-watsonx": async (params: LlmRequestParams) =>
+    requestIbmWatsonxChat({
+      provider: params.provider,
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      abortSignal: params.abortSignal,
+    }),
   anthropic: async (params: LlmRequestParams) =>
     requestAnthropicChat({
       model: params.model,
@@ -182,6 +193,8 @@ async function requestChatText(params: {
       return LLM_TEXT_REQUESTERS["openai-compatible"](params, config);
     case "azure-openai":
       return LLM_TEXT_REQUESTERS["azure-openai"](params);
+    case "ibm-watsonx":
+      return LLM_TEXT_REQUESTERS["ibm-watsonx"](params);
     case "anthropic":
       return LLM_TEXT_REQUESTERS.anthropic(params);
     case "cohere":

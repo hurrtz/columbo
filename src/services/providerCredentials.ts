@@ -7,6 +7,16 @@ export interface AzureOpenAiCredentials {
   apiKey: string;
 }
 
+export interface IbmWatsonxCredentials {
+  watsonxUrl: string;
+  watsonxApiKey: string;
+  projectId: string;
+  speechToTextUrl: string;
+  speechToTextApiKey: string;
+  textToSpeechUrl: string;
+  textToSpeechApiKey: string;
+}
+
 function buildMissingProviderKeyError(
   provider: Provider,
   language: AppLanguage,
@@ -18,7 +28,7 @@ function buildMissingProviderKeyError(
   );
 }
 
-function normalizeAzureOpenAiEndpoint(value: string) {
+function normalizeEndpoint(value: string) {
   const trimmed = value.trim();
 
   if (!trimmed) {
@@ -32,6 +42,21 @@ function normalizeAzureOpenAiEndpoint(value: string) {
   } catch {
     return null;
   }
+
+  url.search = "";
+  url.hash = "";
+
+  return url.toString().replace(/\/$/u, "");
+}
+
+function normalizeAzureOpenAiEndpoint(value: string) {
+  const endpoint = normalizeEndpoint(value);
+
+  if (!endpoint) {
+    return null;
+  }
+
+  const url = new URL(endpoint);
 
   let pathname = url.pathname.replace(/\/+$/u, "");
 
@@ -85,6 +110,83 @@ export function parseAzureOpenAiCredentials(
     endpoint,
     apiKey,
   };
+}
+
+export function parseIbmWatsonxCredentials(
+  provider: Provider,
+  rawValue: string | undefined,
+  language: AppLanguage,
+): IbmWatsonxCredentials {
+  const value = rawValue?.trim();
+
+  if (!value) {
+    throw buildMissingProviderKeyError(provider, language);
+  }
+
+  const parts = value.split("|").map((part) => part.trim());
+
+  if (parts.length !== 7) {
+    throw new Error(
+      translate(language, "ibmCredentialFormatInvalid", {
+        provider: PROVIDER_LABELS[provider],
+      }),
+    );
+  }
+
+  const [
+    watsonxUrlRaw,
+    watsonxApiKey,
+    projectId,
+    speechToTextUrlRaw,
+    speechToTextApiKey,
+    textToSpeechUrlRaw,
+    textToSpeechApiKey,
+  ] = parts;
+
+  const watsonxUrl = normalizeEndpoint(watsonxUrlRaw);
+  const speechToTextUrl = normalizeEndpoint(speechToTextUrlRaw);
+  const textToSpeechUrl = normalizeEndpoint(textToSpeechUrlRaw);
+
+  if (
+    !watsonxUrl ||
+    !watsonxApiKey ||
+    !projectId ||
+    !speechToTextUrl ||
+    !speechToTextApiKey ||
+    !textToSpeechUrl ||
+    !textToSpeechApiKey
+  ) {
+    throw new Error(
+      translate(language, "ibmCredentialFormatInvalid", {
+        provider: PROVIDER_LABELS[provider],
+      }),
+    );
+  }
+
+  return {
+    watsonxUrl,
+    watsonxApiKey,
+    projectId,
+    speechToTextUrl,
+    speechToTextApiKey,
+    textToSpeechUrl,
+    textToSpeechApiKey,
+  };
+}
+
+export function buildBasicAuthorizationHeader(username: string, password: string) {
+  const credentials = `${username}:${password}`;
+  const BufferCtor = (globalThis as any).Buffer;
+
+  if (BufferCtor) {
+    return `Basic ${BufferCtor.from(credentials, "utf8").toString("base64")}`;
+  }
+
+  if (typeof btoa !== "undefined") {
+    return `Basic ${btoa(credentials)}`;
+  }
+
+  throw new Error("No base64 encoder available for basic authorization.");
 }
 
 export function buildAzureOpenAiUrl(

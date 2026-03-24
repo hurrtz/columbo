@@ -235,6 +235,8 @@ export const en: TranslationDictionary = {
       `Add your ${provider} API key in Settings to use this provider.`,
     azureCredentialFormatInvalid: ({ provider }) =>
       `For ${provider}, enter the Azure endpoint and API key as https://your-resource.openai.azure.com|your-api-key.`,
+    ibmCredentialFormatInvalid: ({ provider }) =>
+      `For ${provider}, enter watsonx URL, watsonx API key, project ID, Speech to Text URL, Speech to Text API key, Text to Speech URL, and Text to Speech API key separated by |.`,
     speechRecognitionUnavailableOnDevice:
       "Speech recognition is unavailable on this device.",
     debugLogLabel: "LOG",

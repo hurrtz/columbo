@@ -4,7 +4,9 @@ import { translate } from "../../i18n";
 import { AppLanguage, Provider } from "../../types";
 import { getTogetherTtsLanguageCode } from "../../utils/speechLanguage";
 import {
+  buildBasicAuthorizationHeader,
   buildAzureOpenAiUrl,
+  parseIbmWatsonxCredentials,
   parseAzureOpenAiCredentials,
 } from "../providerCredentials";
 
@@ -920,6 +922,44 @@ export async function synthesizeProviderSpeech(params: {
     }
 
     return writeBase64AudioFile(audioBase64, "mp3");
+  }
+
+  if (config.kind === "ibm-watsonx") {
+    const credentials = parseIbmWatsonxCredentials(provider, apiKey, language);
+    const response = await fetchWithTimeout(
+      `${credentials.textToSpeechUrl}/v1/synthesize?voice=${encodeURIComponent(
+        selectedModel || selectedVoice || config.voiceFallback,
+      )}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: buildBasicAuthorizationHeader(
+            "apikey",
+            credentials.textToSpeechApiKey,
+          ),
+          "Content-Type": "application/json",
+          Accept: "audio/mp3",
+        },
+        body: JSON.stringify({
+          text,
+        }),
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw buildTtsRequestError({
+        provider,
+        status: response.status,
+        errorText,
+        language,
+      });
+    }
+
+    return writeBlobAudioFile(await response.blob(), "mp3");
   }
 
   if (config.kind === "minimax") {

@@ -60,6 +60,11 @@ export type HuggingFaceJsonTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type IbmWatsonxTranscriptionConfig = {
+  kind: "ibm-watsonx";
+  defaultModel: string;
+};
+
 export type NovitaJsonTranscriptionConfig = {
   kind: "novita-json";
   endpoint: string;
@@ -105,6 +110,7 @@ const sttProviderConfigEntries: Array<
     | FireworksPreRecordedTranscriptionConfig
     | FishAudioTranscriptionConfig
     | HuggingFaceJsonTranscriptionConfig
+    | IbmWatsonxTranscriptionConfig
     | NovitaJsonTranscriptionConfig
     | ElevenLabsTranscriptionConfig,
   ]
@@ -276,6 +282,19 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
   }
 
   if (
+    manifest.stt.transport === "ibm-watsonx" &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "ibm-watsonx",
+        defaultModel: manifest.stt.defaultModel,
+      },
+    ]);
+  }
+
+  if (
     manifest.stt.transport === "novita-json" &&
     manifest.stt.endpoint &&
     manifest.stt.defaultModel
@@ -320,6 +339,7 @@ export const STT_PROVIDER_CONFIGS: Partial<
     | FireworksPreRecordedTranscriptionConfig
     | FishAudioTranscriptionConfig
     | HuggingFaceJsonTranscriptionConfig
+    | IbmWatsonxTranscriptionConfig
     | NovitaJsonTranscriptionConfig
     | ElevenLabsTranscriptionConfig
   >

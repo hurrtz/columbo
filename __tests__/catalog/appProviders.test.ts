@@ -42,6 +42,7 @@ describe("app provider catalog bridge", () => {
       groq: "groq",
       "hugging-face-inference-api": "hugging-face-inference-api",
       hyperbolic: "hyperbolic",
+      "ibm-watsonx": "ibm-watsonx",
       mistral: "mistral-ai",
       minimax: "minimax",
       "moonshot-ai-kimi": "moonshot-ai-kimi",
@@ -76,11 +77,15 @@ describe("app provider catalog bridge", () => {
     expect(getAppProviderForCatalogProviderId("deepgram")).toBe("deepgram");
     expect(getAppProviderForCatalogProviderId("elevenlabs")).toBe("elevenlabs");
     expect(getAppProviderForCatalogProviderId("fish-audio")).toBe("fish-audio");
+    expect(getAppProviderForCatalogProviderId("ibm-watsonx")).toBe(
+      "ibm-watsonx",
+    );
     expect(getAppProviderForCatalogProviderId("xiaomi-mimo")).toBe("xiaomi-mimo");
     expect(isCatalogProviderId("google-vertex-ai-studio")).toBe(true);
     expect(isCatalogProviderId("not-a-provider")).toBe(false);
     expect(listCatalogProviderIds()).toContain("xiaomi-mimo");
     expect(listCatalogProviderIds()).toContain("z-ai-zhipu-ai");
+    expect(listCatalogProviderIds()).toContain("ibm-watsonx");
   });
 
   it("reads verified support states from the catalog without changing runtime support flags", () => {

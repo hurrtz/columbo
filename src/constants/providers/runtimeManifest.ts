@@ -24,6 +24,7 @@ export type RuntimeAppProviderId =
   | "groq"
   | "hugging-face-inference-api"
   | "hyperbolic"
+  | "ibm-watsonx"
   | "mistral"
   | "minimax"
   | "moonshot-ai-kimi"
@@ -43,7 +44,8 @@ export type RuntimeLlmTransport =
   | "openai-compatible"
   | "azure-openai"
   | "anthropic"
-  | "cohere";
+  | "cohere"
+  | "ibm-watsonx";
 export type RuntimeSttTransport =
   | "none"
   | "multipart"
@@ -57,6 +59,7 @@ export type RuntimeSttTransport =
   | "fireworks-pre-recorded"
   | "fish-audio"
   | "huggingface-json"
+  | "ibm-watsonx"
   | "novita-json"
   | "elevenlabs";
 export type RuntimeTtsTransport =
@@ -69,6 +72,7 @@ export type RuntimeTtsTransport =
   | "deepgram"
   | "fish-audio"
   | "hyperbolic"
+  | "ibm-watsonx"
   | "minimax"
   | "novita"
   | "elevenlabs";
@@ -238,6 +242,7 @@ export const RUNTIME_PROVIDER_ORDER = [
   "fireworks-ai",
   "hugging-face-inference-api",
   "hyperbolic",
+  "ibm-watsonx",
   "minimax",
   "moonshot-ai-kimi",
   "novita-ai",
@@ -1219,6 +1224,42 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "none",
       models: [],
       voiceOptions: [],
+    },
+  },
+  "ibm-watsonx": {
+    appProvider: "ibm-watsonx",
+    catalogProviderId: "ibm-watsonx",
+    label: "IBM Watsonx",
+    shortLabel: "IBM",
+    apiKeyPlaceholder:
+      "https://watsonx-url|watsonx-api-key|project-id|https://stt-url|stt-api-key|https://tts-url|tts-api-key",
+    apiKeyHint:
+      "Enter watsonx URL, watsonx API key, project ID, Speech to Text URL, Speech to Text API key, Text to Speech URL, and Text to Speech API key separated by |.",
+    apiKeyUrl: "https://www.ibm.com/watsonx/developer/",
+    llm: {
+      support: "provider",
+      transport: "ibm-watsonx",
+      defaultModel: "ibm/granite-4-h-small",
+      models: catalogModelSpecs("ibm-watsonx", "llm"),
+    },
+    stt: {
+      support: "provider",
+      transport: "ibm-watsonx",
+      defaultModel: "en-US",
+      models: catalogModelSpecs("ibm-watsonx", "stt"),
+      languageNote:
+        "IBM Speech to Text is wired on the synchronous recognize route. Large speech and next-generation multimedia models share the same request shape, but IBM's live WebSocket session surface remains broader than this request-response integration.",
+    },
+    tts: {
+      support: "provider",
+      transport: "ibm-watsonx",
+      defaultModel: "en-US_VictoriaNatural",
+      defaultVoice: "en-US_VictoriaNatural",
+      voiceFallback: "en-US_VictoriaNatural",
+      models: catalogModelSpecs("ibm-watsonx", "tts"),
+      voiceOptions: [],
+      languageNote:
+        "IBM Text to Speech is voice-addressed rather than model-family-addressed. The app maps each catalog voice row directly onto IBM's /v1/synthesize voice parameter.",
     },
   },
   minimax: {

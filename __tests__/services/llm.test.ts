@@ -112,6 +112,62 @@ describe("streamChat", () => {
     expect(JSON.parse(options.body).model).toBe("gpt-4.1-mini");
   });
 
+  it("uses IBM watsonx chat with IAM token exchange and project-scoped chat payloads", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          access_token: "ibm-access-token",
+          expires_in: 3600,
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [
+            {
+              generated_text: "Hi from IBM",
+            },
+          ],
+        }),
+      });
+
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "ibm/granite-4-h-small",
+      provider: "ibm-watsonx",
+      apiKey:
+        "https://us-south.ml.cloud.ibm.com|watsonx-key|project-123|https://api.us-south.speech-to-text.watson.cloud.ibm.com|stt-key|https://api.us-south.text-to-speech.watson.cloud.ibm.com|tts-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi from IBM"]);
+    const [tokenUrl, tokenOptions] = (fetch as jest.Mock).mock.calls[0];
+    expect(tokenUrl).toBe("https://iam.cloud.ibm.com/identity/token");
+    expect(tokenOptions.body).toContain("grant_type=");
+    expect(tokenOptions.body).toContain("apikey=watsonx-key");
+
+    const [chatUrl, chatOptions] = (fetch as jest.Mock).mock.calls[1];
+    expect(chatUrl).toBe(
+      "https://us-south.ml.cloud.ibm.com/ml/v1/text/chat?version=2024-05-31",
+    );
+    expect(chatOptions.headers.Authorization).toBe("Bearer ibm-access-token");
+    expect(JSON.parse(chatOptions.body)).toEqual(
+      expect.objectContaining({
+        model_id: "ibm/granite-4-h-small",
+        project_id: "project-123",
+      }),
+    );
+  });
+
   it("uses the configured routed endpoint for a hyphenated OpenAI-compatible provider", async () => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({

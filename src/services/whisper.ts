@@ -19,6 +19,7 @@ import {
   transcribeWithFireworksPreRecordedProvider,
   transcribeWithGeminiProvider,
   transcribeWithHuggingFaceJsonProvider,
+  transcribeWithIbmWatsonxProvider,
   transcribeWithMultipartProvider,
   transcribeWithNovitaJsonProvider,
   transcribeWithOpenAiAudioInputProvider,
@@ -231,6 +232,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "huggingface-json") {
     return transcribeWithHuggingFaceJsonProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: selectedModel,
+    });
+  }
+
+  if (config.kind === "ibm-watsonx") {
+    return transcribeWithIbmWatsonxProvider({
       abortSignal,
       apiKey,
       config,

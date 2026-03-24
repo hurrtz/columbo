@@ -238,6 +238,8 @@ export const de: TranslationDictionary = {
       `Füge in den Einstellungen deinen API-Schlüssel für ${provider} hinzu, um diesen Anbieter zu nutzen.`,
     azureCredentialFormatInvalid: ({ provider }) =>
       `Gib für ${provider} den Azure-Endpunkt und den API-Schlüssel als https://your-resource.openai.azure.com|dein-api-schluessel ein.`,
+    ibmCredentialFormatInvalid: ({ provider }) =>
+      `Gib für ${provider} watsonx-URL, watsonx-API-Schlüssel, Projekt-ID, Speech-to-Text-URL, Speech-to-Text-API-Schlüssel, Text-to-Speech-URL und Text-to-Speech-API-Schlüssel getrennt durch | ein.`,
     speechRecognitionUnavailableOnDevice:
       "Spracherkennung ist auf diesem Gerät nicht verfügbar.",
     debugLogLabel: "LOG",

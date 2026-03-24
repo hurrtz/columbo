@@ -103,6 +103,12 @@ type HyperbolicTtsConfig = {
   voiceFallback: string;
 };
 
+type IbmWatsonxTtsConfig = {
+  kind: "ibm-watsonx";
+  defaultModel: string;
+  voiceFallback: string;
+};
+
 type MinimaxTtsConfig = {
   kind: "minimax";
   endpoint: string;
@@ -133,6 +139,7 @@ export type ProviderTtsConfig =
   | DeepgramTtsConfig
   | FishAudioTtsConfig
   | HyperbolicTtsConfig
+  | IbmWatsonxTtsConfig
   | MinimaxTtsConfig
   | NovitaTtsConfig
   | ElevenLabsTtsConfig;
@@ -253,6 +260,21 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       {
         kind: "hyperbolic",
         endpoint: manifest.tts.endpoint,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
+    manifest.tts.transport === "ibm-watsonx" &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "ibm-watsonx",
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,
       },

@@ -11,12 +11,12 @@ Catalog updated: 2026-03-23
 ## Summary
 
 - Catalog providers: 40
-- Providers with any runtime integration: 35
+- Providers with any runtime integration: 36
 - Catalog models: 455
-- Integrated models: 369
-- LLM: 263/294 integrated
-- STT: 43/71 integrated
-- TTS: 63/90 integrated
+- Integrated models: 385
+- LLM: 269/294 integrated
+- STT: 48/71 integrated
+- TTS: 68/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -438,28 +438,28 @@ Catalog updated: 2026-03-23
 
 ## IBM Watsonx `ibm-watsonx`
 
-- Runtime provider: catalog-only
-- Model integration: 0/16 integrated
+- Runtime provider: `ibm-watsonx`
+- Model integration: 16/16 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `openai/gpt-oss-120b` | gpt-oss-120b | Not integrated | — |
-| LLM | `ibm/granite-3-8b-instruct` | granite-3-8b-instruct | Not integrated | — |
-| LLM | `ibm/granite-4-h-small` | granite-4-h-small | Not integrated | — |
-| LLM | `meta-llama/llama-3-3-70b-instruct` | llama-3-3-70b-instruct | Not integrated | — |
-| LLM | `meta-llama/llama-4-maverick-17b-128e-instruct-fp8` | llama-4-maverick-17b-128e-instruct-fp8 | Not integrated | — |
-| LLM | `mistralai/mistral-medium-2505` | mistral-medium-2505 | Not integrated | — |
-| STT | `en-US` | English (US) Large Speech Model | Not integrated | — |
-| STT | `en-US_Multimedia` | English (US) Next-generation Multimedia | Not integrated | — |
-| STT | `fr-FR` | French (France) Large Speech Model | Not integrated | — |
-| STT | `de-DE` | German Large Speech Model | Not integrated | — |
-| STT | `es-MX` | Spanish (Mexico) Large Speech Model | Not integrated | — |
-| TTS | `pt-BR_CamilaNatural` | Brazilian Portuguese Camila Natural | Not integrated | — |
-| TTS | `es-LA_DanielaExpressive` | Latin American Spanish Daniela Expressive | Not integrated | — |
-| TTS | `en-US_AllisonV3Voice` | US English Allison V3 | Not integrated | — |
-| TTS | `en-US_LisaExpressive` | US English Lisa Expressive | Not integrated | — |
-| TTS | `en-US_VictoriaNatural` | US English Victoria Natural | Not integrated | — |
+| LLM | `openai/gpt-oss-120b` | gpt-oss-120b | Integrated | `openai/gpt-oss-120b` |
+| LLM | `ibm/granite-3-8b-instruct` | granite-3-8b-instruct | Integrated | `ibm/granite-3-8b-instruct` |
+| LLM | `ibm/granite-4-h-small` | granite-4-h-small | Integrated | `ibm/granite-4-h-small` |
+| LLM | `meta-llama/llama-3-3-70b-instruct` | llama-3-3-70b-instruct | Integrated | `meta-llama/llama-3-3-70b-instruct` |
+| LLM | `meta-llama/llama-4-maverick-17b-128e-instruct-fp8` | llama-4-maverick-17b-128e-instruct-fp8 | Integrated | `meta-llama/llama-4-maverick-17b-128e-instruct-fp8` |
+| LLM | `mistralai/mistral-medium-2505` | mistral-medium-2505 | Integrated | `mistralai/mistral-medium-2505` |
+| STT | `en-US` | English (US) Large Speech Model | Integrated | `en-US` |
+| STT | `en-US_Multimedia` | English (US) Next-generation Multimedia | Integrated | `en-US_Multimedia` |
+| STT | `fr-FR` | French (France) Large Speech Model | Integrated | `fr-FR` |
+| STT | `de-DE` | German Large Speech Model | Integrated | `de-DE` |
+| STT | `es-MX` | Spanish (Mexico) Large Speech Model | Integrated | `es-MX` |
+| TTS | `pt-BR_CamilaNatural` | Brazilian Portuguese Camila Natural | Integrated | `pt-BR_CamilaNatural` |
+| TTS | `es-LA_DanielaExpressive` | Latin American Spanish Daniela Expressive | Integrated | `es-LA_DanielaExpressive` |
+| TTS | `en-US_AllisonV3Voice` | US English Allison V3 | Integrated | `en-US_AllisonV3Voice` |
+| TTS | `en-US_LisaExpressive` | US English Lisa Expressive | Integrated | `en-US_LisaExpressive` |
+| TTS | `en-US_VictoriaNatural` | US English Victoria Natural | Integrated | `en-US_VictoriaNatural` |
 
 ## Lepton AI `lepton-ai`
 

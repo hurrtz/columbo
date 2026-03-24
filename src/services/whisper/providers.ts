@@ -2,7 +2,9 @@ import * as FileSystem from "expo-file-system/legacy";
 
 import { buildProviderHttpError, normalizeProviderTransportError } from "../providerErrors";
 import {
+  buildBasicAuthorizationHeader,
   buildAzureOpenAiUrl,
+  parseIbmWatsonxCredentials,
   parseAzureOpenAiCredentials,
 } from "../providerCredentials";
 import type { AppLanguage, Provider } from "../../types";
@@ -20,6 +22,7 @@ import type {
   FireworksPreRecordedTranscriptionConfig,
   GeminiTranscriptionConfig,
   HuggingFaceJsonTranscriptionConfig,
+  IbmWatsonxTranscriptionConfig,
   NovitaJsonTranscriptionConfig,
   OpenAiAudioInputTranscriptionConfig,
   MultipartTranscriptionConfig,
@@ -375,6 +378,79 @@ export async function transcribeWithAzureOpenAiProvider(
 
   const data = await response.json();
   const text = data.text?.trim();
+  return text ? text : null;
+}
+
+export async function transcribeWithIbmWatsonxProvider(
+  params: SharedProviderParams & {
+    config: IbmWatsonxTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const credentials = parseIbmWatsonxCredentials(provider, apiKey, language);
+  const base64 = await FileSystem.readAsStringAsync(fileUri, {
+    encoding: "base64",
+  });
+  const bytes = base64ToBytes(base64);
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      `${credentials.speechToTextUrl}/v1/recognize?model=${encodeURIComponent(
+        providerModel || config.defaultModel,
+      )}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: buildBasicAuthorizationHeader(
+            "apikey",
+            credentials.speechToTextApiKey,
+          ),
+          "Content-Type": getFileAudioMimeType(fileUri),
+        },
+        body: bytes,
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const text = Array.isArray(data?.results)
+    ? data.results
+        .flatMap((result: any) =>
+          Array.isArray(result?.alternatives) ? result.alternatives.slice(0, 1) : [],
+        )
+        .map((alternative: any) =>
+          typeof alternative?.transcript === "string"
+            ? alternative.transcript.trim()
+            : "",
+        )
+        .filter(Boolean)
+        .join(" ")
+    : "";
+
   return text ? text : null;
 }
 

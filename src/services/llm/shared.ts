@@ -20,13 +20,21 @@ type AzureOpenAiLlmConfig = {
   transport: "azure-openai";
 };
 
+type IbmWatsonxLlmConfig = {
+  transport: "ibm-watsonx";
+};
+
 type TransportOnlyLlmConfig = {
-  transport: Exclude<RuntimeLlmTransport, "openai-compatible" | "azure-openai">;
+  transport: Exclude<
+    RuntimeLlmTransport,
+    "openai-compatible" | "azure-openai" | "ibm-watsonx"
+  >;
 };
 
 export type ProviderLlmConfig =
   | OpenAiCompatibleLlmConfig
   | AzureOpenAiLlmConfig
+  | IbmWatsonxLlmConfig
   | TransportOnlyLlmConfig;
 
 const llmProviderConfigEntries: Array<[Provider, ProviderLlmConfig]> = [];
@@ -57,6 +65,14 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
         provider,
         {
           transport: "azure-openai",
+        },
+      ]);
+      break;
+    case "ibm-watsonx":
+      llmProviderConfigEntries.push([
+        provider,
+        {
+          transport: "ibm-watsonx",
         },
       ]);
       break;

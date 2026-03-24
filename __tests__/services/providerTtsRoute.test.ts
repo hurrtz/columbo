@@ -317,6 +317,34 @@ describe("synthesizeProviderSpeech", () => {
     });
   });
 
+  it("uses IBM Text to Speech with basic auth and model-id-as-voice routing", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "ibm-watsonx",
+      providerModel: "pt-BR_CamilaNatural",
+      apiKey:
+        "https://us-south.ml.cloud.ibm.com|watsonx-key|project-123|https://api.us-south.speech-to-text.watson.cloud.ibm.com|stt-key|https://api.us-south.text-to-speech.watson.cloud.ibm.com|tts-key",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://api.us-south.text-to-speech.watson.cloud.ibm.com/v1/synthesize?voice=pt-BR_CamilaNatural",
+    );
+    expect(options.headers.Authorization).toBe("Basic YXBpa2V5OnR0cy1rZXk=");
+    expect(options.headers.Accept).toBe("audio/mp3");
+    expect(JSON.parse(options.body)).toEqual({
+      text: "Hello world",
+    });
+  });
+
   it("uses MiniMax TTS with the documented sync HTTP route", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
