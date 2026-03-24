@@ -84,6 +84,13 @@ type HyperbolicTtsConfig = {
   voiceFallback: string;
 };
 
+type MinimaxTtsConfig = {
+  kind: "minimax";
+  endpoint: string;
+  defaultModel: string;
+  voiceFallback: string;
+};
+
 type ElevenLabsTtsConfig = {
   kind: "elevenlabs";
   endpointBase: string;
@@ -97,6 +104,7 @@ export type ProviderTtsConfig =
   | DashScopeTtsConfig
   | DeepgramTtsConfig
   | HyperbolicTtsConfig
+  | MinimaxTtsConfig
   | ElevenLabsTtsConfig;
 
 const ttsProviderConfigEntries: Array<[Provider, ProviderTtsConfig]> = [];
@@ -167,6 +175,23 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       provider,
       {
         kind: "hyperbolic",
+        endpoint: manifest.tts.endpoint,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
+    manifest.tts.transport === "minimax" &&
+    manifest.tts.endpoint &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "minimax",
         endpoint: manifest.tts.endpoint,
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,

@@ -123,6 +123,16 @@ describe("speech provider constants", () => {
     expect(getProviderTtsModelOptions("hyperbolic")).toEqual([
       { id: "Melo TTS", name: "Melo TTS" },
     ]);
+    expect(getProviderTtsModelOptions("minimax")).toEqual([
+      { id: "speech-2.8-hd", name: "MiniMax Speech 2.8 HD" },
+      { id: "speech-2.8-turbo", name: "MiniMax Speech 2.8 Turbo" },
+      { id: "speech-2.6-hd", name: "MiniMax Speech 2.6 HD" },
+      { id: "speech-2.6-turbo", name: "MiniMax Speech 2.6 Turbo" },
+      { id: "speech-02-hd", name: "MiniMax Speech 02 HD" },
+      { id: "speech-02-turbo", name: "MiniMax Speech 02 Turbo" },
+      { id: "speech-01-hd", name: "MiniMax Speech 01 HD" },
+      { id: "speech-01-turbo", name: "MiniMax Speech 01 Turbo" },
+    ]);
     expect(getProviderTtsModelOptions("novita-ai")).toEqual([
       { id: "glm-tts", name: "GLM Text to Speech" },
     ]);

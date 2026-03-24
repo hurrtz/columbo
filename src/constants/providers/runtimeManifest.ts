@@ -56,6 +56,7 @@ export type RuntimeTtsTransport =
   | "dashscope"
   | "deepgram"
   | "hyperbolic"
+  | "minimax"
   | "elevenlabs";
 export type RuntimeTtsBinaryRequestFormat =
   | "openai-speech"
@@ -1050,10 +1051,18 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: [],
     },
     tts: {
-      support: "none",
-      transport: "none",
-      models: [],
-      voiceOptions: [],
+      support: "provider",
+      transport: "minimax",
+      endpoint: "https://api.minimax.io/v1/t2a_v2",
+      defaultModel: "speech-2.8-hd",
+      defaultVoice: "English_expressive_narrator",
+      voiceFallback: "English_expressive_narrator",
+      models: catalogModelSpecs("minimax", "tts"),
+      voiceOptions: [
+        voice("English_expressive_narrator", "English Expressive Narrator"),
+      ],
+      languageNote:
+        "MiniMax TTS is currently wired through its synchronous HTTP T2A route. The public docs verify eight speech-* model IDs, 10,000-character sync limits, and hex or URL output.",
     },
   },
   "moonshot-ai-kimi": {

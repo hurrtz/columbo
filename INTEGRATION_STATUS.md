@@ -13,10 +13,10 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 31
 - Catalog models: 455
-- Integrated models: 316
+- Integrated models: 324
 - LLM: 243/294 integrated
 - STT: 33/71 integrated
-- TTS: 40/90 integrated
+- TTS: 48/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -500,7 +500,7 @@ Catalog updated: 2026-03-23
 ## Minimax `minimax`
 
 - Runtime provider: `minimax`
-- Model integration: 8/16 integrated
+- Model integration: 16/16 integrated
 - Verified support: LLM `native`, STT `unsupported`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -513,14 +513,14 @@ Catalog updated: 2026-03-23
 | LLM | `MiniMax-M2.5-highspeed` | MiniMax M2.5 Highspeed | Integrated | `MiniMax-M2.5-highspeed` |
 | LLM | `MiniMax-M2.7` | MiniMax M2.7 | Integrated | `MiniMax-M2.7` |
 | LLM | `MiniMax-M2.7-highspeed` | MiniMax M2.7 Highspeed | Integrated | `MiniMax-M2.7-highspeed` |
-| TTS | `speech-01-hd` | MiniMax Speech 01 HD | Not integrated | — |
-| TTS | `speech-01-turbo` | MiniMax Speech 01 Turbo | Not integrated | — |
-| TTS | `speech-02-hd` | MiniMax Speech 02 HD | Not integrated | — |
-| TTS | `speech-02-turbo` | MiniMax Speech 02 Turbo | Not integrated | — |
-| TTS | `speech-2.6-hd` | MiniMax Speech 2.6 HD | Not integrated | — |
-| TTS | `speech-2.6-turbo` | MiniMax Speech 2.6 Turbo | Not integrated | — |
-| TTS | `speech-2.8-hd` | MiniMax Speech 2.8 HD | Not integrated | — |
-| TTS | `speech-2.8-turbo` | MiniMax Speech 2.8 Turbo | Not integrated | — |
+| TTS | `speech-01-hd` | MiniMax Speech 01 HD | Integrated | `speech-01-hd` |
+| TTS | `speech-01-turbo` | MiniMax Speech 01 Turbo | Integrated | `speech-01-turbo` |
+| TTS | `speech-02-hd` | MiniMax Speech 02 HD | Integrated | `speech-02-hd` |
+| TTS | `speech-02-turbo` | MiniMax Speech 02 Turbo | Integrated | `speech-02-turbo` |
+| TTS | `speech-2.6-hd` | MiniMax Speech 2.6 HD | Integrated | `speech-2.6-hd` |
+| TTS | `speech-2.6-turbo` | MiniMax Speech 2.6 Turbo | Integrated | `speech-2.6-turbo` |
+| TTS | `speech-2.8-hd` | MiniMax Speech 2.8 HD | Integrated | `speech-2.8-hd` |
+| TTS | `speech-2.8-turbo` | MiniMax Speech 2.8 Turbo | Integrated | `speech-2.8-turbo` |
 
 ## Mistral AI `mistral-ai`
 

@@ -326,6 +326,32 @@ function getHyperbolicLanguage(selectedVoice: string) {
   return selectedVoice.startsWith("EN-") ? "EN" : selectedVoice;
 }
 
+function hexToBase64(hex: string, language: AppLanguage) {
+  const BufferCtor = (globalThis as any).Buffer;
+
+  if (BufferCtor) {
+    return BufferCtor.from(hex, "hex").toString("base64");
+  }
+
+  const bytes = new Uint8Array(Math.floor(hex.length / 2));
+
+  for (let index = 0; index < bytes.length; index += 1) {
+    bytes[index] = parseInt(hex.slice(index * 2, index * 2 + 2), 16);
+  }
+
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + chunkSize));
+  }
+
+  if (typeof btoa !== "undefined") {
+    return btoa(binary);
+  }
+
+  throw new Error(translate(language, "noBase64EncoderAvailable"));
+}
+
 function getBinaryTtsVoice(params: {
   requestFormat: RuntimeTtsBinaryRequestFormat;
   selectedModel: string;
@@ -612,6 +638,64 @@ export async function synthesizeProviderSpeech(params: {
     }
 
     return writeBase64AudioFile(audioBase64, "mp3");
+  }
+
+  if (config.kind === "minimax") {
+    const response = await fetchWithTimeout(
+      config.endpoint,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+        },
+        body: JSON.stringify({
+          model: selectedModel,
+          text,
+          stream: false,
+          output_format: "hex",
+          language_boost: "auto",
+          voice_setting: {
+            voice_id: selectedVoice,
+            speed: 1,
+            vol: 1,
+            pitch: 0,
+          },
+          audio_setting: {
+            sample_rate: 32000,
+            bitrate: 128000,
+            format: "mp3",
+            channel: 1,
+          },
+        }),
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw buildTtsRequestError({
+        provider,
+        status: response.status,
+        errorText,
+        language,
+      });
+    }
+
+    const data = await response.json();
+    const audioHex = typeof data?.data?.audio === "string" ? data.data.audio : null;
+
+    if (!audioHex) {
+      throw new Error(
+        translate(language, "ttsDidNotReturnAudio", {
+          provider: PROVIDER_LABELS[provider],
+        }),
+      );
+    }
+
+    return writeBase64AudioFile(hexToBase64(audioHex, language), "mp3");
   }
 
   if (config.kind === "elevenlabs") {
