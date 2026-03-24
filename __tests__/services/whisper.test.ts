@@ -65,6 +65,27 @@ describe("transcribeAudio", () => {
     );
   });
 
+  it("uses the configured multipart endpoint for newly wired STT providers", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        text: "Hallo Welt",
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "z-ai-zhipu-ai",
+      apiKey: "zai-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hallo Welt");
+    const [url] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.z.ai/api/paas/v4/audio/transcriptions");
+  });
+
   it("aborts before starting the provider request when the signal is already cancelled", async () => {
     const controller = new AbortController();
     controller.abort();

@@ -27,6 +27,12 @@ describe("speech provider constants", () => {
     ).toBe("Gemini 2.5 Flash");
   });
 
+  it("surfaces newly wired catalog-backed STT providers through the runtime manifest", () => {
+    expect(getProviderSttModelOptions("z-ai-zhipu-ai")).toEqual([
+      { id: "glm-asr-2512", name: "GLM-ASR-2512" },
+    ]);
+  });
+
   it("uses catalog labels for exact TTS model matches", () => {
     expect(
       getProviderTtsModelOptions("openai").find(

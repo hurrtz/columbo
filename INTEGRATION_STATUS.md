@@ -234,6 +234,13 @@ Route: `https://api.together.xyz/v1/audio/transcriptions`
 Models:
 `openai/whisper-large-v3`, `mistralai/Voxtral-Mini-3B-2507`
 
+### Z.ai
+
+Route: `https://api.z.ai/api/paas/v4/audio/transcriptions`
+
+Models:
+`glm-asr-2512`
+
 ## Wired TTS Providers And Models
 
 Only these providers currently have provider-side TTS routes in code.
@@ -277,6 +284,6 @@ These provider documents exist in `data/providers` and now appear in the Provide
 - Full catalog visibility in UI does not imply runtime support.
 - Runtime support currently means:
   - provider is one of the 25 app providers for LLM
-  - provider is one of the 5 STT providers above for provider STT
+  - provider is one of the 6 STT providers above for provider STT
   - provider is one of the 4 TTS providers above for provider TTS
 - Anything else is catalog-visible only until the transport, settings validation, defaults, and tests are wired.

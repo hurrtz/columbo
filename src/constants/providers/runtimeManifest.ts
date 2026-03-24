@@ -1128,9 +1128,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       ],
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "multipart",
+      endpoint: "https://api.z.ai/api/paas/v4/audio/transcriptions",
+      defaultModel: "glm-asr-2512",
+      models: [model("glm-asr-2512")],
+      languageNote:
+        "Z.ai currently exposes glm-asr-2512 for multilingual transcription. The documented global upload cap is 25 MB and 30 seconds.",
     },
     tts: {
       support: "none",
