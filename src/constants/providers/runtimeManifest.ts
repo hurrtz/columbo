@@ -272,6 +272,8 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         model("gpt-4.1", "2025-04-14"),
         model("gpt-4.1-mini", "2025-04-14"),
         model("gpt-4.1-nano", "2025-04-14"),
+        namedModel("gpt-audio-1.5", "GPT-Audio-1.5"),
+        namedModel("gpt-audio-mini", "GPT-Audio-mini"),
         namedModel("gpt-4o", "GPT-4o"),
         namedModel("gpt-4o-mini", "GPT-4o Mini"),
         namedModel("gpt-4-turbo", "GPT-4 Turbo"),

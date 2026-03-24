@@ -13,8 +13,8 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 31
 - Catalog models: 455
-- Integrated models: 331
-- LLM: 243/294 integrated
+- Integrated models: 333
+- LLM: 245/294 integrated
 - STT: 35/71 integrated
 - TTS: 53/90 integrated
 - Unresolved runtime manifest entries: 31
@@ -618,7 +618,7 @@ Catalog updated: 2026-03-23
 ## OpenAI `openai`
 
 - Runtime provider: `openai`
-- Model integration: 14/18 integrated
+- Model integration: 16/18 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -630,8 +630,8 @@ Catalog updated: 2026-03-23
 | LLM | `gpt-5.4-mini` | GPT-5.4 mini | Integrated | `gpt-5.4-mini` |
 | LLM | `gpt-5.4-nano` | GPT-5.4 nano | Integrated | `gpt-5.4-nano` |
 | LLM | `gpt-5.4-pro` | GPT-5.4 pro | Integrated | `gpt-5.4-pro` |
-| LLM | `gpt-audio-1.5` | GPT-Audio-1.5 | Not integrated | — |
-| LLM | `gpt-audio-mini` | GPT-Audio-mini | Not integrated | — |
+| LLM | `gpt-audio-1.5` | GPT-Audio-1.5 | Integrated | `gpt-audio-1.5` |
+| LLM | `gpt-audio-mini` | GPT-Audio-mini | Integrated | `gpt-audio-mini` |
 | LLM | `gpt-realtime-1.5` | GPT-Realtime-1.5 | Not integrated | — |
 | LLM | `gpt-realtime-mini` | GPT-Realtime-mini | Not integrated | — |
 | STT | `gpt-4o-mini-transcribe` | GPT-4o mini Transcribe | Integrated | `gpt-4o-mini-transcribe` |
