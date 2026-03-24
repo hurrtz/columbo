@@ -91,7 +91,7 @@ This keeps cost and latency more stable during long voice sessions.
 
 ```text
 app/                    Expo Router entry points
-assets/branding/        App icon and provider branding assets
+assets/                App icon and provider icon assets
 src/components/         UI components
 src/context/            Shared React context
 src/hooks/              Settings, conversations, audio hooks
