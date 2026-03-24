@@ -372,6 +372,33 @@ describe("transcribeAudio", () => {
     expect((options.body as FormData).get("model_id")).toBe("scribe_v2");
   });
 
+  it("uses the Hugging Face native hf-inference JSON route for STT", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        text: "Hello from Hugging Face",
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "hugging-face-inference-api",
+      apiKey: "hf-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from Hugging Face");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://router.huggingface.co/hf-inference/models/openai%2Fwhisper-large-v3",
+    );
+    expect(options.headers.Authorization).toBe("Bearer hf-test");
+    expect(JSON.parse(options.body)).toEqual({
+      inputs: "ZmFrZQ==",
+    });
+  });
+
   it("aborts before starting the provider request when the signal is already cancelled", async () => {
     const controller = new AbortController();
     controller.abort();

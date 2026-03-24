@@ -11,6 +11,7 @@ import type {
   ElevenLabsTranscriptionConfig,
   FireworksPreRecordedTranscriptionConfig,
   GeminiTranscriptionConfig,
+  HuggingFaceJsonTranscriptionConfig,
   NovitaJsonTranscriptionConfig,
   OpenAiAudioInputTranscriptionConfig,
   MultipartTranscriptionConfig,
@@ -339,6 +340,66 @@ export async function transcribeWithFireworksPreRecordedProvider(
   const data = await response.json();
   const text = data.text?.trim();
   return text ? text : null;
+}
+
+export async function transcribeWithHuggingFaceJsonProvider(
+  params: SharedProviderParams & {
+    config: HuggingFaceJsonTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const base64 = await FileSystem.readAsStringAsync(fileUri, {
+    encoding: "base64",
+  });
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      `${config.endpointBase}/${encodeURIComponent(
+        providerModel || config.defaultModel,
+      )}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+        },
+        body: JSON.stringify({
+          inputs: base64,
+        }),
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const text =
+    (typeof data?.text === "string" ? data.text : null) ||
+    (typeof data?.generated_text === "string" ? data.generated_text : null);
+
+  return text?.trim() ? text.trim() : null;
 }
 
 export async function transcribeWithNovitaJsonProvider(

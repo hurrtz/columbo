@@ -13,9 +13,9 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 31
 - Catalog models: 455
-- Integrated models: 324
+- Integrated models: 326
 - LLM: 243/294 integrated
-- STT: 33/71 integrated
+- STT: 35/71 integrated
 - TTS: 48/90 integrated
 - Unresolved runtime manifest entries: 31
 
@@ -395,7 +395,7 @@ Catalog updated: 2026-03-23
 ## Hugging Face Inference API `hugging-face-inference-api`
 
 - Runtime provider: `hugging-face-inference-api`
-- Model integration: 4/6 integrated
+- Model integration: 6/6 integrated
 - Verified support: LLM `routed`, STT `routed`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -404,8 +404,8 @@ Catalog updated: 2026-03-23
 | LLM | `openai/gpt-oss-120b` | gpt-oss-120b | Integrated | `openai/gpt-oss-120b` |
 | LLM | `openai/gpt-oss-20b` | gpt-oss-20b | Integrated | `openai/gpt-oss-20b` |
 | LLM | `meta-llama/Llama-3.3-70B-Instruct` | Llama-3.3-70B-Instruct | Integrated | `meta-llama/Llama-3.3-70B-Instruct` |
-| STT | `openai/whisper-large-v3` | Whisper large-v3 | Not integrated | — |
-| STT | `openai/whisper-large-v3-turbo` | Whisper large-v3-turbo | Not integrated | — |
+| STT | `openai/whisper-large-v3` | Whisper large-v3 | Integrated | `openai/whisper-large-v3` |
+| STT | `openai/whisper-large-v3-turbo` | Whisper large-v3-turbo | Integrated | `openai/whisper-large-v3-turbo` |
 
 ## Hyperbolic `hyperbolic`
 

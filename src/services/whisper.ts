@@ -14,6 +14,7 @@ import {
   transcribeWithElevenLabsProvider,
   transcribeWithFireworksPreRecordedProvider,
   transcribeWithGeminiProvider,
+  transcribeWithHuggingFaceJsonProvider,
   transcribeWithMultipartProvider,
   transcribeWithNovitaJsonProvider,
   transcribeWithOpenAiAudioInputProvider,
@@ -166,6 +167,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "fireworks-pre-recorded") {
     return transcribeWithFireworksPreRecordedProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: selectedModel,
+    });
+  }
+
+  if (config.kind === "huggingface-json") {
+    return transcribeWithHuggingFaceJsonProvider({
       abortSignal,
       apiKey,
       config,

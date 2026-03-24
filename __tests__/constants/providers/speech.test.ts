@@ -71,6 +71,13 @@ describe("speech provider constants", () => {
     expect(getProviderSttModelOptions("novita-ai")).toEqual([
       { id: "glm-asr", name: "GLM Audio to Text" },
     ]);
+    expect(getProviderSttModelOptions("hugging-face-inference-api")).toEqual([
+      { id: "openai/whisper-large-v3", name: "Whisper large-v3" },
+      {
+        id: "openai/whisper-large-v3-turbo",
+        name: "Whisper large-v3-turbo",
+      },
+    ]);
   });
 
   it("uses catalog labels for exact TTS model matches", () => {

@@ -32,6 +32,12 @@ export type FireworksPreRecordedTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type HuggingFaceJsonTranscriptionConfig = {
+  kind: "huggingface-json";
+  endpointBase: string;
+  defaultModel: string;
+};
+
 export type NovitaJsonTranscriptionConfig = {
   kind: "novita-json";
   endpoint: string;
@@ -72,6 +78,7 @@ const sttProviderConfigEntries: Array<
     | AssemblyAiPreRecordedTranscriptionConfig
     | DeepgramPreRecordedTranscriptionConfig
     | FireworksPreRecordedTranscriptionConfig
+    | HuggingFaceJsonTranscriptionConfig
     | NovitaJsonTranscriptionConfig
     | ElevenLabsTranscriptionConfig,
   ]
@@ -172,6 +179,21 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
   }
 
   if (
+    manifest.stt.transport === "huggingface-json" &&
+    manifest.stt.endpointBase &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "huggingface-json",
+        endpointBase: manifest.stt.endpointBase,
+        defaultModel: manifest.stt.defaultModel,
+      },
+    ]);
+  }
+
+  if (
     manifest.stt.transport === "novita-json" &&
     manifest.stt.endpoint &&
     manifest.stt.defaultModel
@@ -211,6 +233,7 @@ export const STT_PROVIDER_CONFIGS: Partial<
     | AssemblyAiPreRecordedTranscriptionConfig
     | DeepgramPreRecordedTranscriptionConfig
     | FireworksPreRecordedTranscriptionConfig
+    | HuggingFaceJsonTranscriptionConfig
     | NovitaJsonTranscriptionConfig
     | ElevenLabsTranscriptionConfig
   >

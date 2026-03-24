@@ -47,6 +47,7 @@ export type RuntimeSttTransport =
   | "assemblyai-pre-recorded"
   | "deepgram-pre-recorded"
   | "fireworks-pre-recorded"
+  | "huggingface-json"
   | "novita-json"
   | "elevenlabs";
 export type RuntimeTtsTransport =
@@ -942,9 +943,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("hugging-face-inference-api", "llm"),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "huggingface-json",
+      endpointBase: "https://router.huggingface.co/hf-inference/models",
+      defaultModel: "openai/whisper-large-v3",
+      models: catalogModelSpecs("hugging-face-inference-api", "stt"),
+      languageNote:
+        "Hugging Face hf-inference currently exposes Whisper large-v3 and large-v3-turbo for ASR. Public docs describe the task payload as base64 audio inputs with a recognized text response.",
     },
     tts: {
       support: "none",
