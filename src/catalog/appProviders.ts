@@ -1,4 +1,5 @@
 import type { Provider } from "../types";
+import { RUNTIME_PROVIDER_MANIFEST } from "../constants/providers/runtimeManifest";
 
 import {
   getCatalogModel,
@@ -14,18 +15,12 @@ import type {
   CatalogSupportState,
 } from "./types";
 
-export const APP_PROVIDER_CATALOG_IDS: Record<Provider, string> = {
-  openai: "openai",
-  anthropic: "anthropic",
-  gemini: "google-vertex-ai-studio",
-  cohere: "cohere",
-  deepseek: "deepseek",
-  groq: "groq",
-  mistral: "mistral-ai",
-  nvidia: "nvidia-nim",
-  together: "together-ai",
-  xai: "xai",
-};
+export const APP_PROVIDER_CATALOG_IDS: Record<Provider, string> = Object.fromEntries(
+  Object.entries(RUNTIME_PROVIDER_MANIFEST).map(([provider, manifest]) => [
+    provider,
+    manifest.catalogProviderId,
+  ]),
+) as Record<Provider, string>;
 
 export function getCatalogProviderIdForAppProvider(provider: Provider) {
   return APP_PROVIDER_CATALOG_IDS[provider];

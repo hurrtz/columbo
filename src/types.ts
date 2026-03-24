@@ -6,18 +6,9 @@ import {
   DEFAULT_RESPONSE_MODES,
   PROVIDER_DEFAULT_MODELS,
 } from "./constants/providers/defaults";
+import type { RuntimeAppProviderId } from "./constants/providers/runtimeManifest";
 
-export type Provider =
-  | "openai"
-  | "anthropic"
-  | "gemini"
-  | "cohere"
-  | "deepseek"
-  | "groq"
-  | "mistral"
-  | "nvidia"
-  | "together"
-  | "xai";
+export type Provider = RuntimeAppProviderId;
 export type InputMode = "push-to-talk" | "toggle-to-talk";
 export type ReplyPlayback = "stream" | "wait";
 export type TtsPlayback = ReplyPlayback;

@@ -5,6 +5,7 @@ import {
   PROVIDER_DEFAULT_TTS_VOICES,
   PROVIDER_LABELS,
 } from "../../constants/models";
+import { RUNTIME_PROVIDER_MANIFEST } from "../../constants/providers/runtimeManifest";
 import { translate } from "../../i18n";
 import { AppLanguage, Provider } from "../../types";
 import { extractProviderErrorMessage } from "../providerErrors";
@@ -60,34 +61,48 @@ type GeminiTtsConfig = {
 
 export type ProviderTtsConfig = BinaryTtsConfig | GeminiTtsConfig;
 
+const ttsProviderConfigEntries: Array<[Provider, ProviderTtsConfig]> = [];
+
+for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
+  const manifest = RUNTIME_PROVIDER_MANIFEST[provider];
+
+  if (
+    manifest.tts.transport === "binary" &&
+    manifest.tts.endpoint &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "binary",
+        endpoint: manifest.tts.endpoint,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
+    manifest.tts.transport === "gemini" &&
+    manifest.tts.endpointBase &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "gemini",
+        endpointBase: manifest.tts.endpointBase,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+}
+
 export const TTS_PROVIDER_CONFIGS: Partial<Record<Provider, ProviderTtsConfig>> =
-  {
-    openai: {
-      kind: "binary",
-      endpoint: "https://api.openai.com/v1/audio/speech",
-      defaultModel: "gpt-4o-mini-tts",
-      voiceFallback: "alloy",
-    },
-    gemini: {
-      kind: "gemini",
-      endpointBase:
-        "https://generativelanguage.googleapis.com/v1beta/models",
-      defaultModel: "gemini-2.5-flash-preview-tts",
-      voiceFallback: "alloy",
-    },
-    together: {
-      kind: "binary",
-      endpoint: "https://api.together.xyz/v1/audio/speech",
-      defaultModel: "hexgrad/Kokoro-82M",
-      voiceFallback: "alloy",
-    },
-    xai: {
-      kind: "binary",
-      endpoint: "https://api.x.ai/v1/audio/speech",
-      defaultModel: "grok-tts-mini",
-      voiceFallback: "alloy",
-    },
-  };
+  Object.fromEntries(ttsProviderConfigEntries);
 
 export function requireProviderKey(
   provider: Provider,

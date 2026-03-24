@@ -10,6 +10,7 @@ This file is the temporary source of truth for what the app runtime should actua
 
 ## Runtime Source Files
 
+- Runtime integration manifest: `src/constants/providers/runtimeManifest.ts`
 - LLM routing: `src/services/llm.ts` and `src/services/llm/shared.ts`
 - STT routing: `src/services/whisper/config.ts`
 - TTS routing: `src/services/tts/shared.ts`

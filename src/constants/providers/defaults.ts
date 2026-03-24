@@ -7,6 +7,7 @@ import type {
   ResponseModeSelections,
 } from "../../types";
 import { PROVIDER_ORDER } from "./catalogData";
+import { RUNTIME_PROVIDER_MANIFEST } from "./runtimeManifest";
 import {
   PROVIDER_DEFAULT_STT_MODELS as PARTIAL_PROVIDER_DEFAULT_STT_MODELS,
   PROVIDER_DEFAULT_TTS_MODELS as PARTIAL_PROVIDER_DEFAULT_TTS_MODELS,
@@ -21,18 +22,12 @@ function expandProviderDefaults(
   ) as Record<Provider, string>;
 }
 
-export const PROVIDER_DEFAULT_MODELS: ProviderModelSelections = {
-  openai: "gpt-5.4",
-  anthropic: "claude-sonnet-4-6",
-  gemini: "gemini-2.5-flash",
-  cohere: "command-a-03-2025",
-  deepseek: "deepseek-chat",
-  groq: "llama-3.3-70b-versatile",
-  mistral: "mistral-medium-latest",
-  nvidia: "nvidia/llama-3.3-nemotron-super-49b-v1.5",
-  together: "openai/gpt-oss-20b",
-  xai: "grok-4",
-};
+export const PROVIDER_DEFAULT_MODELS: ProviderModelSelections = Object.fromEntries(
+  PROVIDER_ORDER.map((provider) => [
+    provider,
+    RUNTIME_PROVIDER_MANIFEST[provider].llm.defaultModel,
+  ]),
+) as ProviderModelSelections;
 
 export const DEFAULT_PROVIDER_STT_MODELS: ProviderSttModelSelections =
   expandProviderDefaults(PARTIAL_PROVIDER_DEFAULT_STT_MODELS);

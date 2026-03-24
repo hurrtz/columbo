@@ -1,4 +1,5 @@
 import type { Provider } from "../../types";
+import { RUNTIME_PROVIDER_MANIFEST } from "../../constants/providers/runtimeManifest";
 import { getMistralSttLanguageCode } from "../../utils/speechLanguage";
 
 export type MultipartTranscriptionConfig = {
@@ -16,33 +17,58 @@ export type GeminiTranscriptionConfig = {
 
 export const STT_TIMEOUT_MS = 30000;
 
+function getLanguageHint(
+  key: string | undefined,
+): MultipartTranscriptionConfig["languageHint"] {
+  switch (key) {
+    case "mistral-stt-language-code":
+      return getMistralSttLanguageCode;
+    default:
+      return undefined;
+  }
+}
+
+const sttProviderConfigEntries: Array<
+  [Provider, MultipartTranscriptionConfig | GeminiTranscriptionConfig]
+> = [];
+
+for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
+  const manifest = RUNTIME_PROVIDER_MANIFEST[provider];
+
+  if (
+    manifest.stt.transport === "multipart" &&
+    manifest.stt.endpoint &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "multipart",
+        endpoint: manifest.stt.endpoint,
+        defaultModel: manifest.stt.defaultModel,
+        ...(manifest.stt.languageHintKey
+          ? { languageHint: getLanguageHint(manifest.stt.languageHintKey) }
+          : {}),
+      },
+    ]);
+  }
+
+  if (
+    manifest.stt.transport === "gemini" &&
+    manifest.stt.endpointBase &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "gemini",
+        endpointBase: manifest.stt.endpointBase,
+        defaultModel: manifest.stt.defaultModel,
+      },
+    ]);
+  }
+}
+
 export const STT_PROVIDER_CONFIGS: Partial<
   Record<Provider, MultipartTranscriptionConfig | GeminiTranscriptionConfig>
-> = {
-  openai: {
-    kind: "multipart",
-    endpoint: "https://api.openai.com/v1/audio/transcriptions",
-    defaultModel: "gpt-4o-mini-transcribe",
-  },
-  groq: {
-    kind: "multipart",
-    endpoint: "https://api.groq.com/openai/v1/audio/transcriptions",
-    defaultModel: "whisper-large-v3-turbo",
-  },
-  gemini: {
-    kind: "gemini",
-    endpointBase: "https://generativelanguage.googleapis.com/v1beta/models",
-    defaultModel: "gemini-2.5-flash",
-  },
-  mistral: {
-    kind: "multipart",
-    endpoint: "https://api.mistral.ai/v1/audio/transcriptions",
-    defaultModel: "voxtral-mini-latest",
-    languageHint: getMistralSttLanguageCode,
-  },
-  together: {
-    kind: "multipart",
-    endpoint: "https://api.together.xyz/v1/audio/transcriptions",
-    defaultModel: "openai/whisper-large-v3",
-  },
-};
+> = Object.fromEntries(sttProviderConfigEntries);
