@@ -26,6 +26,8 @@ import {
 } from "./shared";
 
 const GEMINI_TTS_RETRY_DELAYS_MS = [400, 1200];
+const BAIDU_LONG_TTS_POLL_INTERVAL_MS = 1000;
+const BAIDU_LONG_TTS_MAX_POLLS = 30;
 
 function wait(ms: number) {
   return new Promise<void>((resolve) => {
@@ -627,6 +629,131 @@ export async function synthesizeProviderSpeech(params: {
 
   if (config.kind === "baidu") {
     const authToken = requireProviderKey(provider, apiKey, language);
+
+    if (selectedModel === "长文本合成") {
+      const createResponse = await fetchWithTimeout(
+        `https://aip.baidubce.com/rpc/2.0/tts/v1/create?access_token=${encodeURIComponent(authToken)}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text: [text],
+            format: "mp3-16k",
+            voice: Number.parseInt(selectedVoice || config.voiceFallback, 10) || 0,
+            lang: "zh",
+            speed: 5,
+            pitch: 5,
+            volume: 5,
+          }),
+        },
+        timeoutMs,
+        () => createTtsTimeoutError({ provider, language }),
+        abortSignal,
+      );
+
+      if (!createResponse.ok) {
+        const errorText = await createResponse.text();
+        throw buildTtsRequestError({
+          provider,
+          status: createResponse.status,
+          errorText,
+          language,
+        });
+      }
+
+      const createData = await createResponse.json();
+      const taskId =
+        typeof createData?.task_id === "string" ? createData.task_id : null;
+
+      if (!taskId) {
+        throw new Error(
+          translate(language, "ttsDidNotReturnAudio", {
+            provider: PROVIDER_LABELS[provider],
+          }),
+        );
+      }
+
+      for (let pollIndex = 0; pollIndex < BAIDU_LONG_TTS_MAX_POLLS; pollIndex += 1) {
+        const queryResponse = await fetchWithTimeout(
+          `https://aip.baidubce.com/rpc/2.0/tts/v1/query?access_token=${encodeURIComponent(authToken)}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              task_ids: [taskId],
+            }),
+          },
+          timeoutMs,
+          () => createTtsTimeoutError({ provider, language }),
+          abortSignal,
+        );
+
+        if (!queryResponse.ok) {
+          const errorText = await queryResponse.text();
+          throw buildTtsRequestError({
+            provider,
+            status: queryResponse.status,
+            errorText,
+            language,
+          });
+        }
+
+        const queryData = await queryResponse.json();
+        const taskInfo = Array.isArray(queryData?.tasks_info)
+          ? queryData.tasks_info[0]
+          : null;
+        const taskStatus =
+          typeof taskInfo?.task_status === "string" ? taskInfo.task_status : null;
+        const speechUrl =
+          typeof taskInfo?.task_result?.speech_url === "string"
+            ? taskInfo.task_result.speech_url
+            : null;
+
+        if (taskStatus === "Success" && speechUrl) {
+          const audioResponse = await fetchWithTimeout(
+            speechUrl,
+            {
+              method: "GET",
+            },
+            timeoutMs,
+            () => createTtsTimeoutError({ provider, language }),
+            abortSignal,
+          );
+
+          if (!audioResponse.ok) {
+            const errorText = await audioResponse.text();
+            throw buildTtsRequestError({
+              provider,
+              status: audioResponse.status,
+              errorText,
+              language,
+            });
+          }
+
+          return writeBlobAudioFile(await audioResponse.blob(), "mp3");
+        }
+
+        if (
+          taskStatus &&
+          !["Running", "Created", "Pending"].includes(taskStatus)
+        ) {
+          const errorText =
+            taskInfo?.task_result?.err_msg ||
+            queryData?.error_msg ||
+            taskStatus;
+          throw new Error(errorText);
+        }
+
+        await wait(BAIDU_LONG_TTS_POLL_INTERVAL_MS);
+      }
+
+      throw createTtsTimeoutError({ provider, language });
+    }
+
     const formData = new URLSearchParams();
     formData.set("tex", text);
     formData.set("tok", authToken);

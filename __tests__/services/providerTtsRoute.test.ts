@@ -437,6 +437,73 @@ describe("synthesizeProviderSpeech", () => {
     );
   });
 
+  it("uses Baidu long-text TTS through the async create/query flow", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            task_id: "baidu-task-1",
+            task_status: "Running",
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            tasks_info: [
+              {
+                task_status: "Success",
+                task_result: {
+                  speech_url: "https://baidu.example/audio.mp3",
+                },
+              },
+            ],
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        blob: () => Promise.resolve(new Blob(["fake-audio"])),
+      });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "baidu-ernie-qianfan",
+      providerModel: "长文本合成",
+      apiKey: "baidu-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+
+    const [createUrl, createOptions] = (fetch as jest.Mock).mock.calls[0];
+    expect(createUrl).toBe(
+      "https://aip.baidubce.com/rpc/2.0/tts/v1/create?access_token=baidu-test",
+    );
+    expect(JSON.parse(createOptions.body)).toEqual({
+      text: ["Hello world"],
+      format: "mp3-16k",
+      voice: 0,
+      lang: "zh",
+      speed: 5,
+      pitch: 5,
+      volume: 5,
+    });
+
+    const [queryUrl, queryOptions] = (fetch as jest.Mock).mock.calls[1];
+    expect(queryUrl).toBe(
+      "https://aip.baidubce.com/rpc/2.0/tts/v1/query?access_token=baidu-test",
+    );
+    expect(JSON.parse(queryOptions.body)).toEqual({
+      task_ids: ["baidu-task-1"],
+    });
+
+    expect((fetch as jest.Mock).mock.calls[2][0]).toBe(
+      "https://baidu.example/audio.mp3",
+    );
+  });
+
   it("uses Novita GLM-TTS with the documented voice and wav output", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

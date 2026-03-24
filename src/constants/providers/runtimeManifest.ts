@@ -619,7 +619,10 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "短文本语音合成",
       defaultVoice: "0",
       voiceFallback: "0",
-      models: [namedModel("短文本语音合成", "Short Text Speech Synthesis")],
+      models: [
+        namedModel("短文本语音合成", "Short Text Speech Synthesis"),
+        namedModel("长文本合成", "Long Text Speech Synthesis"),
+      ],
       voiceOptions: [
         voice("0", "Standard female"),
         voice("1", "Standard male"),
@@ -627,7 +630,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         voice("4", "Emotional child"),
       ],
       languageNote:
-        "Baidu is currently wired only for the short-text REST TTS API. Long-text async synthesis and streaming WebSocket TTS remain catalog-only until the app grows async job and realtime speech transports.",
+        "Baidu is currently wired for both the short-text REST TTS API and the long-text async synthesis job API. Streaming WebSocket TTS remains catalog-only until the app grows realtime speech transports.",
     },
   },
   "bytedance-doubao-seed": {

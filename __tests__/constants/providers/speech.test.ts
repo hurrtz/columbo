@@ -160,6 +160,7 @@ describe("speech provider constants", () => {
     ]);
     expect(getProviderTtsModelOptions("baidu-ernie-qianfan")).toEqual([
       { id: "短文本语音合成", name: "Short Text Speech Synthesis" },
+      { id: "长文本合成", name: "Long Text Speech Synthesis" },
     ]);
     expect(getProviderTtsModelOptions("z-ai-zhipu-ai")).toEqual([
       { id: "glm-tts", name: "GLM-TTS" },

@@ -13,10 +13,10 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 35
 - Catalog models: 455
-- Integrated models: 367
+- Integrated models: 368
 - LLM: 263/294 integrated
 - STT: 43/71 integrated
-- TTS: 61/90 integrated
+- TTS: 62/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -179,7 +179,7 @@ Catalog updated: 2026-03-23
 ## Baidu (ERNIE / Qianfan) `baidu-ernie-qianfan`
 
 - Runtime provider: `baidu-ernie-qianfan`
-- Model integration: 13/17 integrated
+- Model integration: 14/17 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -198,7 +198,7 @@ Catalog updated: 2026-03-23
 | STT | `实时语音识别-websocket API` | Realtime Speech Recognition WebSocket API | Not integrated | — |
 | STT | `短语音识别` | Short Speech Recognition | Integrated | `短语音识别` |
 | STT | `短语音识别极速版` | Short Speech Recognition Pro / 极速版 | Integrated | `短语音识别极速版` |
-| TTS | `长文本合成` | Long Text Speech Synthesis | Not integrated | — |
+| TTS | `长文本合成` | Long Text Speech Synthesis | Integrated | `长文本合成` |
 | TTS | `短文本语音合成` | Short Text Speech Synthesis | Integrated | `短文本语音合成` |
 | TTS | `流式文本在线合成` | Streaming Text-to-Speech | Not integrated | — |
 
