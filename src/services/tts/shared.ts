@@ -91,6 +91,13 @@ type MinimaxTtsConfig = {
   voiceFallback: string;
 };
 
+type NovitaTtsConfig = {
+  kind: "novita";
+  endpointBase: string;
+  defaultModel: string;
+  voiceFallback: string;
+};
+
 type ElevenLabsTtsConfig = {
   kind: "elevenlabs";
   endpointBase: string;
@@ -105,6 +112,7 @@ export type ProviderTtsConfig =
   | DeepgramTtsConfig
   | HyperbolicTtsConfig
   | MinimaxTtsConfig
+  | NovitaTtsConfig
   | ElevenLabsTtsConfig;
 
 const ttsProviderConfigEntries: Array<[Provider, ProviderTtsConfig]> = [];
@@ -193,6 +201,23 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       {
         kind: "minimax",
         endpoint: manifest.tts.endpoint,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
+    manifest.tts.transport === "novita" &&
+    manifest.tts.endpointBase &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "novita",
+        endpointBase: manifest.tts.endpointBase,
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,
       },

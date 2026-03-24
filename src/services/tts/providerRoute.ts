@@ -233,6 +233,7 @@ const TOGETHER_RIME_MIST_VOICES = new Set([
 ]);
 
 const TOGETHER_MINIMAX_VOICES = new Set([
+  "English_expressive_narrator",
   "English_DeterminedMan",
   "English_TrustworthMan",
   "English_GracefulLady",
@@ -256,6 +257,26 @@ function getGroqVoice(selectedModel: string, selectedVoice: string) {
   ].includes(selectedVoice)
     ? selectedVoice
     : "troy";
+}
+
+function getNovitaVoice(selectedModel: string, selectedVoice: string) {
+  if (selectedModel === "glm-tts") {
+    return [
+      "tongtong",
+      "chuichui",
+      "xiaochen",
+      "jam",
+      "kazi",
+      "douji",
+      "luodo",
+    ].includes(selectedVoice)
+      ? selectedVoice
+      : "tongtong";
+  }
+
+  return TOGETHER_MINIMAX_VOICES.has(selectedVoice)
+    ? selectedVoice
+    : "English_expressive_narrator";
 }
 
 function getSiliconflowVoice(selectedModel: string, selectedVoice: string) {
@@ -657,6 +678,101 @@ export async function synthesizeProviderSpeech(params: {
           language_boost: "auto",
           voice_setting: {
             voice_id: selectedVoice,
+            speed: 1,
+            vol: 1,
+            pitch: 0,
+          },
+          audio_setting: {
+            sample_rate: 32000,
+            bitrate: 128000,
+            format: "mp3",
+            channel: 1,
+          },
+        }),
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw buildTtsRequestError({
+        provider,
+        status: response.status,
+        errorText,
+        language,
+      });
+    }
+
+    const data = await response.json();
+    const audioHex = typeof data?.data?.audio === "string" ? data.data.audio : null;
+
+    if (!audioHex) {
+      throw new Error(
+        translate(language, "ttsDidNotReturnAudio", {
+          provider: PROVIDER_LABELS[provider],
+        }),
+      );
+    }
+
+    return writeBase64AudioFile(hexToBase64(audioHex, language), "mp3");
+  }
+
+  if (config.kind === "novita") {
+    const resolvedVoice = getNovitaVoice(selectedModel, selectedVoice);
+
+    if (selectedModel === "glm-tts") {
+      const response = await fetchWithTimeout(
+        `${config.endpointBase}/glm-tts`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+          },
+          body: JSON.stringify({
+            input: text,
+            voice: resolvedVoice,
+            speed: 1,
+            volume: 1,
+            response_format: "wav",
+          }),
+        },
+        timeoutMs,
+        () => createTtsTimeoutError({ provider, language }),
+        abortSignal,
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw buildTtsRequestError({
+          provider,
+          status: response.status,
+          errorText,
+          language,
+        });
+      }
+
+      return writeBlobAudioFile(await response.blob(), "wav");
+    }
+
+    const response = await fetchWithTimeout(
+      `${config.endpointBase}/${encodeURIComponent(selectedModel)}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+        },
+        body: JSON.stringify({
+          model: selectedModel,
+          text,
+          stream: false,
+          output_format: "hex",
+          language_boost: "auto",
+          voice_setting: {
+            voice_id: resolvedVoice,
             speed: 1,
             vol: 1,
             pitch: 0,

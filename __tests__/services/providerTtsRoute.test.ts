@@ -375,4 +375,47 @@ describe("synthesizeProviderSpeech", () => {
       response_format: "wav",
     });
   });
+
+  it("uses Novita MiniMax-family TTS routes with hex audio output", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: {
+          audio: "68656c6c6f",
+        },
+      }),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "novita-ai",
+      providerModel: "minimax-speech-02-turbo",
+      apiKey: "novita-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.novita.ai/v3/minimax-speech-02-turbo");
+    expect(JSON.parse(options.body)).toEqual({
+      model: "minimax-speech-02-turbo",
+      text: "Hello world",
+      stream: false,
+      output_format: "hex",
+      language_boost: "auto",
+      voice_setting: {
+        voice_id: "English_expressive_narrator",
+        speed: 1,
+        vol: 1,
+        pitch: 0,
+      },
+      audio_setting: {
+        sample_rate: 32000,
+        bitrate: 128000,
+        format: "mp3",
+        channel: 1,
+      },
+    });
+  });
 });

@@ -58,6 +58,7 @@ export type RuntimeTtsTransport =
   | "deepgram"
   | "hyperbolic"
   | "minimax"
+  | "novita"
   | "elevenlabs";
 export type RuntimeTtsBinaryRequestFormat =
   | "openai-speech"
@@ -1434,13 +1435,15 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     },
     tts: {
       support: "provider",
-      transport: "binary",
-      endpoint: "https://api.novita.ai/v3/glm-tts",
-      requestFormat: "novita-glm-speech",
+      transport: "novita",
+      endpointBase: "https://api.novita.ai/v3",
       defaultModel: "glm-tts",
       defaultVoice: "tongtong",
       voiceFallback: "tongtong",
-      models: [namedModel("glm-tts", "GLM Text to Speech")],
+      models: catalogModelSpecs("novita-ai", "tts", [
+        "txt2speech",
+        "minimax-voice-cloning",
+      ]),
       voiceOptions: [
         voice("tongtong", "彤彤"),
         voice("chuichui", "锤锤"),
@@ -1449,9 +1452,14 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         voice("kazi", "kazi"),
         voice("douji", "douji"),
         voice("luodo", "luodo"),
+        voice("English_expressive_narrator", "English expressive narrator"),
+        voice("English_DeterminedMan", "English determined man"),
+        voice("English_TrustworthMan", "English trustworth man"),
+        voice("English_GracefulLady", "English graceful lady"),
+        voice("English_WiseWoman", "English wise woman"),
       ],
       languageNote:
-        "Novita GLM-TTS exposes fixed system voices on /v3/glm-tts with wav/pcm output and a 1024-character input cap.",
+        "Novita speech is now wired for GLM-TTS plus the documented MiniMax speech-02/2.6/2.8 model families. The legacy txt2speech async surface and MiniMax voice-cloning remain catalog-only because they need async or custom-voice workflows the app does not have yet.",
     },
   },
   "z-ai-zhipu-ai": {

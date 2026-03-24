@@ -141,6 +141,11 @@ describe("speech provider constants", () => {
       { id: "speech-01-turbo", name: "MiniMax Speech 01 Turbo" },
     ]);
     expect(getProviderTtsModelOptions("novita-ai")).toEqual([
+      { id: "minimax-speech-02-hd", name: "MiniMax Speech-02 HD" },
+      { id: "minimax-speech-02-turbo", name: "MiniMax Speech-02 Turbo" },
+      { id: "minimax-speech-2.6-hd", name: "MiniMax Speech-2.6 HD" },
+      { id: "minimax-speech-2.6-turbo", name: "MiniMax Speech-2.6 Turbo" },
+      { id: "minimax-speech-2.8-hd", name: "MiniMax Speech 2.8 HD" },
       { id: "glm-tts", name: "GLM Text to Speech" },
     ]);
     expect(getProviderTtsModelOptions("z-ai-zhipu-ai")).toEqual([

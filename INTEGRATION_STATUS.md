@@ -13,10 +13,10 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 31
 - Catalog models: 455
-- Integrated models: 326
+- Integrated models: 331
 - LLM: 243/294 integrated
 - STT: 35/71 integrated
-- TTS: 48/90 integrated
+- TTS: 53/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -577,7 +577,7 @@ Catalog updated: 2026-03-23
 ## Novita AI `novita-ai`
 
 - Runtime provider: `novita-ai`
-- Model integration: 6/13 integrated
+- Model integration: 11/13 integrated
 - Verified support: LLM `routed`, STT `routed`, TTS `routed`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -590,11 +590,11 @@ Catalog updated: 2026-03-23
 | TTS | `glm-tts` | GLM Text to Speech | Integrated | `glm-tts` |
 | TTS | `txt2speech` | Legacy Text to Speech | Not integrated | — |
 | TTS | `minimax-voice-cloning` | MiniMax Quick Voice Cloning | Not integrated | — |
-| TTS | `minimax-speech-2.8-hd` | MiniMax Speech 2.8 HD | Not integrated | — |
-| TTS | `minimax-speech-02-hd` | MiniMax Speech-02 HD | Not integrated | — |
-| TTS | `minimax-speech-02-turbo` | MiniMax Speech-02 Turbo | Not integrated | — |
-| TTS | `minimax-speech-2.6-hd` | MiniMax Speech-2.6 HD | Not integrated | — |
-| TTS | `minimax-speech-2.6-turbo` | MiniMax Speech-2.6 Turbo | Not integrated | — |
+| TTS | `minimax-speech-2.8-hd` | MiniMax Speech 2.8 HD | Integrated | `minimax-speech-2.8-hd` |
+| TTS | `minimax-speech-02-hd` | MiniMax Speech-02 HD | Integrated | `minimax-speech-02-hd` |
+| TTS | `minimax-speech-02-turbo` | MiniMax Speech-02 Turbo | Integrated | `minimax-speech-02-turbo` |
+| TTS | `minimax-speech-2.6-hd` | MiniMax Speech-2.6 HD | Integrated | `minimax-speech-2.6-hd` |
+| TTS | `minimax-speech-2.6-turbo` | MiniMax Speech-2.6 Turbo | Integrated | `minimax-speech-2.6-turbo` |
 
 ## NVIDIA (NIM) `nvidia-nim`
 
