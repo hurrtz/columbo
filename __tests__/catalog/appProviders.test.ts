@@ -1,4 +1,5 @@
 import {
+  getAppProviderForCatalogProviderId,
   getCatalogConstraintsForAppProvider,
   getCatalogModelForAppProvider,
   getCatalogModelsForAppProvider,
@@ -7,6 +8,8 @@ import {
   getCatalogRealtimeModelsForAppProvider,
   getCatalogVerifiedServiceStateForAppProvider,
   isCatalogServiceSupportedForAppProvider,
+  isCatalogProviderId,
+  listCatalogProviderIds,
 } from "../../src/catalog";
 import {
   PROVIDER_CATALOG_IDS,
@@ -32,6 +35,10 @@ describe("app provider catalog bridge", () => {
     expect(getCatalogProviderIdForAppProvider("gemini")).toBe(
       "google-vertex-ai-studio",
     );
+    expect(getAppProviderForCatalogProviderId("openai")).toBe("openai");
+    expect(isCatalogProviderId("google-vertex-ai-studio")).toBe(true);
+    expect(isCatalogProviderId("not-a-provider")).toBe(false);
+    expect(listCatalogProviderIds()).toContain("z-ai-zhipu-ai");
   });
 
   it("reads verified support states from the catalog without changing runtime support flags", () => {

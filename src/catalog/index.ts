@@ -7,6 +7,7 @@ import type {
   CatalogConstraint,
   CatalogModelDocument,
   CatalogProvider,
+  CatalogProviderId,
   CatalogProviderDocument,
   CatalogProviderEntry,
   CatalogService,
@@ -17,9 +18,9 @@ import type {
 export * from "./types";
 export * from "./appProviders";
 
-const providersById = new Map<string, CatalogProvider>();
-const providerDocumentsById = new Map<string, CatalogProviderDocument>();
-const modelsByProviderId = new Map<string, CatalogModelDocument[]>();
+const providersById = new Map<CatalogProviderId, CatalogProvider>();
+const providerDocumentsById = new Map<CatalogProviderId, CatalogProviderDocument>();
+const modelsByProviderId = new Map<CatalogProviderId, CatalogModelDocument[]>();
 const modelsByCompositeKey = new Map<string, CatalogModelDocument>();
 
 for (const document of PROVIDER_DOCUMENTS) {
@@ -99,6 +100,10 @@ export function listCatalogProviders() {
   return [...PROVIDER_CATALOG.providers];
 }
 
+export function listCatalogProviderIds(): CatalogProviderId[] {
+  return listCatalogProviders().map((provider) => provider.providerId);
+}
+
 export function listCatalogProviderEntries(): CatalogProviderEntry[] {
   return PROVIDER_DOCUMENTS.map((document) => ({
     provider: document.provider,
@@ -109,11 +114,18 @@ export function listCatalogProviderEntries(): CatalogProviderEntry[] {
   }));
 }
 
-export function getCatalogProvider(providerId: string) {
+export function isCatalogProviderId(value: unknown): value is CatalogProviderId {
+  return (
+    typeof value === "string" &&
+    providersById.has(value as CatalogProviderId)
+  );
+}
+
+export function getCatalogProvider(providerId: CatalogProviderId) {
   return providersById.get(providerId) ?? null;
 }
 
-export function getCatalogProviderEntry(providerId: string) {
+export function getCatalogProviderEntry(providerId: CatalogProviderId) {
   const document = providerDocumentsById.get(providerId);
 
   if (!document) {
@@ -130,7 +142,7 @@ export function getCatalogProviderEntry(providerId: string) {
 }
 
 export function getCatalogProviderModels(
-  providerId: string,
+  providerId: CatalogProviderId,
   service?: CatalogService,
 ) {
   const providerModels = modelsByProviderId.get(providerId) ?? [];
@@ -143,7 +155,7 @@ export function getCatalogProviderModels(
 }
 
 export function getCatalogModel(
-  providerId: string,
+  providerId: CatalogProviderId,
   modelId: string,
   service?: CatalogService,
 ) {
@@ -165,7 +177,7 @@ export function getCatalogModel(
 }
 
 export function providerSupportsService(
-  providerId: string,
+  providerId: CatalogProviderId,
   service: CatalogService,
   allowedStates: CatalogSupportState[] = ["native", "partial", "routed"],
 ) {
@@ -178,12 +190,12 @@ export function providerSupportsService(
   return allowedStates.includes(provider.verifiedSupport[service]);
 }
 
-export function isCatalogProviderOpenAiCompatible(providerId: string) {
+export function isCatalogProviderOpenAiCompatible(providerId: CatalogProviderId) {
   return getCatalogProvider(providerId)?.integration.openAiCompatible ?? null;
 }
 
 export function getCatalogModelConstraints(
-  providerId: string,
+  providerId: CatalogProviderId,
   modelId: string,
   service?: CatalogService,
 ) {
@@ -191,7 +203,7 @@ export function getCatalogModelConstraints(
 }
 
 export function getCatalogRecordingConstraints(
-  providerId: string,
+  providerId: CatalogProviderId,
   modelId: string,
   service: CatalogService = "stt",
 ) {

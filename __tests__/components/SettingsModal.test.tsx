@@ -53,6 +53,24 @@ jest.mock("../../src/hooks/useSpeechDiagnostics", () => ({
   useSpeechDiagnostics: jest.fn(() => []),
 }));
 
+jest.mock("../../src/services/speech/diagnostics", () => ({
+  clearSpeechDiagnostics: jest.fn(),
+}));
+
+jest.mock("../../src/components/ProviderIcon", () => ({
+  ProviderIcon: ({
+    label,
+    provider,
+  }: {
+    label?: string;
+    provider: string;
+  }) => {
+    const React = require("react");
+    const { Text } = require("react-native");
+    return React.createElement(Text, null, label ?? provider);
+  },
+}));
+
 function renderSettingsModal(overrideProps: Partial<React.ComponentProps<typeof SettingsModal>> = {}) {
   return render(
     <ThemeProvider mode="light">
@@ -97,6 +115,20 @@ describe("SettingsModal", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Create API key")).toBeTruthy();
+    });
+  });
+
+  it("opens the providers tab when a catalog focus provider id is supplied", async () => {
+    const screen = renderSettingsModal({
+      focusCatalogProviderId: "z-ai-zhipu-ai",
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          "This provider is present in the central catalog for inspection, but it is not wired into the app runtime yet.",
+        ),
+      ).toBeTruthy();
     });
   });
 });

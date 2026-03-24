@@ -33,6 +33,7 @@ import { useVoicePreviewState } from "./useVoicePreviewState";
 export function useSettingsModalController({
   visible,
   focusProvider,
+  focusCatalogProviderId,
   settings,
   onUpdate,
   onPreviewVoice,
@@ -41,6 +42,7 @@ export function useSettingsModalController({
   SettingsModalProps,
   | "visible"
   | "focusProvider"
+  | "focusCatalogProviderId"
   | "settings"
   | "onUpdate"
   | "onPreviewVoice"
@@ -92,10 +94,10 @@ export function useSettingsModalController({
       return;
     }
 
-    if (focusProvider) {
+    if (focusCatalogProviderId || focusProvider) {
       setActiveTab("providers");
     }
-  }, [focusProvider, visible]);
+  }, [focusCatalogProviderId, focusProvider, visible]);
 
   useEffect(() => {
     if (!visible) {

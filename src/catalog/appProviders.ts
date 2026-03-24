@@ -10,19 +10,20 @@ import type {
   CatalogConstraint,
   CatalogLanguageSupport,
   CatalogModelDocument,
+  CatalogProviderId,
   CatalogPriceMeasurement,
   CatalogService,
   CatalogSupportState,
 } from "./types";
 
-export const APP_PROVIDER_CATALOG_IDS: Record<Provider, string> = Object.fromEntries(
+export const APP_PROVIDER_CATALOG_IDS: Record<Provider, CatalogProviderId> = Object.fromEntries(
   Object.entries(RUNTIME_PROVIDER_MANIFEST).map(([provider, manifest]) => [
     provider,
     manifest.catalogProviderId,
   ]),
-) as Record<Provider, string>;
+) as Record<Provider, CatalogProviderId>;
 
-const APP_PROVIDERS_BY_CATALOG_ID: Partial<Record<string, Provider>> =
+const APP_PROVIDERS_BY_CATALOG_ID: Partial<Record<CatalogProviderId, Provider>> =
   Object.fromEntries(
     Object.entries(APP_PROVIDER_CATALOG_IDS).map(([provider, catalogProviderId]) => [
       catalogProviderId,
@@ -34,7 +35,9 @@ export function getCatalogProviderIdForAppProvider(provider: Provider) {
   return APP_PROVIDER_CATALOG_IDS[provider];
 }
 
-export function getAppProviderForCatalogProviderId(catalogProviderId: string) {
+export function getAppProviderForCatalogProviderId(
+  catalogProviderId: CatalogProviderId,
+) {
   return APP_PROVIDERS_BY_CATALOG_ID[catalogProviderId] ?? null;
 }
 

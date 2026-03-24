@@ -1,5 +1,6 @@
 export const PROVIDER_CATALOG_SCHEMA_VERSION = 2;
 
+export type CatalogProviderId = string;
 export type CatalogService = "llm" | "stt" | "tts";
 export type CatalogSupportState =
   | "native"
@@ -50,7 +51,7 @@ export interface CatalogLanguageSupport {
 }
 
 export interface CatalogProvider {
-  providerId: string;
+  providerId: CatalogProviderId;
   providerName: string;
   categoryName: string;
   hq: string | null;
@@ -80,7 +81,7 @@ export interface CatalogProvider {
 }
 
 export interface CatalogModelBase {
-  providerId: string;
+  providerId: CatalogProviderId;
   providerName: string;
   modelId: string;
   publicName: string;

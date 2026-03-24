@@ -1,12 +1,13 @@
 import { useCallback, useRef, useState } from "react";
 
+import { getCatalogProviderIdForAppProvider } from "../../catalog/appProviders";
+import type { CatalogProviderId } from "../../catalog/types";
 import { Conversation, Provider } from "../../types";
 
 export function useMainScreenUiState() {
   const [settingsVisible, setSettingsVisible] = useState(false);
-  const [settingsFocusProvider, setSettingsFocusProvider] = useState<
-    Provider | undefined
-  >();
+  const [settingsFocusCatalogProviderId, setSettingsFocusCatalogProviderId] =
+    useState<CatalogProviderId | undefined>();
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [statusDetailsVisible, setStatusDetailsVisible] = useState(false);
   const [transcriptVisible, setTranscriptVisible] = useState(false);
@@ -18,13 +19,23 @@ export function useMainScreenUiState() {
   const pendingDrawerDismissActionRef = useRef<null | (() => void)>(null);
 
   const openSettings = useCallback((focusProvider?: Provider) => {
-    setSettingsFocusProvider(focusProvider);
+    setSettingsFocusCatalogProviderId(
+      focusProvider ? getCatalogProviderIdForAppProvider(focusProvider) : undefined,
+    );
     setSettingsVisible(true);
   }, []);
 
+  const openCatalogSettings = useCallback(
+    (focusCatalogProviderId?: CatalogProviderId) => {
+      setSettingsFocusCatalogProviderId(focusCatalogProviderId);
+      setSettingsVisible(true);
+    },
+    [],
+  );
+
   const closeSettings = useCallback(() => {
     setSettingsVisible(false);
-    setSettingsFocusProvider(undefined);
+    setSettingsFocusCatalogProviderId(undefined);
   }, []);
 
   const openMemoryConversation = useCallback((conversation: Conversation) => {
@@ -84,7 +95,7 @@ export function useMainScreenUiState() {
 
   return {
     settingsVisible,
-    settingsFocusProvider,
+    settingsFocusCatalogProviderId,
     drawerVisible,
     statusDetailsVisible,
     transcriptVisible,
@@ -96,6 +107,7 @@ export function useMainScreenUiState() {
     setSetupGuideVisible,
     setMemoryConversation,
     openSettings,
+    openCatalogSettings,
     closeSettings,
     openMemoryConversation,
     closeMemory,

@@ -5,6 +5,7 @@ import {
   getAppProviderForCatalogProviderId,
   getCatalogProviderIdForAppProvider,
 } from "../../catalog/appProviders";
+import type { CatalogProviderId } from "../../catalog/types";
 import {
   PROVIDER_API_KEY_URLS,
   PROVIDER_LABELS,
@@ -18,12 +19,19 @@ import { ProviderValidationState } from "./types";
 export function useProvidersTabState(params: {
   settings: Settings;
   focusProvider?: Provider;
+  focusCatalogProviderId?: CatalogProviderId;
   onValidateProvider: (provider: Provider) => Promise<void>;
 }) {
-  const { settings, focusProvider, onValidateProvider } = params;
+  const {
+    settings,
+    focusProvider,
+    focusCatalogProviderId,
+    onValidateProvider,
+  } = params;
   const { t } = useLocalization();
-  const [selectedCatalogProviderId, setSelectedCatalogProviderId] = useState(
-    getCatalogProviderIdForAppProvider(focusProvider ?? settings.lastProvider),
+  const [selectedCatalogProviderId, setSelectedCatalogProviderId] = useState<CatalogProviderId>(
+    focusCatalogProviderId ??
+      getCatalogProviderIdForAppProvider(focusProvider ?? settings.lastProvider),
   );
   const [apiKeyVisible, setApiKeyVisible] = useState(false);
   const [validationStateByProvider, setValidationStateByProvider] = useState<
@@ -32,9 +40,10 @@ export function useProvidersTabState(params: {
 
   useEffect(() => {
     setSelectedCatalogProviderId(
-      getCatalogProviderIdForAppProvider(focusProvider ?? settings.lastProvider),
+      focusCatalogProviderId ??
+        getCatalogProviderIdForAppProvider(focusProvider ?? settings.lastProvider),
     );
-  }, [focusProvider, settings.lastProvider]);
+  }, [focusCatalogProviderId, focusProvider, settings.lastProvider]);
 
   const selectedRuntimeProvider = useMemo(
     () => getAppProviderForCatalogProviderId(selectedCatalogProviderId),

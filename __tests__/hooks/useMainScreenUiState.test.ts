@@ -3,7 +3,7 @@ import { act, renderHook } from "@testing-library/react-native";
 import { useMainScreenUiState } from "../../src/screens/main/useMainScreenUiState";
 
 describe("useMainScreenUiState", () => {
-  it("opens and closes settings with an optional focus provider", () => {
+  it("opens and closes settings with an optional runtime-provider focus mapped to the catalog", () => {
     const { result } = renderHook(() => useMainScreenUiState());
 
     act(() => {
@@ -11,14 +11,34 @@ describe("useMainScreenUiState", () => {
     });
 
     expect(result.current.settingsVisible).toBe(true);
-    expect(result.current.settingsFocusProvider).toBe("openai");
+    expect(result.current.settingsFocusCatalogProviderId).toBe("openai");
 
     act(() => {
       result.current.closeSettings();
     });
 
     expect(result.current.settingsVisible).toBe(false);
-    expect(result.current.settingsFocusProvider).toBeUndefined();
+    expect(result.current.settingsFocusCatalogProviderId).toBeUndefined();
+  });
+
+  it("opens settings directly with a catalog provider focus", () => {
+    const { result } = renderHook(() => useMainScreenUiState());
+
+    act(() => {
+      result.current.openCatalogSettings("z-ai-zhipu-ai");
+    });
+
+    expect(result.current.settingsVisible).toBe(true);
+    expect(result.current.settingsFocusCatalogProviderId).toBe(
+      "z-ai-zhipu-ai",
+    );
+
+    act(() => {
+      result.current.closeSettings();
+    });
+
+    expect(result.current.settingsVisible).toBe(false);
+    expect(result.current.settingsFocusCatalogProviderId).toBeUndefined();
   });
 
   it("defers drawer actions until dismissal when the drawer is open", () => {

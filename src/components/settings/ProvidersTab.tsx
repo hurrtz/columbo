@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { Text, View } from "react-native";
 
+import type { CatalogProviderId } from "../../catalog/types";
 import { useLocalization } from "../../i18n";
 import {
   Provider,
@@ -23,6 +24,7 @@ import { useProvidersTabState } from "./useProvidersTabState";
 interface ProvidersTabProps {
   settings: Settings;
   focusProvider?: Provider;
+  focusCatalogProviderId?: CatalogProviderId;
   onUpdateResponseModeRoute: (
     mode: ResponseMode,
     route: ResponseModeRoute,
@@ -35,6 +37,7 @@ interface ProvidersTabProps {
 export function ProvidersTab({
   settings,
   focusProvider,
+  focusCatalogProviderId,
   onUpdateResponseModeRoute,
   onUpdateApiKey,
   onTextInputFocus,
@@ -58,6 +61,7 @@ export function ProvidersTab({
   } = useProvidersTabState({
     settings,
     focusProvider,
+    focusCatalogProviderId,
     onValidateProvider,
   });
 

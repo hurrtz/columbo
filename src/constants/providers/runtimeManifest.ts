@@ -1,3 +1,5 @@
+import type { CatalogProviderId } from "../../catalog/types";
+
 export type RuntimeAppProviderId =
   | "openai"
   | "anthropic"
@@ -68,7 +70,7 @@ interface RuntimeTtsManifest {
 
 export interface RuntimeProviderManifestEntry {
   appProvider: RuntimeAppProviderId;
-  catalogProviderId: string;
+  catalogProviderId: CatalogProviderId;
   label: string;
   shortLabel: string;
   apiKeyPlaceholder: string;

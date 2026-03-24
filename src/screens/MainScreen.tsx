@@ -117,7 +117,7 @@ export function MainScreen() {
     useState(getDebugLogCaptureState());
   const {
     settingsVisible,
-    settingsFocusProvider,
+    settingsFocusCatalogProviderId,
     drawerVisible,
     statusDetailsVisible,
     transcriptVisible,
@@ -833,11 +833,11 @@ export function MainScreen() {
     recordDebugLogEvent({
       event: "settings-visibility-changed",
       payload: {
-        focusProvider: settingsFocusProvider ?? null,
+        focusCatalogProviderId: settingsFocusCatalogProviderId ?? null,
         visible: settingsVisible,
       },
     });
-  }, [settingsFocusProvider, settingsVisible]);
+  }, [settingsFocusCatalogProviderId, settingsVisible]);
 
   useEffect(() => {
     recordDebugLogEvent({
@@ -1061,7 +1061,7 @@ export function MainScreen() {
       <SettingsModal
         visible={settingsVisible}
         settings={settings}
-        focusProvider={settingsFocusProvider}
+        focusCatalogProviderId={settingsFocusCatalogProviderId}
         onUpdate={updateSettings}
         onUpdateResponseModeRoute={updateResponseModeRoute}
         onUpdateProviderSttModel={updateProviderSttModel}

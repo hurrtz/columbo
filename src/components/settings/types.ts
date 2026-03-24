@@ -2,6 +2,7 @@ import React from "react";
 import * as Speech from "expo-speech";
 import { TextInput } from "react-native";
 
+import type { CatalogProviderId } from "../../catalog/types";
 import {
   LocalTtsVoiceSelections,
   Provider,
@@ -16,6 +17,7 @@ export interface SettingsModalProps {
   visible: boolean;
   settings: Settings;
   focusProvider?: Provider;
+  focusCatalogProviderId?: CatalogProviderId;
   onUpdate: (
     partial: Partial<Omit<Settings, "apiKeys" | "providerModels">>,
   ) => void;

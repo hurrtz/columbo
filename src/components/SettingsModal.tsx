@@ -27,6 +27,7 @@ export function SettingsModal(props: SettingsModalProps) {
     visible,
     settings,
     focusProvider,
+    focusCatalogProviderId,
     onUpdate,
     onUpdateResponseModeRoute,
     onUpdateProviderSttModel,
@@ -81,6 +82,7 @@ export function SettingsModal(props: SettingsModalProps) {
   } = useSettingsModalController({
     visible,
     focusProvider,
+    focusCatalogProviderId,
     settings,
     onUpdate,
     onPreviewVoice,
@@ -206,6 +208,7 @@ export function SettingsModal(props: SettingsModalProps) {
               <ProvidersTab
                 settings={settings}
                 focusProvider={focusProvider}
+                focusCatalogProviderId={focusCatalogProviderId}
                 onUpdateResponseModeRoute={onUpdateResponseModeRoute}
                 onUpdateApiKey={onUpdateApiKey}
                 onTextInputFocus={handleTextInputFocus}
