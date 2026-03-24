@@ -27,7 +27,7 @@
       "./plugins/withBuildReactNativeFromSource"
     ],
     "scheme": "schnackai",
-    "icon": "./assets/branding/appIcon.png",
+    "icon": "./assets/appIcon.png",
     "android": {
       "package": "com.tobiaswinkler.schnackai"
     }
