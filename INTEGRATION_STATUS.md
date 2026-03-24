@@ -13,9 +13,9 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 35
 - Catalog models: 455
-- Integrated models: 365
+- Integrated models: 367
 - LLM: 263/294 integrated
-- STT: 41/71 integrated
+- STT: 43/71 integrated
 - TTS: 61/90 integrated
 - Unresolved runtime manifest entries: 31
 
@@ -272,7 +272,7 @@ Catalog updated: 2026-03-23
 ## DeepInfra `deepinfra`
 
 - Runtime provider: `deepinfra`
-- Model integration: 4/9 integrated
+- Model integration: 6/9 integrated
 - Verified support: LLM `routed`, STT `routed`, TTS `routed`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -281,8 +281,8 @@ Catalog updated: 2026-03-23
 | LLM | `zai-org/GLM-4.7-Flash` | GLM-4.7-Flash | Integrated | `zai-org/GLM-4.7-Flash` |
 | LLM | `nvidia/Nemotron-3-Nano-30B-A3B` | Nemotron-3-Nano-30B-A3B | Integrated | `nvidia/Nemotron-3-Nano-30B-A3B` |
 | LLM | `Qwen/Qwen3-Max` | Qwen3-Max | Integrated | `Qwen/Qwen3-Max` |
-| STT | `mistralai/Voxtral-Small-24B-2507` | Voxtral-Small-24B-2507 | Not integrated | — |
-| STT | `openai/whisper-large-v3-turbo` | whisper-large-v3-turbo | Not integrated | — |
+| STT | `mistralai/Voxtral-Small-24B-2507` | Voxtral-Small-24B-2507 | Integrated | `mistralai/Voxtral-Small-24B-2507` |
+| STT | `openai/whisper-large-v3-turbo` | whisper-large-v3-turbo | Integrated | `openai/whisper-large-v3-turbo` |
 | TTS | `ResembleAI/chatterbox-turbo` | chatterbox-turbo | Not integrated | — |
 | TTS | `Qwen/Qwen3-TTS` | Qwen3-TTS | Not integrated | — |
 | TTS | `Qwen/Qwen3-TTS-VoiceDesign` | Qwen3-TTS-VoiceDesign | Not integrated | — |

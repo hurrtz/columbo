@@ -12,6 +12,7 @@ import { STT_TIMEOUT_MS } from "./config";
 import type {
   AssemblyAiPreRecordedTranscriptionConfig,
   AzureOpenAiTranscriptionConfig,
+  DeepInfraInferenceTranscriptionConfig,
   BaiduShortSpeechTranscriptionConfig,
   DeepgramPreRecordedTranscriptionConfig,
   ElevenLabsTranscriptionConfig,
@@ -563,6 +564,65 @@ export async function transcribeWithHuggingFaceJsonProvider(
     (typeof data?.text === "string" ? data.text : null) ||
     (typeof data?.generated_text === "string" ? data.generated_text : null);
 
+  return text?.trim() ? text.trim() : null;
+}
+
+export async function transcribeWithDeepInfraInferenceProvider(
+  params: SharedProviderParams & {
+    config: DeepInfraInferenceTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const selectedModel = providerModel || config.defaultModel;
+  const formData = new FormData();
+  formData.append(
+    "audio",
+    {
+      uri: fileUri,
+      type: getFileAudioMimeType(fileUri),
+      name: fileUri.split("/").pop() || "recording.m4a",
+    } as any,
+  );
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      `${config.endpointBase}/${selectedModel}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+        },
+        body: formData,
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const text = typeof data?.text === "string" ? data.text : null;
   return text?.trim() ? text.trim() : null;
 }
 

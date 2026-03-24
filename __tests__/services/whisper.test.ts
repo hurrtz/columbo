@@ -257,6 +257,31 @@ describe("transcribeAudio", () => {
     expect((options.body as FormData).get("model")).toBe("whisper-v3");
   });
 
+  it("uses the DeepInfra native inference route for ASR models", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        text: "Hello from DeepInfra",
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "deepinfra",
+      apiKey: "deepinfra-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from DeepInfra");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://api.deepinfra.com/v1/inference/openai/whisper-large-v3-turbo",
+    );
+    expect(options.headers.Authorization).toBe("Bearer deepinfra-test");
+    expect((options.body as FormData).get("audio")).toBeTruthy();
+  });
+
   it("switches Fireworks transcription hosts for turbo STT models", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

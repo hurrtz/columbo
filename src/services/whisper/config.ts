@@ -37,6 +37,12 @@ export type DeepgramPreRecordedTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type DeepInfraInferenceTranscriptionConfig = {
+  kind: "deepinfra-inference";
+  endpointBase: string;
+  defaultModel: string;
+};
+
 export type FireworksPreRecordedTranscriptionConfig = {
   kind: "fireworks-pre-recorded";
   defaultModel: string;
@@ -95,6 +101,7 @@ const sttProviderConfigEntries: Array<
     | BaiduShortSpeechTranscriptionConfig
     | AssemblyAiPreRecordedTranscriptionConfig
     | DeepgramPreRecordedTranscriptionConfig
+    | DeepInfraInferenceTranscriptionConfig
     | FireworksPreRecordedTranscriptionConfig
     | FishAudioTranscriptionConfig
     | HuggingFaceJsonTranscriptionConfig
@@ -189,6 +196,21 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       provider,
       {
         kind: "assemblyai-pre-recorded",
+        endpointBase: manifest.stt.endpointBase,
+        defaultModel: manifest.stt.defaultModel,
+      },
+    ]);
+  }
+
+  if (
+    manifest.stt.transport === "deepinfra-inference" &&
+    manifest.stt.endpointBase &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "deepinfra-inference",
         endpointBase: manifest.stt.endpointBase,
         defaultModel: manifest.stt.defaultModel,
       },
@@ -294,6 +316,7 @@ export const STT_PROVIDER_CONFIGS: Partial<
     | BaiduShortSpeechTranscriptionConfig
     | AssemblyAiPreRecordedTranscriptionConfig
     | DeepgramPreRecordedTranscriptionConfig
+    | DeepInfraInferenceTranscriptionConfig
     | FireworksPreRecordedTranscriptionConfig
     | FishAudioTranscriptionConfig
     | HuggingFaceJsonTranscriptionConfig

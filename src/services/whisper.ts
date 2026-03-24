@@ -13,6 +13,7 @@ import {
   transcribeWithAzureOpenAiProvider,
   transcribeWithBaiduShortSpeechProvider,
   transcribeWithDeepgramPreRecordedProvider,
+  transcribeWithDeepInfraInferenceProvider,
   transcribeWithElevenLabsProvider,
   transcribeWithFishAudioProvider,
   transcribeWithFireworksPreRecordedProvider,
@@ -182,6 +183,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "deepgram-pre-recorded") {
     return transcribeWithDeepgramPreRecordedProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: selectedModel,
+    });
+  }
+
+  if (config.kind === "deepinfra-inference") {
+    return transcribeWithDeepInfraInferenceProvider({
       abortSignal,
       apiKey,
       config,

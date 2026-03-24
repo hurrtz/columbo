@@ -48,6 +48,7 @@ export type RuntimeSttTransport =
   | "none"
   | "multipart"
   | "azure-openai"
+  | "deepinfra-inference"
   | "gemini"
   | "openai-audio-input"
   | "baidu-short-speech"
@@ -913,9 +914,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("deepinfra", "llm"),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "deepinfra-inference",
+      endpointBase: "https://api.deepinfra.com/v1/inference",
+      defaultModel: "openai/whisper-large-v3-turbo",
+      models: catalogModelSpecs("deepinfra", "stt"),
+      languageNote:
+        "DeepInfra STT is now wired through the native inference API for the documented Whisper and Voxtral catalog entries. DeepInfra does not publish a single provider-wide upload cap for all native ASR models, so catalog constraints remain model-specific.",
     },
     tts: {
       support: "none",
