@@ -27,6 +27,11 @@ export type DeepgramPreRecordedTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type FireworksPreRecordedTranscriptionConfig = {
+  kind: "fireworks-pre-recorded";
+  defaultModel: string;
+};
+
 export type ElevenLabsTranscriptionConfig = {
   kind: "elevenlabs";
   endpoint: string;
@@ -60,6 +65,7 @@ const sttProviderConfigEntries: Array<
     | OpenAiAudioInputTranscriptionConfig
     | AssemblyAiPreRecordedTranscriptionConfig
     | DeepgramPreRecordedTranscriptionConfig
+    | FireworksPreRecordedTranscriptionConfig
     | ElevenLabsTranscriptionConfig,
   ]
 > = [];
@@ -146,6 +152,19 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
   }
 
   if (
+    manifest.stt.transport === "fireworks-pre-recorded" &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "fireworks-pre-recorded",
+        defaultModel: manifest.stt.defaultModel,
+      },
+    ]);
+  }
+
+  if (
     manifest.stt.transport === "elevenlabs" &&
     manifest.stt.endpoint &&
     manifest.stt.defaultModel
@@ -169,6 +188,7 @@ export const STT_PROVIDER_CONFIGS: Partial<
     | OpenAiAudioInputTranscriptionConfig
     | AssemblyAiPreRecordedTranscriptionConfig
     | DeepgramPreRecordedTranscriptionConfig
+    | FireworksPreRecordedTranscriptionConfig
     | ElevenLabsTranscriptionConfig
   >
 > = Object.fromEntries(sttProviderConfigEntries);

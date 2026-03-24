@@ -181,6 +181,56 @@ describe("transcribeAudio", () => {
     );
   });
 
+  it("uses the Fireworks offline transcription route with raw API-key auth", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        text: "Hello from Fireworks",
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "fireworks-ai",
+      apiKey: "fireworks-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from Fireworks");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://audio-prod.api.fireworks.ai/v1/audio/transcriptions",
+    );
+    expect(options.headers.Authorization).toBe("fireworks-test");
+    expect((options.body as FormData).get("model")).toBe("whisper-v3");
+  });
+
+  it("switches Fireworks transcription hosts for turbo STT models", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        text: "Hello from Fireworks Turbo",
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "fireworks-ai",
+      providerModel: "whisper-v3-turbo",
+      apiKey: "fireworks-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from Fireworks Turbo");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://audio-turbo.api.fireworks.ai/v1/audio/transcriptions",
+    );
+    expect((options.body as FormData).get("model")).toBe("whisper-v3-turbo");
+  });
+
   it("uses the configured audio-input endpoint for DashScope short-file STT", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
@@ -249,6 +299,29 @@ describe("transcribeAudio", () => {
     );
     expect(options.headers.Authorization).toBe("Token deepgram-test");
     expect(options.headers["Content-Type"]).toBe("audio/m4a");
+  });
+
+  it("uses the OpenAI-compatible multipart STT route for SambaNova", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        text: "Hello from SambaNova",
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "sambanova",
+      apiKey: "sambanova-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from SambaNova");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.sambanova.ai/v1/audio/transcriptions");
+    expect(options.headers.Authorization).toBe("Bearer sambanova-test");
+    expect((options.body as FormData).get("model")).toBe("Whisper-Large-v3");
   });
 
   it("uses the ElevenLabs multipart transcription endpoint for scribe models", async () => {

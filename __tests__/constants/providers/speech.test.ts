@@ -46,6 +46,10 @@ describe("speech provider constants", () => {
       { id: "FunAudioLLM/SenseVoiceSmall", name: "SenseVoiceSmall" },
       { id: "TeleAI/TeleSpeechASR", name: "TeleSpeechASR" },
     ]);
+    expect(getProviderSttModelOptions("fireworks-ai")).toEqual([
+      { id: "whisper-v3", name: "Whisper V3 Large" },
+      { id: "whisper-v3-turbo", name: "Whisper V3 Turbo" },
+    ]);
     expect(getProviderSttModelOptions("deepgram")).toEqual([
       { id: "flux-general-en", name: "Flux General English" },
       { id: "nova-3", name: "Nova-3 General" },
@@ -60,6 +64,9 @@ describe("speech provider constants", () => {
     expect(getProviderSttModelOptions("elevenlabs")).toEqual([
       { id: "scribe_v2", name: "Scribe v2" },
       { id: "scribe_v1", name: "Scribe v1" },
+    ]);
+    expect(getProviderSttModelOptions("sambanova")).toEqual([
+      { id: "Whisper-Large-v3", name: "Whisper Large v3" },
     ]);
   });
 

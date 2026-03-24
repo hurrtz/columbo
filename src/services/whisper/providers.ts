@@ -9,6 +9,7 @@ import type {
   AssemblyAiPreRecordedTranscriptionConfig,
   DeepgramPreRecordedTranscriptionConfig,
   ElevenLabsTranscriptionConfig,
+  FireworksPreRecordedTranscriptionConfig,
   GeminiTranscriptionConfig,
   OpenAiAudioInputTranscriptionConfig,
   MultipartTranscriptionConfig,
@@ -65,6 +66,12 @@ function throwIfAborted(signal?: AbortSignal) {
   const error = new Error("Aborted");
   error.name = "AbortError";
   throw error;
+}
+
+function getFireworksTranscriptionEndpoint(model: string) {
+  return model === "whisper-v3-turbo"
+    ? "https://audio-turbo.api.fireworks.ai/v1/audio/transcriptions"
+    : "https://audio-prod.api.fireworks.ai/v1/audio/transcriptions";
 }
 
 export async function transcribeWithGeminiProvider(
@@ -270,6 +277,66 @@ export async function transcribeWithOpenAiAudioInputProvider(
 
   const data = await response.json();
   const text = extractTextFromOpenAiAudioInputResponse(data);
+  return text ? text : null;
+}
+
+export async function transcribeWithFireworksPreRecordedProvider(
+  params: SharedProviderParams & {
+    config: FireworksPreRecordedTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const selectedModel = providerModel || config.defaultModel;
+  const formData = new FormData();
+  formData.append(
+    "file",
+    {
+      uri: fileUri,
+      type: getFileAudioMimeType(fileUri),
+      name: fileUri.split("/").pop() || "recording.m4a",
+    } as any,
+  );
+  formData.append("model", selectedModel);
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      getFireworksTranscriptionEndpoint(selectedModel),
+      {
+        method: "POST",
+        headers: {
+          Authorization: requireProviderKey(provider, apiKey, language),
+        },
+        body: formData,
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const text = data.text?.trim();
   return text ? text : null;
 }
 

@@ -13,9 +13,9 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 31
 - Catalog models: 455
-- Integrated models: 309
+- Integrated models: 312
 - LLM: 243/294 integrated
-- STT: 29/71 integrated
+- STT: 32/71 integrated
 - TTS: 37/90 integrated
 - Unresolved runtime manifest entries: 31
 
@@ -321,7 +321,7 @@ Catalog updated: 2026-03-23
 ## Fireworks AI `fireworks-ai`
 
 - Runtime provider: `fireworks-ai`
-- Model integration: 6/10 integrated
+- Model integration: 8/10 integrated
 - Verified support: LLM `native`, STT `native`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -334,8 +334,8 @@ Catalog updated: 2026-03-23
 | LLM | `accounts/fireworks/models/gpt-oss-20b` | OpenAI gpt-oss-20b | Integrated | `accounts/fireworks/models/gpt-oss-20b` |
 | STT | `fireworks-asr-large` | Streaming ASR v1 | Not integrated | — |
 | STT | `fireworks-asr-v2` | Streaming ASR v2 | Not integrated | — |
-| STT | `whisper-v3` | Whisper V3 Large | Not integrated | — |
-| STT | `whisper-v3-turbo` | Whisper V3 Turbo | Not integrated | — |
+| STT | `whisper-v3` | Whisper V3 Large | Integrated | `whisper-v3` |
+| STT | `whisper-v3-turbo` | Whisper V3 Turbo | Integrated | `whisper-v3-turbo` |
 
 ## Fisch Audio `fish-audio`
 
@@ -680,7 +680,7 @@ Catalog updated: 2026-03-23
 ## Sambanova `sambanova`
 
 - Runtime provider: `sambanova`
-- Model integration: 16/17 integrated
+- Model integration: 17/17 integrated
 - Verified support: LLM `native`, STT `native`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -701,7 +701,7 @@ Catalog updated: 2026-03-23
 | LLM | `MiniMax-M2.5` | MiniMax M2.5 | Integrated | `MiniMax-M2.5` |
 | LLM | `Qwen3-235B-A22B-Instruct-2507` | Qwen3 235B A22B Instruct 2507 | Integrated | `Qwen3-235B-A22B-Instruct-2507` |
 | LLM | `Qwen3-32B` | Qwen3 32B | Integrated | `Qwen3-32B` |
-| STT | `Whisper-Large-v3` | Whisper Large v3 | Not integrated | — |
+| STT | `Whisper-Large-v3` | Whisper Large v3 | Integrated | `Whisper-Large-v3` |
 
 ## Siliconflow `siliconflow`
 

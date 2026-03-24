@@ -46,6 +46,7 @@ export type RuntimeSttTransport =
   | "openai-audio-input"
   | "assemblyai-pre-recorded"
   | "deepgram-pre-recorded"
+  | "fireworks-pre-recorded"
   | "elevenlabs";
 export type RuntimeTtsTransport =
   | "none"
@@ -903,9 +904,15 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("fireworks-ai", "llm"),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "fireworks-pre-recorded",
+      defaultModel: "whisper-v3",
+      models: [
+        namedModel("whisper-v3", "Whisper V3 Large"),
+        namedModel("whisper-v3-turbo", "Whisper V3 Turbo"),
+      ],
+      languageNote:
+        "Fireworks currently exposes offline transcription on /v1/audio/transcriptions for whisper-v3 and whisper-v3-turbo, with a 1 GB upload cap and no documented duration limit. Streaming-only ASR models remain catalog-only until the app grows a realtime STT transport.",
     },
     tts: {
       support: "none",
@@ -1129,9 +1136,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("sambanova", "llm"),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "multipart",
+      endpoint: "https://api.sambanova.ai/v1/audio/transcriptions",
+      defaultModel: "Whisper-Large-v3",
+      models: [namedModel("Whisper-Large-v3", "Whisper Large v3")],
+      languageNote:
+        "SambaNova currently exposes Whisper-Large-v3 on its OpenAI-compatible /v1/audio/transcriptions endpoint. The documented upload cap is 25 MB.",
     },
     tts: {
       support: "none",

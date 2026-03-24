@@ -12,6 +12,7 @@ import {
   transcribeWithAssemblyAiPreRecordedProvider,
   transcribeWithDeepgramPreRecordedProvider,
   transcribeWithElevenLabsProvider,
+  transcribeWithFireworksPreRecordedProvider,
   transcribeWithGeminiProvider,
   transcribeWithMultipartProvider,
   transcribeWithOpenAiAudioInputProvider,
@@ -152,6 +153,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "deepgram-pre-recorded") {
     return transcribeWithDeepgramPreRecordedProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: selectedModel,
+    });
+  }
+
+  if (config.kind === "fireworks-pre-recorded") {
+    return transcribeWithFireworksPreRecordedProvider({
       abortSignal,
       apiKey,
       config,
