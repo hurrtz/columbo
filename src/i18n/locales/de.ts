@@ -82,6 +82,8 @@ export const de: TranslationDictionary = {
     createApiKey: "API-Schlüssel erstellen",
     catalogProviderReadOnlyHint:
       "Dieser Anbieter ist zur Ansicht im zentralen Katalog vorhanden, aber noch nicht in die App-Laufzeit integriert.",
+    catalogProviderReferenceHint:
+      "Katalogreferenz für diesen Anbieter:",
     catalogProviderModelCounts: ({ llm, stt, tts }) =>
       `Katalogmodelle: ${llm} LLM, ${stt} STT, ${tts} TTS.`,
     catalogProviderSupportSummary: ({ llm, stt, tts }) =>

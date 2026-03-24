@@ -81,6 +81,8 @@ export const en: TranslationDictionary = {
     createApiKey: "Create API key",
     catalogProviderReadOnlyHint:
       "This provider is present in the central catalog for inspection, but it is not wired into the app runtime yet.",
+    catalogProviderReferenceHint:
+      "Catalog reference for this provider:",
     catalogProviderModelCounts: ({ llm, stt, tts }) =>
       `Catalog models: ${llm} LLM, ${stt} STT, ${tts} TTS.`,
     catalogProviderSupportSummary: ({ llm, stt, tts }) =>

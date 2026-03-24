@@ -11,6 +11,7 @@ import { Feather } from "@expo/vector-icons";
 
 import { getCatalogProviderEntry, listCatalogProviders } from "../../catalog";
 import { APP_PROVIDER_CATALOG_IDS } from "../../catalog/appProviders";
+import type { CatalogProviderId } from "../../catalog/types";
 import {
   PROVIDER_LABELS,
   PROVIDER_MODELS,
@@ -159,8 +160,8 @@ export function ProviderSelectionGrid({
   onSelectCatalogProvider,
 }: {
   settings: Settings;
-  selectedCatalogProviderId: string;
-  onSelectCatalogProvider: (catalogProviderId: string) => void;
+  selectedCatalogProviderId: CatalogProviderId;
+  onSelectCatalogProvider: (catalogProviderId: CatalogProviderId) => void;
 }) {
   const { colors } = useTheme();
   const { t } = useLocalization();
@@ -294,6 +295,96 @@ export function ProviderSelectionGrid({
   );
 }
 
+type CatalogProviderEntryData = NonNullable<
+  ReturnType<typeof getCatalogProviderEntry>
+>;
+
+function CatalogProviderSummary({
+  catalogEntry,
+  readOnly,
+}: {
+  catalogEntry: CatalogProviderEntryData;
+  readOnly: boolean;
+}) {
+  const { colors } = useTheme();
+  const { t } = useLocalization();
+  const catalogModelGroups = [
+    { key: "llm", label: "LLM", models: catalogEntry.llms },
+    { key: "stt", label: t("stt"), models: catalogEntry.stt },
+    { key: "tts", label: t("tts"), models: catalogEntry.tts },
+  ] as const;
+
+  return (
+    <>
+      {readOnly ? (
+        <Text style={[styles.apiKeyHint, { color: colors.textMuted }]}>
+          {t("catalogProviderReadOnlyHint")}
+        </Text>
+      ) : (
+        <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 12 }]}>
+          {t("catalogProviderReferenceHint")}
+        </Text>
+      )}
+      <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 8 }]}>
+        {t("catalogProviderModelCounts", {
+          llm: catalogEntry.llms.length,
+          stt: catalogEntry.stt.length,
+          tts: catalogEntry.tts.length,
+        })}
+      </Text>
+      <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 8 }]}>
+        {t("catalogProviderSupportSummary", {
+          llm: catalogEntry.provider.verifiedSupport.llm,
+          stt: catalogEntry.provider.verifiedSupport.stt,
+          tts: catalogEntry.provider.verifiedSupport.tts,
+        })}
+      </Text>
+      {catalogEntry.provider.integration.needsLiveDiscovery ? (
+        <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 8 }]}>
+          {t("catalogProviderLiveDiscoveryHint")}
+        </Text>
+      ) : null}
+      {catalogEntry.provider.summaries.integrationNotes ? (
+        <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 8 }]}>
+          {catalogEntry.provider.summaries.integrationNotes}
+        </Text>
+      ) : null}
+      <View style={styles.catalogModelGroups}>
+        {catalogModelGroups.map((group) => (
+          <View key={group.key} style={styles.catalogModelGroup}>
+            <Text
+              style={[styles.catalogModelGroupTitle, { color: colors.textSecondary }]}
+            >
+              {group.label}
+            </Text>
+            {group.models.length > 0 ? (
+              group.models.map((model) => (
+                <View
+                  key={`${group.key}:${model.modelId}`}
+                  style={styles.catalogModelItem}
+                >
+                  <Text style={[styles.catalogModelName, { color: colors.text }]}>
+                    {model.publicName}
+                  </Text>
+                  <Text
+                    style={[styles.catalogModelMeta, { color: colors.textMuted }]}
+                  >
+                    {model.modelId}
+                  </Text>
+                </View>
+              ))
+            ) : (
+              <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 0 }]}>
+                {t("catalogProviderNoModels")}
+              </Text>
+            )}
+          </View>
+        ))}
+      </View>
+    </>
+  );
+}
+
 export function ProviderApiKeyCard({
   catalogProviderId,
   runtimeProvider,
@@ -308,7 +399,7 @@ export function ProviderApiKeyCard({
   onToggleApiKeyVisibility,
   onValidateProvider,
 }: {
-  catalogProviderId: string;
+  catalogProviderId: CatalogProviderId;
   runtimeProvider: Provider | null;
   apiKey: string;
   apiKeyVisible: boolean;
@@ -326,12 +417,6 @@ export function ProviderApiKeyCard({
   const catalogEntry = getCatalogProviderEntry(catalogProviderId);
 
   if (!runtimeProvider && catalogEntry) {
-    const catalogModelGroups = [
-      { key: "llm", label: "LLM", models: catalogEntry.llms },
-      { key: "stt", label: t("stt"), models: catalogEntry.stt },
-      { key: "tts", label: t("tts"), models: catalogEntry.tts },
-    ] as const;
-
     return (
       <View
         style={[
@@ -347,73 +432,7 @@ export function ProviderApiKeyCard({
             {catalogEntry.provider.providerName}
           </Text>
         </View>
-        <Text style={[styles.apiKeyHint, { color: colors.textMuted }]}>
-          {t("catalogProviderReadOnlyHint")}
-        </Text>
-        <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 10 }]}>
-          {t("catalogProviderModelCounts", {
-            llm: catalogEntry.llms.length,
-            stt: catalogEntry.stt.length,
-            tts: catalogEntry.tts.length,
-          })}
-        </Text>
-        <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 8 }]}>
-          {t("catalogProviderSupportSummary", {
-            llm: catalogEntry.provider.verifiedSupport.llm,
-            stt: catalogEntry.provider.verifiedSupport.stt,
-            tts: catalogEntry.provider.verifiedSupport.tts,
-          })}
-        </Text>
-        {catalogEntry.provider.integration.needsLiveDiscovery ? (
-          <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 8 }]}>
-            {t("catalogProviderLiveDiscoveryHint")}
-          </Text>
-        ) : null}
-        {catalogEntry.provider.summaries.integrationNotes ? (
-          <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 8 }]}>
-            {catalogEntry.provider.summaries.integrationNotes}
-          </Text>
-        ) : null}
-        <View style={styles.catalogModelGroups}>
-          {catalogModelGroups.map((group) => (
-            <View key={group.key} style={styles.catalogModelGroup}>
-              <Text
-                style={[
-                  styles.catalogModelGroupTitle,
-                  { color: colors.textSecondary },
-                ]}
-              >
-                {group.label}
-              </Text>
-              {group.models.length > 0 ? (
-                group.models.map((model) => (
-                  <View
-                    key={`${group.key}:${model.modelId}`}
-                    style={styles.catalogModelItem}
-                  >
-                    <Text
-                      style={[styles.catalogModelName, { color: colors.text }]}
-                    >
-                      {model.publicName}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.catalogModelMeta,
-                        { color: colors.textMuted },
-                      ]}
-                    >
-                      {model.modelId}
-                    </Text>
-                  </View>
-                ))
-              ) : (
-                <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 0 }]}>
-                  {t("catalogProviderNoModels")}
-                </Text>
-              )}
-            </View>
-          ))}
-        </View>
+        <CatalogProviderSummary catalogEntry={catalogEntry} readOnly />
       </View>
     );
   }
@@ -569,6 +588,9 @@ export function ProviderApiKeyCard({
             {validationState.message}
           </Text>
         </View>
+      ) : null}
+      {catalogEntry ? (
+        <CatalogProviderSummary catalogEntry={catalogEntry} readOnly={false} />
       ) : null}
     </View>
   );
