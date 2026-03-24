@@ -32,6 +32,8 @@ export const en: TranslationDictionary = {
       "Connect providers, store keys on-device, and map each home-screen response mode to a provider and model.",
     catalogOnlyProvidersHint: ({ count }) =>
       `Showing ${count} extra catalog-only providers here for UI inspection. Only the wired providers can be configured and called right now.`,
+    openProviderCatalogDetails: ({ provider }) =>
+      `Open ${provider} catalog details`,
     responseModes: "Response Modes",
     quickAndShallow: "Quick",
     deepThinking: "Deep",
@@ -77,6 +79,15 @@ export const en: TranslationDictionary = {
     createProviderApiKey: ({ provider }) => `Create ${provider} API key`,
     useProvider: ({ provider }) => `Use ${provider}`,
     createApiKey: "Create API key",
+    catalogProviderReadOnlyHint:
+      "This provider is present in the central catalog for inspection, but it is not wired into the app runtime yet.",
+    catalogProviderModelCounts: ({ llm, stt, tts }) =>
+      `Catalog models: ${llm} LLM, ${stt} STT, ${tts} TTS.`,
+    catalogProviderSupportSummary: ({ llm, stt, tts }) =>
+      `Verified support: LLM ${llm}, STT ${stt}, TTS ${tts}.`,
+    catalogProviderLiveDiscoveryHint:
+      "This provider has a dynamic catalog, so a real integration will likely need live model discovery.",
+    catalogProviderNoModels: "No documented models.",
     validateKey: "Validate key",
     validatingKey: "Validating...",
     showKey: "Show key",

@@ -32,6 +32,8 @@ export const de: TranslationDictionary = {
       "Verbinde dich mit Anbietern, indem du API-Keys hinterlegts und ordne jeder Gesprächskategorie ein Modell zu.",
     catalogOnlyProvidersHint: ({ count }) =>
       `Hier werden ${count} zusaetzliche Anbieter nur aus dem Katalog fuer die UI-Pruefung angezeigt. Konfigurierbar und wirklich aufrufbar sind aktuell nur die verdrahteten Anbieter.`,
+    openProviderCatalogDetails: ({ provider }) =>
+      `Katalogdetails für ${provider} öffnen`,
     responseModes: "Gesprächskategorien",
     quickAndShallow: "Zackig",
     deepThinking: "Tiefgründig",
@@ -78,6 +80,15 @@ export const de: TranslationDictionary = {
       `API-Schlüssel für ${provider} erstellen`,
     useProvider: ({ provider }) => `${provider} verwenden`,
     createApiKey: "API-Schlüssel erstellen",
+    catalogProviderReadOnlyHint:
+      "Dieser Anbieter ist zur Ansicht im zentralen Katalog vorhanden, aber noch nicht in die App-Laufzeit integriert.",
+    catalogProviderModelCounts: ({ llm, stt, tts }) =>
+      `Katalogmodelle: ${llm} LLM, ${stt} STT, ${tts} TTS.`,
+    catalogProviderSupportSummary: ({ llm, stt, tts }) =>
+      `Verifizierte Unterstützung: LLM ${llm}, STT ${stt}, TTS ${tts}.`,
+    catalogProviderLiveDiscoveryHint:
+      "Dieser Anbieter hat einen dynamischen Katalog. Für eine echte Integration wird voraussichtlich eine Live-Modellerkennung nötig sein.",
+    catalogProviderNoModels: "Keine dokumentierten Modelle.",
     validateKey: "Schlüssel prüfen",
     validatingKey: "Prüfe …",
     showKey: "API-Key anzeigen",

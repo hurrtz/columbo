@@ -44,8 +44,9 @@ export function ProvidersTab({
   const { t } = useLocalization();
   const enabledProviders = useMemo(() => getEnabledProviders(settings), [settings]);
   const {
-    selectedProvider,
-    setSelectedProvider,
+    selectedCatalogProviderId,
+    setSelectedCatalogProviderId,
+    selectedRuntimeProvider,
     apiKeyVisible,
     setApiKeyVisible,
     selectedProviderApiKey,
@@ -83,12 +84,13 @@ export function ProvidersTab({
 
         <ProviderSelectionGrid
           settings={settings}
-          selectedProvider={selectedProvider}
-          onSelectProvider={setSelectedProvider}
+          selectedCatalogProviderId={selectedCatalogProviderId}
+          onSelectCatalogProvider={setSelectedCatalogProviderId}
         />
 
         <ProviderApiKeyCard
-          provider={selectedProvider}
+          catalogProviderId={selectedCatalogProviderId}
+          runtimeProvider={selectedRuntimeProvider}
           apiKey={selectedProviderApiKey}
           apiKeyVisible={apiKeyVisible}
           secureApiKey={secureApiKey}

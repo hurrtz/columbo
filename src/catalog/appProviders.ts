@@ -22,8 +22,20 @@ export const APP_PROVIDER_CATALOG_IDS: Record<Provider, string> = Object.fromEnt
   ]),
 ) as Record<Provider, string>;
 
+const APP_PROVIDERS_BY_CATALOG_ID: Partial<Record<string, Provider>> =
+  Object.fromEntries(
+    Object.entries(APP_PROVIDER_CATALOG_IDS).map(([provider, catalogProviderId]) => [
+      catalogProviderId,
+      provider as Provider,
+    ]),
+  );
+
 export function getCatalogProviderIdForAppProvider(provider: Provider) {
   return APP_PROVIDER_CATALOG_IDS[provider];
+}
+
+export function getAppProviderForCatalogProviderId(catalogProviderId: string) {
+  return APP_PROVIDERS_BY_CATALOG_ID[catalogProviderId] ?? null;
 }
 
 export function getCatalogProviderForAppProvider(provider: Provider) {

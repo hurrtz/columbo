@@ -309,6 +309,32 @@ export const styles = StyleSheet.create({
     lineHeight: 18,
     fontFamily: fonts.body,
   },
+  catalogModelGroups: {
+    marginTop: 12,
+    gap: 12,
+  },
+  catalogModelGroup: {
+    gap: 6,
+  },
+  catalogModelGroupTitle: {
+    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: 1.1,
+    fontFamily: fonts.mono,
+  },
+  catalogModelItem: {
+    gap: 2,
+  },
+  catalogModelName: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontFamily: fonts.display,
+  },
+  catalogModelMeta: {
+    fontSize: 11,
+    lineHeight: 16,
+    fontFamily: fonts.mono,
+  },
   apiKeyInputRow: {
     position: "relative",
     justifyContent: "center",

@@ -2,6 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Linking } from "react-native";
 
 import {
+  getAppProviderForCatalogProviderId,
+  getCatalogProviderIdForAppProvider,
+} from "../../catalog/appProviders";
+import {
   PROVIDER_API_KEY_URLS,
   PROVIDER_LABELS,
 } from "../../constants/models";
@@ -18,8 +22,8 @@ export function useProvidersTabState(params: {
 }) {
   const { settings, focusProvider, onValidateProvider } = params;
   const { t } = useLocalization();
-  const [selectedProvider, setSelectedProvider] = useState<Provider>(
-    focusProvider ?? settings.lastProvider,
+  const [selectedCatalogProviderId, setSelectedCatalogProviderId] = useState(
+    getCatalogProviderIdForAppProvider(focusProvider ?? settings.lastProvider),
   );
   const [apiKeyVisible, setApiKeyVisible] = useState(false);
   const [validationStateByProvider, setValidationStateByProvider] = useState<
@@ -27,20 +31,30 @@ export function useProvidersTabState(params: {
   >({});
 
   useEffect(() => {
-    setSelectedProvider(focusProvider ?? settings.lastProvider);
+    setSelectedCatalogProviderId(
+      getCatalogProviderIdForAppProvider(focusProvider ?? settings.lastProvider),
+    );
   }, [focusProvider, settings.lastProvider]);
+
+  const selectedRuntimeProvider = useMemo(
+    () => getAppProviderForCatalogProviderId(selectedCatalogProviderId),
+    [selectedCatalogProviderId],
+  );
 
   useEffect(() => {
     setApiKeyVisible(false);
-  }, [selectedProvider]);
+  }, [selectedCatalogProviderId]);
 
-  const selectedProviderApiKey = settings.apiKeys[selectedProvider];
+  const selectedProviderApiKey = selectedRuntimeProvider
+    ? settings.apiKeys[selectedRuntimeProvider]
+    : "";
   const trimmedSelectedProviderApiKey = selectedProviderApiKey.trim();
-  const selectedProviderModel = getProviderValidationModel(
-    settings,
-    selectedProvider,
-  );
-  const storedValidationState = validationStateByProvider[selectedProvider];
+  const selectedProviderModel = selectedRuntimeProvider
+    ? getProviderValidationModel(settings, selectedRuntimeProvider)
+    : "";
+  const storedValidationState = selectedRuntimeProvider
+    ? validationStateByProvider[selectedRuntimeProvider]
+    : undefined;
   const validationState = useMemo(() => {
     const validationStateMatchesCurrentSelection =
       storedValidationState?.apiKey === trimmedSelectedProviderApiKey &&
@@ -54,18 +68,27 @@ export function useProvidersTabState(params: {
     storedValidationState,
     trimmedSelectedProviderApiKey,
   ]);
-  const hasApiKey = trimmedSelectedProviderApiKey.length > 0;
+  const hasApiKey =
+    !!selectedRuntimeProvider && trimmedSelectedProviderApiKey.length > 0;
   const shouldShowValidateAction =
     hasApiKey && validationState.status !== "success";
 
   const handleOpenProviderPortal = useCallback(() => {
-    void Linking.openURL(PROVIDER_API_KEY_URLS[selectedProvider]);
-  }, [selectedProvider]);
+    if (!selectedRuntimeProvider) {
+      return;
+    }
+
+    void Linking.openURL(PROVIDER_API_KEY_URLS[selectedRuntimeProvider]);
+  }, [selectedRuntimeProvider]);
 
   const handleValidateProviderKey = useCallback(async () => {
+    if (!selectedRuntimeProvider) {
+      return;
+    }
+
     setValidationStateByProvider((previous) => ({
       ...previous,
-      [selectedProvider]: {
+      [selectedRuntimeProvider]: {
         status: "validating",
         apiKey: trimmedSelectedProviderApiKey,
         model: selectedProviderModel,
@@ -73,13 +96,13 @@ export function useProvidersTabState(params: {
     }));
 
     try {
-      await onValidateProvider(selectedProvider);
+      await onValidateProvider(selectedRuntimeProvider);
       setValidationStateByProvider((previous) => ({
         ...previous,
-        [selectedProvider]: {
+        [selectedRuntimeProvider]: {
           status: "success",
           message: t("providerValidationSuccess", {
-            provider: PROVIDER_LABELS[selectedProvider],
+            provider: PROVIDER_LABELS[selectedRuntimeProvider],
           }),
           apiKey: trimmedSelectedProviderApiKey,
           model: selectedProviderModel,
@@ -88,7 +111,7 @@ export function useProvidersTabState(params: {
     } catch (error) {
       setValidationStateByProvider((previous) => ({
         ...previous,
-        [selectedProvider]: {
+        [selectedRuntimeProvider]: {
           status: "error",
           message:
             error instanceof Error
@@ -101,15 +124,16 @@ export function useProvidersTabState(params: {
     }
   }, [
     onValidateProvider,
-    selectedProvider,
+    selectedRuntimeProvider,
     selectedProviderModel,
     t,
     trimmedSelectedProviderApiKey,
   ]);
 
   return {
-    selectedProvider,
-    setSelectedProvider,
+    selectedCatalogProviderId,
+    setSelectedCatalogProviderId,
+    selectedRuntimeProvider,
     apiKeyVisible,
     setApiKeyVisible,
     selectedProviderApiKey,

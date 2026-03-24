@@ -9,7 +9,7 @@ import {
 
 import { Feather } from "@expo/vector-icons";
 
-import { listCatalogProviders } from "../../catalog";
+import { getCatalogProviderEntry, listCatalogProviders } from "../../catalog";
 import { APP_PROVIDER_CATALOG_IDS } from "../../catalog/appProviders";
 import {
   PROVIDER_LABELS,
@@ -155,12 +155,12 @@ export function ResponseModesSection({
 
 export function ProviderSelectionGrid({
   settings,
-  selectedProvider,
-  onSelectProvider,
+  selectedCatalogProviderId,
+  onSelectCatalogProvider,
 }: {
   settings: Settings;
-  selectedProvider: Provider;
-  onSelectProvider: (provider: Provider) => void;
+  selectedCatalogProviderId: string;
+  onSelectCatalogProvider: (catalogProviderId: string) => void;
 }) {
   const { colors } = useTheme();
   const { t } = useLocalization();
@@ -214,12 +214,10 @@ export function ProviderSelectionGrid({
       <View style={styles.providerButtonGrid}>
         {catalogProviders.map((providerButton) => {
           const runtimeProvider = providerButton.runtimeProvider;
-          const active =
-            runtimeProvider !== null && runtimeProvider === selectedProvider;
+          const active = providerButton.providerId === selectedCatalogProviderId;
           const configured =
             runtimeProvider !== null &&
             settings.apiKeys[runtimeProvider].trim().length > 0;
-          const disabled = runtimeProvider === null;
 
           return (
             <Pressable
@@ -242,24 +240,21 @@ export function ProviderSelectionGrid({
                     : configured
                       ? colors.glow
                       : "transparent",
-                  opacity: disabled ? 0.72 : 1,
+                  opacity: providerButton.catalogOnly ? 0.84 : 1,
                 },
               ]}
-              onPress={() => {
-                if (runtimeProvider) {
-                  onSelectProvider(runtimeProvider);
-                }
-              }}
+              onPress={() => onSelectCatalogProvider(providerButton.providerId)}
               accessibilityRole="button"
               accessibilityLabel={
                 runtimeProvider
                   ? t("openProviderSettings", {
                       provider: providerButton.label,
                     })
-                  : providerButton.label
+                  : t("openProviderCatalogDetails", {
+                      provider: providerButton.label,
+                    })
               }
-              accessibilityState={{ selected: active, disabled }}
-              disabled={disabled}
+              accessibilityState={{ selected: active }}
             >
               <ProviderIcon
                 provider={providerButton.iconProvider}
@@ -300,7 +295,8 @@ export function ProviderSelectionGrid({
 }
 
 export function ProviderApiKeyCard({
-  provider,
+  catalogProviderId,
+  runtimeProvider,
   apiKey,
   apiKeyVisible,
   secureApiKey,
@@ -312,7 +308,8 @@ export function ProviderApiKeyCard({
   onToggleApiKeyVisibility,
   onValidateProvider,
 }: {
-  provider: Provider;
+  catalogProviderId: string;
+  runtimeProvider: Provider | null;
   apiKey: string;
   apiKeyVisible: boolean;
   secureApiKey: boolean;
@@ -326,6 +323,104 @@ export function ProviderApiKeyCard({
 }) {
   const { colors } = useTheme();
   const { t, language } = useLocalization();
+  const catalogEntry = getCatalogProviderEntry(catalogProviderId);
+
+  if (!runtimeProvider && catalogEntry) {
+    const catalogModelGroups = [
+      { key: "llm", label: "LLM", models: catalogEntry.llms },
+      { key: "stt", label: t("stt"), models: catalogEntry.stt },
+      { key: "tts", label: t("tts"), models: catalogEntry.tts },
+    ] as const;
+
+    return (
+      <View
+        style={[
+          styles.apiKeyCard,
+          {
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
+          },
+        ]}
+      >
+        <View style={styles.apiKeyHeader}>
+          <Text style={[styles.apiKeyTitle, { color: colors.text }]}>
+            {catalogEntry.provider.providerName}
+          </Text>
+        </View>
+        <Text style={[styles.apiKeyHint, { color: colors.textMuted }]}>
+          {t("catalogProviderReadOnlyHint")}
+        </Text>
+        <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 10 }]}>
+          {t("catalogProviderModelCounts", {
+            llm: catalogEntry.llms.length,
+            stt: catalogEntry.stt.length,
+            tts: catalogEntry.tts.length,
+          })}
+        </Text>
+        <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 8 }]}>
+          {t("catalogProviderSupportSummary", {
+            llm: catalogEntry.provider.verifiedSupport.llm,
+            stt: catalogEntry.provider.verifiedSupport.stt,
+            tts: catalogEntry.provider.verifiedSupport.tts,
+          })}
+        </Text>
+        {catalogEntry.provider.integration.needsLiveDiscovery ? (
+          <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 8 }]}>
+            {t("catalogProviderLiveDiscoveryHint")}
+          </Text>
+        ) : null}
+        {catalogEntry.provider.summaries.integrationNotes ? (
+          <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 8 }]}>
+            {catalogEntry.provider.summaries.integrationNotes}
+          </Text>
+        ) : null}
+        <View style={styles.catalogModelGroups}>
+          {catalogModelGroups.map((group) => (
+            <View key={group.key} style={styles.catalogModelGroup}>
+              <Text
+                style={[
+                  styles.catalogModelGroupTitle,
+                  { color: colors.textSecondary },
+                ]}
+              >
+                {group.label}
+              </Text>
+              {group.models.length > 0 ? (
+                group.models.map((model) => (
+                  <View
+                    key={`${group.key}:${model.modelId}`}
+                    style={styles.catalogModelItem}
+                  >
+                    <Text
+                      style={[styles.catalogModelName, { color: colors.text }]}
+                    >
+                      {model.publicName}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.catalogModelMeta,
+                        { color: colors.textMuted },
+                      ]}
+                    >
+                      {model.modelId}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 0 }]}>
+                  {t("catalogProviderNoModels")}
+                </Text>
+              )}
+            </View>
+          ))}
+        </View>
+      </View>
+    );
+  }
+
+  if (!runtimeProvider) {
+    return null;
+  }
 
   return (
     <View
@@ -339,14 +434,14 @@ export function ProviderApiKeyCard({
     >
       <View style={styles.apiKeyHeader}>
         <Text style={[styles.apiKeyTitle, { color: colors.text }]}>
-          {PROVIDER_LABELS[provider]}
+          {PROVIDER_LABELS[runtimeProvider]}
         </Text>
         <TouchableOpacity
           style={styles.apiKeyPortalLink}
           onPress={onOpenProviderPortal}
           accessibilityRole="link"
           accessibilityLabel={t("createProviderApiKey", {
-            provider: PROVIDER_LABELS[provider],
+            provider: PROVIDER_LABELS[runtimeProvider],
           })}
           activeOpacity={0.75}
         >
@@ -357,14 +452,14 @@ export function ProviderApiKeyCard({
         </TouchableOpacity>
       </View>
       <Text style={[styles.apiKeyHint, { color: colors.textMuted }]}>
-        {getProviderApiKeyHint(provider, language)}
+        {getProviderApiKeyHint(runtimeProvider, language)}
       </Text>
       <View style={styles.apiKeyInputRow}>
         <TextInput
           value={apiKey}
-          onChangeText={(value) => onUpdateApiKey(provider, value)}
+          onChangeText={(value) => onUpdateApiKey(runtimeProvider, value)}
           onFocus={onTextInputFocus}
-          placeholder={getProviderApiKeyPlaceholder(provider, language)}
+          placeholder={getProviderApiKeyPlaceholder(runtimeProvider, language)}
           placeholderTextColor={colors.textMuted}
           selectionColor={colors.accent}
           autoCapitalize="none"
