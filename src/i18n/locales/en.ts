@@ -30,6 +30,8 @@ export const en: TranslationDictionary = {
       "Shape the hidden guidance that steers the assistant before any provider sees the request.",
     providersTabDescription:
       "Connect providers, store keys on-device, and map each home-screen response mode to a provider and model.",
+    catalogOnlyProvidersHint: ({ count }) =>
+      `Showing ${count} extra catalog-only providers here for UI inspection. Only the wired providers can be configured and called right now.`,
     responseModes: "Response Modes",
     quickAndShallow: "Quick",
     deepThinking: "Deep",

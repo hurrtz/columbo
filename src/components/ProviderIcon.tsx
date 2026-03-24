@@ -1,9 +1,9 @@
 import React from "react";
-import { Image } from "react-native";
+import { Image, Text } from "react-native";
 import { SvgUri } from "react-native-svg";
 import { Provider } from "../types";
 
-const PROVIDER_ICON_ASSETS: Record<Provider, number> = {
+const PROVIDER_ICON_ASSETS: Partial<Record<Provider, number>> = {
   openai: require("../../assets/branding/openai.svg"),
   anthropic: require("../../assets/branding/anthropic.svg"),
   gemini: require("../../assets/branding/google.svg"),
@@ -16,7 +16,9 @@ const PROVIDER_ICON_ASSETS: Record<Provider, number> = {
   xai: require("../../assets/branding/xai.svg"),
 };
 
-const PROVIDER_ICON_SIZES: Record<Provider, { width: number; height: number }> = {
+const PROVIDER_ICON_SIZES: Partial<
+  Record<Provider, { width: number; height: number }>
+> = {
   openai: { width: 24, height: 24 },
   anthropic: { width: 24, height: 24 },
   gemini: { width: 24, height: 24 },
@@ -30,14 +32,48 @@ const PROVIDER_ICON_SIZES: Record<Provider, { width: number; height: number }> =
 };
 
 interface ProviderIconProps {
-  provider: Provider;
+  provider: Provider | string;
   color: string;
+  label?: string;
 }
 
-export function ProviderIcon({ provider, color }: ProviderIconProps) {
-  const asset = PROVIDER_ICON_ASSETS[provider];
+function getFallbackProviderGlyph(value: string) {
+  const parts = value
+    .split(/[^a-zA-Z0-9]+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  }
+
+  const normalized = value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+  return normalized.slice(0, 2) || "AI";
+}
+
+export function ProviderIcon({ provider, color, label }: ProviderIconProps) {
+  const asset = PROVIDER_ICON_ASSETS[provider as Provider];
+
+  if (!asset) {
+    return (
+      <Text
+        style={{
+          color,
+          fontSize: 12,
+          fontWeight: "700",
+          letterSpacing: 0.8,
+        }}
+      >
+        {getFallbackProviderGlyph(label ?? provider)}
+      </Text>
+    );
+  }
+
   const uri = Image.resolveAssetSource(asset).uri;
-  const size = PROVIDER_ICON_SIZES[provider];
+  const size = PROVIDER_ICON_SIZES[provider as Provider] ?? {
+    width: 24,
+    height: 24,
+  };
 
   return (
     <SvgUri

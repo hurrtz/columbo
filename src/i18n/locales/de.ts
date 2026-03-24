@@ -30,6 +30,8 @@ export const de: TranslationDictionary = {
       "Definiere, was jeder Anfrage als Befehl an das Model vorangestellt wird.",
     providersTabDescription:
       "Verbinde dich mit Anbietern, indem du API-Keys hinterlegts und ordne jeder Gesprächskategorie ein Modell zu.",
+    catalogOnlyProvidersHint: ({ count }) =>
+      `Hier werden ${count} zusaetzliche Anbieter nur aus dem Katalog fuer die UI-Pruefung angezeigt. Konfigurierbar und wirklich aufrufbar sind aktuell nur die verdrahteten Anbieter.`,
     responseModes: "Gesprächskategorien",
     quickAndShallow: "Zackig",
     deepThinking: "Tiefgründig",

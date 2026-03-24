@@ -9,6 +9,8 @@ import {
 
 import { Feather } from "@expo/vector-icons";
 
+import { listCatalogProviders } from "../../catalog";
+import { APP_PROVIDER_CATALOG_IDS } from "../../catalog/appProviders";
 import {
   PROVIDER_LABELS,
   PROVIDER_MODELS,
@@ -162,68 +164,138 @@ export function ProviderSelectionGrid({
 }) {
   const { colors } = useTheme();
   const { t } = useLocalization();
+  const runtimeProviderIds = React.useMemo(
+    () => new Set(Object.values(APP_PROVIDER_CATALOG_IDS)),
+    [],
+  );
+  const catalogProviders = React.useMemo(() => {
+    const providersById = new Map(
+      listCatalogProviders().map((provider) => [provider.providerId, provider]),
+    );
+
+    const runtimeButtons = PROVIDER_ORDER.map((provider) => {
+      const providerId = APP_PROVIDER_CATALOG_IDS[provider];
+      const catalogProvider = providersById.get(providerId);
+
+      return {
+        key: providerId,
+        label: PROVIDER_LABELS[provider],
+        iconProvider: provider,
+        runtimeProvider: provider,
+        providerId,
+        providerName: catalogProvider?.providerName ?? PROVIDER_LABELS[provider],
+        catalogOnly: false,
+      };
+    });
+
+    const catalogOnlyButtons = listCatalogProviders()
+      .filter((provider) => !runtimeProviderIds.has(provider.providerId))
+      .sort((left, right) =>
+        left.providerName.localeCompare(right.providerName),
+      )
+      .map((provider) => ({
+        key: provider.providerId,
+        label: provider.providerName,
+        iconProvider: provider.providerId,
+        runtimeProvider: null,
+        providerId: provider.providerId,
+        providerName: provider.providerName,
+        catalogOnly: true,
+      }));
+
+    return [...runtimeButtons, ...catalogOnlyButtons];
+  }, [runtimeProviderIds]);
+  const catalogOnlyProviderCount = catalogProviders.filter(
+    (provider) => provider.catalogOnly,
+  ).length;
 
   return (
-    <View style={styles.providerButtonGrid}>
-      {PROVIDER_ORDER.map((provider) => {
-        const active = provider === selectedProvider;
-        const configured = settings.apiKeys[provider].trim().length > 0;
+    <>
+      <View style={styles.providerButtonGrid}>
+        {catalogProviders.map((providerButton) => {
+          const runtimeProvider = providerButton.runtimeProvider;
+          const active =
+            runtimeProvider !== null && runtimeProvider === selectedProvider;
+          const configured =
+            runtimeProvider !== null &&
+            settings.apiKeys[runtimeProvider].trim().length > 0;
+          const disabled = runtimeProvider === null;
 
-        return (
-          <Pressable
-            key={provider}
-            style={[
-              styles.providerButton,
-              {
-                backgroundColor: active
-                  ? colors.accentSoft
-                  : configured
-                    ? colors.surface
-                    : colors.surfaceElevated,
-                borderColor: active
-                  ? colors.accent
-                  : configured
-                    ? colors.borderStrong
-                    : colors.border,
-                shadowColor: active
-                  ? colors.accent
-                  : configured
-                    ? colors.glow
-                    : "transparent",
-              },
-            ]}
-            onPress={() => onSelectProvider(provider)}
-            accessibilityRole="button"
-            accessibilityLabel={t("openProviderSettings", {
-              provider: PROVIDER_LABELS[provider],
-            })}
-            accessibilityState={{ selected: active }}
-          >
-            <ProviderIcon
-              provider={provider}
-              color={active || configured ? colors.text : colors.textSecondary}
-            />
-            {configured ? (
-              <View
-                style={[
-                  styles.providerButtonBadge,
-                  {
-                    backgroundColor: active ? colors.surface : colors.accent,
-                    borderColor: colors.borderStrong,
-                  },
-                ]}
-              >
-                <Feather
-                  name="check"
-                  size={10}
-                  color={active ? colors.accent : colors.surface}
-                />
-              </View>
-            ) : null}
-          </Pressable>
-        );
-      })}
-    </View>
+          return (
+            <Pressable
+              key={providerButton.key}
+              style={[
+                styles.providerButton,
+                {
+                  backgroundColor: active
+                    ? colors.accentSoft
+                    : configured
+                      ? colors.surface
+                      : colors.surfaceElevated,
+                  borderColor: active
+                    ? colors.accent
+                    : configured
+                      ? colors.borderStrong
+                      : colors.border,
+                  shadowColor: active
+                    ? colors.accent
+                    : configured
+                      ? colors.glow
+                      : "transparent",
+                  opacity: disabled ? 0.72 : 1,
+                },
+              ]}
+              onPress={() => {
+                if (runtimeProvider) {
+                  onSelectProvider(runtimeProvider);
+                }
+              }}
+              accessibilityRole="button"
+              accessibilityLabel={
+                runtimeProvider
+                  ? t("openProviderSettings", {
+                      provider: providerButton.label,
+                    })
+                  : providerButton.label
+              }
+              accessibilityState={{ selected: active, disabled }}
+              disabled={disabled}
+            >
+              <ProviderIcon
+                provider={providerButton.iconProvider}
+                label={providerButton.providerName}
+                color={active || configured ? colors.text : colors.textSecondary}
+              />
+              {configured ? (
+                <View
+                  style={[
+                    styles.providerButtonBadge,
+                    {
+                      backgroundColor: active ? colors.surface : colors.accent,
+                      borderColor: colors.borderStrong,
+                    },
+                  ]}
+                >
+                  <Feather
+                    name="check"
+                    size={10}
+                    color={active ? colors.accent : colors.surface}
+                  />
+                </View>
+              ) : null}
+            </Pressable>
+          );
+        })}
+      </View>
+
+      {catalogOnlyProviderCount > 0 ? (
+        <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
+          {t("catalogOnlyProvidersHint", {
+            count: catalogOnlyProviderCount,
+          })}
+        </Text>
+      ) : null}
+    </>
   );
 }
 
