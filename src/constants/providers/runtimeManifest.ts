@@ -4,11 +4,17 @@ export type RuntimeAppProviderId =
   | "openai"
   | "anthropic"
   | "gemini"
+  | "cerebras"
   | "cohere"
   | "deepseek"
+  | "fireworks-ai"
   | "groq"
   | "mistral"
+  | "moonshot-ai-kimi"
   | "nvidia"
+  | "sambanova"
+  | "siliconflow"
+  | "stepfun"
   | "together"
   | "xai";
 
@@ -115,6 +121,12 @@ export const RUNTIME_PROVIDER_ORDER = [
   "cohere",
   "together",
   "nvidia",
+  "cerebras",
+  "fireworks-ai",
+  "moonshot-ai-kimi",
+  "sambanova",
+  "siliconflow",
+  "stepfun",
 ] as const satisfies readonly RuntimeAppProviderId[];
 
 export const RUNTIME_PROVIDER_MANIFEST: Record<
@@ -331,6 +343,33 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         "Gemini TTS currently supports Arabic, Bengali, Dutch, English, French, German, Hindi, Indonesian, Italian, Japanese, Korean, Mandarin Chinese, Polish, Portuguese, Romanian, Russian, Spanish, Tamil, Telugu, Thai, Turkish, Ukrainian, Urdu, and Vietnamese.",
     },
   },
+  cerebras: {
+    appProvider: "cerebras",
+    catalogProviderId: "cerebras",
+    label: "Cerebras",
+    shortLabel: "CEREBRAS",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks Cerebras hosted models through its OpenAI-compatible inference API.",
+    apiKeyUrl: "https://inference-docs.cerebras.ai/introduction",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://api.cerebras.ai/v1/chat/completions",
+      defaultModel: "gpt-oss-120b",
+      models: [model("gpt-oss-120b"), model("llama3.1-8b")],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
   xai: {
     appProvider: "xai",
     catalogProviderId: "xai",
@@ -448,6 +487,39 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       voiceOptions: [],
     },
   },
+  "fireworks-ai": {
+    appProvider: "fireworks-ai",
+    catalogProviderId: "fireworks-ai",
+    label: "Fireworks",
+    shortLabel: "FIREWORKS",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks Fireworks hosted models through its OpenAI-compatible inference API.",
+    apiKeyUrl: "https://docs.fireworks.ai/getting-started/introduction",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://api.fireworks.ai/inference/v1/chat/completions",
+      defaultModel: "accounts/fireworks/models/gpt-oss-20b",
+      models: [
+        model("accounts/fireworks/models/gpt-oss-20b"),
+        model("accounts/fireworks/models/gpt-oss-120b"),
+        model("accounts/fireworks/models/deepseek-v3p2"),
+        model("accounts/fireworks/models/glm-5"),
+        model("accounts/fireworks/models/kimi-k2p5"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
   mistral: {
     appProvider: "mistral",
     catalogProviderId: "mistral-ai",
@@ -488,6 +560,40 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       voiceOptions: [],
     },
   },
+  "moonshot-ai-kimi": {
+    appProvider: "moonshot-ai-kimi",
+    catalogProviderId: "moonshot-ai-kimi",
+    label: "Moonshot",
+    shortLabel: "MOONSHOT",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks Kimi models through Moonshot's OpenAI-compatible API.",
+    apiKeyUrl: "https://platform.moonshot.ai/docs/guide/start-using-kimi-api",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://api.moonshot.ai/v1/chat/completions",
+      defaultModel: "kimi-k2.5",
+      models: [
+        model("kimi-k2.5"),
+        model("kimi-k2-thinking"),
+        model("kimi-k2-thinking-turbo"),
+        model("moonshot-v1-8k"),
+        model("moonshot-v1-32k"),
+        model("moonshot-v1-128k"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
   cohere: {
     appProvider: "cohere",
     catalogProviderId: "cohere",
@@ -506,6 +612,103 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         namedModel("command-r7b-12-2024", "Command R7B"),
         namedModel("command-r-plus-08-2024", "Command R+"),
         namedModel("command-r-08-2024", "Command R"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
+  sambanova: {
+    appProvider: "sambanova",
+    catalogProviderId: "sambanova",
+    label: "SambaNova",
+    shortLabel: "SAMBANOVA",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks SambaNova hosted models through its OpenAI-compatible SambaCloud API.",
+    apiKeyUrl: "https://docs.sambanova.ai/docs/en/get-started/api-keys-urls",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://api.sambanova.ai/v1/chat/completions",
+      defaultModel: "DeepSeek-V3.1",
+      models: [
+        model("DeepSeek-V3.1"),
+        model("DeepSeek-R1-0528"),
+        model("DeepSeek-V3-0324"),
+        model("Meta-Llama-3.3-70B-Instruct"),
+        model("Meta-Llama-3.1-8B-Instruct"),
+        model("MiniMax-M2.5"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
+  siliconflow: {
+    appProvider: "siliconflow",
+    catalogProviderId: "siliconflow",
+    label: "SiliconFlow",
+    shortLabel: "SILICONFLOW",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks SiliconFlow models through its OpenAI-compatible chat API.",
+    apiKeyUrl: "https://docs.siliconflow.com/en/userguide/quickstart",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://api.siliconflow.com/v1/chat/completions",
+      defaultModel: "deepseek-ai/DeepSeek-V3.2",
+      models: [
+        model("deepseek-ai/DeepSeek-V3.2"),
+        model("deepseek-ai/DeepSeek-R1"),
+        model("Qwen/Qwen3-32B"),
+        model("moonshotai/Kimi-K2.5"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
+  stepfun: {
+    appProvider: "stepfun",
+    catalogProviderId: "stepfun",
+    label: "StepFun",
+    shortLabel: "STEPFUN",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks StepFun hosted models through its OpenAI-compatible API.",
+    apiKeyUrl: "https://platform.stepfun.com/docs/zh/overview/quickstart",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://api.stepfun.com/v1/chat/completions",
+      defaultModel: "step-3.5-flash",
+      models: [
+        model("step-3.5-flash"),
+        model("step-3"),
+        model("step-2-mini"),
       ],
     },
     stt: {

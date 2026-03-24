@@ -24,25 +24,48 @@ const NATIVE_TTS_LANGUAGE_NOTES_BY_LANGUAGE: Record<AppLanguage, string> = {
     "Die Sprachunterstuetzung haengt von den auf dem Geraet installierten Systemstimmen ab. Die genaue Liste, Aussprachequalitaet und Offline-Verfuegbarkeit variieren je nach Betriebssystem und Geraet.",
 };
 
+const GERMAN_PROVIDER_API_KEY_HINT_OVERRIDES: Partial<Record<Provider, string>> = {
+  openai:
+    "Schaltet OpenAI-Modelle und von OpenAI gehostete Sprachfunktionen frei, wenn du STT oder TTS ueber einen Anbieter nutzt.",
+  anthropic: "Schaltet Anthropic-Modelle auf der Hauptbuehne frei.",
+  gemini:
+    "Schaltet Gemini-Modelle plus von Google gehostete Sprachfunktionen ueber die Gemini-API frei.",
+  xai: "Schaltet Grok-Modelle von xAI frei.",
+  groq:
+    "Groq bietet einen kostenlosen Tarif und schaltet schnelle gehostete Inferenzmodelle frei.",
+  deepseek: "Schaltet DeepSeek-Chat- und Reasoning-Modelle frei.",
+  mistral: "Schaltet gehostete Mistral-Modelle frei.",
+  cohere: "Schaltet Command-Modelle von Cohere frei.",
+  together: "Schaltet bei Together gehostete Open-Modelle frei.",
+  nvidia: "Schaltet gehostete Foundation-Modelle von NVIDIA frei.",
+};
+
+const GERMAN_PROVIDER_API_KEY_PLACEHOLDER_OVERRIDES: Partial<
+  Record<Provider, string>
+> = {
+  openai: "sk-...",
+  anthropic: "sk-ant-...",
+  gemini: "AIza...",
+  xai: "xai-...",
+  groq: "gsk_...",
+  deepseek: "sk-...",
+  mistral: "API-Schluessel eingeben",
+  cohere: "API-Schluessel eingeben",
+  together: "API-Schluessel eingeben",
+  nvidia: "nvapi-...",
+};
+
 const PROVIDER_API_KEY_HINTS_BY_LANGUAGE: Record<AppLanguage, Record<Provider, string>> = {
   en: Object.fromEntries(
     PROVIDER_ORDER.map((provider) => [provider, PROVIDER_CONFIGS[provider].apiKeyHint]),
   ) as Record<Provider, string>,
-  de: {
-    openai:
-      "Schaltet OpenAI-Modelle und von OpenAI gehostete Sprachfunktionen frei, wenn du STT oder TTS ueber einen Anbieter nutzt.",
-    anthropic: "Schaltet Anthropic-Modelle auf der Hauptbuehne frei.",
-    gemini:
-      "Schaltet Gemini-Modelle plus von Google gehostete Sprachfunktionen ueber die Gemini-API frei.",
-    xai: "Schaltet Grok-Modelle von xAI frei.",
-    groq:
-      "Groq bietet einen kostenlosen Tarif und schaltet schnelle gehostete Inferenzmodelle frei.",
-    deepseek: "Schaltet DeepSeek-Chat- und Reasoning-Modelle frei.",
-    mistral: "Schaltet gehostete Mistral-Modelle frei.",
-    cohere: "Schaltet Command-Modelle von Cohere frei.",
-    together: "Schaltet bei Together gehostete Open-Modelle frei.",
-    nvidia: "Schaltet gehostete Foundation-Modelle von NVIDIA frei.",
-  },
+  de: Object.fromEntries(
+    PROVIDER_ORDER.map((provider) => [
+      provider,
+      GERMAN_PROVIDER_API_KEY_HINT_OVERRIDES[provider] ??
+        PROVIDER_CONFIGS[provider].apiKeyHint,
+    ]),
+  ) as Record<Provider, string>,
 };
 
 const PROVIDER_API_KEY_PLACEHOLDERS_BY_LANGUAGE: Record<
@@ -55,18 +78,13 @@ const PROVIDER_API_KEY_PLACEHOLDERS_BY_LANGUAGE: Record<
       PROVIDER_CONFIGS[provider].apiKeyPlaceholder,
     ]),
   ) as Record<Provider, string>,
-  de: {
-    openai: "sk-...",
-    anthropic: "sk-ant-...",
-    gemini: "AIza...",
-    xai: "xai-...",
-    groq: "gsk_...",
-    deepseek: "sk-...",
-    mistral: "API-Schluessel eingeben",
-    cohere: "API-Schluessel eingeben",
-    together: "API-Schluessel eingeben",
-    nvidia: "nvapi-...",
-  },
+  de: Object.fromEntries(
+    PROVIDER_ORDER.map((provider) => [
+      provider,
+      GERMAN_PROVIDER_API_KEY_PLACEHOLDER_OVERRIDES[provider] ??
+        PROVIDER_CONFIGS[provider].apiKeyPlaceholder,
+    ]),
+  ) as Record<Provider, string>,
 };
 
 const PROVIDER_STT_LANGUAGE_NOTES_BY_LANGUAGE: Partial<

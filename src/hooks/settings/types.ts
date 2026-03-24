@@ -27,10 +27,10 @@ export type LegacyStoredSettings = Partial<Settings> & {
   xaiModel?: string;
 };
 
-export const LEGACY_MODEL_FIELD_KEYS: Record<
+export const LEGACY_MODEL_FIELD_KEYS: Partial<Record<
   Provider,
   keyof LegacyStoredSettings
-> = {
+>> = {
   openai: "openaiModel",
   anthropic: "anthropicModel",
   gemini: "geminiModel",

@@ -71,16 +71,11 @@ describe("useSettings", () => {
     await flushSettingsLoad();
     expect(result.current.settings.lastProvider).toBe("anthropic");
     expect(result.current.settings.apiKeys).toEqual({
+      ...DEFAULT_SETTINGS.apiKeys,
       openai: "sk-openai",
       anthropic: "sk-anthropic",
       gemini: "AIza-test",
-      cohere: "",
-      deepseek: "",
-      groq: "",
-      mistral: "",
       nvidia: "nvapi-test",
-      together: "",
-      xai: "",
     });
     expect(result.current.settings.setupGuideDismissed).toBe(true);
   });

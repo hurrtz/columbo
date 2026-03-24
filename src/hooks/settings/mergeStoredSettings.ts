@@ -58,7 +58,10 @@ function extractStoredProviderModels(
 
   return PROVIDER_ORDER.reduce((accumulator, provider) => {
     const providerModels = storedSettings.providerModels?.[provider];
-    const legacyValue = storedSettings[LEGACY_MODEL_FIELD_KEYS[provider]];
+    const legacyFieldKey = LEGACY_MODEL_FIELD_KEYS[provider];
+    const legacyValue = legacyFieldKey
+      ? storedSettings[legacyFieldKey]
+      : undefined;
     const value =
       extractedModels[provider] ??
       (typeof providerModels === "string" && providerModels

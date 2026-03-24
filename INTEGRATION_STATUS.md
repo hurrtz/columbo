@@ -18,7 +18,7 @@ This file is the temporary source of truth for what the app runtime should actua
 
 ## Wired LLM Providers And Models
 
-All 10 app runtime providers are currently wired for LLM generation.
+All 16 app runtime providers are currently wired for LLM generation.
 
 ### OpenAI
 
@@ -89,6 +89,48 @@ Route: OpenAI-compatible `https://integrate.api.nvidia.com/v1/chat/completions`
 
 Models:
 `nvidia/llama-3.3-nemotron-super-49b-v1.5`, `nvidia/llama-3.1-nemotron-ultra-253b-v1`, `nvidia/llama-3.1-nemotron-nano-8b-v1`
+
+### Cerebras
+
+Route: OpenAI-compatible `https://api.cerebras.ai/v1/chat/completions`
+
+Models:
+`gpt-oss-120b`, `llama3.1-8b`
+
+### Fireworks
+
+Route: OpenAI-compatible `https://api.fireworks.ai/inference/v1/chat/completions`
+
+Models:
+`accounts/fireworks/models/gpt-oss-20b`, `accounts/fireworks/models/gpt-oss-120b`, `accounts/fireworks/models/deepseek-v3p2`, `accounts/fireworks/models/glm-5`, `accounts/fireworks/models/kimi-k2p5`
+
+### Moonshot
+
+Route: OpenAI-compatible `https://api.moonshot.ai/v1/chat/completions`
+
+Models:
+`kimi-k2.5`, `kimi-k2-thinking`, `kimi-k2-thinking-turbo`, `moonshot-v1-8k`, `moonshot-v1-32k`, `moonshot-v1-128k`
+
+### SambaNova
+
+Route: OpenAI-compatible `https://api.sambanova.ai/v1/chat/completions`
+
+Models:
+`DeepSeek-V3.1`, `DeepSeek-R1-0528`, `DeepSeek-V3-0324`, `Meta-Llama-3.3-70B-Instruct`, `Meta-Llama-3.1-8B-Instruct`, `MiniMax-M2.5`
+
+### SiliconFlow
+
+Route: OpenAI-compatible `https://api.siliconflow.com/v1/chat/completions`
+
+Models:
+`deepseek-ai/DeepSeek-V3.2`, `deepseek-ai/DeepSeek-R1`, `Qwen/Qwen3-32B`, `moonshotai/Kimi-K2.5`
+
+### StepFun
+
+Route: OpenAI-compatible `https://api.stepfun.com/v1/chat/completions`
+
+Models:
+`step-3.5-flash`, `step-3`, `step-2-mini`
 
 ## Wired STT Providers And Models
 
@@ -165,13 +207,13 @@ Models:
 
 These provider documents exist in `data/providers` and now appear in the Providers-tab button grid for UI inspection, but they are not yet wired into the app runtime.
 
-`01-ai-yi`, `ai21-labs`, `aleph-alpha`, `alibaba-qwen-dashscope`, `amazon-aws`, `assemblyai`, `baichuan`, `baidu-ernie-qianfan`, `bytedance-doubao-seed`, `cerebras`, `deepgram`, `deepinfra`, `elevenlabs`, `fireworks-ai`, `fish-audio`, `hugging-face-inference-api`, `hyperbolic`, `ibm-watsonx`, `lepton-ai`, `microsoft-azure`, `minimax`, `moonshot-ai-kimi`, `novita-ai`, `perplexity`, `replicate`, `sambanova`, `siliconflow`, `stepfun`, `xiaomi-mimo`, `z-ai-zhipu-ai`
+`01-ai-yi`, `ai21-labs`, `aleph-alpha`, `alibaba-qwen-dashscope`, `amazon-aws`, `assemblyai`, `baichuan`, `baidu-ernie-qianfan`, `bytedance-doubao-seed`, `deepgram`, `deepinfra`, `elevenlabs`, `fish-audio`, `hugging-face-inference-api`, `hyperbolic`, `ibm-watsonx`, `lepton-ai`, `microsoft-azure`, `minimax`, `novita-ai`, `perplexity`, `replicate`, `xiaomi-mimo`, `z-ai-zhipu-ai`
 
 ## Practical Rule
 
 - Full catalog visibility in UI does not imply runtime support.
 - Runtime support currently means:
-  - provider is one of the 10 app providers for LLM
+  - provider is one of the 16 app providers for LLM
   - provider is one of the 5 STT providers above for provider STT
   - provider is one of the 4 TTS providers above for provider TTS
 - Anything else is catalog-visible only until the transport, settings validation, defaults, and tests are wired.

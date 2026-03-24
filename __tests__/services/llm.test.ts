@@ -40,6 +40,40 @@ describe("streamChat", () => {
     expect((fetch as jest.Mock).mock.calls[0][0]).toBe("https://api.anthropic.com/v1/messages");
   });
 
+  it("uses the configured OpenAI-compatible endpoint for a newly wired provider", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "gpt-oss-120b",
+      provider: "cerebras",
+      apiKey: "cerebras-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi"]);
+    expect((fetch as jest.Mock).mock.calls[0][0]).toBe(
+      "https://api.cerebras.ai/v1/chat/completions",
+    );
+  });
+
   it("emits a chunk when openai-compatible streaming falls back to a full response", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

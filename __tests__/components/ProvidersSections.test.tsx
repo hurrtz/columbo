@@ -5,9 +5,11 @@ import {
   ProviderApiKeyCard,
   ProviderSelectionGrid,
 } from "../../src/components/settings/ProvidersSections";
+import { listCatalogProviders } from "../../src/catalog";
 import { LocalizationProvider } from "../../src/i18n";
 import { ThemeProvider } from "../../src/theme/ThemeContext";
 import { DEFAULT_SETTINGS } from "../../src/types";
+import { RUNTIME_PROVIDER_ORDER } from "../../src/constants/providers/runtimeManifest";
 
 jest.mock("@expo/vector-icons", () => ({
   Feather: ({ name }: { name: string }) => {
@@ -34,6 +36,8 @@ jest.mock("../../src/components/ProviderIcon", () => ({
 describe("ProviderSelectionGrid", () => {
   it("shows the full catalog button grid while keeping a note about catalog-only providers", () => {
     const onSelectCatalogProvider = jest.fn();
+    const catalogProviderCount = listCatalogProviders().length;
+    const catalogOnlyCount = catalogProviderCount - RUNTIME_PROVIDER_ORDER.length;
     const screen = render(
       <ThemeProvider mode="light">
         <LocalizationProvider language="en">
@@ -46,10 +50,10 @@ describe("ProviderSelectionGrid", () => {
       </ThemeProvider>,
     );
 
-    expect(screen.getAllByRole("button")).toHaveLength(40);
+    expect(screen.getAllByRole("button")).toHaveLength(catalogProviderCount);
     expect(
       screen.getByText(
-        "Showing 30 extra catalog-only providers here for UI inspection. Only the wired providers can be configured and called right now.",
+        `Showing ${catalogOnlyCount} extra catalog-only providers here for UI inspection. Only the wired providers can be configured and called right now.`,
       ),
     ).toBeTruthy();
 
