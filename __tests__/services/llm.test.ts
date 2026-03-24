@@ -276,6 +276,54 @@ describe("streamChat", () => {
       "https://api.cohere.com/v2/chat",
     );
   });
+
+  it("waits for async onDone work before resolving", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        message: {
+          content: [{ text: "Hi from Cohere." }],
+        },
+      }),
+    });
+
+    let markOnDoneStarted: (() => void) | null = null;
+    const onDoneStarted = new Promise<void>((resolve) => {
+      markOnDoneStarted = resolve;
+    });
+    let finishOnDone: (() => void) | null = null;
+    const onDoneCanFinish = new Promise<void>((resolve) => {
+      finishOnDone = resolve;
+    });
+    let settled = false;
+
+    const streamPromise = streamChat({
+      messages: mockMessages,
+      model: "command-a-03-2025",
+      provider: "cohere",
+      apiKey: "cohere-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: () => {},
+      onDone: async () => {
+        markOnDoneStarted?.();
+        await onDoneCanFinish;
+      },
+      onError: () => {},
+    }).then(() => {
+      settled = true;
+    });
+
+    await onDoneStarted;
+    await Promise.resolve();
+    expect(settled).toBe(false);
+
+    finishOnDone?.();
+    await streamPromise;
+    expect(settled).toBe(true);
+  });
 });
 
 describe("validateProviderConnection", () => {

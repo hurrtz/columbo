@@ -40,8 +40,8 @@ interface StreamChatParams {
   language: AppLanguage;
   conversationSummary?: string;
   onChunk: (text: string) => void;
-  onDone: (fullText: string, usage?: UsageEstimate) => void;
-  onError: (error: Error) => void;
+  onDone: (fullText: string, usage?: UsageEstimate) => void | Promise<void>;
+  onError: (error: Error) => void | Promise<void>;
   abortSignal?: AbortSignal;
 }
 
@@ -323,7 +323,7 @@ export async function streamChat({
       }
     }
 
-    onDone(
+    await onDone(
       fullText,
       estimateChatUsage({
         provider,
@@ -339,6 +339,6 @@ export async function streamChat({
       return;
     }
 
-    onError(error instanceof Error ? error : new Error(String(error)));
+    await onError(error instanceof Error ? error : new Error(String(error)));
   }
 }
