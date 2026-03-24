@@ -16,6 +16,10 @@ export type RuntimeLlmTransport =
   | "cohere";
 export type RuntimeSttTransport = "none" | "multipart" | "gemini";
 export type RuntimeTtsTransport = "none" | "binary" | "gemini";
+export type RuntimeTtsBinaryRequestFormat =
+  | "openai-speech"
+  | "together-speech"
+  | "xai-speech";
 export type RuntimeLanguageHintKey = "mistral-stt-language-code";
 
 export interface RuntimeModelSpec {
@@ -53,6 +57,7 @@ interface RuntimeTtsManifest {
   transport: RuntimeTtsTransport;
   endpoint?: string;
   endpointBase?: string;
+  requestFormat?: RuntimeTtsBinaryRequestFormat;
   defaultModel?: string;
   models: RuntimeModelSpec[];
   defaultVoice?: string;
@@ -171,6 +176,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "provider",
       transport: "binary",
       endpoint: "https://api.openai.com/v1/audio/speech",
+      requestFormat: "openai-speech",
       defaultModel: "gpt-4o-mini-tts",
       defaultVoice: "alloy",
       voiceFallback: "alloy",
@@ -354,6 +360,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "provider",
       transport: "binary",
       endpoint: "https://api.x.ai/v1/audio/speech",
+      requestFormat: "xai-speech",
       defaultModel: "grok-tts-mini",
       defaultVoice: "ara",
       voiceFallback: "alloy",
@@ -555,6 +562,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "provider",
       transport: "binary",
       endpoint: "https://api.together.xyz/v1/audio/speech",
+      requestFormat: "together-speech",
       defaultModel: "hexgrad/Kokoro-82M",
       defaultVoice: "af_alloy",
       voiceFallback: "alloy",

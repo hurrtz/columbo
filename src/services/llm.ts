@@ -21,7 +21,11 @@ import {
   requestOpenAICompatibleChat,
   requestOpenAICompatibleChatStream,
 } from "./llm/providers/openaiCompatible";
-import { ChatMessage, OPENAI_COMPATIBLE_ENDPOINTS } from "./llm/shared";
+import {
+  ChatMessage,
+  LLM_PROVIDER_CONFIGS,
+  ProviderLlmConfig,
+} from "./llm/shared";
 
 export { buildSystemPrompt } from "./llm/prompts";
 
@@ -41,6 +45,104 @@ interface StreamChatParams {
   abortSignal?: AbortSignal;
 }
 
+interface LlmRequestParams {
+  messages: ChatMessage[];
+  model: string;
+  provider: Provider;
+  apiKey: string;
+  language: AppLanguage;
+  systemPrompt: string;
+  abortSignal?: AbortSignal;
+}
+
+interface StreamingLlmRequestParams extends LlmRequestParams {
+  onChunk: (text: string) => void;
+}
+
+function buildProviderNotWiredUpError(provider: Provider, language: AppLanguage) {
+  return new Error(
+    translate(language, "providerNotWiredUpYet", {
+      provider: PROVIDER_LABELS[provider],
+    }),
+  );
+}
+
+function getLlmProviderConfigOrThrow(
+  provider: Provider,
+  language: AppLanguage,
+): ProviderLlmConfig {
+  const config = LLM_PROVIDER_CONFIGS[provider];
+
+  if (!config) {
+    throw buildProviderNotWiredUpError(provider, language);
+  }
+
+  return config;
+}
+
+const LLM_TEXT_REQUESTERS = {
+  "openai-compatible": async (
+    params: LlmRequestParams,
+    config: Extract<ProviderLlmConfig, { transport: "openai-compatible" }>,
+  ) =>
+    requestOpenAICompatibleChat({
+      endpoint: config.endpoint,
+      provider: params.provider,
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      abortSignal: params.abortSignal,
+    }),
+  anthropic: async (params: LlmRequestParams) =>
+    requestAnthropicChat({
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      abortSignal: params.abortSignal,
+    }),
+  cohere: async (params: LlmRequestParams) =>
+    requestCohereChat({
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      abortSignal: params.abortSignal,
+    }),
+} as const;
+
+const LLM_STREAM_REQUESTERS = {
+  "openai-compatible": async (
+    params: StreamingLlmRequestParams,
+    config: Extract<ProviderLlmConfig, { transport: "openai-compatible" }>,
+  ) =>
+    requestOpenAICompatibleChatStream({
+      endpoint: config.endpoint,
+      provider: params.provider,
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      onChunk: params.onChunk,
+      abortSignal: params.abortSignal,
+    }),
+  anthropic: async (params: StreamingLlmRequestParams) =>
+    requestAnthropicChatStream({
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      onChunk: params.onChunk,
+      abortSignal: params.abortSignal,
+    }),
+} as const;
+
 async function requestChatText(params: {
   messages: ChatMessage[];
   model: string;
@@ -50,46 +152,17 @@ async function requestChatText(params: {
   systemPrompt: string;
   abortSignal?: AbortSignal;
 }) {
-  const openAICompatibleEndpoint = OPENAI_COMPATIBLE_ENDPOINTS[params.provider];
+  const config = getLlmProviderConfigOrThrow(params.provider, params.language);
 
-  if (openAICompatibleEndpoint) {
-    return requestOpenAICompatibleChat({
-      endpoint: openAICompatibleEndpoint,
-      provider: params.provider,
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      abortSignal: params.abortSignal,
-    });
-  }
-
-  switch (params.provider) {
+  switch (config.transport) {
+    case "openai-compatible":
+      return LLM_TEXT_REQUESTERS["openai-compatible"](params, config);
     case "anthropic":
-      return requestAnthropicChat({
-        model: params.model,
-        messages: params.messages,
-        apiKey: params.apiKey,
-        language: params.language,
-        systemPrompt: params.systemPrompt,
-        abortSignal: params.abortSignal,
-      });
+      return LLM_TEXT_REQUESTERS.anthropic(params);
     case "cohere":
-      return requestCohereChat({
-        model: params.model,
-        messages: params.messages,
-        apiKey: params.apiKey,
-        language: params.language,
-        systemPrompt: params.systemPrompt,
-        abortSignal: params.abortSignal,
-      });
+      return LLM_TEXT_REQUESTERS.cohere(params);
     default:
-      throw new Error(
-        translate(params.language, "providerNotWiredUpYet", {
-          provider: PROVIDER_LABELS[params.provider],
-        }),
-      );
+      throw buildProviderNotWiredUpError(params.provider, params.language);
   }
 }
 
@@ -202,32 +275,39 @@ export async function streamChat({
       language,
       conversationSummary,
     });
-    const openAICompatibleEndpoint = OPENAI_COMPATIBLE_ENDPOINTS[provider];
+    const config = getLlmProviderConfigOrThrow(provider, language);
     let fullText = "";
 
-    if (openAICompatibleEndpoint) {
-      fullText = await requestOpenAICompatibleChatStream({
-        endpoint: openAICompatibleEndpoint,
-        provider,
-        model,
-        messages,
-        apiKey,
-        language,
-        systemPrompt,
-        onChunk,
-        abortSignal,
-      });
-    } else if (provider === "anthropic") {
-      fullText = await requestAnthropicChatStream({
-        model,
-        messages,
-        apiKey,
-        language,
-        systemPrompt,
-        onChunk,
-        abortSignal,
-      });
-    } else {
+    switch (config.transport) {
+      case "openai-compatible":
+        fullText = await LLM_STREAM_REQUESTERS["openai-compatible"](
+          {
+            messages,
+            model,
+            provider,
+            apiKey,
+            language,
+            systemPrompt,
+            onChunk,
+            abortSignal,
+          },
+          config,
+        );
+        break;
+      case "anthropic":
+        fullText = await LLM_STREAM_REQUESTERS.anthropic({
+          messages,
+          model,
+          provider,
+          apiKey,
+          language,
+          systemPrompt,
+          onChunk,
+          abortSignal,
+        });
+        break;
+      case "cohere":
+      default:
       fullText = await requestChatText({
         messages,
         model,

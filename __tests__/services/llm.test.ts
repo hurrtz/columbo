@@ -75,6 +75,37 @@ describe("streamChat", () => {
 
     expect(chunks).toEqual(["Hi there."]);
   });
+
+  it("falls back to a non-streaming transport for cohere", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        message: {
+          content: [{ text: "Hi from Cohere." }],
+        },
+      }),
+    });
+
+    const chunks: string[] = [];
+    await streamChat({
+      messages: mockMessages,
+      model: "command-a-03-2025",
+      provider: "cohere",
+      apiKey: "cohere-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi from Cohere."]);
+    expect((fetch as jest.Mock).mock.calls[0][0]).toBe(
+      "https://api.cohere.com/v2/chat",
+    );
+  });
 });
 
 describe("validateProviderConnection", () => {

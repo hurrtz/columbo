@@ -1,5 +1,8 @@
 import { PROVIDER_LABELS } from "../../constants/models";
-import { RUNTIME_PROVIDER_MANIFEST } from "../../constants/providers/runtimeManifest";
+import {
+  RUNTIME_PROVIDER_MANIFEST,
+  RuntimeLlmTransport,
+} from "../../constants/providers/runtimeManifest";
 import { translate } from "../../i18n";
 import { AppLanguage, Provider } from "../../types";
 
@@ -8,14 +11,53 @@ export interface ChatMessage {
   content: string;
 }
 
-export const OPENAI_COMPATIBLE_ENDPOINTS: Partial<Record<Provider, string>> =
-  Object.fromEntries(
-    Object.entries(RUNTIME_PROVIDER_MANIFEST).flatMap(([provider, manifest]) =>
-      manifest.llm.transport === "openai-compatible" && manifest.llm.endpoint
-        ? [[provider, manifest.llm.endpoint]]
-        : [],
-    ),
-  ) as Partial<Record<Provider, string>>;
+type OpenAiCompatibleLlmConfig = {
+  transport: "openai-compatible";
+  endpoint: string;
+};
+
+type TransportOnlyLlmConfig = {
+  transport: Exclude<RuntimeLlmTransport, "openai-compatible">;
+};
+
+export type ProviderLlmConfig = OpenAiCompatibleLlmConfig | TransportOnlyLlmConfig;
+
+const llmProviderConfigEntries: Array<[Provider, ProviderLlmConfig]> = [];
+
+for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
+  const manifest = RUNTIME_PROVIDER_MANIFEST[provider];
+
+  switch (manifest.llm.transport) {
+    case "openai-compatible":
+      if (!manifest.llm.endpoint) {
+        break;
+      }
+
+      llmProviderConfigEntries.push([
+        provider,
+        {
+          transport: "openai-compatible",
+          endpoint: manifest.llm.endpoint,
+        },
+      ]);
+      break;
+    case "anthropic":
+    case "cohere":
+      llmProviderConfigEntries.push([
+        provider,
+        {
+          transport: manifest.llm.transport,
+        },
+      ]);
+      break;
+  }
+}
+
+export const LLM_PROVIDER_CONFIGS: Record<Provider, ProviderLlmConfig> =
+  Object.fromEntries(llmProviderConfigEntries) as Record<
+    Provider,
+    ProviderLlmConfig
+  >;
 
 export function toAPIMessages(messages: ChatMessage[]) {
   return messages.map((message) => ({

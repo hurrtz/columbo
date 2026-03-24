@@ -1,4 +1,5 @@
 import { PROVIDER_LABELS } from "../../constants/models";
+import { RuntimeTtsBinaryRequestFormat } from "../../constants/providers/runtimeManifest";
 import { translate } from "../../i18n";
 import { AppLanguage, Provider } from "../../types";
 import { getTogetherTtsLanguageCode } from "../../utils/speechLanguage";
@@ -51,6 +52,44 @@ function isRetryableGeminiTransportError(error: unknown) {
     normalized.includes("failed to fetch") ||
     normalized.includes("load failed")
   );
+}
+
+function buildBinaryTtsRequestBody(params: {
+  requestFormat: RuntimeTtsBinaryRequestFormat;
+  selectedModel: string;
+  selectedVoice: string;
+  text: string;
+}) {
+  switch (params.requestFormat) {
+    case "together-speech":
+      return {
+        model: params.selectedModel,
+        voice: params.selectedVoice,
+        input: params.text,
+        response_format: "mp3",
+        language: getTogetherTtsLanguageCode(params.text),
+      };
+    case "xai-speech":
+      return {
+        model: params.selectedModel,
+        text: params.text,
+        voice_id: params.selectedVoice,
+        language: "auto",
+        output_format: {
+          codec: "mp3",
+          sample_rate: 24000,
+          bit_rate: 128000,
+        },
+      };
+    case "openai-speech":
+    default:
+      return {
+        model: params.selectedModel,
+        voice: params.selectedVoice,
+        input: params.text,
+        response_format: "mp3",
+      };
+  }
 }
 
 export async function synthesizeProviderSpeech(params: {
@@ -176,33 +215,12 @@ export async function synthesizeProviderSpeech(params: {
     throw createTtsTimeoutError({ provider, language });
   }
 
-  const requestBody =
-    provider === "together"
-      ? {
-          model: selectedModel,
-          voice: selectedVoice,
-          input: text,
-          response_format: "mp3",
-          language: getTogetherTtsLanguageCode(text),
-        }
-      : provider === "xai"
-        ? {
-            model: selectedModel,
-            text,
-            voice_id: selectedVoice,
-            language: "auto",
-            output_format: {
-              codec: "mp3",
-              sample_rate: 24000,
-              bit_rate: 128000,
-            },
-          }
-        : {
-            model: selectedModel,
-            voice: selectedVoice,
-            input: text,
-            response_format: "mp3",
-          };
+  const requestBody = buildBinaryTtsRequestBody({
+    requestFormat: config.requestFormat,
+    selectedModel,
+    selectedVoice,
+    text,
+  });
 
   const response = await fetchWithTimeout(
     config.endpoint,

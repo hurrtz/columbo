@@ -5,7 +5,10 @@ import {
   PROVIDER_DEFAULT_TTS_VOICES,
   PROVIDER_LABELS,
 } from "../../constants/models";
-import { RUNTIME_PROVIDER_MANIFEST } from "../../constants/providers/runtimeManifest";
+import {
+  RUNTIME_PROVIDER_MANIFEST,
+  RuntimeTtsBinaryRequestFormat,
+} from "../../constants/providers/runtimeManifest";
 import { translate } from "../../i18n";
 import { AppLanguage, Provider } from "../../types";
 import { extractProviderErrorMessage } from "../providerErrors";
@@ -48,6 +51,7 @@ export class TtsTimeoutError extends Error {
 type BinaryTtsConfig = {
   kind: "binary";
   endpoint: string;
+  requestFormat: RuntimeTtsBinaryRequestFormat;
   defaultModel: string;
   voiceFallback: string;
 };
@@ -69,6 +73,7 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
   if (
     manifest.tts.transport === "binary" &&
     manifest.tts.endpoint &&
+    manifest.tts.requestFormat &&
     manifest.tts.defaultModel &&
     manifest.tts.voiceFallback
   ) {
@@ -77,6 +82,7 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       {
         kind: "binary",
         endpoint: manifest.tts.endpoint,
+        requestFormat: manifest.tts.requestFormat,
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,
       },
