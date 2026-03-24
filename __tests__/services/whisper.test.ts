@@ -181,6 +181,30 @@ describe("transcribeAudio", () => {
     );
   });
 
+  it("uses the Fish Audio multipart STT endpoint without a model picker", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        text: "Hello from Fish Audio",
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "fish-audio",
+      apiKey: "fish-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from Fish Audio");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.fish.audio/v1/asr");
+    expect(options.headers.Authorization).toBe("Bearer fish-test");
+    expect((options.body as FormData).get("ignore_timestamps")).toBe("true");
+    expect((options.body as FormData).get("audio")).toBeTruthy();
+  });
+
   it("uses the Fireworks offline transcription route with raw API-key auth", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
@@ -264,6 +288,61 @@ describe("transcribeAudio", () => {
     expect(body.messages[0].content[0].input_audio.data).toMatch(
       /^data:audio\/m4a;base64,/,
     );
+  });
+
+  it("uses Baidu short-speech recognition with a bearer token and base64 audio", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        result: ["你好，百度"],
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "baidu-ernie-qianfan",
+      apiKey: "baidu-test",
+      language: "en",
+    });
+
+    expect(result).toBe("你好，百度");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("http://vop.baidu.com/server_api");
+    expect(options.headers.Authorization).toBe("Bearer baidu-test");
+    expect(JSON.parse(options.body)).toEqual({
+      format: "m4a",
+      rate: 16000,
+      channel: 1,
+      cuid: "schnackai",
+      dev_pid: 1737,
+      token: "baidu-test",
+      speech: "ZmFrZQ==",
+      len: 4,
+    });
+  });
+
+  it("switches Baidu STT endpoints for the 极速版 speech surface", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        result: ["你好，极速版"],
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "baidu-ernie-qianfan",
+      providerModel: "短语音识别极速版",
+      apiKey: "baidu-test",
+      language: "de",
+    });
+
+    expect(result).toBe("你好，极速版");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://vop.baidu.com/pro_api");
+    expect(JSON.parse(options.body).dev_pid).toBe(80001);
   });
 
   it("uses the Deepgram pre-recorded upload endpoint for native speech models", async () => {

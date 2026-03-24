@@ -120,6 +120,39 @@ describe("synthesizeProviderSpeech", () => {
     });
   });
 
+  it("uses Fish Audio TTS with the backend model header", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "fish-audio",
+      providerModel: "speech-1.6",
+      apiKey: "fish-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.fish.audio/v1/tts");
+    expect(options.headers.Authorization).toBe("Bearer fish-test");
+    expect(options.headers.model).toBe("speech-1.6");
+    expect(JSON.parse(options.body)).toEqual({
+      text: "Hello world",
+      format: "mp3",
+      chunk_length: 200,
+      min_chunk_length: 50,
+      normalize: true,
+      prosody: {
+        speed: 1,
+        volume: 0,
+      },
+    });
+  });
+
   it("uses Groq TTS with a model-specific fallback voice and wav output", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
@@ -348,6 +381,32 @@ describe("synthesizeProviderSpeech", () => {
       response_format: "wav",
       stream: false,
     });
+  });
+
+  it("uses Baidu short-text TTS with form-encoded synthesis parameters", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "baidu-ernie-qianfan",
+      apiKey: "baidu-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://tsn.baidu.com/text2audio");
+    expect(options.headers.Authorization).toBe("Bearer baidu-test");
+    expect(options.headers["Content-Type"]).toBe(
+      "application/x-www-form-urlencoded",
+    );
+    expect(options.body).toBe(
+      "tex=Hello+world&tok=baidu-test&cuid=schnackai&ctp=1&lan=zh&per=0&spd=5&pit=5&vol=5&aue=3",
+    );
   });
 
   it("uses Novita GLM-TTS with the documented voice and wav output", async () => {

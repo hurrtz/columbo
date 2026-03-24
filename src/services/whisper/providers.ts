@@ -7,8 +7,10 @@ import { fetchWithTimeout } from "./abort";
 import { STT_TIMEOUT_MS } from "./config";
 import type {
   AssemblyAiPreRecordedTranscriptionConfig,
+  BaiduShortSpeechTranscriptionConfig,
   DeepgramPreRecordedTranscriptionConfig,
   ElevenLabsTranscriptionConfig,
+  FishAudioTranscriptionConfig,
   FireworksPreRecordedTranscriptionConfig,
   GeminiTranscriptionConfig,
   HuggingFaceJsonTranscriptionConfig,
@@ -74,6 +76,34 @@ function getFireworksTranscriptionEndpoint(model: string) {
   return model === "whisper-v3-turbo"
     ? "https://audio-turbo.api.fireworks.ai/v1/audio/transcriptions"
     : "https://audio-prod.api.fireworks.ai/v1/audio/transcriptions";
+}
+
+function getBaiduSpeechEndpoint(model: string) {
+  return model === "短语音识别极速版"
+    ? "https://vop.baidu.com/pro_api"
+    : "http://vop.baidu.com/server_api";
+}
+
+function getBaiduSpeechFormat(fileUri: string) {
+  const extension = fileUri.split(".").pop()?.toLowerCase();
+
+  switch (extension) {
+    case "pcm":
+    case "wav":
+    case "amr":
+    case "m4a":
+      return extension;
+    default:
+      return "wav";
+  }
+}
+
+function getBaiduSpeechPid(model: string, language: AppLanguage) {
+  if (model === "短语音识别极速版") {
+    return 80001;
+  }
+
+  return language === "en" ? 1737 : 1537;
 }
 
 export async function transcribeWithGeminiProvider(
@@ -282,6 +312,75 @@ export async function transcribeWithOpenAiAudioInputProvider(
   return text ? text : null;
 }
 
+export async function transcribeWithBaiduShortSpeechProvider(
+  params: SharedProviderParams & {
+    config: BaiduShortSpeechTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const selectedModel = providerModel || config.defaultModel;
+  const base64 = await FileSystem.readAsStringAsync(fileUri, {
+    encoding: "base64",
+  });
+  const bytes = base64ToBytes(base64);
+  const authToken = requireProviderKey(provider, apiKey, language);
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      getBaiduSpeechEndpoint(selectedModel),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          format: getBaiduSpeechFormat(fileUri),
+          rate: 16000,
+          channel: 1,
+          cuid: "schnackai",
+          dev_pid: getBaiduSpeechPid(selectedModel, language),
+          token: authToken,
+          speech: base64,
+          len: bytes.byteLength,
+        }),
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const text =
+    (Array.isArray(data?.result) && typeof data.result[0] === "string"
+      ? data.result[0]
+      : null) || (typeof data?.result === "string" ? data.result : null);
+
+  return text?.trim() ? text.trim() : null;
+}
+
 export async function transcribeWithFireworksPreRecordedProvider(
   params: SharedProviderParams & {
     config: FireworksPreRecordedTranscriptionConfig;
@@ -426,6 +525,64 @@ export async function transcribeWithNovitaJsonProvider(
         body: JSON.stringify({
           file: base64,
         }),
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const text = data.text?.trim();
+  return text ? text : null;
+}
+
+export async function transcribeWithFishAudioProvider(
+  params: SharedProviderParams & {
+    config: FishAudioTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider } = params;
+  const formData = new FormData();
+  formData.append(
+    "audio",
+    {
+      uri: fileUri,
+      type: getFileAudioMimeType(fileUri),
+      name: fileUri.split("/").pop() || "recording.m4a",
+    } as any,
+  );
+  formData.append("ignore_timestamps", "true");
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      config.endpoint,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+        },
+        body: formData,
       },
       STT_TIMEOUT_MS,
       () => createSttTimeoutError({ provider, language }),

@@ -583,6 +583,48 @@ export async function synthesizeProviderSpeech(params: {
     return writeBlobAudioFile(await audioResponse.blob(), "wav");
   }
 
+  if (config.kind === "baidu") {
+    const authToken = requireProviderKey(provider, apiKey, language);
+    const formData = new URLSearchParams();
+    formData.set("tex", text);
+    formData.set("tok", authToken);
+    formData.set("cuid", "schnackai");
+    formData.set("ctp", "1");
+    formData.set("lan", "zh");
+    formData.set("per", selectedVoice || config.voiceFallback);
+    formData.set("spd", "5");
+    formData.set("pit", "5");
+    formData.set("vol", "5");
+    formData.set("aue", "3");
+
+    const response = await fetchWithTimeout(
+      config.endpoint,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: formData.toString(),
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw buildTtsRequestError({
+        provider,
+        status: response.status,
+        errorText,
+        language,
+      });
+    }
+
+    return writeBlobAudioFile(await response.blob(), "mp3");
+  }
+
   if (config.kind === "deepgram") {
     const voiceModel = getDeepgramVoiceModel(selectedModel, selectedVoice);
     const response = await fetchWithTimeout(
@@ -613,6 +655,46 @@ export async function synthesizeProviderSpeech(params: {
     }
 
     return writeBlobAudioFile(await response.blob());
+  }
+
+  if (config.kind === "fish-audio") {
+    const response = await fetchWithTimeout(
+      config.endpoint,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+          model: selectedModel,
+        },
+        body: JSON.stringify({
+          text,
+          format: "mp3",
+          chunk_length: 200,
+          min_chunk_length: 50,
+          normalize: true,
+          prosody: {
+            speed: 1,
+            volume: 0,
+          },
+        }),
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw buildTtsRequestError({
+        provider,
+        status: response.status,
+        errorText,
+        language,
+      });
+    }
+
+    return writeBlobAudioFile(await response.blob(), "mp3");
   }
 
   if (config.kind === "hyperbolic") {

@@ -10,8 +10,10 @@ import { STT_PROVIDER_CONFIGS } from "./whisper/config";
 import { waitForRecordedFileReady } from "./whisper/recordedFileReady";
 import {
   transcribeWithAssemblyAiPreRecordedProvider,
+  transcribeWithBaiduShortSpeechProvider,
   transcribeWithDeepgramPreRecordedProvider,
   transcribeWithElevenLabsProvider,
+  transcribeWithFishAudioProvider,
   transcribeWithFireworksPreRecordedProvider,
   transcribeWithGeminiProvider,
   transcribeWithHuggingFaceJsonProvider,
@@ -141,6 +143,18 @@ export async function transcribeAudio(params: {
     });
   }
 
+  if (config.kind === "baidu-short-speech") {
+    return transcribeWithBaiduShortSpeechProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: selectedModel,
+    });
+  }
+
   if (config.kind === "assemblyai-pre-recorded") {
     return transcribeWithAssemblyAiPreRecordedProvider({
       abortSignal,
@@ -167,6 +181,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "fireworks-pre-recorded") {
     return transcribeWithFireworksPreRecordedProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: selectedModel,
+    });
+  }
+
+  if (config.kind === "fish-audio") {
+    return transcribeWithFishAudioProvider({
       abortSignal,
       apiKey,
       config,

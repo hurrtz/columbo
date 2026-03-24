@@ -78,6 +78,10 @@ describe("speech provider constants", () => {
         name: "Whisper large-v3-turbo",
       },
     ]);
+    expect(getProviderSttModelOptions("baidu-ernie-qianfan")).toEqual([
+      { id: "短语音识别", name: "Short Speech Recognition" },
+      { id: "短语音识别极速版", name: "Short Speech Recognition Pro / 极速版" },
+    ]);
   });
 
   it("uses catalog labels for exact TTS model matches", () => {
@@ -107,6 +111,12 @@ describe("speech provider constants", () => {
       { id: "eleven_turbo_v2", name: "Eleven Turbo v2" },
       { id: "eleven_monolingual_v1", name: "Eleven Monolingual v1" },
       { id: "eleven_multilingual_v1", name: "Eleven Multilingual v1" },
+    ]);
+    expect(getProviderTtsModelOptions("fish-audio")).toEqual([
+      { id: "s2-pro", name: "Fish Audio S2-Pro" },
+      { id: "s1", name: "Fish Audio S1" },
+      { id: "speech-1.6", name: "Fish Speech v1.6" },
+      { id: "speech-1.5", name: "Fish Speech v1.5" },
     ]);
     expect(getProviderTtsModelOptions("groq")).toEqual([
       {
@@ -147,6 +157,9 @@ describe("speech provider constants", () => {
       { id: "minimax-speech-2.6-turbo", name: "MiniMax Speech-2.6 Turbo" },
       { id: "minimax-speech-2.8-hd", name: "MiniMax Speech 2.8 HD" },
       { id: "glm-tts", name: "GLM Text to Speech" },
+    ]);
+    expect(getProviderTtsModelOptions("baidu-ernie-qianfan")).toEqual([
+      { id: "短文本语音合成", name: "Short Text Speech Synthesis" },
     ]);
     expect(getProviderTtsModelOptions("z-ai-zhipu-ai")).toEqual([
       { id: "glm-tts", name: "GLM-TTS" },

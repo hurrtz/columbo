@@ -15,6 +15,11 @@ export type OpenAiAudioInputTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type BaiduShortSpeechTranscriptionConfig = {
+  kind: "baidu-short-speech";
+  defaultModel: string;
+};
+
 export type AssemblyAiPreRecordedTranscriptionConfig = {
   kind: "assemblyai-pre-recorded";
   endpointBase: string;
@@ -29,6 +34,12 @@ export type DeepgramPreRecordedTranscriptionConfig = {
 
 export type FireworksPreRecordedTranscriptionConfig = {
   kind: "fireworks-pre-recorded";
+  defaultModel: string;
+};
+
+export type FishAudioTranscriptionConfig = {
+  kind: "fish-audio";
+  endpoint: string;
   defaultModel: string;
 };
 
@@ -75,9 +86,11 @@ const sttProviderConfigEntries: Array<
     | MultipartTranscriptionConfig
     | GeminiTranscriptionConfig
     | OpenAiAudioInputTranscriptionConfig
+    | BaiduShortSpeechTranscriptionConfig
     | AssemblyAiPreRecordedTranscriptionConfig
     | DeepgramPreRecordedTranscriptionConfig
     | FireworksPreRecordedTranscriptionConfig
+    | FishAudioTranscriptionConfig
     | HuggingFaceJsonTranscriptionConfig
     | NovitaJsonTranscriptionConfig
     | ElevenLabsTranscriptionConfig,
@@ -115,6 +128,19 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       {
         kind: "openai-audio-input",
         endpoint: manifest.stt.endpoint,
+        defaultModel: manifest.stt.defaultModel,
+      },
+    ]);
+  }
+
+  if (
+    manifest.stt.transport === "baidu-short-speech" &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "baidu-short-speech",
         defaultModel: manifest.stt.defaultModel,
       },
     ]);
@@ -179,6 +205,21 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
   }
 
   if (
+    manifest.stt.transport === "fish-audio" &&
+    manifest.stt.endpoint &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "fish-audio",
+        endpoint: manifest.stt.endpoint,
+        defaultModel: manifest.stt.defaultModel,
+      },
+    ]);
+  }
+
+  if (
     manifest.stt.transport === "huggingface-json" &&
     manifest.stt.endpointBase &&
     manifest.stt.defaultModel
@@ -230,9 +271,11 @@ export const STT_PROVIDER_CONFIGS: Partial<
     | MultipartTranscriptionConfig
     | GeminiTranscriptionConfig
     | OpenAiAudioInputTranscriptionConfig
+    | BaiduShortSpeechTranscriptionConfig
     | AssemblyAiPreRecordedTranscriptionConfig
     | DeepgramPreRecordedTranscriptionConfig
     | FireworksPreRecordedTranscriptionConfig
+    | FishAudioTranscriptionConfig
     | HuggingFaceJsonTranscriptionConfig
     | NovitaJsonTranscriptionConfig
     | ElevenLabsTranscriptionConfig

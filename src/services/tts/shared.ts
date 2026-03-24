@@ -56,6 +56,13 @@ type BinaryTtsConfig = {
   voiceFallback: string;
 };
 
+type BaiduTtsConfig = {
+  kind: "baidu";
+  endpoint: string;
+  defaultModel: string;
+  voiceFallback: string;
+};
+
 type GeminiTtsConfig = {
   kind: "gemini";
   endpointBase: string;
@@ -75,6 +82,12 @@ type DeepgramTtsConfig = {
   endpointBase: string;
   defaultModel: string;
   voiceFallback: string;
+};
+
+type FishAudioTtsConfig = {
+  kind: "fish-audio";
+  endpoint: string;
+  defaultModel: string;
 };
 
 type HyperbolicTtsConfig = {
@@ -107,9 +120,11 @@ type ElevenLabsTtsConfig = {
 
 export type ProviderTtsConfig =
   | BinaryTtsConfig
+  | BaiduTtsConfig
   | GeminiTtsConfig
   | DashScopeTtsConfig
   | DeepgramTtsConfig
+  | FishAudioTtsConfig
   | HyperbolicTtsConfig
   | MinimaxTtsConfig
   | NovitaTtsConfig
@@ -133,6 +148,23 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
         kind: "binary",
         endpoint: manifest.tts.endpoint,
         requestFormat: manifest.tts.requestFormat,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
+    manifest.tts.transport === "baidu" &&
+    manifest.tts.endpoint &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "baidu",
+        endpoint: manifest.tts.endpoint,
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,
       },
@@ -169,6 +201,21 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
         endpointBase: manifest.tts.endpointBase,
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
+    manifest.tts.transport === "fish-audio" &&
+    manifest.tts.endpoint &&
+    manifest.tts.defaultModel
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "fish-audio",
+        endpoint: manifest.tts.endpoint,
+        defaultModel: manifest.tts.defaultModel,
       },
     ]);
   }
@@ -519,9 +566,12 @@ export function getSelectedProviderVoice(params: {
   requestedVoice: string;
   config: ProviderTtsConfig;
 }) {
+  const configVoiceFallback =
+    "voiceFallback" in params.config ? params.config.voiceFallback : "";
+
   return (
     params.requestedVoice ||
-    params.config.voiceFallback ||
+    configVoiceFallback ||
     PROVIDER_DEFAULT_TTS_VOICES[params.provider] ||
     ""
   );

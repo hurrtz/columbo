@@ -12,6 +12,7 @@ export type RuntimeAppProviderId =
   | "bytedance-doubao-seed"
   | "deepgram"
   | "elevenlabs"
+  | "fish-audio"
   | "gemini"
   | "cerebras"
   | "cohere"
@@ -44,18 +45,22 @@ export type RuntimeSttTransport =
   | "multipart"
   | "gemini"
   | "openai-audio-input"
+  | "baidu-short-speech"
   | "assemblyai-pre-recorded"
   | "deepgram-pre-recorded"
   | "fireworks-pre-recorded"
+  | "fish-audio"
   | "huggingface-json"
   | "novita-json"
   | "elevenlabs";
 export type RuntimeTtsTransport =
   | "none"
   | "binary"
+  | "baidu"
   | "gemini"
   | "dashscope"
   | "deepgram"
+  | "fish-audio"
   | "hyperbolic"
   | "minimax"
   | "novita"
@@ -209,6 +214,7 @@ export const RUNTIME_PROVIDER_ORDER = [
   "bytedance-doubao-seed",
   "deepgram",
   "elevenlabs",
+  "fish-audio",
   "gemini",
   "xai",
   "groq",
@@ -505,15 +511,32 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("baidu-ernie-qianfan", "llm"),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "baidu-short-speech",
+      defaultModel: "短语音识别",
+      models: [
+        namedModel("短语音识别", "Short Speech Recognition"),
+        namedModel("短语音识别极速版", "Short Speech Recognition Pro / 极速版"),
+      ],
+      languageNote:
+        "Baidu is currently wired only for its short-form request/response ASR surfaces. The async file-transcription job API and realtime WebSocket transcription remain catalog-only until the app gains long-file URL handling and realtime transports.",
     },
     tts: {
-      support: "none",
-      transport: "none",
-      models: [],
-      voiceOptions: [],
+      support: "provider",
+      transport: "baidu",
+      endpoint: "https://tsn.baidu.com/text2audio",
+      defaultModel: "短文本语音合成",
+      defaultVoice: "0",
+      voiceFallback: "0",
+      models: [namedModel("短文本语音合成", "Short Text Speech Synthesis")],
+      voiceOptions: [
+        voice("0", "Standard female"),
+        voice("1", "Standard male"),
+        voice("3", "Emotional female"),
+        voice("4", "Emotional child"),
+      ],
+      languageNote:
+        "Baidu is currently wired only for the short-text REST TTS API. Long-text async synthesis and streaming WebSocket TTS remain catalog-only until the app grows async job and realtime speech transports.",
     },
   },
   "bytedance-doubao-seed": {
@@ -630,6 +653,41 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       ],
       languageNote:
         "ElevenLabs voices are live-discovered and dynamic. The current runtime uses a documented example voice as the default fallback; the TTS models themselves remain selectable and the voice catalog can be expanded later with live discovery.",
+    },
+  },
+  "fish-audio": {
+    appProvider: "fish-audio",
+    catalogProviderId: "fish-audio",
+    label: "Fish Audio",
+    shortLabel: "FISH",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks Fish Audio hosted speech-to-text and text-to-speech APIs.",
+    apiKeyUrl: "https://fish.audio/plan/",
+    llm: {
+      support: "none",
+      transport: "none",
+      models: [],
+      defaultModel: "",
+    },
+    stt: {
+      support: "provider",
+      transport: "fish-audio",
+      endpoint: "https://api.fish.audio/v1/asr",
+      defaultModel: "transcribe-1",
+      models: [],
+      languageNote:
+        "Fish Audio STT is a generic provider endpoint rather than a stable public model picker. The hosted /v1/asr API auto-detects language; official docs publish a 20 MB / 60 minute cap but do not expose a canonical STT model ID.",
+    },
+    tts: {
+      support: "provider",
+      transport: "fish-audio",
+      endpoint: "https://api.fish.audio/v1/tts",
+      defaultModel: "s2-pro",
+      models: catalogModelSpecs("fish-audio", "tts"),
+      voiceOptions: [],
+      languageNote:
+        "Fish Audio TTS is backend-driven rather than voice-id driven. Current official backends include s2-pro and s1, while legacy speech-1.6 and speech-1.5 remain relevant for older integrations even though the catalog marks them deprecated.",
     },
   },
   gemini: {

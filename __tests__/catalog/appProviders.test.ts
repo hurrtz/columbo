@@ -30,6 +30,7 @@ describe("app provider catalog bridge", () => {
       "bytedance-doubao-seed": "bytedance-doubao-seed",
       deepgram: "deepgram",
       elevenlabs: "elevenlabs",
+      "fish-audio": "fish-audio",
       gemini: "google-vertex-ai-studio",
       cerebras: "cerebras",
       cohere: "cohere",
@@ -63,6 +64,7 @@ describe("app provider catalog bridge", () => {
     );
     expect(getAppProviderForCatalogProviderId("deepgram")).toBe("deepgram");
     expect(getAppProviderForCatalogProviderId("elevenlabs")).toBe("elevenlabs");
+    expect(getAppProviderForCatalogProviderId("fish-audio")).toBe("fish-audio");
     expect(isCatalogProviderId("google-vertex-ai-studio")).toBe(true);
     expect(isCatalogProviderId("not-a-provider")).toBe(false);
     expect(listCatalogProviderIds()).toContain("z-ai-zhipu-ai");

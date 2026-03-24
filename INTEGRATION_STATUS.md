@@ -11,12 +11,12 @@ Catalog updated: 2026-03-23
 ## Summary
 
 - Catalog providers: 40
-- Providers with any runtime integration: 31
+- Providers with any runtime integration: 32
 - Catalog models: 455
-- Integrated models: 333
+- Integrated models: 340
 - LLM: 245/294 integrated
-- STT: 35/71 integrated
-- TTS: 53/90 integrated
+- STT: 37/71 integrated
+- TTS: 58/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -179,7 +179,7 @@ Catalog updated: 2026-03-23
 ## Baidu (ERNIE / Qianfan) `baidu-ernie-qianfan`
 
 - Runtime provider: `baidu-ernie-qianfan`
-- Model integration: 10/17 integrated
+- Model integration: 13/17 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -196,10 +196,10 @@ Catalog updated: 2026-03-23
 | LLM | `ernie-x1.1-preview` | ERNIE X1.1 Preview | Integrated | `ernie-x1.1-preview` |
 | STT | `音频文件转写` | Audio File Transcription | Not integrated | — |
 | STT | `实时语音识别-websocket API` | Realtime Speech Recognition WebSocket API | Not integrated | — |
-| STT | `短语音识别` | Short Speech Recognition | Not integrated | — |
-| STT | `短语音识别极速版` | Short Speech Recognition Pro / 极速版 | Not integrated | — |
+| STT | `短语音识别` | Short Speech Recognition | Integrated | `短语音识别` |
+| STT | `短语音识别极速版` | Short Speech Recognition Pro / 极速版 | Integrated | `短语音识别极速版` |
 | TTS | `长文本合成` | Long Text Speech Synthesis | Not integrated | — |
-| TTS | `短文本语音合成` | Short Text Speech Synthesis | Not integrated | — |
+| TTS | `短文本语音合成` | Short Text Speech Synthesis | Integrated | `短文本语音合成` |
 | TTS | `流式文本在线合成` | Streaming Text-to-Speech | Not integrated | — |
 
 ## ByteDance (Doubao/Seed) `bytedance-doubao-seed`
@@ -339,16 +339,16 @@ Catalog updated: 2026-03-23
 
 ## Fisch Audio `fish-audio`
 
-- Runtime provider: catalog-only
-- Model integration: 0/4 integrated
+- Runtime provider: `fish-audio`
+- Model integration: 4/4 integrated
 - Verified support: LLM `unsupported`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| TTS | `s1` | Fish Audio S1 | Not integrated | — |
-| TTS | `s2-pro` | Fish Audio S2-Pro | Not integrated | — |
-| TTS | `speech-1.5` | Fish Speech v1.5 | Not integrated | — |
-| TTS | `speech-1.6` | Fish Speech v1.6 | Not integrated | — |
+| TTS | `s1` | Fish Audio S1 | Integrated | `s1` |
+| TTS | `s2-pro` | Fish Audio S2-Pro | Integrated | `s2-pro` |
+| TTS | `speech-1.5` | Fish Speech v1.5 | Integrated | `speech-1.5` |
+| TTS | `speech-1.6` | Fish Speech v1.6 | Integrated | `speech-1.6` |
 
 ## Google Vertex AI Studio `google-vertex-ai-studio`
 
