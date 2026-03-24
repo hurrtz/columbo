@@ -34,6 +34,13 @@ describe("speech provider constants", () => {
     expect(getProviderSttModelOptions("alibaba-qwen-dashscope")).toEqual([
       { id: "qwen3-asr-flash", name: "Qwen3-ASR-Flash" },
     ]);
+    expect(getProviderSttModelOptions("stepfun")).toEqual([
+      { id: "step-asr", name: "Step ASR" },
+    ]);
+    expect(getProviderSttModelOptions("siliconflow")).toEqual([
+      { id: "FunAudioLLM/SenseVoiceSmall", name: "SenseVoiceSmall" },
+      { id: "TeleAI/TeleSpeechASR", name: "TeleSpeechASR" },
+    ]);
   });
 
   it("uses catalog labels for exact TTS model matches", () => {
@@ -42,18 +49,21 @@ describe("speech provider constants", () => {
         (option) => option.id === "gpt-4o-mini-tts",
       )?.name,
     ).toBe("GPT-4o mini TTS");
-  });
-
-  it("falls back to the configured label when the TTS model is not in the workbook catalog", () => {
-    expect(getTtsModelLabel("gemini", "gemini-2.5-flash-preview-tts")).toBe(
-      "Gemini 2.5 Flash Preview TTS",
-    );
-  });
-
-  it("keeps xAI TTS coherent even without an exact catalog model id", () => {
-    expect(getProviderTtsModelOptions("xai")).toEqual([
-      { id: "grok-tts-mini", name: "Grok TTS Mini" },
+    expect(getProviderTtsModelOptions("alibaba-qwen-dashscope")).toEqual([
+      { id: "qwen3-tts-flash", name: "Qwen3-TTS-Flash" },
     ]);
-    expect(PROVIDER_DEFAULT_TTS_MODELS.xai).toBe("grok-tts-mini");
+    expect(
+      getProviderTtsModelOptions("gemini").find(
+        (option) => option.id === "gemini-2.5-flash-tts",
+      )?.name,
+    ).toBe("Gemini 2.5 Flash TTS");
+  });
+
+  it("keeps xAI TTS aligned to the canonical catalog service id", () => {
+    expect(getProviderTtsModelOptions("xai")).toEqual([
+      { id: "text-to-speech", name: "Text to Speech API" },
+    ]);
+    expect(PROVIDER_DEFAULT_TTS_MODELS.xai).toBe("text-to-speech");
+    expect(getTtsModelLabel("xai", "text-to-speech")).toBe("Text to Speech API");
   });
 });

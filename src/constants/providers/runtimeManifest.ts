@@ -1,4 +1,5 @@
 import type { CatalogProviderId } from "../../catalog/types";
+import { PROVIDER_DOCUMENTS } from "../../../data/providers";
 
 export type RuntimeAppProviderId =
   | "openai"
@@ -38,7 +39,7 @@ export type RuntimeSttTransport =
   | "multipart"
   | "gemini"
   | "openai-audio-input";
-export type RuntimeTtsTransport = "none" | "binary" | "gemini";
+export type RuntimeTtsTransport = "none" | "binary" | "gemini" | "dashscope";
 export type RuntimeTtsBinaryRequestFormat =
   | "openai-speech"
   | "together-speech"
@@ -125,6 +126,45 @@ function voice(
   return localizedLabels ? { id, label, localizedLabels } : { id, label };
 }
 
+function getCatalogProviderDocument(providerId: CatalogProviderId) {
+  return PROVIDER_DOCUMENTS.find(
+    (document) => document.provider.providerId === providerId,
+  );
+}
+
+function getCatalogServiceModels(
+  providerId: CatalogProviderId,
+  service: "llm" | "stt" | "tts",
+) {
+  const document = getCatalogProviderDocument(providerId);
+
+  if (!document) {
+    return [];
+  }
+
+  if (service === "llm") {
+    return document.llms;
+  }
+
+  if (service === "stt") {
+    return document.stt;
+  }
+
+  return document.tts;
+}
+
+function catalogModelSpecs(
+  providerId: CatalogProviderId,
+  service: "llm" | "stt" | "tts",
+  excludeModelIds: string[] = [],
+): RuntimeModelSpec[] {
+  const excluded = new Set(excludeModelIds);
+
+  return getCatalogServiceModels(providerId, service)
+    .filter((model) => !excluded.has(model.modelId))
+    .map((model) => namedModel(model.modelId, model.publicName));
+}
+
 export const RUNTIME_PROVIDER_ORDER = [
   "openai",
   "anthropic",
@@ -205,11 +245,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "multipart",
       endpoint: "https://api.openai.com/v1/audio/transcriptions",
       defaultModel: "gpt-4o-mini-transcribe",
-      models: [
-        namedModel("gpt-4o-transcribe", "GPT-4o Transcribe"),
-        namedModel("gpt-4o-mini-transcribe", "GPT-4o Mini Transcribe"),
-        namedModel("whisper-1", "Whisper-1"),
-      ],
+      models: catalogModelSpecs("openai", "stt"),
       languageNote: `OpenAI currently exposes gpt-4o-transcribe, gpt-4o-mini-transcribe, and whisper-1 for speech-to-text. OpenAI's published well-supported language set is: ${WHISPER_WELL_SUPPORTED_LANGUAGES}`,
     },
     tts: {
@@ -255,17 +291,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     llm: {
       transport: "anthropic",
       defaultModel: "claude-sonnet-4-6",
-      models: [
-        namedModel("claude-opus-4-6", "Claude Opus 4.6"),
-        namedModel("claude-sonnet-4-6", "Claude Sonnet 4.6"),
-        namedModel("claude-haiku-4-5-20251001", "Claude Haiku 4.5", "2025-10-01"),
-        namedModel("claude-opus-4-5-20251101", "Claude Opus 4.5", "2025-11-01"),
-        namedModel("claude-sonnet-4-5-20250929", "Claude Sonnet 4.5", "2025-09-29"),
-        namedModel("claude-opus-4-1-20250805", "Claude Opus 4.1", "2025-08-05"),
-        namedModel("claude-opus-4-20250522", "Claude Opus 4", "2025-05-22"),
-        namedModel("claude-sonnet-4-20250514", "Claude Sonnet 4", "2025-05-14"),
-        namedModel("claude-3-haiku-20240307", "Claude 3 Haiku", "2024-03-07"),
-      ],
+      models: catalogModelSpecs("anthropic", "llm"),
     },
     stt: {
       support: "none",
@@ -291,10 +317,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.ai21.com/studio/v1/chat/completions",
       defaultModel: "jamba-mini-2-2026-01",
-      models: [
-        model("jamba-mini-2-2026-01"),
-        model("jamba-large-1.7-2025-07"),
-      ],
+      models: catalogModelSpecs("ai21-labs", "llm"),
     },
     stt: {
       support: "none",
@@ -342,10 +365,17 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         "DashScope STT is currently wired only for Qwen3-ASR-Flash short-file transcription through the OpenAI-compatible endpoint. Catalog-only models like qwen3-asr-flash-filetrans and qwen3-asr-flash-realtime still need dedicated async or realtime transport support.",
     },
     tts: {
-      support: "none",
-      transport: "none",
-      models: [],
-      voiceOptions: [],
+      support: "provider",
+      transport: "dashscope",
+      endpoint:
+        "https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation",
+      defaultModel: "qwen3-tts-flash",
+      defaultVoice: "Cherry",
+      voiceFallback: "Cherry",
+      models: [model("qwen3-tts-flash")],
+      voiceOptions: [voice("Cherry", "Cherry")],
+      languageNote:
+        "DashScope TTS is currently wired only for non-realtime Qwen3-TTS-Flash with the default Cherry voice. Catalog-only models like qwen3-tts-instruct-flash and the realtime Qwen TTS families still need dedicated transport and voice-surface support.",
     },
   },
   baichuan: {
@@ -361,13 +391,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.baichuan-ai.com/v1/chat/completions",
       defaultModel: "Baichuan4-Air",
-      models: [
-        model("Baichuan4-Air"),
-        model("Baichuan4-Turbo"),
-        model("Baichuan4"),
-        model("Baichuan3-Turbo"),
-        model("Baichuan3-Turbo-128k"),
-      ],
+      models: catalogModelSpecs("baichuan", "llm"),
     },
     stt: {
       support: "none",
@@ -394,12 +418,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
       defaultModel: "doubao-seed-2-0-lite-260215",
-      models: [
-        model("doubao-seed-2-0-pro-260215"),
-        model("doubao-seed-2-0-lite-260215"),
-        model("doubao-seed-2-0-mini-260215"),
-        model("doubao-seed-1-8-251228"),
-      ],
+      models: catalogModelSpecs("bytedance-doubao-seed", "llm"),
     },
     stt: {
       support: "none",
@@ -460,13 +479,10 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "provider",
       transport: "gemini",
       endpointBase: "https://generativelanguage.googleapis.com/v1beta/models",
-      defaultModel: "gemini-2.5-flash-preview-tts",
+      defaultModel: "gemini-2.5-flash-tts",
       defaultVoice: "Kore",
       voiceFallback: "alloy",
-      models: [
-        namedModel("gemini-2.5-flash-preview-tts", "Gemini 2.5 Flash Preview TTS"),
-        namedModel("gemini-2.5-pro-preview-tts", "Gemini 2.5 Pro Preview TTS"),
-      ],
+      models: catalogModelSpecs("google-vertex-ai-studio", "tts"),
       voiceOptions: [
         voice("Zephyr", "Zephyr · Bright", { de: "Zephyr · Klar" }),
         voice("Puck", "Puck · Upbeat", { de: "Puck · Schwungvoll" }),
@@ -516,7 +532,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.cerebras.ai/v1/chat/completions",
       defaultModel: "gpt-oss-120b",
-      models: [model("gpt-oss-120b"), model("llama3.1-8b")],
+      models: catalogModelSpecs("cerebras", "llm"),
     },
     stt: {
       support: "none",
@@ -543,12 +559,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.deepinfra.com/v1/openai/chat/completions",
       defaultModel: "deepseek-ai/DeepSeek-V3.2",
-      models: [
-        model("deepseek-ai/DeepSeek-V3.2"),
-        model("Qwen/Qwen3-Max"),
-        model("zai-org/GLM-4.7-Flash"),
-        model("nvidia/Nemotron-3-Nano-30B-A3B"),
-      ],
+      models: catalogModelSpecs("deepinfra", "llm"),
     },
     stt: {
       support: "none",
@@ -574,15 +585,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.x.ai/v1/chat/completions",
       defaultModel: "grok-4",
-      models: [
-        namedModel("grok-4", "Grok 4"),
-        namedModel("grok-4-1-fast-reasoning", "Grok 4.1 Fast Reasoning"),
-        namedModel("grok-4-1-fast-non-reasoning", "Grok 4.1 Fast Non-Reasoning"),
-        model("grok-code-fast-1"),
-        namedModel("grok-3", "Grok 3"),
-        namedModel("grok-3-fast", "Grok 3 Fast"),
-        namedModel("grok-3-mini", "Grok 3 Mini"),
-      ],
+      models: catalogModelSpecs("xai", "llm"),
     },
     stt: {
       support: "none",
@@ -594,10 +597,10 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "binary",
       endpoint: "https://api.x.ai/v1/audio/speech",
       requestFormat: "xai-speech",
-      defaultModel: "grok-tts-mini",
+      defaultModel: "text-to-speech",
       defaultVoice: "ara",
       voiceFallback: "alloy",
-      models: [namedModel("grok-tts-mini", "Grok TTS Mini")],
+      models: catalogModelSpecs("xai", "tts"),
       voiceOptions: [
         voice("eve", "Eve · Energetic", { de: "Eve · Energetisch" }),
         voice("ara", "Ara · Warm", { de: "Ara · Warm" }),
@@ -622,18 +625,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.groq.com/openai/v1/chat/completions",
       defaultModel: "llama-3.3-70b-versatile",
-      models: [
-        model("groq/compound"),
-        model("groq/compound-mini"),
-        namedModel("meta-llama/llama-4-maverick-17b-128e-instruct", "Llama 4 Maverick"),
-        namedModel("meta-llama/llama-4-scout-17b-16e-instruct", "Llama 4 Scout"),
-        namedModel("llama-3.3-70b-versatile", "Llama 3.3 70B Versatile"),
-        namedModel("llama-3.1-8b-instant", "Llama 3.1 8B Instant"),
-        namedModel("openai/gpt-oss-120b", "GPT-OSS 120B"),
-        namedModel("openai/gpt-oss-20b", "GPT-OSS 20B"),
-        namedModel("moonshotai/kimi-k2-instruct-0905", "Kimi K2 Instruct"),
-        namedModel("qwen/qwen3-32b", "Qwen3 32B"),
-      ],
+      models: catalogModelSpecs("groq", "llm"),
     },
     stt: {
       support: "provider",
@@ -665,7 +657,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.deepseek.com/chat/completions",
       defaultModel: "deepseek-chat",
-      models: [model("deepseek-chat"), model("deepseek-reasoner")],
+      models: catalogModelSpecs("deepseek", "llm"),
     },
     stt: {
       support: "none",
@@ -692,13 +684,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.fireworks.ai/inference/v1/chat/completions",
       defaultModel: "accounts/fireworks/models/gpt-oss-20b",
-      models: [
-        model("accounts/fireworks/models/gpt-oss-20b"),
-        model("accounts/fireworks/models/gpt-oss-120b"),
-        model("accounts/fireworks/models/deepseek-v3p2"),
-        model("accounts/fireworks/models/glm-5"),
-        model("accounts/fireworks/models/kimi-k2p5"),
-      ],
+      models: catalogModelSpecs("fireworks-ai", "llm"),
     },
     stt: {
       support: "none",
@@ -725,12 +711,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://router.huggingface.co/v1/chat/completions",
       defaultModel: "openai/gpt-oss-20b",
-      models: [
-        model("openai/gpt-oss-20b"),
-        model("openai/gpt-oss-120b"),
-        model("meta-llama/Llama-3.3-70B-Instruct"),
-        model("katanemo/Arch-Router-1.5B"),
-      ],
+      models: catalogModelSpecs("hugging-face-inference-api", "llm"),
     },
     stt: {
       support: "none",
@@ -757,12 +738,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.hyperbolic.xyz/v1/chat/completions",
       defaultModel: "gpt-oss-120b",
-      models: [
-        model("gpt-oss-120b"),
-        model("openai/gpt-oss-20b"),
-        model("DeepSeek-R1-0528"),
-        model("Llama-3.3-70B-Instruct"),
-      ],
+      models: catalogModelSpecs("hyperbolic", "llm"),
     },
     stt: {
       support: "none",
@@ -788,16 +764,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.mistral.ai/v1/chat/completions",
       defaultModel: "mistral-medium-latest",
-      models: [
-        namedModel("mistral-large-latest", "Mistral Large 3"),
-        namedModel("mistral-medium-latest", "Mistral Medium 3"),
-        namedModel("magistral-medium-latest", "Magistral Medium"),
-        namedModel("magistral-small-latest", "Magistral Small"),
-        namedModel("mistral-small-latest", "Mistral Small 3.1"),
-        namedModel("ministral-8b-latest", "Ministral 8B"),
-        namedModel("open-mistral-nemo", "Mistral Nemo"),
-        namedModel("codestral-latest", "Codestral 2"),
-      ],
+      models: catalogModelSpecs("mistral-ai", "llm"),
     },
     stt: {
       support: "provider",
@@ -829,16 +796,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.minimax.io/v1/chat/completions",
       defaultModel: "MiniMax-M2.5",
-      models: [
-        model("MiniMax-M2.7"),
-        model("MiniMax-M2.7-highspeed"),
-        model("MiniMax-M2.5"),
-        model("MiniMax-M2.5-highspeed"),
-        model("MiniMax-M2.1"),
-        model("MiniMax-M2.1-highspeed"),
-        model("MiniMax-M2"),
-        model("M2-her"),
-      ],
+      models: catalogModelSpecs("minimax", "llm"),
     },
     stt: {
       support: "none",
@@ -865,14 +823,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.moonshot.ai/v1/chat/completions",
       defaultModel: "kimi-k2.5",
-      models: [
-        model("kimi-k2.5"),
-        model("kimi-k2-thinking"),
-        model("kimi-k2-thinking-turbo"),
-        model("moonshot-v1-8k"),
-        model("moonshot-v1-32k"),
-        model("moonshot-v1-128k"),
-      ],
+      models: catalogModelSpecs("moonshot-ai-kimi", "llm"),
     },
     stt: {
       support: "none",
@@ -897,14 +848,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     llm: {
       transport: "cohere",
       defaultModel: "command-a-03-2025",
-      models: [
-        namedModel("command-a-03-2025", "Command A"),
-        namedModel("command-a-reasoning-08-2025", "Command A Reasoning"),
-        namedModel("command-a-vision-07-2025", "Command A Vision"),
-        namedModel("command-r7b-12-2024", "Command R7B"),
-        namedModel("command-r-plus-08-2024", "Command R+"),
-        namedModel("command-r-08-2024", "Command R"),
-      ],
+      models: catalogModelSpecs("cohere", "llm"),
     },
     stt: {
       support: "none",
@@ -931,11 +875,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.perplexity.ai/chat/completions",
       defaultModel: "sonar",
-      models: [
-        model("sonar"),
-        model("sonar-pro"),
-        model("sonar-reasoning-pro"),
-      ],
+      models: catalogModelSpecs("perplexity", "llm"),
     },
     stt: {
       support: "none",
@@ -962,14 +902,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.sambanova.ai/v1/chat/completions",
       defaultModel: "DeepSeek-V3.1",
-      models: [
-        model("DeepSeek-V3.1"),
-        model("DeepSeek-R1-0528"),
-        model("DeepSeek-V3-0324"),
-        model("Meta-Llama-3.3-70B-Instruct"),
-        model("Meta-Llama-3.1-8B-Instruct"),
-        model("MiniMax-M2.5"),
-      ],
+      models: catalogModelSpecs("sambanova", "llm"),
     },
     stt: {
       support: "none",
@@ -996,17 +929,16 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.siliconflow.com/v1/chat/completions",
       defaultModel: "deepseek-ai/DeepSeek-V3.2",
-      models: [
-        model("deepseek-ai/DeepSeek-V3.2"),
-        model("deepseek-ai/DeepSeek-R1"),
-        model("Qwen/Qwen3-32B"),
-        model("moonshotai/Kimi-K2.5"),
-      ],
+      models: catalogModelSpecs("siliconflow", "llm"),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "multipart",
+      endpoint: "https://api.siliconflow.com/v1/audio/transcriptions",
+      defaultModel: "FunAudioLLM/SenseVoiceSmall",
+      models: catalogModelSpecs("siliconflow", "stt"),
+      languageNote:
+        "SiliconFlow exposes dedicated /v1/audio/transcriptions for FunAudioLLM/SenseVoiceSmall and TeleAI/TeleSpeechASR. Public docs verify the multipart endpoint and model IDs, but they do not publish a compact language or file-size matrix.",
     },
     tts: {
       support: "none",
@@ -1028,16 +960,16 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.stepfun.com/v1/chat/completions",
       defaultModel: "step-3.5-flash",
-      models: [
-        model("step-3.5-flash"),
-        model("step-3"),
-        model("step-2-mini"),
-      ],
+      models: catalogModelSpecs("stepfun", "llm"),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "multipart",
+      endpoint: "https://api.stepfun.com/v1/audio/transcriptions",
+      defaultModel: "step-asr",
+      models: [namedModel("step-asr", "Step ASR")],
+      languageNote:
+        "StepFun currently has the clearest file-transcription contract for step-asr on /v1/audio/transcriptions. Streaming-only step-asr-1.1-stream and the more weakly documented step-asr-1.1 remain catalog-only until the app grows dedicated streaming and endpoint-specific flows.",
     },
     tts: {
       support: "none",
@@ -1058,32 +990,14 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.together.xyz/v1/chat/completions",
       defaultModel: "openai/gpt-oss-20b",
-      models: [
-        namedModel("MiniMaxAI/MiniMax-M2.5", "MiniMax M2.5"),
-        namedModel("Qwen/Qwen3.5-397B-A17B", "Qwen3.5 397B A17B"),
-        namedModel("Qwen/Qwen3-235B-A22B-FP8", "Qwen3 235B"),
-        namedModel("Qwen/Qwen3.5-9B", "Qwen3.5 9B"),
-        namedModel("openai/gpt-oss-20b", "GPT-OSS 20B"),
-        namedModel("openai/gpt-oss-120b", "GPT-OSS 120B"),
-        namedModel("moonshotai/Kimi-K2.5", "Kimi K2.5"),
-        namedModel("deepseek-ai/DeepSeek-V3.1", "DeepSeek V3.1"),
-        namedModel("deepseek-ai/DeepSeek-R1", "DeepSeek R1"),
-        namedModel("meta-llama/Llama-3.3-70B-Instruct-Turbo", "Llama 3.3 70B Turbo"),
-        namedModel("meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo", "Llama 3.1 8B Turbo"),
-        namedModel("meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8", "Llama 4 Maverick"),
-        namedModel("Qwen/Qwen3-Next-80B-A3B-Instruct", "Qwen3 Next 80B"),
-        namedModel("Qwen/Qwen3-Coder-Next-FP8", "Qwen3 Coder Next"),
-      ],
+      models: catalogModelSpecs("together-ai", "llm"),
     },
     stt: {
       support: "provider",
       transport: "multipart",
       endpoint: "https://api.together.xyz/v1/audio/transcriptions",
       defaultModel: "openai/whisper-large-v3",
-      models: [
-        namedModel("openai/whisper-large-v3", "Whisper Large v3"),
-        namedModel("mistralai/Voxtral-Mini-3B-2507", "Voxtral Mini 3B"),
-      ],
+      models: catalogModelSpecs("together-ai", "stt"),
       languageNote: `The current integration uses openai/whisper-large-v3. It is multilingual and accepts ISO 639-1 language hints. A published well-supported language set for Whisper is: ${WHISPER_WELL_SUPPORTED_LANGUAGES}`,
     },
     tts: {
@@ -1128,12 +1042,8 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     llm: {
       transport: "openai-compatible",
       endpoint: "https://integrate.api.nvidia.com/v1/chat/completions",
-      defaultModel: "nvidia/llama-3.3-nemotron-super-49b-v1.5",
-      models: [
-        namedModel("nvidia/llama-3.3-nemotron-super-49b-v1.5", "Llama 3.3 Nemotron Super 49B"),
-        namedModel("nvidia/llama-3.1-nemotron-ultra-253b-v1", "Llama 3.1 Nemotron Ultra 253B"),
-        namedModel("nvidia/llama-3.1-nemotron-nano-8b-v1", "Llama 3.1 Nemotron Nano 8B"),
-      ],
+      defaultModel: "nemotron-3-super-120b-a12b",
+      models: catalogModelSpecs("nvidia-nim", "llm"),
     },
     stt: {
       support: "none",
@@ -1160,12 +1070,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.novita.ai/openai/v1/chat/completions",
       defaultModel: "deepseek/deepseek-v3.2",
-      models: [
-        model("deepseek/deepseek-v3.2"),
-        model("qwen/qwen3-235b-a22b-fp8"),
-        model("qwen/qwen3-coder-30b-a3b-instruct"),
-        model("zai-org/glm-4.6v"),
-      ],
+      models: catalogModelSpecs("novita-ai", "llm"),
     },
     stt: {
       support: "none",
@@ -1192,14 +1097,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.z.ai/api/paas/v4/chat/completions",
       defaultModel: "glm-4.7-flashx",
-      models: [
-        model("glm-5"),
-        model("glm-5-turbo"),
-        model("glm-4.7"),
-        model("glm-4.7-flashx"),
-        model("glm-4.6"),
-        model("glm-4.5-air"),
-      ],
+      models: catalogModelSpecs("z-ai-zhipu-ai", "llm"),
     },
     stt: {
       support: "provider",

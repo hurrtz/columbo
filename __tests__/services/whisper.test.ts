@@ -86,6 +86,52 @@ describe("transcribeAudio", () => {
     expect(url).toBe("https://api.z.ai/api/paas/v4/audio/transcriptions");
   });
 
+  it("uses the configured multipart endpoint for StepFun STT", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        text: "Ni hao",
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "stepfun",
+      apiKey: "stepfun-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Ni hao");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.stepfun.com/v1/audio/transcriptions");
+    expect((options.body as FormData).get("model")).toBe("step-asr");
+  });
+
+  it("uses the configured multipart endpoint for SiliconFlow STT", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        text: "Hello from SiliconFlow",
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "siliconflow",
+      apiKey: "siliconflow-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from SiliconFlow");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.siliconflow.com/v1/audio/transcriptions");
+    expect((options.body as FormData).get("model")).toBe(
+      "FunAudioLLM/SenseVoiceSmall",
+    );
+  });
+
   it("uses the configured audio-input endpoint for DashScope short-file STT", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

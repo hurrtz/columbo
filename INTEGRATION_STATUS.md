@@ -13,11 +13,11 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 27
 - Catalog models: 455
-- Integrated models: 136
-- LLM: 122/294 integrated
-- STT: 10/71 integrated
-- TTS: 4/90 integrated
-- Unresolved runtime manifest entries: 56
+- Integrated models: 235
+- LLM: 211/294 integrated
+- STT: 15/71 integrated
+- TTS: 9/90 integrated
+- Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
 
@@ -65,7 +65,7 @@ Catalog updated: 2026-03-23
 ## Alibaba / Qwen (DashScope) `alibaba-qwen-dashscope`
 
 - Runtime provider: `alibaba-qwen-dashscope`
-- Model integration: 6/13 integrated
+- Model integration: 7/13 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -79,7 +79,7 @@ Catalog updated: 2026-03-23
 | STT | `qwen3-asr-flash` | Qwen3-ASR-Flash | Integrated | `qwen3-asr-flash` |
 | STT | `qwen3-asr-flash-filetrans` | Qwen3-ASR-Flash-Filetrans | Not integrated | — |
 | STT | `qwen3-asr-flash-realtime` | Qwen3-ASR-Flash-Realtime | Not integrated | — |
-| TTS | `qwen3-tts-flash` | Qwen3-TTS-Flash | Not integrated | — |
+| TTS | `qwen3-tts-flash` | Qwen3-TTS-Flash | Integrated | `qwen3-tts-flash` |
 | TTS | `qwen3-tts-flash-realtime` | Qwen3-TTS-Flash-Realtime | Not integrated | — |
 | TTS | `qwen3-tts-instruct-flash` | Qwen3-TTS-Instruct-Flash | Not integrated | — |
 | TTS | `qwen3-tts-instruct-flash-realtime` | Qwen3-TTS-Instruct-Flash-Realtime | Not integrated | — |
@@ -103,14 +103,14 @@ Catalog updated: 2026-03-23
 ## Anthropic `anthropic`
 
 - Runtime provider: `anthropic`
-- Model integration: 8/9 integrated
+- Model integration: 9/9 integrated
 - Verified support: LLM `native`, STT `unsupported`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
 | LLM | `claude-3-haiku-20240307` | Claude 3 Haiku | Integrated | `claude-3-haiku-20240307` |
 | LLM | `claude-haiku-4-5-20251001` | Claude Haiku 4.5 | Integrated | `claude-haiku-4-5-20251001` |
-| LLM | `claude-opus-4-20250514` | Claude Opus 4 | Not integrated | — |
+| LLM | `claude-opus-4-20250514` | Claude Opus 4 | Integrated | `claude-opus-4-20250514` |
 | LLM | `claude-opus-4-1-20250805` | Claude Opus 4.1 | Integrated | `claude-opus-4-1-20250805` |
 | LLM | `claude-opus-4-5-20251101` | Claude Opus 4.5 | Integrated | `claude-opus-4-5-20251101` |
 | LLM | `claude-opus-4-6` | Claude Opus 4.6 | Integrated | `claude-opus-4-6` |
@@ -158,18 +158,18 @@ Catalog updated: 2026-03-23
 ## Baichuan `baichuan`
 
 - Runtime provider: `baichuan`
-- Model integration: 5/12 integrated
+- Model integration: 12/12 integrated
 - Verified support: LLM `native`, STT `unsupported`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `Baichuan-M2` | Baichuan-M2 | Not integrated | — |
-| LLM | `Baichuan-M2-Plus` | Baichuan-M2-Plus | Not integrated | — |
-| LLM | `Baichuan-M3` | Baichuan-M3 | Not integrated | — |
-| LLM | `Baichuan-M3-Plus` | Baichuan-M3-Plus | Not integrated | — |
-| LLM | `Baichuan2-53B` | Baichuan2-53B | Not integrated | — |
-| LLM | `Baichuan2-Turbo` | Baichuan2-Turbo | Not integrated | — |
-| LLM | `Baichuan2-Turbo-192k` | Baichuan2-Turbo-192k | Not integrated | — |
+| LLM | `Baichuan-M2` | Baichuan-M2 | Integrated | `Baichuan-M2` |
+| LLM | `Baichuan-M2-Plus` | Baichuan-M2-Plus | Integrated | `Baichuan-M2-Plus` |
+| LLM | `Baichuan-M3` | Baichuan-M3 | Integrated | `Baichuan-M3` |
+| LLM | `Baichuan-M3-Plus` | Baichuan-M3-Plus | Integrated | `Baichuan-M3-Plus` |
+| LLM | `Baichuan2-53B` | Baichuan2-53B | Integrated | `Baichuan2-53B` |
+| LLM | `Baichuan2-Turbo` | Baichuan2-Turbo | Integrated | `Baichuan2-Turbo` |
+| LLM | `Baichuan2-Turbo-192k` | Baichuan2-Turbo-192k | Integrated | `Baichuan2-Turbo-192k` |
 | LLM | `Baichuan3-Turbo` | Baichuan3-Turbo | Integrated | `Baichuan3-Turbo` |
 | LLM | `Baichuan3-Turbo-128k` | Baichuan3-Turbo-128k | Integrated | `Baichuan3-Turbo-128k` |
 | LLM | `Baichuan4` | Baichuan4 | Integrated | `Baichuan4` |
@@ -205,13 +205,13 @@ Catalog updated: 2026-03-23
 ## ByteDance (Doubao/Seed) `bytedance-doubao-seed`
 
 - Runtime provider: `bytedance-doubao-seed`
-- Model integration: 4/7 integrated
+- Model integration: 5/7 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
 | LLM | `doubao-seed-1-8-251228` | Doubao Seed 1.8 | Integrated | `doubao-seed-1-8-251228` |
-| LLM | `doubao-seed-2-0-code-preview-260215` | Doubao Seed 2.0 Code Preview | Not integrated | — |
+| LLM | `doubao-seed-2-0-code-preview-260215` | Doubao Seed 2.0 Code Preview | Integrated | `doubao-seed-2-0-code-preview-260215` |
 | LLM | `doubao-seed-2-0-lite-260215` | Doubao Seed 2.0 Lite | Integrated | `doubao-seed-2-0-lite-260215` |
 | LLM | `doubao-seed-2-0-mini-260215` | Doubao Seed 2.0 Mini | Integrated | `doubao-seed-2-0-mini-260215` |
 | LLM | `doubao-seed-2-0-pro-260215` | Doubao Seed 2.0 Pro | Integrated | `doubao-seed-2-0-pro-260215` |
@@ -221,29 +221,29 @@ Catalog updated: 2026-03-23
 ## Cerebras `cerebras`
 
 - Runtime provider: `cerebras`
-- Model integration: 2/4 integrated
+- Model integration: 4/4 integrated
 - Verified support: LLM `native`, STT `unsupported`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
 | LLM | `llama3.1-8b` | Llama 3.1 8B | Integrated | `llama3.1-8b` |
 | LLM | `gpt-oss-120b` | OpenAI GPT OSS | Integrated | `gpt-oss-120b` |
-| LLM | `qwen-3-235b-a22b-instruct-2507` | Qwen 3 235B Instruct | Not integrated | — |
-| LLM | `zai-glm-4.7` | Z.ai GLM 4.7 | Not integrated | — |
+| LLM | `qwen-3-235b-a22b-instruct-2507` | Qwen 3 235B Instruct | Integrated | `qwen-3-235b-a22b-instruct-2507` |
+| LLM | `zai-glm-4.7` | Z.ai GLM 4.7 | Integrated | `zai-glm-4.7` |
 
 ## Cohere `cohere`
 
 - Runtime provider: `cohere`
-- Model integration: 6/9 integrated
+- Model integration: 9/9 integrated
 - Verified support: LLM `native`, STT `unsupported`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `c4ai-aya-expanse-32b` | Aya Expanse 32B | Not integrated | — |
-| LLM | `c4ai-aya-vision-32b` | Aya Vision 32B | Not integrated | — |
+| LLM | `c4ai-aya-expanse-32b` | Aya Expanse 32B | Integrated | `c4ai-aya-expanse-32b` |
+| LLM | `c4ai-aya-vision-32b` | Aya Vision 32B | Integrated | `c4ai-aya-vision-32b` |
 | LLM | `command-a-03-2025` | Command A | Integrated | `command-a-03-2025` |
 | LLM | `command-a-reasoning-08-2025` | Command A Reasoning | Integrated | `command-a-reasoning-08-2025` |
-| LLM | `command-a-translate-08-2025` | Command A Translate | Not integrated | — |
+| LLM | `command-a-translate-08-2025` | Command A Translate | Integrated | `command-a-translate-08-2025` |
 | LLM | `command-a-vision-07-2025` | Command A Vision | Integrated | `command-a-vision-07-2025` |
 | LLM | `command-r-08-2024` | Command R | Integrated | `command-r-08-2024` |
 | LLM | `command-r-plus-08-2024` | Command R+ | Integrated | `command-r-plus-08-2024` |
@@ -290,13 +290,13 @@ Catalog updated: 2026-03-23
 ## Deepseek `deepseek`
 
 - Runtime provider: `deepseek`
-- Model integration: 2/3 integrated
+- Model integration: 3/3 integrated
 - Verified support: LLM `native`, STT `unsupported`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
 | LLM | `deepseek-chat` | DeepSeek Chat | Integrated | `deepseek-chat` |
-| LLM | `deepseek-coder` | DeepSeek Coder (legacy alias) | Not integrated | — |
+| LLM | `deepseek-coder` | DeepSeek Coder (legacy alias) | Integrated | `deepseek-coder` |
 | LLM | `deepseek-reasoner` | DeepSeek Reasoner | Integrated | `deepseek-reasoner` |
 
 ## Elevenlabs `elevenlabs`
@@ -321,14 +321,14 @@ Catalog updated: 2026-03-23
 ## Fireworks AI `fireworks-ai`
 
 - Runtime provider: `fireworks-ai`
-- Model integration: 5/10 integrated
+- Model integration: 6/10 integrated
 - Verified support: LLM `native`, STT `native`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
 | LLM | `accounts/fireworks/models/deepseek-v3p2` | Deepseek v3.2 | Integrated | `accounts/fireworks/models/deepseek-v3p2` |
 | LLM | `accounts/fireworks/models/glm-5` | GLM-5 | Integrated | `accounts/fireworks/models/glm-5` |
-| LLM | `accounts/fireworks/models/kimi-k2-thinking` | Kimi K2 Thinking | Not integrated | — |
+| LLM | `accounts/fireworks/models/kimi-k2-thinking` | Kimi K2 Thinking | Integrated | `accounts/fireworks/models/kimi-k2-thinking` |
 | LLM | `accounts/fireworks/models/kimi-k2p5` | Kimi K2.5 | Integrated | `accounts/fireworks/models/kimi-k2p5` |
 | LLM | `accounts/fireworks/models/gpt-oss-120b` | OpenAI gpt-oss-120b | Integrated | `accounts/fireworks/models/gpt-oss-120b` |
 | LLM | `accounts/fireworks/models/gpt-oss-20b` | OpenAI gpt-oss-20b | Integrated | `accounts/fireworks/models/gpt-oss-20b` |
@@ -353,7 +353,7 @@ Catalog updated: 2026-03-23
 ## Google Vertex AI Studio `google-vertex-ai-studio`
 
 - Runtime provider: `gemini`
-- Model integration: 3/10 integrated
+- Model integration: 6/10 integrated
 - Verified support: LLM `native`, STT `partial`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -365,14 +365,14 @@ Catalog updated: 2026-03-23
 | STT | `chirp_2` | Chirp 2: Transcription | Not integrated | — |
 | STT | `chirp_3` | Chirp 3: Transcription | Not integrated | — |
 | STT | `telephony` | Telephony | Not integrated | — |
-| TTS | `gemini-2.5-flash-tts` | Gemini 2.5 Flash TTS | Not integrated | — |
-| TTS | `gemini-2.5-flash-lite-preview-tts` | Gemini 2.5 Flash-Lite Preview TTS | Not integrated | — |
-| TTS | `gemini-2.5-pro-tts` | Gemini 2.5 Pro TTS | Not integrated | — |
+| TTS | `gemini-2.5-flash-tts` | Gemini 2.5 Flash TTS | Integrated | `gemini-2.5-flash-tts` |
+| TTS | `gemini-2.5-flash-lite-preview-tts` | Gemini 2.5 Flash-Lite Preview TTS | Integrated | `gemini-2.5-flash-lite-preview-tts` |
+| TTS | `gemini-2.5-pro-tts` | Gemini 2.5 Pro TTS | Integrated | `gemini-2.5-pro-tts` |
 
 ## Groq `groq`
 
 - Runtime provider: `groq`
-- Model integration: 9/14 integrated
+- Model integration: 12/14 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -383,10 +383,10 @@ Catalog updated: 2026-03-23
 | LLM | `llama-3.1-8b-instant` | Llama 3.1 8B | Integrated | `llama-3.1-8b-instant` |
 | LLM | `llama-3.3-70b-versatile` | Llama 3.3 70B | Integrated | `llama-3.3-70b-versatile` |
 | LLM | `meta-llama/llama-4-scout-17b-16e-instruct` | Llama 4 Scout 17B 16E | Integrated | `meta-llama/llama-4-scout-17b-16e-instruct` |
-| LLM | `meta-llama/llama-prompt-guard-2-22m` | Llama Prompt Guard 2 22M | Not integrated | — |
-| LLM | `meta-llama/llama-prompt-guard-2-86m` | Prompt Guard 2 86M | Not integrated | — |
+| LLM | `meta-llama/llama-prompt-guard-2-22m` | Llama Prompt Guard 2 22M | Integrated | `meta-llama/llama-prompt-guard-2-22m` |
+| LLM | `meta-llama/llama-prompt-guard-2-86m` | Prompt Guard 2 86M | Integrated | `meta-llama/llama-prompt-guard-2-86m` |
 | LLM | `qwen/qwen3-32b` | Qwen3-32B | Integrated | `qwen/qwen3-32b` |
-| LLM | `openai/gpt-oss-safeguard-20b` | Safety GPT OSS 20B | Not integrated | — |
+| LLM | `openai/gpt-oss-safeguard-20b` | Safety GPT OSS 20B | Integrated | `openai/gpt-oss-safeguard-20b` |
 | STT | `whisper-large-v3` | Whisper Large V3 | Integrated | `whisper-large-v3` |
 | STT | `whisper-large-v3-turbo` | Whisper Large V3 Turbo | Integrated | `whisper-large-v3-turbo` |
 | TTS | `canopylabs/orpheus-arabic-saudi` | Canopy Labs Orpheus Arabic Saudi | Not integrated | — |
@@ -410,30 +410,30 @@ Catalog updated: 2026-03-23
 ## Hyperbolic `hyperbolic`
 
 - Runtime provider: `hyperbolic`
-- Model integration: 4/20 integrated
+- Model integration: 19/20 integrated
 - Verified support: LLM `native`, STT `unsupported`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `deepseek-ai/DeepSeek-R1` | DeepSeek-R1 | Not integrated | — |
+| LLM | `deepseek-ai/DeepSeek-R1` | DeepSeek-R1 | Integrated | `deepseek-ai/DeepSeek-R1` |
 | LLM | `DeepSeek-R1-0528` | DeepSeek-R1-0528 | Integrated | `DeepSeek-R1-0528` |
-| LLM | `DeepSeek-V3` | DeepSeek-V3 | Not integrated | — |
-| LLM | `DeepSeek-V3-0324` | DeepSeek-V3-0324 | Not integrated | — |
+| LLM | `DeepSeek-V3` | DeepSeek-V3 | Integrated | `DeepSeek-V3` |
+| LLM | `DeepSeek-V3-0324` | DeepSeek-V3-0324 | Integrated | `DeepSeek-V3-0324` |
 | LLM | `gpt-oss-120b` | gpt-oss-120b | Integrated | `gpt-oss-120b` |
 | LLM | `openai/gpt-oss-20b` | gpt-oss-20b | Integrated | `openai/gpt-oss-20b` |
-| LLM | `Llama 3.1 405B BASE` | Llama 3.1 405B BASE | Not integrated | — |
-| LLM | `meta-llama/Meta-Llama-3.1-70B-Instruct` | Llama 3.1 70B Instruct | Not integrated | — |
-| LLM | `meta-llama/Meta-Llama-3.1-8B` | Llama 3.1 8B | Not integrated | — |
+| LLM | `Llama 3.1 405B BASE` | Llama 3.1 405B BASE | Integrated | `Llama 3.1 405B BASE` |
+| LLM | `meta-llama/Meta-Llama-3.1-70B-Instruct` | Llama 3.1 70B Instruct | Integrated | `meta-llama/Meta-Llama-3.1-70B-Instruct` |
+| LLM | `meta-llama/Meta-Llama-3.1-8B` | Llama 3.1 8B | Integrated | `meta-llama/Meta-Llama-3.1-8B` |
 | LLM | `Llama-3.3-70B-Instruct` | Llama-3.3-70B-Instruct | Integrated | `Llama-3.3-70B-Instruct` |
-| LLM | `nvidia/NVIDIA-Nemotron-Nano-12B-v2-VL-BF16` | NVIDIA-Nemotron-Nano-12B-v2-VL-BF16 | Not integrated | — |
-| LLM | `mistralai/Pixtral-12B-2409` | Pixtral-12B | Not integrated | — |
-| LLM | `Qwen/Qwen3-VL-32B-Thinking` | Qwen/Qwen3-VL-32B-Thinking | Not integrated | — |
-| LLM | `Qwen/Qwen2.5-VL-72B-Instruct` | Qwen2.5-VL-72B-Instruct | Not integrated | — |
-| LLM | `Qwen/Qwen2.5-VL-7B-Instruct` | Qwen2.5-VL-7B-Instruct | Not integrated | — |
-| LLM | `Qwen3-8B` | Qwen3-8B | Not integrated | — |
-| LLM | `Qwen3-Coder-480B-A35B-Instruct` | Qwen3-Coder-480B-A35B-Instruct | Not integrated | — |
-| LLM | `Qwen3-Next-80B-A3B-Instruct` | Qwen3-Next-80B-A3B-Instruct | Not integrated | — |
-| LLM | `Qwen3-Next-80B-A3B-Thinking` | Qwen3-Next-80B-A3B-Thinking | Not integrated | — |
+| LLM | `nvidia/NVIDIA-Nemotron-Nano-12B-v2-VL-BF16` | NVIDIA-Nemotron-Nano-12B-v2-VL-BF16 | Integrated | `nvidia/NVIDIA-Nemotron-Nano-12B-v2-VL-BF16` |
+| LLM | `mistralai/Pixtral-12B-2409` | Pixtral-12B | Integrated | `mistralai/Pixtral-12B-2409` |
+| LLM | `Qwen/Qwen3-VL-32B-Thinking` | Qwen/Qwen3-VL-32B-Thinking | Integrated | `Qwen/Qwen3-VL-32B-Thinking` |
+| LLM | `Qwen/Qwen2.5-VL-72B-Instruct` | Qwen2.5-VL-72B-Instruct | Integrated | `Qwen/Qwen2.5-VL-72B-Instruct` |
+| LLM | `Qwen/Qwen2.5-VL-7B-Instruct` | Qwen2.5-VL-7B-Instruct | Integrated | `Qwen/Qwen2.5-VL-7B-Instruct` |
+| LLM | `Qwen3-8B` | Qwen3-8B | Integrated | `Qwen3-8B` |
+| LLM | `Qwen3-Coder-480B-A35B-Instruct` | Qwen3-Coder-480B-A35B-Instruct | Integrated | `Qwen3-Coder-480B-A35B-Instruct` |
+| LLM | `Qwen3-Next-80B-A3B-Instruct` | Qwen3-Next-80B-A3B-Instruct | Integrated | `Qwen3-Next-80B-A3B-Instruct` |
+| LLM | `Qwen3-Next-80B-A3B-Thinking` | Qwen3-Next-80B-A3B-Thinking | Integrated | `Qwen3-Next-80B-A3B-Thinking` |
 | TTS | `Melo TTS` | Melo TTS | Not integrated | — |
 
 ## IBM Watsonx `ibm-watsonx`
@@ -525,54 +525,54 @@ Catalog updated: 2026-03-23
 ## Mistral AI `mistral-ai`
 
 - Runtime provider: `mistral`
-- Model integration: 8/19 integrated
+- Model integration: 18/19 integrated
 - Verified support: LLM `native`, STT `native`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `codestral-2508` | Codestral | Integrated | `codestral-latest` |
-| LLM | `devstral-2512` | Devstral 2 | Not integrated | — |
-| LLM | `devstral-medium-2507` | Devstral Medium 1.0 | Not integrated | — |
-| LLM | `labs-devstral-small-2512` | Devstral Small 2 | Not integrated | — |
-| LLM | `labs-leanstral-2603` | Leanstral | Not integrated | — |
-| LLM | `magistral-medium-2509` | Magistral Medium 1.2 | Integrated | `magistral-medium-latest` |
-| LLM | `magistral-small-2509` | Magistral Small 1.2 | Integrated | `magistral-small-latest` |
-| LLM | `ministral-14b-2512` | Ministral 3 14B | Not integrated | — |
-| LLM | `ministral-3b-2512` | Ministral 3 3B | Not integrated | — |
-| LLM | `ministral-8b-2512` | Ministral 3 8B | Integrated | `ministral-8b-latest` |
-| LLM | `mistral-large-2512` | Mistral Large 3 | Integrated | `mistral-large-latest` |
-| LLM | `mistral-medium-2508` | Mistral Medium 3.1 | Integrated | `mistral-medium-latest` |
-| LLM | `mistral-small-2506` | Mistral Small 3.2 | Integrated | `mistral-small-latest` |
-| LLM | `mistral-small-2603` | Mistral Small 4 | Not integrated | — |
-| LLM | `labs-mistral-small-creative` | Mistral Small Creative | Not integrated | — |
-| LLM | `voxtral-mini-2507` | Voxtral Mini | Not integrated | — |
-| LLM | `voxtral-small-2507` | Voxtral Small | Not integrated | — |
+| LLM | `codestral-2508` | Codestral | Integrated | `codestral-2508` |
+| LLM | `devstral-2512` | Devstral 2 | Integrated | `devstral-2512` |
+| LLM | `devstral-medium-2507` | Devstral Medium 1.0 | Integrated | `devstral-medium-2507` |
+| LLM | `labs-devstral-small-2512` | Devstral Small 2 | Integrated | `labs-devstral-small-2512` |
+| LLM | `labs-leanstral-2603` | Leanstral | Integrated | `labs-leanstral-2603` |
+| LLM | `magistral-medium-2509` | Magistral Medium 1.2 | Integrated | `magistral-medium-2509` |
+| LLM | `magistral-small-2509` | Magistral Small 1.2 | Integrated | `magistral-small-2509` |
+| LLM | `ministral-14b-2512` | Ministral 3 14B | Integrated | `ministral-14b-2512` |
+| LLM | `ministral-3b-2512` | Ministral 3 3B | Integrated | `ministral-3b-2512` |
+| LLM | `ministral-8b-2512` | Ministral 3 8B | Integrated | `ministral-8b-2512` |
+| LLM | `mistral-large-2512` | Mistral Large 3 | Integrated | `mistral-large-2512` |
+| LLM | `mistral-medium-2508` | Mistral Medium 3.1 | Integrated | `mistral-medium-2508` |
+| LLM | `mistral-small-2506` | Mistral Small 3.2 | Integrated | `mistral-small-2506` |
+| LLM | `mistral-small-2603` | Mistral Small 4 | Integrated | `mistral-small-2603` |
+| LLM | `labs-mistral-small-creative` | Mistral Small Creative | Integrated | `labs-mistral-small-creative` |
+| LLM | `voxtral-mini-2507` | Voxtral Mini | Integrated | `voxtral-mini-2507` |
+| LLM | `voxtral-small-2507` | Voxtral Small | Integrated | `voxtral-small-2507` |
 | STT | `voxtral-mini-2602` | Voxtral Mini Transcribe 2 | Integrated | `voxtral-mini-latest` |
 | STT | `voxtral-mini-transcribe-realtime-2602` | Voxtral Mini Transcribe Realtime | Not integrated | — |
 
 ## Moonshot AI (Kimi) `moonshot-ai-kimi`
 
 - Runtime provider: `moonshot-ai-kimi`
-- Model integration: 6/15 integrated
+- Model integration: 15/15 integrated
 - Verified support: LLM `native`, STT `unsupported`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `kimi-k2-0711-preview` | Kimi K2 0711 Preview | Not integrated | — |
-| LLM | `kimi-k2-0905-preview` | Kimi K2 0905 Preview | Not integrated | — |
+| LLM | `kimi-k2-0711-preview` | Kimi K2 0711 Preview | Integrated | `kimi-k2-0711-preview` |
+| LLM | `kimi-k2-0905-preview` | Kimi K2 0905 Preview | Integrated | `kimi-k2-0905-preview` |
 | LLM | `kimi-k2-thinking` | Kimi K2 Thinking | Integrated | `kimi-k2-thinking` |
 | LLM | `kimi-k2-thinking-turbo` | Kimi K2 Thinking Turbo | Integrated | `kimi-k2-thinking-turbo` |
-| LLM | `kimi-k2-turbo-preview` | Kimi K2 Turbo Preview | Not integrated | — |
+| LLM | `kimi-k2-turbo-preview` | Kimi K2 Turbo Preview | Integrated | `kimi-k2-turbo-preview` |
 | LLM | `kimi-k2.5` | Kimi K2.5 | Integrated | `kimi-k2.5` |
-| LLM | `kimi-latest` | kimi-latest | Not integrated | — |
-| LLM | `kimi-thinking-preview` | kimi-thinking-preview | Not integrated | — |
+| LLM | `kimi-latest` | kimi-latest | Integrated | `kimi-latest` |
+| LLM | `kimi-thinking-preview` | kimi-thinking-preview | Integrated | `kimi-thinking-preview` |
 | LLM | `moonshot-v1-128k` | Moonshot v1 128k | Integrated | `moonshot-v1-128k` |
-| LLM | `moonshot-v1-128k-vision-preview` | Moonshot v1 128k Vision Preview | Not integrated | — |
+| LLM | `moonshot-v1-128k-vision-preview` | Moonshot v1 128k Vision Preview | Integrated | `moonshot-v1-128k-vision-preview` |
 | LLM | `moonshot-v1-32k` | Moonshot v1 32k | Integrated | `moonshot-v1-32k` |
-| LLM | `moonshot-v1-32k-vision-preview` | Moonshot v1 32k Vision Preview | Not integrated | — |
+| LLM | `moonshot-v1-32k-vision-preview` | Moonshot v1 32k Vision Preview | Integrated | `moonshot-v1-32k-vision-preview` |
 | LLM | `moonshot-v1-8k` | Moonshot v1 8k | Integrated | `moonshot-v1-8k` |
-| LLM | `moonshot-v1-8k-vision-preview` | Moonshot v1 8k Vision Preview | Not integrated | — |
-| LLM | `moonshot-v1-auto` | Moonshot v1 Auto | Not integrated | — |
+| LLM | `moonshot-v1-8k-vision-preview` | Moonshot v1 8k Vision Preview | Integrated | `moonshot-v1-8k-vision-preview` |
+| LLM | `moonshot-v1-auto` | Moonshot v1 Auto | Integrated | `moonshot-v1-auto` |
 
 ## Novita AI `novita-ai`
 
@@ -599,16 +599,16 @@ Catalog updated: 2026-03-23
 ## NVIDIA (NIM) `nvidia-nim`
 
 - Runtime provider: `nvidia`
-- Model integration: 0/10 integrated
+- Model integration: 5/10 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `llama-3.1-nemotron-70b-instruct` | Llama 3.1 Nemotron 70B Instruct | Not integrated | — |
-| LLM | `llama-3.3-nemotron-super-49b-v1` | Llama 3.3 Nemotron Super 49B v1 | Not integrated | — |
-| LLM | `nemotron-3-nano-30b-a3b` | NVIDIA Nemotron 3 Nano 30B A3B | Not integrated | — |
-| LLM | `nemotron-3-super-120b-a12b` | NVIDIA Nemotron 3 Super 120B A12B | Not integrated | — |
-| LLM | `nvidia-nemotron-nano-9b-v2` | NVIDIA Nemotron Nano 9B v2 | Not integrated | — |
+| LLM | `llama-3.1-nemotron-70b-instruct` | Llama 3.1 Nemotron 70B Instruct | Integrated | `llama-3.1-nemotron-70b-instruct` |
+| LLM | `llama-3.3-nemotron-super-49b-v1` | Llama 3.3 Nemotron Super 49B v1 | Integrated | `llama-3.3-nemotron-super-49b-v1` |
+| LLM | `nemotron-3-nano-30b-a3b` | NVIDIA Nemotron 3 Nano 30B A3B | Integrated | `nemotron-3-nano-30b-a3b` |
+| LLM | `nemotron-3-super-120b-a12b` | NVIDIA Nemotron 3 Super 120B A12B | Integrated | `nemotron-3-super-120b-a12b` |
+| LLM | `nvidia-nemotron-nano-9b-v2` | NVIDIA Nemotron Nano 9B v2 | Integrated | `nvidia-nemotron-nano-9b-v2` |
 | STT | `canary-1b-asr` | Canary 1B ASR | Not integrated | — |
 | STT | `parakeet-ctc-1_1b-asr` | Parakeet CTC 1.1B ASR | Not integrated | — |
 | TTS | `magpie-tts-flow` | Magpie TTS Flow | Not integrated | — |
@@ -618,7 +618,7 @@ Catalog updated: 2026-03-23
 ## OpenAI `openai`
 
 - Runtime provider: `openai`
-- Model integration: 13/18 integrated
+- Model integration: 14/18 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -636,7 +636,7 @@ Catalog updated: 2026-03-23
 | LLM | `gpt-realtime-mini` | GPT-Realtime-mini | Not integrated | — |
 | STT | `gpt-4o-mini-transcribe` | GPT-4o mini Transcribe | Integrated | `gpt-4o-mini-transcribe` |
 | STT | `gpt-4o-transcribe` | GPT-4o Transcribe | Integrated | `gpt-4o-transcribe` |
-| STT | `gpt-4o-transcribe-diarize` | GPT-4o Transcribe Diarize | Not integrated | — |
+| STT | `gpt-4o-transcribe-diarize` | GPT-4o Transcribe Diarize | Integrated | `gpt-4o-transcribe-diarize` |
 | STT | `whisper-1` | Whisper | Integrated | `whisper-1` |
 | TTS | `gpt-4o-mini-tts` | GPT-4o mini TTS | Integrated | `gpt-4o-mini-tts` |
 | TTS | `tts-1` | TTS-1 | Integrated | `tts-1` |
@@ -645,14 +645,14 @@ Catalog updated: 2026-03-23
 ## Perplexity `perplexity`
 
 - Runtime provider: `perplexity`
-- Model integration: 3/5 integrated
+- Model integration: 5/5 integrated
 - Verified support: LLM `native`, STT `unsupported`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `perplexity/sonar` | Perplexity Sonar (Agent API) | Not integrated | — |
+| LLM | `perplexity/sonar` | Perplexity Sonar (Agent API) | Integrated | `perplexity/sonar` |
 | LLM | `sonar` | Sonar | Integrated | `sonar` |
-| LLM | `sonar-deep-research` | Sonar Deep Research | Not integrated | — |
+| LLM | `sonar-deep-research` | Sonar Deep Research | Integrated | `sonar-deep-research` |
 | LLM | `sonar-pro` | Sonar Pro | Integrated | `sonar-pro` |
 | LLM | `sonar-reasoning-pro` | Sonar Reasoning Pro | Integrated | `sonar-reasoning-pro` |
 
@@ -680,33 +680,33 @@ Catalog updated: 2026-03-23
 ## Sambanova `sambanova`
 
 - Runtime provider: `sambanova`
-- Model integration: 6/17 integrated
+- Model integration: 16/17 integrated
 - Verified support: LLM `native`, STT `native`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `ALLaM-7B-Instruct-preview` | ALLaM 7B Instruct Preview | Not integrated | — |
+| LLM | `ALLaM-7B-Instruct-preview` | ALLaM 7B Instruct Preview | Integrated | `ALLaM-7B-Instruct-preview` |
 | LLM | `DeepSeek-R1-0528` | DeepSeek R1 0528 | Integrated | `DeepSeek-R1-0528` |
-| LLM | `DeepSeek-R1-Distill-Llama-70B` | DeepSeek R1 Distill Llama 70B | Not integrated | — |
+| LLM | `DeepSeek-R1-Distill-Llama-70B` | DeepSeek R1 Distill Llama 70B | Integrated | `DeepSeek-R1-Distill-Llama-70B` |
 | LLM | `DeepSeek-V3-0324` | DeepSeek V3 0324 | Integrated | `DeepSeek-V3-0324` |
 | LLM | `DeepSeek-V3.1` | DeepSeek V3.1 | Integrated | `DeepSeek-V3.1` |
-| LLM | `DeepSeek-V3.1-cb` | DeepSeek V3.1 cb | Not integrated | — |
-| LLM | `DeepSeek-V3.1-Terminus` | DeepSeek V3.1 Terminus | Not integrated | — |
-| LLM | `DeepSeek-V3.2` | DeepSeek V3.2 | Not integrated | — |
-| LLM | `gpt-oss-120b` | GPT-OSS 120B | Not integrated | — |
-| LLM | `Llama-3.3-Swallow-70B-Instruct-v0.4` | Llama 3.3 Swallow 70B Instruct v0.4 | Not integrated | — |
-| LLM | `Llama-4-Maverick-17B-128E-Instruct` | Llama 4 Maverick 17B 128E Instruct | Not integrated | — |
+| LLM | `DeepSeek-V3.1-cb` | DeepSeek V3.1 cb | Integrated | `DeepSeek-V3.1-cb` |
+| LLM | `DeepSeek-V3.1-Terminus` | DeepSeek V3.1 Terminus | Integrated | `DeepSeek-V3.1-Terminus` |
+| LLM | `DeepSeek-V3.2` | DeepSeek V3.2 | Integrated | `DeepSeek-V3.2` |
+| LLM | `gpt-oss-120b` | GPT-OSS 120B | Integrated | `gpt-oss-120b` |
+| LLM | `Llama-3.3-Swallow-70B-Instruct-v0.4` | Llama 3.3 Swallow 70B Instruct v0.4 | Integrated | `Llama-3.3-Swallow-70B-Instruct-v0.4` |
+| LLM | `Llama-4-Maverick-17B-128E-Instruct` | Llama 4 Maverick 17B 128E Instruct | Integrated | `Llama-4-Maverick-17B-128E-Instruct` |
 | LLM | `Meta-Llama-3.1-8B-Instruct` | Meta Llama 3.1 8B Instruct | Integrated | `Meta-Llama-3.1-8B-Instruct` |
 | LLM | `Meta-Llama-3.3-70B-Instruct` | Meta Llama 3.3 70B Instruct | Integrated | `Meta-Llama-3.3-70B-Instruct` |
 | LLM | `MiniMax-M2.5` | MiniMax M2.5 | Integrated | `MiniMax-M2.5` |
-| LLM | `Qwen3-235B-A22B-Instruct-2507` | Qwen3 235B A22B Instruct 2507 | Not integrated | — |
-| LLM | `Qwen3-32B` | Qwen3 32B | Not integrated | — |
+| LLM | `Qwen3-235B-A22B-Instruct-2507` | Qwen3 235B A22B Instruct 2507 | Integrated | `Qwen3-235B-A22B-Instruct-2507` |
+| LLM | `Qwen3-32B` | Qwen3 32B | Integrated | `Qwen3-32B` |
 | STT | `Whisper-Large-v3` | Whisper Large v3 | Not integrated | — |
 
 ## Siliconflow `siliconflow`
 
 - Runtime provider: `siliconflow`
-- Model integration: 4/10 integrated
+- Model integration: 7/10 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -715,9 +715,9 @@ Catalog updated: 2026-03-23
 | LLM | `deepseek-ai/DeepSeek-V3.2` | DeepSeek-V3.2 | Integrated | `deepseek-ai/DeepSeek-V3.2` |
 | LLM | `moonshotai/Kimi-K2.5` | Kimi-K2.5 | Integrated | `moonshotai/Kimi-K2.5` |
 | LLM | `Qwen/Qwen3-32B` | Qwen3-32B | Integrated | `Qwen/Qwen3-32B` |
-| LLM | `Qwen/Qwen3-Omni-30B-A3B-Instruct` | Qwen3-Omni-30B-A3B-Instruct | Not integrated | — |
-| STT | `FunAudioLLM/SenseVoiceSmall` | SenseVoiceSmall | Not integrated | — |
-| STT | `TeleAI/TeleSpeechASR` | TeleSpeechASR | Not integrated | — |
+| LLM | `Qwen/Qwen3-Omni-30B-A3B-Instruct` | Qwen3-Omni-30B-A3B-Instruct | Integrated | `Qwen/Qwen3-Omni-30B-A3B-Instruct` |
+| STT | `FunAudioLLM/SenseVoiceSmall` | SenseVoiceSmall | Integrated | `FunAudioLLM/SenseVoiceSmall` |
+| STT | `TeleAI/TeleSpeechASR` | TeleSpeechASR | Integrated | `TeleAI/TeleSpeechASR` |
 | TTS | `FunAudioLLM/CosyVoice2-0.5B` | CosyVoice2-0.5B | Not integrated | — |
 | TTS | `fishaudio/fish-speech-1.5` | Fish-Speech-1.5 | Not integrated | — |
 | TTS | `IndexTeam/IndexTTS-2` | IndexTTS-2 | Not integrated | — |
@@ -725,19 +725,19 @@ Catalog updated: 2026-03-23
 ## Stepfun `stepfun`
 
 - Runtime provider: `stepfun`
-- Model integration: 3/13 integrated
+- Model integration: 8/13 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `step-1o-audio` | Step 1o Audio | Not integrated | — |
+| LLM | `step-1o-audio` | Step 1o Audio | Integrated | `step-1o-audio` |
 | LLM | `step-2-mini` | Step 2 Mini | Integrated | `step-2-mini` |
 | LLM | `step-3` | Step 3 | Integrated | `step-3` |
 | LLM | `step-3.5-flash` | Step 3.5 Flash | Integrated | `step-3.5-flash` |
-| LLM | `step-audio-2` | Step Audio 2 | Not integrated | — |
-| LLM | `step-audio-2-mini` | Step Audio 2 Mini | Not integrated | — |
-| LLM | `step-audio-r1.1` | Step Audio R1.1 | Not integrated | — |
-| STT | `step-asr` | Step ASR | Not integrated | — |
+| LLM | `step-audio-2` | Step Audio 2 | Integrated | `step-audio-2` |
+| LLM | `step-audio-2-mini` | Step Audio 2 Mini | Integrated | `step-audio-2-mini` |
+| LLM | `step-audio-r1.1` | Step Audio R1.1 | Integrated | `step-audio-r1.1` |
+| STT | `step-asr` | Step ASR | Integrated | `step-asr` |
 | STT | `step-asr-1.1` | Step ASR 1.1 | Not integrated | — |
 | STT | `step-asr-1.1-stream` | Step ASR 1.1 Stream | Not integrated | — |
 | TTS | `step-tts-2` | Step TTS 2 | Not integrated | — |
@@ -747,17 +747,17 @@ Catalog updated: 2026-03-23
 ## Together AI `together-ai`
 
 - Runtime provider: `together`
-- Model integration: 7/20 integrated
+- Model integration: 9/20 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `zai-org/GLM-5` | GLM-5 | Not integrated | — |
+| LLM | `zai-org/GLM-5` | GLM-5 | Integrated | `zai-org/GLM-5` |
 | LLM | `openai/gpt-oss-120b` | GPT-OSS 120B | Integrated | `openai/gpt-oss-120b` |
 | LLM | `openai/gpt-oss-20b` | GPT-OSS 20B | Integrated | `openai/gpt-oss-20b` |
 | LLM | `moonshotai/Kimi-K2.5` | Kimi K2.5 | Integrated | `moonshotai/Kimi-K2.5` |
 | LLM | `MiniMaxAI/MiniMax-M2.5` | MiniMax M2.5 | Integrated | `MiniMaxAI/MiniMax-M2.5` |
-| STT | `nvidia/parakeet-tdt-0.6b-v3` | Parakeet TDT 0.6B v3 | Not integrated | — |
+| STT | `nvidia/parakeet-tdt-0.6b-v3` | Parakeet TDT 0.6B v3 | Integrated | `nvidia/parakeet-tdt-0.6b-v3` |
 | STT | `mistralai/Voxtral-Mini-3B-2507` | Voxtral Mini 3B | Integrated | `mistralai/Voxtral-Mini-3B-2507` |
 | STT | `openai/whisper-large-v3` | Whisper Large v3 | Integrated | `openai/whisper-large-v3` |
 | TTS | `cartesia/sonic` | Cartesia Sonic | Not integrated | — |
@@ -776,20 +776,20 @@ Catalog updated: 2026-03-23
 ## xAI `xai`
 
 - Runtime provider: `xai`
-- Model integration: 3/9 integrated
+- Model integration: 8/9 integrated
 - Verified support: LLM `native`, STT `partial`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `grok-4-0709` | Grok 4 | Integrated | `grok-4` |
-| LLM | `grok-4-fast-reasoning` | Grok 4 Fast | Not integrated | — |
+| LLM | `grok-4-0709` | Grok 4 | Integrated | `grok-4-0709` |
+| LLM | `grok-4-fast-reasoning` | Grok 4 Fast | Integrated | `grok-4-fast-reasoning` |
 | LLM | `grok-4-1-fast-non-reasoning` | Grok 4.1 Fast Non-Reasoning | Integrated | `grok-4-1-fast-non-reasoning` |
 | LLM | `grok-4-1-fast-reasoning` | Grok 4.1 Fast Reasoning | Integrated | `grok-4-1-fast-reasoning` |
-| LLM | `grok-4.20-multi-agent-0309` | Grok 4.20 Multi-Agent | Not integrated | — |
-| LLM | `grok-4.20-non-reasoning` | Grok 4.20 Non-Reasoning | Not integrated | — |
-| LLM | `grok-4.20-reasoning` | Grok 4.20 Reasoning | Not integrated | — |
+| LLM | `grok-4.20-multi-agent-0309` | Grok 4.20 Multi-Agent | Integrated | `grok-4.20-multi-agent-0309` |
+| LLM | `grok-4.20-non-reasoning` | Grok 4.20 Non-Reasoning | Integrated | `grok-4.20-non-reasoning` |
+| LLM | `grok-4.20-reasoning` | Grok 4.20 Reasoning | Integrated | `grok-4.20-reasoning` |
 | STT | `voice-agent-api` | Voice Agent API (speech input inside realtime agent) | Not integrated | — |
-| TTS | `text-to-speech` | Text to Speech API | Not integrated | — |
+| TTS | `text-to-speech` | Text to Speech API | Integrated | `text-to-speech` |
 
 ## Xiaomi Mimo `xiaomi-mimo`
 
@@ -807,23 +807,23 @@ Catalog updated: 2026-03-23
 ## Z.ai / Zhipu AI `z-ai-zhipu-ai`
 
 - Runtime provider: `z-ai-zhipu-ai`
-- Model integration: 7/21 integrated
+- Model integration: 16/21 integrated
 - Verified support: LLM `native`, STT `native`, TTS `partial`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `glm-4-32b-0414-128k` | GLM-4-32B-0414-128K | Not integrated | — |
-| LLM | `glm-4-flash-250414` | GLM-4-Flash-250414 | Not integrated | — |
-| LLM | `glm-4-flashx-250414` | GLM-4-FlashX-250414 | Not integrated | — |
-| LLM | `glm-4-long` | GLM-4-Long | Not integrated | — |
-| LLM | `glm-4.5` | GLM-4.5 | Not integrated | — |
+| LLM | `glm-4-32b-0414-128k` | GLM-4-32B-0414-128K | Integrated | `glm-4-32b-0414-128k` |
+| LLM | `glm-4-flash-250414` | GLM-4-Flash-250414 | Integrated | `glm-4-flash-250414` |
+| LLM | `glm-4-flashx-250414` | GLM-4-FlashX-250414 | Integrated | `glm-4-flashx-250414` |
+| LLM | `glm-4-long` | GLM-4-Long | Integrated | `glm-4-long` |
+| LLM | `glm-4.5` | GLM-4.5 | Integrated | `glm-4.5` |
 | LLM | `glm-4.5-air` | GLM-4.5-Air | Integrated | `glm-4.5-air` |
-| LLM | `glm-4.5-airx` | GLM-4.5-AirX | Not integrated | — |
-| LLM | `glm-4.5-flash` | GLM-4.5-Flash | Not integrated | — |
-| LLM | `glm-4.5-x` | GLM-4.5-X | Not integrated | — |
+| LLM | `glm-4.5-airx` | GLM-4.5-AirX | Integrated | `glm-4.5-airx` |
+| LLM | `glm-4.5-flash` | GLM-4.5-Flash | Integrated | `glm-4.5-flash` |
+| LLM | `glm-4.5-x` | GLM-4.5-X | Integrated | `glm-4.5-x` |
 | LLM | `glm-4.6` | GLM-4.6 | Integrated | `glm-4.6` |
 | LLM | `glm-4.7` | GLM-4.7 | Integrated | `glm-4.7` |
-| LLM | `glm-4.7-flash` | GLM-4.7-Flash | Not integrated | — |
+| LLM | `glm-4.7-flash` | GLM-4.7-Flash | Integrated | `glm-4.7-flash` |
 | LLM | `glm-4.7-flashx` | GLM-4.7-FlashX | Integrated | `glm-4.7-flashx` |
 | LLM | `glm-5` | GLM-5 | Integrated | `glm-5` |
 | LLM | `glm-5-turbo` | GLM-5-Turbo | Integrated | `glm-5-turbo` |
@@ -858,7 +858,6 @@ These runtime manifest rows did not resolve to a canonical catalog model and sho
 | `openai` | `openai` | `llm` | `gpt-4-turbo` |
 | `openai` | `openai` | `llm` | `gpt-4` |
 | `openai` | `openai` | `llm` | `gpt-3.5-turbo` |
-| `anthropic` | `anthropic` | `llm` | `claude-opus-4-20250522` |
 | `gemini` | `google-vertex-ai-studio` | `llm` | `gemini-3.1-pro-preview` |
 | `gemini` | `google-vertex-ai-studio` | `llm` | `gemini-3.1-flash-lite-preview` |
 | `gemini` | `google-vertex-ai-studio` | `llm` | `gemini-3-flash-preview` |
@@ -872,28 +871,4 @@ These runtime manifest rows did not resolve to a canonical catalog model and sho
 | `gemini` | `google-vertex-ai-studio` | `stt` | `gemini-2.5-flash-lite` |
 | `gemini` | `google-vertex-ai-studio` | `stt` | `gemini-2.0-flash` |
 | `gemini` | `google-vertex-ai-studio` | `stt` | `gemini-2.0-flash-lite` |
-| `gemini` | `google-vertex-ai-studio` | `tts` | `gemini-2.5-flash-preview-tts` |
-| `gemini` | `google-vertex-ai-studio` | `tts` | `gemini-2.5-pro-preview-tts` |
-| `xai` | `xai` | `llm` | `grok-code-fast-1` |
-| `xai` | `xai` | `llm` | `grok-3` |
-| `xai` | `xai` | `llm` | `grok-3-fast` |
-| `xai` | `xai` | `llm` | `grok-3-mini` |
-| `xai` | `xai` | `tts` | `grok-tts-mini` |
-| `groq` | `groq` | `llm` | `groq/compound` |
-| `groq` | `groq` | `llm` | `groq/compound-mini` |
-| `groq` | `groq` | `llm` | `meta-llama/llama-4-maverick-17b-128e-instruct` |
-| `mistral` | `mistral-ai` | `llm` | `open-mistral-nemo` |
-| `together` | `together-ai` | `llm` | `Qwen/Qwen3.5-397B-A17B` |
-| `together` | `together-ai` | `llm` | `Qwen/Qwen3-235B-A22B-FP8` |
-| `together` | `together-ai` | `llm` | `Qwen/Qwen3.5-9B` |
-| `together` | `together-ai` | `llm` | `deepseek-ai/DeepSeek-V3.1` |
-| `together` | `together-ai` | `llm` | `deepseek-ai/DeepSeek-R1` |
-| `together` | `together-ai` | `llm` | `meta-llama/Llama-3.3-70B-Instruct-Turbo` |
-| `together` | `together-ai` | `llm` | `meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo` |
-| `together` | `together-ai` | `llm` | `meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8` |
-| `together` | `together-ai` | `llm` | `Qwen/Qwen3-Next-80B-A3B-Instruct` |
-| `together` | `together-ai` | `llm` | `Qwen/Qwen3-Coder-Next-FP8` |
-| `nvidia` | `nvidia-nim` | `llm` | `nvidia/llama-3.3-nemotron-super-49b-v1.5` |
-| `nvidia` | `nvidia-nim` | `llm` | `nvidia/llama-3.1-nemotron-ultra-253b-v1` |
-| `nvidia` | `nvidia-nim` | `llm` | `nvidia/llama-3.1-nemotron-nano-8b-v1` |
 

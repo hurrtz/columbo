@@ -291,7 +291,7 @@ describe("synthesizeSpeech", () => {
     expect(result).toMatch(/^\/tmp\/tts-.*\.wav$/);
     const [url, options] = (fetch as jest.Mock).mock.calls[0];
     expect(url).toBe(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-tts:generateContent",
     );
     expect(options.headers["x-goog-api-key"]).toBe("AIza-test");
     const body = JSON.parse(options.body);
@@ -299,6 +299,47 @@ describe("synthesizeSpeech", () => {
       body.generationConfig.speechConfig.voiceConfig.prebuiltVoiceConfig
         .voiceName,
     ).toBe("Aoede");
+  });
+
+  it("uses DashScope TTS and downloads the generated wav file", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            output: {
+              audio: {
+                url: "https://dashscope.example/audio.wav",
+              },
+            },
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        blob: () => Promise.resolve(new Blob(["fake-audio"])),
+      });
+
+    const result = await synthesizeSpeech({
+      text: "Hello world",
+      voice: "",
+      mode: "provider",
+      provider: "alibaba-qwen-dashscope",
+      apiKey: "dashscope-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.wav$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation",
+    );
+    const body = JSON.parse(options.body);
+    expect(body.model).toBe("qwen3-tts-flash");
+    expect(body.input.voice).toBe("Cherry");
+    expect(body.input.text).toBe("Hello world");
+    expect((fetch as jest.Mock).mock.calls[1][0]).toBe(
+      "https://dashscope.example/audio.wav",
+    );
   });
 
   it("retries Gemini TTS after a transient transport failure", async () => {
@@ -545,7 +586,7 @@ describe("synthesizeSpeech", () => {
     const [url, options] = (fetch as jest.Mock).mock.calls[0];
     expect(url).toBe("https://api.x.ai/v1/audio/speech");
     const body = JSON.parse(options.body);
-    expect(body.model).toBe("grok-tts-mini");
+    expect(body.model).toBe("text-to-speech");
     expect(body.voice_id).toBe("leo");
     expect(body.output_format.codec).toBe("mp3");
   });

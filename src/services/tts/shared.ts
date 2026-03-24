@@ -63,7 +63,17 @@ type GeminiTtsConfig = {
   voiceFallback: string;
 };
 
-export type ProviderTtsConfig = BinaryTtsConfig | GeminiTtsConfig;
+type DashScopeTtsConfig = {
+  kind: "dashscope";
+  endpoint: string;
+  defaultModel: string;
+  voiceFallback: string;
+};
+
+export type ProviderTtsConfig =
+  | BinaryTtsConfig
+  | GeminiTtsConfig
+  | DashScopeTtsConfig;
 
 const ttsProviderConfigEntries: Array<[Provider, ProviderTtsConfig]> = [];
 
@@ -83,6 +93,23 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
         kind: "binary",
         endpoint: manifest.tts.endpoint,
         requestFormat: manifest.tts.requestFormat,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
+    manifest.tts.transport === "dashscope" &&
+    manifest.tts.endpoint &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "dashscope",
+        endpoint: manifest.tts.endpoint,
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,
       },
@@ -347,8 +374,11 @@ export async function fetchWithTimeout(
   }
 }
 
-export async function writeBlobAudioFile(blob: Blob) {
-  return writeBase64AudioFile(await blobToBase64(blob), "mp3");
+export async function writeBlobAudioFile(
+  blob: Blob,
+  extension: "mp3" | "wav" = "mp3",
+) {
+  return writeBase64AudioFile(await blobToBase64(blob), extension);
 }
 
 export function buildWavAudioFileFromPcm(params: {

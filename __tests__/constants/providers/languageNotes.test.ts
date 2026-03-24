@@ -37,14 +37,14 @@ describe("provider language notes", () => {
     ).toBe("13 voices across 57 languages. Voices are optimized for English.");
   });
 
-  it("falls back to the curated provider TTS note when the selected model is not in the workbook catalog", () => {
+  it("derives a TTS language note from the canonical xAI catalog model", () => {
     expect(
       getProviderTtsLanguageNoteForModel(
         "xai",
-        "grok-tts-mini",
+        "text-to-speech",
         "en",
       ),
-    ).toContain("Arabic");
+    ).toBe("5 voices across 20 languages.");
   });
 
   it("builds an exact STT upload limit note from catalog constraints", () => {

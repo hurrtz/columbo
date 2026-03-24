@@ -92,6 +92,11 @@ function buildBinaryTtsRequestBody(params: {
   }
 }
 
+function getDashScopeAudioUrl(data: any) {
+  const url = data?.output?.audio?.url;
+  return typeof url === "string" ? url : null;
+}
+
 export async function synthesizeProviderSpeech(params: {
   text: string;
   voice: string;
@@ -213,6 +218,72 @@ export async function synthesizeProviderSpeech(params: {
     }
 
     throw createTtsTimeoutError({ provider, language });
+  }
+
+  if (config.kind === "dashscope") {
+    const response = await fetchWithTimeout(
+      config.endpoint,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+        },
+        body: JSON.stringify({
+          model: selectedModel,
+          input: {
+            text,
+            voice: selectedVoice,
+          },
+        }),
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw buildTtsRequestError({
+        provider,
+        status: response.status,
+        errorText,
+        language,
+      });
+    }
+
+    const data = await response.json();
+    const audioUrl = getDashScopeAudioUrl(data);
+
+    if (!audioUrl) {
+      throw new Error(
+        translate(language, "ttsDidNotReturnAudio", {
+          provider: PROVIDER_LABELS[provider],
+        }),
+      );
+    }
+
+    const audioResponse = await fetchWithTimeout(
+      audioUrl,
+      {
+        method: "GET",
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!audioResponse.ok) {
+      const errorText = await audioResponse.text();
+      throw buildTtsRequestError({
+        provider,
+        status: audioResponse.status,
+        errorText,
+        language,
+      });
+    }
+
+    return writeBlobAudioFile(await audioResponse.blob(), "wav");
   }
 
   const requestBody = buildBinaryTtsRequestBody({
