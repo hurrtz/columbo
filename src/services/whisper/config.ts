@@ -15,6 +15,11 @@ export type OpenAiAudioInputTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type AzureOpenAiTranscriptionConfig = {
+  kind: "azure-openai";
+  defaultModel: string;
+};
+
 export type BaiduShortSpeechTranscriptionConfig = {
   kind: "baidu-short-speech";
   defaultModel: string;
@@ -86,6 +91,7 @@ const sttProviderConfigEntries: Array<
     | MultipartTranscriptionConfig
     | GeminiTranscriptionConfig
     | OpenAiAudioInputTranscriptionConfig
+    | AzureOpenAiTranscriptionConfig
     | BaiduShortSpeechTranscriptionConfig
     | AssemblyAiPreRecordedTranscriptionConfig
     | DeepgramPreRecordedTranscriptionConfig
@@ -114,6 +120,19 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
         ...(manifest.stt.languageHintKey
           ? { languageHint: getLanguageHint(manifest.stt.languageHintKey) }
           : {}),
+      },
+    ]);
+  }
+
+  if (
+    manifest.stt.transport === "azure-openai" &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "azure-openai",
+        defaultModel: manifest.stt.defaultModel,
       },
     ]);
   }
@@ -271,6 +290,7 @@ export const STT_PROVIDER_CONFIGS: Partial<
     | MultipartTranscriptionConfig
     | GeminiTranscriptionConfig
     | OpenAiAudioInputTranscriptionConfig
+    | AzureOpenAiTranscriptionConfig
     | BaiduShortSpeechTranscriptionConfig
     | AssemblyAiPreRecordedTranscriptionConfig
     | DeepgramPreRecordedTranscriptionConfig

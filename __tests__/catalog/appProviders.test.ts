@@ -22,6 +22,7 @@ describe("app provider catalog bridge", () => {
     expect(PROVIDER_CATALOG_IDS).toEqual({
       "01-ai-yi": "01-ai-yi",
       openai: "openai",
+      "microsoft-azure": "microsoft-azure",
       anthropic: "anthropic",
       assemblyai: "assemblyai",
       "ai21-labs": "ai21-labs",
@@ -57,10 +58,16 @@ describe("app provider catalog bridge", () => {
     });
 
     expect(getCatalogProviderIdForAppProvider("01-ai-yi")).toBe("01-ai-yi");
+    expect(getCatalogProviderIdForAppProvider("microsoft-azure")).toBe(
+      "microsoft-azure",
+    );
     expect(getCatalogProviderIdForAppProvider("gemini")).toBe(
       "google-vertex-ai-studio",
     );
     expect(getAppProviderForCatalogProviderId("01-ai-yi")).toBe("01-ai-yi");
+    expect(getAppProviderForCatalogProviderId("microsoft-azure")).toBe(
+      "microsoft-azure",
+    );
     expect(getAppProviderForCatalogProviderId("openai")).toBe("openai");
     expect(getAppProviderForCatalogProviderId("assemblyai")).toBe("assemblyai");
     expect(getAppProviderForCatalogProviderId("baidu-ernie-qianfan")).toBe(

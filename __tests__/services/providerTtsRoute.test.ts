@@ -68,6 +68,34 @@ describe("synthesizeProviderSpeech", () => {
     );
   });
 
+  it("uses the Azure OpenAI v1 speech route with api-key auth", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "microsoft-azure",
+      apiKey: "https://example-resource.openai.azure.com|azure-test-key",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://example-resource.openai.azure.com/openai/v1/audio/speech",
+    );
+    expect(options.headers["api-key"]).toBe("azure-test-key");
+    expect(JSON.parse(options.body)).toEqual({
+      model: "gpt-4o-mini-tts",
+      voice: "alloy",
+      input: "Hello world",
+      response_format: "mp3",
+    });
+  });
+
   it("uses Deepgram native speak and sends the selected voice model", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

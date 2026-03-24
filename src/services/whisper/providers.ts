@@ -1,12 +1,17 @@
 import * as FileSystem from "expo-file-system/legacy";
 
 import { buildProviderHttpError, normalizeProviderTransportError } from "../providerErrors";
+import {
+  buildAzureOpenAiUrl,
+  parseAzureOpenAiCredentials,
+} from "../providerCredentials";
 import type { AppLanguage, Provider } from "../../types";
 import { getDeviceLocale, getFileAudioMimeType } from "../../utils/speechLanguage";
 import { fetchWithTimeout } from "./abort";
 import { STT_TIMEOUT_MS } from "./config";
 import type {
   AssemblyAiPreRecordedTranscriptionConfig,
+  AzureOpenAiTranscriptionConfig,
   BaiduShortSpeechTranscriptionConfig,
   DeepgramPreRecordedTranscriptionConfig,
   ElevenLabsTranscriptionConfig,
@@ -309,6 +314,66 @@ export async function transcribeWithOpenAiAudioInputProvider(
 
   const data = await response.json();
   const text = extractTextFromOpenAiAudioInputResponse(data);
+  return text ? text : null;
+}
+
+export async function transcribeWithAzureOpenAiProvider(
+  params: SharedProviderParams & {
+    config: AzureOpenAiTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const credentials = parseAzureOpenAiCredentials(provider, apiKey, language);
+  const formData = new FormData();
+  formData.append(
+    "file",
+    {
+      uri: fileUri,
+      type: getFileAudioMimeType(fileUri),
+      name: fileUri.split("/").pop() || "recording.m4a",
+    } as any,
+  );
+  formData.append("model", providerModel || config.defaultModel);
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      buildAzureOpenAiUrl(credentials.endpoint, "audio/transcriptions"),
+      {
+        method: "POST",
+        headers: {
+          "api-key": credentials.apiKey,
+        },
+        body: formData,
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const text = data.text?.trim();
   return text ? text : null;
 }
 

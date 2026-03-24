@@ -18,6 +18,8 @@ import {
 import { requestAnthropicChat, requestAnthropicChatStream } from "./llm/providers/anthropic";
 import { requestCohereChat } from "./llm/providers/cohere";
 import {
+  requestAzureOpenAiChat,
+  requestAzureOpenAiChatStream,
   requestOpenAICompatibleChat,
   requestOpenAICompatibleChatStream,
 } from "./llm/providers/openaiCompatible";
@@ -95,6 +97,16 @@ const LLM_TEXT_REQUESTERS = {
       systemPrompt: params.systemPrompt,
       abortSignal: params.abortSignal,
     }),
+  "azure-openai": async (params: LlmRequestParams) =>
+    requestAzureOpenAiChat({
+      provider: params.provider,
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      abortSignal: params.abortSignal,
+    }),
   anthropic: async (params: LlmRequestParams) =>
     requestAnthropicChat({
       model: params.model,
@@ -131,6 +143,17 @@ const LLM_STREAM_REQUESTERS = {
       onChunk: params.onChunk,
       abortSignal: params.abortSignal,
     }),
+  "azure-openai": async (params: StreamingLlmRequestParams) =>
+    requestAzureOpenAiChatStream({
+      provider: params.provider,
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      onChunk: params.onChunk,
+      abortSignal: params.abortSignal,
+    }),
   anthropic: async (params: StreamingLlmRequestParams) =>
     requestAnthropicChatStream({
       model: params.model,
@@ -157,6 +180,8 @@ async function requestChatText(params: {
   switch (config.transport) {
     case "openai-compatible":
       return LLM_TEXT_REQUESTERS["openai-compatible"](params, config);
+    case "azure-openai":
+      return LLM_TEXT_REQUESTERS["azure-openai"](params);
     case "anthropic":
       return LLM_TEXT_REQUESTERS.anthropic(params);
     case "cohere":
@@ -293,6 +318,18 @@ export async function streamChat({
           },
           config,
         );
+        break;
+      case "azure-openai":
+        fullText = await LLM_STREAM_REQUESTERS["azure-openai"]({
+          messages,
+          model,
+          provider,
+          apiKey,
+          language,
+          systemPrompt,
+          onChunk,
+          abortSignal,
+        });
         break;
       case "anthropic":
         fullText = await LLM_STREAM_REQUESTERS.anthropic({

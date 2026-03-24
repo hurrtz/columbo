@@ -16,11 +16,18 @@ type OpenAiCompatibleLlmConfig = {
   endpoint: string;
 };
 
-type TransportOnlyLlmConfig = {
-  transport: Exclude<RuntimeLlmTransport, "openai-compatible">;
+type AzureOpenAiLlmConfig = {
+  transport: "azure-openai";
 };
 
-export type ProviderLlmConfig = OpenAiCompatibleLlmConfig | TransportOnlyLlmConfig;
+type TransportOnlyLlmConfig = {
+  transport: Exclude<RuntimeLlmTransport, "openai-compatible" | "azure-openai">;
+};
+
+export type ProviderLlmConfig =
+  | OpenAiCompatibleLlmConfig
+  | AzureOpenAiLlmConfig
+  | TransportOnlyLlmConfig;
 
 const llmProviderConfigEntries: Array<[Provider, ProviderLlmConfig]> = [];
 
@@ -42,6 +49,14 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
         {
           transport: "openai-compatible",
           endpoint: manifest.llm.endpoint,
+        },
+      ]);
+      break;
+    case "azure-openai":
+      llmProviderConfigEntries.push([
+        provider,
+        {
+          transport: "azure-openai",
         },
       ]);
       break;

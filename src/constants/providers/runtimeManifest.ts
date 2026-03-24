@@ -4,6 +4,7 @@ import { PROVIDER_DOCUMENTS } from "../../../data/providers";
 export type RuntimeAppProviderId =
   | "01-ai-yi"
   | "openai"
+  | "microsoft-azure"
   | "anthropic"
   | "assemblyai"
   | "ai21-labs"
@@ -40,11 +41,13 @@ export type RuntimeAppProviderId =
 export type RuntimeLlmTransport =
   | "none"
   | "openai-compatible"
+  | "azure-openai"
   | "anthropic"
   | "cohere";
 export type RuntimeSttTransport =
   | "none"
   | "multipart"
+  | "azure-openai"
   | "gemini"
   | "openai-audio-input"
   | "baidu-short-speech"
@@ -58,6 +61,7 @@ export type RuntimeSttTransport =
 export type RuntimeTtsTransport =
   | "none"
   | "binary"
+  | "azure-openai"
   | "baidu"
   | "gemini"
   | "dashscope"
@@ -209,6 +213,7 @@ function catalogModelSpecs(
 export const RUNTIME_PROVIDER_ORDER = [
   "01-ai-yi",
   "openai",
+  "microsoft-azure",
   "anthropic",
   "assemblyai",
   "ai21-labs",
@@ -357,6 +362,59 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       ],
       languageNote:
         "OpenAI currently exposes gpt-4o-mini-tts, tts-1, and tts-1-hd. OpenAI does not publish a compact well-supported language list for TTS in the same way it does for STT, and notes that the voices are optimized for English.",
+    },
+  },
+  "microsoft-azure": {
+    appProvider: "microsoft-azure",
+    catalogProviderId: "microsoft-azure",
+    label: "Azure",
+    shortLabel: "AZURE",
+    apiKeyPlaceholder: "https://your-resource.openai.azure.com|api-key",
+    apiKeyHint:
+      "Enter your Azure OpenAI resource endpoint and API key separated by |. Model ids should match your Azure deployment names for chat and speech calls.",
+    apiKeyUrl: "https://learn.microsoft.com/en-us/azure/foundry/openai/reference",
+    llm: {
+      support: "provider",
+      transport: "azure-openai",
+      defaultModel: "gpt-4.1-mini",
+      models: catalogModelSpecs("microsoft-azure", "llm", [
+        "gpt-realtime",
+        "gpt-realtime-1.5",
+        "gpt-realtime-mini",
+      ]),
+    },
+    stt: {
+      support: "provider",
+      transport: "azure-openai",
+      defaultModel: "gpt-4o-mini-transcribe",
+      models: catalogModelSpecs("microsoft-azure", "stt"),
+      languageNote:
+        "Azure OpenAI STT is now wired for the non-realtime transcription models in the catalog. Azure Speech and realtime Azure audio flows remain broader than this picker and still need dedicated transports.",
+    },
+    tts: {
+      support: "provider",
+      transport: "azure-openai",
+      defaultModel: "gpt-4o-mini-tts",
+      defaultVoice: "alloy",
+      voiceFallback: "alloy",
+      models: catalogModelSpecs("microsoft-azure", "tts"),
+      voiceOptions: [
+        voice("alloy", "Alloy"),
+        voice("ash", "Ash"),
+        voice("ballad", "Ballad"),
+        voice("cedar", "Cedar"),
+        voice("coral", "Coral"),
+        voice("echo", "Echo"),
+        voice("fable", "Fable"),
+        voice("marin", "Marin"),
+        voice("onyx", "Onyx"),
+        voice("nova", "Nova"),
+        voice("sage", "Sage"),
+        voice("shimmer", "Shimmer"),
+        voice("verse", "Verse"),
+      ],
+      languageNote:
+        "Azure OpenAI TTS is now wired for gpt-4o-mini-tts plus the legacy tts and tts-hd models on the v1 audio/speech route. Realtime Azure voice models still need a dedicated realtime transport.",
     },
   },
   anthropic: {

@@ -10,6 +10,7 @@ import { STT_PROVIDER_CONFIGS } from "./whisper/config";
 import { waitForRecordedFileReady } from "./whisper/recordedFileReady";
 import {
   transcribeWithAssemblyAiPreRecordedProvider,
+  transcribeWithAzureOpenAiProvider,
   transcribeWithBaiduShortSpeechProvider,
   transcribeWithDeepgramPreRecordedProvider,
   transcribeWithElevenLabsProvider,
@@ -133,6 +134,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "openai-audio-input") {
     return transcribeWithOpenAiAudioInputProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: selectedModel,
+    });
+  }
+
+  if (config.kind === "azure-openai") {
+    return transcribeWithAzureOpenAiProvider({
       abortSignal,
       apiKey,
       config,

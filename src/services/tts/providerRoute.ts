@@ -3,6 +3,10 @@ import { RuntimeTtsBinaryRequestFormat } from "../../constants/providers/runtime
 import { translate } from "../../i18n";
 import { AppLanguage, Provider } from "../../types";
 import { getTogetherTtsLanguageCode } from "../../utils/speechLanguage";
+import {
+  buildAzureOpenAiUrl,
+  parseAzureOpenAiCredentials,
+} from "../providerCredentials";
 
 import {
   buildTtsRequestError,
@@ -433,6 +437,44 @@ export async function synthesizeProviderSpeech(params: {
     providerModel,
     config,
   });
+
+  if (config.kind === "azure-openai") {
+    const credentials = parseAzureOpenAiCredentials(provider, apiKey, language);
+    const resolvedVoice = selectedVoice || config.voiceFallback;
+    const response = await fetchWithTimeout(
+      buildAzureOpenAiUrl(credentials.endpoint, "audio/speech"),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": credentials.apiKey,
+        },
+        body: JSON.stringify(
+          buildBinaryTtsRequestBody({
+            requestFormat: "openai-speech",
+            selectedModel,
+            selectedVoice: resolvedVoice,
+            text,
+          }),
+        ),
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw buildTtsRequestError({
+        provider,
+        status: response.status,
+        errorText,
+        language,
+      });
+    }
+
+    return writeBlobAudioFile(await response.blob(), "mp3");
+  }
 
   if (config.kind === "gemini") {
     for (let attempt = 0; attempt <= GEMINI_TTS_RETRY_DELAYS_MS.length; attempt += 1) {

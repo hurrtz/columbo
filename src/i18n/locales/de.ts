@@ -236,6 +236,8 @@ export const de: TranslationDictionary = {
     threadUnpinned: "Nicht mehr angeheftet.",
     addProviderKeyToUseProvider: ({ provider }) =>
       `Füge in den Einstellungen deinen API-Schlüssel für ${provider} hinzu, um diesen Anbieter zu nutzen.`,
+    azureCredentialFormatInvalid: ({ provider }) =>
+      `Gib für ${provider} den Azure-Endpunkt und den API-Schlüssel als https://your-resource.openai.azure.com|dein-api-schluessel ein.`,
     speechRecognitionUnavailableOnDevice:
       "Spracherkennung ist auf diesem Gerät nicht verfügbar.",
     debugLogLabel: "LOG",

@@ -74,6 +74,44 @@ describe("streamChat", () => {
     );
   });
 
+  it("uses the Azure OpenAI v1 chat endpoint with api-key auth", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "gpt-4.1-mini",
+      provider: "microsoft-azure",
+      apiKey: "https://example-resource.openai.azure.com|azure-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi"]);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://example-resource.openai.azure.com/openai/v1/chat/completions",
+    );
+    expect(options.headers["api-key"]).toBe("azure-test-key");
+    expect(options.headers.Authorization).toBeUndefined();
+    expect(JSON.parse(options.body).model).toBe("gpt-4.1-mini");
+  });
+
   it("uses the configured routed endpoint for a hyphenated OpenAI-compatible provider", async () => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({

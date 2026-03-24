@@ -11,12 +11,12 @@ Catalog updated: 2026-03-23
 ## Summary
 
 - Catalog providers: 40
-- Providers with any runtime integration: 34
+- Providers with any runtime integration: 35
 - Catalog models: 455
-- Integrated models: 353
-- LLM: 258/294 integrated
-- STT: 37/71 integrated
-- TTS: 58/90 integrated
+- Integrated models: 365
+- LLM: 263/294 integrated
+- STT: 41/71 integrated
+- TTS: 61/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -475,27 +475,27 @@ Catalog updated: 2026-03-23
 
 ## Microsoft Azure `microsoft-azure`
 
-- Runtime provider: catalog-only
-- Model integration: 0/15 integrated
+- Runtime provider: `microsoft-azure`
+- Model integration: 12/15 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `gpt-4.1` | GPT-4.1 | Not integrated | — |
-| LLM | `gpt-4.1-mini` | GPT-4.1 mini | Not integrated | — |
-| LLM | `gpt-4.1-nano` | GPT-4.1 nano | Not integrated | — |
-| LLM | `gpt-4o` | GPT-4o | Not integrated | — |
-| LLM | `gpt-4o-mini` | GPT-4o mini | Not integrated | — |
+| LLM | `gpt-4.1` | GPT-4.1 | Integrated | `gpt-4.1` |
+| LLM | `gpt-4.1-mini` | GPT-4.1 mini | Integrated | `gpt-4.1-mini` |
+| LLM | `gpt-4.1-nano` | GPT-4.1 nano | Integrated | `gpt-4.1-nano` |
+| LLM | `gpt-4o` | GPT-4o | Integrated | `gpt-4o` |
+| LLM | `gpt-4o-mini` | GPT-4o mini | Integrated | `gpt-4o-mini` |
 | LLM | `gpt-realtime` | GPT-Realtime | Not integrated | — |
 | LLM | `gpt-realtime-1.5` | GPT-Realtime 1.5 | Not integrated | — |
 | LLM | `gpt-realtime-mini` | GPT-Realtime mini | Not integrated | — |
-| STT | `gpt-4o-mini-transcribe` | GPT-4o mini Transcribe | Not integrated | — |
-| STT | `gpt-4o-transcribe` | GPT-4o Transcribe | Not integrated | — |
-| STT | `gpt-4o-transcribe-diarize` | GPT-4o Transcribe Diarize | Not integrated | — |
-| STT | `whisper` | Whisper | Not integrated | — |
-| TTS | `gpt-4o-mini-tts` | GPT-4o mini TTS | Not integrated | — |
-| TTS | `tts` | TTS | Not integrated | — |
-| TTS | `tts-hd` | TTS HD | Not integrated | — |
+| STT | `gpt-4o-mini-transcribe` | GPT-4o mini Transcribe | Integrated | `gpt-4o-mini-transcribe` |
+| STT | `gpt-4o-transcribe` | GPT-4o Transcribe | Integrated | `gpt-4o-transcribe` |
+| STT | `gpt-4o-transcribe-diarize` | GPT-4o Transcribe Diarize | Integrated | `gpt-4o-transcribe-diarize` |
+| STT | `whisper` | Whisper | Integrated | `whisper` |
+| TTS | `gpt-4o-mini-tts` | GPT-4o mini TTS | Integrated | `gpt-4o-mini-tts` |
+| TTS | `tts` | TTS | Integrated | `tts` |
+| TTS | `tts-hd` | TTS HD | Integrated | `tts-hd` |
 
 ## Minimax `minimax`
 
