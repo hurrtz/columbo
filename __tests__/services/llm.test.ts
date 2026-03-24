@@ -202,6 +202,67 @@ describe("streamChat", () => {
     expect(JSON.parse(options.body).model).toBe("openai/gpt-oss-20b");
   });
 
+  it("uses Replicate predictions for official LLM models", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          latest_version: {
+            id: "replicate-version-1",
+            openapi_schema: {
+              components: {
+                schemas: {
+                  Input: {
+                    properties: {
+                      prompt: { type: "string" },
+                      instructions: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          status: "succeeded",
+          output: ["Hi from Replicate"],
+        }),
+      });
+
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "openai/gpt-5-mini",
+      provider: "replicate",
+      apiKey: "replicate-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi from Replicate"]);
+    expect((fetch as jest.Mock).mock.calls[0][0]).toBe(
+      "https://api.replicate.com/v1/models/openai/gpt-5-mini",
+    );
+    const [predictionUrl, predictionOptions] = (fetch as jest.Mock).mock.calls[1];
+    expect(predictionUrl).toBe("https://api.replicate.com/v1/predictions");
+    expect(JSON.parse(predictionOptions.body)).toEqual({
+      version: "replicate-version-1",
+      input: expect.objectContaining({
+        prompt: expect.stringContaining("User: Hello"),
+        instructions: expect.any(String),
+      }),
+    });
+  });
+
   it("uses the Sonar chat-completions compatibility endpoint for Perplexity", async () => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({

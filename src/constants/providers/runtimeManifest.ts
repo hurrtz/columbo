@@ -31,6 +31,7 @@ export type RuntimeAppProviderId =
   | "nvidia"
   | "novita-ai"
   | "perplexity"
+  | "replicate"
   | "sambanova"
   | "siliconflow"
   | "stepfun"
@@ -45,7 +46,8 @@ export type RuntimeLlmTransport =
   | "azure-openai"
   | "anthropic"
   | "cohere"
-  | "ibm-watsonx";
+  | "ibm-watsonx"
+  | "replicate";
 export type RuntimeSttTransport =
   | "none"
   | "multipart"
@@ -61,7 +63,8 @@ export type RuntimeSttTransport =
   | "huggingface-json"
   | "ibm-watsonx"
   | "novita-json"
-  | "elevenlabs";
+  | "elevenlabs"
+  | "replicate";
 export type RuntimeTtsTransport =
   | "none"
   | "binary"
@@ -75,7 +78,8 @@ export type RuntimeTtsTransport =
   | "ibm-watsonx"
   | "minimax"
   | "novita"
-  | "elevenlabs";
+  | "elevenlabs"
+  | "replicate";
 export type RuntimeTtsBinaryRequestFormat =
   | "openai-speech"
   | "together-speech"
@@ -247,6 +251,7 @@ export const RUNTIME_PROVIDER_ORDER = [
   "moonshot-ai-kimi",
   "novita-ai",
   "perplexity",
+  "replicate",
   "sambanova",
   "siliconflow",
   "stepfun",
@@ -1378,6 +1383,41 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "none",
       models: [],
       voiceOptions: [],
+    },
+  },
+  replicate: {
+    appProvider: "replicate",
+    catalogProviderId: "replicate",
+    label: "Replicate",
+    shortLabel: "REPLICATE",
+    apiKeyPlaceholder: "Enter API token",
+    apiKeyHint:
+      "Unlocks Replicate official models through its prediction API. The app discovers the latest model schema at runtime for the selected model.",
+    apiKeyUrl: "https://replicate.com/account/api-tokens",
+    llm: {
+      support: "provider",
+      transport: "replicate",
+      defaultModel: "openai/gpt-5-mini",
+      models: catalogModelSpecs("replicate", "llm"),
+    },
+    stt: {
+      support: "provider",
+      transport: "replicate",
+      defaultModel: "openai/gpt-4o-mini-transcribe",
+      models: catalogModelSpecs("replicate", "stt"),
+      languageNote:
+        "Replicate STT is wired through the prediction API and the official model schema for each selected model. Output format and language controls remain model-specific.",
+    },
+    tts: {
+      support: "provider",
+      transport: "replicate",
+      defaultModel: "inworld/tts-1.5-mini",
+      defaultVoice: "Ashley",
+      voiceFallback: "Ashley",
+      models: catalogModelSpecs("replicate", "tts"),
+      voiceOptions: [],
+      languageNote:
+        "Replicate TTS is wired through the prediction API and per-model schemas. Voice options stay model-specific, so the app uses conservative defaults unless a future schema-aware picker is added.",
     },
   },
   sambanova: {

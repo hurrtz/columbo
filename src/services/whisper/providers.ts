@@ -8,6 +8,11 @@ import {
   parseAzureOpenAiCredentials,
 } from "../providerCredentials";
 import type { AppLanguage, Provider } from "../../types";
+import {
+  getReplicateInputProperty,
+  getReplicateModelMetadata,
+  runReplicatePrediction,
+} from "../replicate/runtime";
 import { getDeviceLocale, getFileAudioMimeType } from "../../utils/speechLanguage";
 import { fetchWithTimeout } from "./abort";
 import { STT_TIMEOUT_MS } from "./config";
@@ -26,6 +31,7 @@ import type {
   NovitaJsonTranscriptionConfig,
   OpenAiAudioInputTranscriptionConfig,
   MultipartTranscriptionConfig,
+  ReplicateTranscriptionConfig,
 } from "./config";
 import {
   createSttTimeoutError,
@@ -450,6 +456,83 @@ export async function transcribeWithIbmWatsonxProvider(
         .filter(Boolean)
         .join(" ")
     : "";
+
+  return text ? text : null;
+}
+
+export async function transcribeWithReplicateProvider(
+  params: SharedProviderParams & {
+    config: ReplicateTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const selectedModel = providerModel || config.defaultModel;
+  const resolvedApiKey = requireProviderKey(provider, apiKey, language);
+  const base64 = await FileSystem.readAsStringAsync(fileUri, {
+    encoding: "base64",
+  });
+  const audioDataUri = `data:${getFileAudioMimeType(fileUri)};base64,${base64}`;
+
+  let metadata;
+
+  try {
+    metadata = await getReplicateModelMetadata({
+      apiKey: resolvedApiKey,
+      modelId: selectedModel,
+      abortSignal,
+    });
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  const input: Record<string, unknown> = {};
+  const audioField = getReplicateInputProperty(metadata.inputProperties, [
+    "audio_file",
+    "audio",
+    "file",
+  ]);
+
+  input[audioField ?? "audio_file"] = audioDataUri;
+
+  if ("language" in metadata.inputProperties) {
+    input.language = getDeviceLocale().split("-")[0];
+  }
+
+  let output: unknown;
+
+  try {
+    output = await runReplicatePrediction({
+      apiKey: resolvedApiKey,
+      modelId: selectedModel,
+      input,
+      abortSignal,
+    });
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  const text =
+    typeof output === "string"
+      ? output.trim()
+      : Array.isArray(output)
+        ? output
+            .map((part) => (typeof part === "string" ? part : ""))
+            .join("")
+            .trim()
+        : typeof (output as any)?.text === "string"
+          ? (output as any).text.trim()
+          : "";
 
   return text ? text : null;
 }

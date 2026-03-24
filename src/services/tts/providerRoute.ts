@@ -9,6 +9,11 @@ import {
   parseIbmWatsonxCredentials,
   parseAzureOpenAiCredentials,
 } from "../providerCredentials";
+import {
+  getReplicateInputProperty,
+  getReplicateModelMetadata,
+  runReplicatePrediction,
+} from "../replicate/runtime";
 
 import {
   buildTtsRequestError,
@@ -146,6 +151,26 @@ function getBinaryTtsFileExtension(requestFormat: RuntimeTtsBinaryRequestFormat)
 function getDashScopeAudioUrl(data: any) {
   const url = data?.output?.audio?.url;
   return typeof url === "string" ? url : null;
+}
+
+function getReplicateAudioUrl(output: unknown) {
+  if (typeof output === "string") {
+    return output;
+  }
+
+  if (Array.isArray(output)) {
+    return output.find((value) => typeof value === "string") ?? null;
+  }
+
+  if (
+    typeof output === "object" &&
+    output !== null &&
+    typeof (output as any).url === "string"
+  ) {
+    return (output as any).url;
+  }
+
+  return null;
 }
 
 function getDeepgramVoiceModel(selectedModel: string, selectedVoice: string) {
@@ -295,6 +320,18 @@ function getNovitaVoice(selectedModel: string, selectedVoice: string) {
   return TOGETHER_MINIMAX_VOICES.has(selectedVoice)
     ? selectedVoice
     : "English_expressive_narrator";
+}
+
+function getReplicateVoice(selectedModel: string, selectedVoice: string) {
+  if (selectedModel.startsWith("inworld/tts-1.5")) {
+    return selectedVoice || "Ashley";
+  }
+
+  if (selectedModel.startsWith("minimax/speech-2.8")) {
+    return selectedVoice || "Wise_Woman";
+  }
+
+  return selectedVoice;
 }
 
 function getSiliconflowVoice(selectedModel: string, selectedVoice: string) {
@@ -1238,6 +1275,88 @@ export async function synthesizeProviderSpeech(params: {
     }
 
     return writeBase64AudioFile(hexToBase64(audioHex, language), "mp3");
+  }
+
+  if (config.kind === "replicate") {
+    const resolvedApiKey = requireProviderKey(provider, apiKey, language);
+    const resolvedVoice = getReplicateVoice(selectedModel, selectedVoice);
+    const metadata = await getReplicateModelMetadata({
+      apiKey: resolvedApiKey,
+      modelId: selectedModel,
+      abortSignal,
+    });
+    const input: Record<string, unknown> = {};
+    const textField = getReplicateInputProperty(metadata.inputProperties, [
+      "text",
+      "input_text",
+      "prompt",
+    ]);
+    const voiceField = getReplicateInputProperty(metadata.inputProperties, [
+      "voice_id",
+      "voice",
+      "speaker",
+      "speaker_id",
+    ]);
+    const outputFormatField = getReplicateInputProperty(metadata.inputProperties, [
+      "output_format",
+      "audio_format",
+    ]);
+
+    input[textField ?? "text"] = text;
+
+    if (voiceField && resolvedVoice) {
+      input[voiceField] = resolvedVoice;
+    }
+
+    if (outputFormatField) {
+      input[outputFormatField] = "mp3";
+    }
+
+    if ("sample_rate" in metadata.inputProperties) {
+      input.sample_rate = 44100;
+    }
+
+    if ("bitrate" in metadata.inputProperties) {
+      input.bitrate = 128000;
+    }
+
+    const output = await runReplicatePrediction({
+      apiKey: resolvedApiKey,
+      modelId: selectedModel,
+      input,
+      abortSignal,
+    });
+    const audioUrl = getReplicateAudioUrl(output);
+
+    if (!audioUrl) {
+      throw new Error(
+        translate(language, "ttsDidNotReturnAudio", {
+          provider: PROVIDER_LABELS[provider],
+        }),
+      );
+    }
+
+    const audioResponse = await fetchWithTimeout(
+      audioUrl,
+      {
+        method: "GET",
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!audioResponse.ok) {
+      const errorText = await audioResponse.text();
+      throw buildTtsRequestError({
+        provider,
+        status: audioResponse.status,
+        errorText,
+        language,
+      });
+    }
+
+    return writeBlobAudioFile(await audioResponse.blob(), "mp3");
   }
 
   if (config.kind === "elevenlabs") {

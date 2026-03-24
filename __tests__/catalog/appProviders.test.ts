@@ -49,6 +49,7 @@ describe("app provider catalog bridge", () => {
       nvidia: "nvidia-nim",
       "novita-ai": "novita-ai",
       perplexity: "perplexity",
+      replicate: "replicate",
       sambanova: "sambanova",
       siliconflow: "siliconflow",
       stepfun: "stepfun",
@@ -80,6 +81,7 @@ describe("app provider catalog bridge", () => {
     expect(getAppProviderForCatalogProviderId("ibm-watsonx")).toBe(
       "ibm-watsonx",
     );
+    expect(getAppProviderForCatalogProviderId("replicate")).toBe("replicate");
     expect(getAppProviderForCatalogProviderId("xiaomi-mimo")).toBe("xiaomi-mimo");
     expect(isCatalogProviderId("google-vertex-ai-studio")).toBe(true);
     expect(isCatalogProviderId("not-a-provider")).toBe(false);

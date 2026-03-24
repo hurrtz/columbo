@@ -123,6 +123,12 @@ type NovitaTtsConfig = {
   voiceFallback: string;
 };
 
+type ReplicateTtsConfig = {
+  kind: "replicate";
+  defaultModel: string;
+  voiceFallback: string;
+};
+
 type ElevenLabsTtsConfig = {
   kind: "elevenlabs";
   endpointBase: string;
@@ -142,6 +148,7 @@ export type ProviderTtsConfig =
   | IbmWatsonxTtsConfig
   | MinimaxTtsConfig
   | NovitaTtsConfig
+  | ReplicateTtsConfig
   | ElevenLabsTtsConfig;
 
 const ttsProviderConfigEntries: Array<[Provider, ProviderTtsConfig]> = [];
@@ -309,6 +316,21 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       {
         kind: "novita",
         endpointBase: manifest.tts.endpointBase,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
+    manifest.tts.transport === "replicate" &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "replicate",
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,
       },

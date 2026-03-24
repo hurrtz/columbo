@@ -197,6 +197,59 @@ describe("transcribeAudio", () => {
     );
   });
 
+  it("uses Replicate predictions for official transcription models", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          latest_version: {
+            id: "replicate-stt-version",
+            openapi_schema: {
+              components: {
+                schemas: {
+                  Input: {
+                    properties: {
+                      audio_file: { type: "string" },
+                      language: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          status: "succeeded",
+          output: "Hello from Replicate STT",
+        }),
+      });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "replicate",
+      apiKey: "replicate-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from Replicate STT");
+    expect((fetch as jest.Mock).mock.calls[0][0]).toBe(
+      "https://api.replicate.com/v1/models/openai/gpt-4o-mini-transcribe",
+    );
+    const [predictionUrl, predictionOptions] = (fetch as jest.Mock).mock.calls[1];
+    expect(predictionUrl).toBe("https://api.replicate.com/v1/predictions");
+    expect(JSON.parse(predictionOptions.body)).toEqual({
+      version: "replicate-stt-version",
+      input: expect.objectContaining({
+        audio_file: "data:audio/m4a;base64,ZmFrZQ==",
+        language: "en",
+      }),
+    });
+  });
+
   it("uses the configured multipart endpoint for StepFun STT", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

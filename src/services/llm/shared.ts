@@ -24,10 +24,14 @@ type IbmWatsonxLlmConfig = {
   transport: "ibm-watsonx";
 };
 
+type ReplicateLlmConfig = {
+  transport: "replicate";
+};
+
 type TransportOnlyLlmConfig = {
   transport: Exclude<
     RuntimeLlmTransport,
-    "openai-compatible" | "azure-openai" | "ibm-watsonx"
+    "openai-compatible" | "azure-openai" | "ibm-watsonx" | "replicate"
   >;
 };
 
@@ -35,6 +39,7 @@ export type ProviderLlmConfig =
   | OpenAiCompatibleLlmConfig
   | AzureOpenAiLlmConfig
   | IbmWatsonxLlmConfig
+  | ReplicateLlmConfig
   | TransportOnlyLlmConfig;
 
 const llmProviderConfigEntries: Array<[Provider, ProviderLlmConfig]> = [];
@@ -73,6 +78,14 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
         provider,
         {
           transport: "ibm-watsonx",
+        },
+      ]);
+      break;
+    case "replicate":
+      llmProviderConfigEntries.push([
+        provider,
+        {
+          transport: "replicate",
         },
       ]);
       break;

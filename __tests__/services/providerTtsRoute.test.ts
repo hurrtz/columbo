@@ -345,6 +345,68 @@ describe("synthesizeProviderSpeech", () => {
     });
   });
 
+  it("uses Replicate predictions for official TTS models", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          latest_version: {
+            id: "replicate-tts-version",
+            openapi_schema: {
+              components: {
+                schemas: {
+                  Input: {
+                    properties: {
+                      text: { type: "string" },
+                      voice: { type: "string" },
+                      output_format: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          status: "succeeded",
+          output: "https://replicate.example/audio.mp3",
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        blob: () => Promise.resolve(new Blob(["fake-audio"])),
+      });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "replicate",
+      apiKey: "replicate-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    expect((fetch as jest.Mock).mock.calls[0][0]).toBe(
+      "https://api.replicate.com/v1/models/inworld/tts-1.5-mini",
+    );
+    const [predictionUrl, predictionOptions] = (fetch as jest.Mock).mock.calls[1];
+    expect(predictionUrl).toBe("https://api.replicate.com/v1/predictions");
+    expect(JSON.parse(predictionOptions.body)).toEqual({
+      version: "replicate-tts-version",
+      input: {
+        text: "Hello world",
+        voice: "Ashley",
+        output_format: "mp3",
+      },
+    });
+    expect((fetch as jest.Mock).mock.calls[2][0]).toBe(
+      "https://replicate.example/audio.mp3",
+    );
+  });
+
   it("uses MiniMax TTS with the documented sync HTTP route", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

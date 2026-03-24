@@ -83,6 +83,11 @@ export type GeminiTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type ReplicateTranscriptionConfig = {
+  kind: "replicate";
+  defaultModel: string;
+};
+
 export const STT_TIMEOUT_MS = 30000;
 
 function getLanguageHint(
@@ -112,6 +117,7 @@ const sttProviderConfigEntries: Array<
     | HuggingFaceJsonTranscriptionConfig
     | IbmWatsonxTranscriptionConfig
     | NovitaJsonTranscriptionConfig
+    | ReplicateTranscriptionConfig
     | ElevenLabsTranscriptionConfig,
   ]
 > = [];
@@ -323,6 +329,16 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       },
     ]);
   }
+
+  if (manifest.stt.transport === "replicate" && manifest.stt.defaultModel) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "replicate",
+        defaultModel: manifest.stt.defaultModel,
+      },
+    ]);
+  }
 }
 
 export const STT_PROVIDER_CONFIGS: Partial<
@@ -341,6 +357,7 @@ export const STT_PROVIDER_CONFIGS: Partial<
     | HuggingFaceJsonTranscriptionConfig
     | IbmWatsonxTranscriptionConfig
     | NovitaJsonTranscriptionConfig
+    | ReplicateTranscriptionConfig
     | ElevenLabsTranscriptionConfig
   >
 > = Object.fromEntries(sttProviderConfigEntries);

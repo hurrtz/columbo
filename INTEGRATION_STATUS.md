@@ -11,12 +11,12 @@ Catalog updated: 2026-03-23
 ## Summary
 
 - Catalog providers: 40
-- Providers with any runtime integration: 36
+- Providers with any runtime integration: 37
 - Catalog models: 455
-- Integrated models: 385
-- LLM: 269/294 integrated
-- STT: 48/71 integrated
-- TTS: 68/90 integrated
+- Integrated models: 397
+- LLM: 275/294 integrated
+- STT: 50/71 integrated
+- TTS: 72/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -658,24 +658,24 @@ Catalog updated: 2026-03-23
 
 ## Replicate `replicate`
 
-- Runtime provider: catalog-only
-- Model integration: 0/12 integrated
+- Runtime provider: `replicate`
+- Model integration: 12/12 integrated
 - Verified support: LLM `routed`, STT `routed`, TTS `routed`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `anthropic/claude-4.5-haiku` | Claude Haiku 4.5 | Not integrated | — |
-| LLM | `anthropic/claude-4.5-sonnet` | Claude Sonnet 4.5 | Not integrated | — |
-| LLM | `google/gemini-2.5-flash` | Gemini 2.5 Flash | Not integrated | — |
-| LLM | `openai/gpt-4o-mini` | GPT-4o mini | Not integrated | — |
-| LLM | `openai/gpt-5-mini` | GPT-5 mini | Not integrated | — |
-| LLM | `openai/gpt-5-nano` | GPT-5 nano | Not integrated | — |
-| STT | `openai/gpt-4o-mini-transcribe` | GPT-4o mini Transcribe | Not integrated | — |
-| STT | `openai/gpt-4o-transcribe` | GPT-4o Transcribe | Not integrated | — |
-| TTS | `inworld/tts-1.5-max` | Inworld TTS 1.5 Max | Not integrated | — |
-| TTS | `inworld/tts-1.5-mini` | Inworld TTS 1.5 Mini | Not integrated | — |
-| TTS | `minimax/speech-2.8-hd` | MiniMax Speech 2.8 HD | Not integrated | — |
-| TTS | `minimax/speech-2.8-turbo` | MiniMax Speech 2.8 Turbo | Not integrated | — |
+| LLM | `anthropic/claude-4.5-haiku` | Claude Haiku 4.5 | Integrated | `anthropic/claude-4.5-haiku` |
+| LLM | `anthropic/claude-4.5-sonnet` | Claude Sonnet 4.5 | Integrated | `anthropic/claude-4.5-sonnet` |
+| LLM | `google/gemini-2.5-flash` | Gemini 2.5 Flash | Integrated | `google/gemini-2.5-flash` |
+| LLM | `openai/gpt-4o-mini` | GPT-4o mini | Integrated | `openai/gpt-4o-mini` |
+| LLM | `openai/gpt-5-mini` | GPT-5 mini | Integrated | `openai/gpt-5-mini` |
+| LLM | `openai/gpt-5-nano` | GPT-5 nano | Integrated | `openai/gpt-5-nano` |
+| STT | `openai/gpt-4o-mini-transcribe` | GPT-4o mini Transcribe | Integrated | `openai/gpt-4o-mini-transcribe` |
+| STT | `openai/gpt-4o-transcribe` | GPT-4o Transcribe | Integrated | `openai/gpt-4o-transcribe` |
+| TTS | `inworld/tts-1.5-max` | Inworld TTS 1.5 Max | Integrated | `inworld/tts-1.5-max` |
+| TTS | `inworld/tts-1.5-mini` | Inworld TTS 1.5 Mini | Integrated | `inworld/tts-1.5-mini` |
+| TTS | `minimax/speech-2.8-hd` | MiniMax Speech 2.8 HD | Integrated | `minimax/speech-2.8-hd` |
+| TTS | `minimax/speech-2.8-turbo` | MiniMax Speech 2.8 Turbo | Integrated | `minimax/speech-2.8-turbo` |
 
 ## Sambanova `sambanova`
 

@@ -23,6 +23,7 @@ import {
   transcribeWithMultipartProvider,
   transcribeWithNovitaJsonProvider,
   transcribeWithOpenAiAudioInputProvider,
+  transcribeWithReplicateProvider,
 } from "./whisper/providers";
 
 function formatByteLimit(bytes: number) {
@@ -256,6 +257,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "novita-json") {
     return transcribeWithNovitaJsonProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: selectedModel,
+    });
+  }
+
+  if (config.kind === "replicate") {
+    return transcribeWithReplicateProvider({
       abortSignal,
       apiKey,
       config,
