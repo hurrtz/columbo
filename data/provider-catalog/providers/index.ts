@@ -12,7 +12,6 @@ import AssemblyaiDocument from "./assemblyai";
 import BaichuanDocument from "./baichuan";
 import BaiduErnieQianfanDocument from "./baidu-ernie-qianfan";
 import BytedanceDoubaoSeedDocument from "./bytedance-doubao-seed";
-import CartesiaDocument from "./cartesia";
 import CerebrasDocument from "./cerebras";
 import CohereDocument from "./cohere";
 import DeepgramDocument from "./deepgram";
@@ -21,40 +20,27 @@ import DeepseekDocument from "./deepseek";
 import ElevenlabsDocument from "./elevenlabs";
 import FireworksAiDocument from "./fireworks-ai";
 import FishAudioDocument from "./fish-audio";
-import GladiaDocument from "./gladia";
 import GoogleVertexAiStudioDocument from "./google-vertex-ai-studio";
 import GroqDocument from "./groq";
 import HuggingFaceInferenceApiDocument from "./hugging-face-inference-api";
 import HyperbolicDocument from "./hyperbolic";
 import IbmWatsonxDocument from "./ibm-watsonx";
-import InworldAiDocument from "./inworld-ai";
-import LemonfoxAiDocument from "./lemonfox-ai";
 import LeptonAiDocument from "./lepton-ai";
 import LmntDocument from "./lmnt";
 import MicrosoftAzureDocument from "./microsoft-azure";
 import MinimaxDocument from "./minimax";
 import MistralAiDocument from "./mistral-ai";
 import MoonshotAiKimiDocument from "./moonshot-ai-kimi";
-import MurfAiDocument from "./murf-ai";
-import NeetsAiDocument from "./neets-ai";
 import NovitaAiDocument from "./novita-ai";
 import NvidiaNimDocument from "./nvidia-nim";
 import OpenaiDocument from "./openai";
 import PerplexityDocument from "./perplexity";
-import PicovoiceDocument from "./picovoice";
-import PlayhtDocument from "./playht";
-import RekaDocument from "./reka";
 import ReplicateDocument from "./replicate";
 import ResembleAiDocument from "./resemble-ai";
-import RevAiDocument from "./rev-ai";
 import SambanovaDocument from "./sambanova";
 import SiliconflowDocument from "./siliconflow";
-import SonioxDocument from "./soniox";
-import SpeechifyDocument from "./speechify";
-import SpeechmaticsDocument from "./speechmatics";
 import StepfunDocument from "./stepfun";
 import TogetherAiDocument from "./together-ai";
-import WellsaidLabsDocument from "./wellsaid-labs";
 import XaiDocument from "./xai";
 import XiaomiMimoDocument from "./xiaomi-mimo";
 import ZAiZhipuAiDocument from "./z-ai-zhipu-ai";
@@ -70,7 +56,6 @@ export const PROVIDER_DOCUMENTS = defineProviderDocuments([
   BaichuanDocument,
   BaiduErnieQianfanDocument,
   BytedanceDoubaoSeedDocument,
-  CartesiaDocument,
   CerebrasDocument,
   CohereDocument,
   DeepgramDocument,
@@ -79,40 +64,27 @@ export const PROVIDER_DOCUMENTS = defineProviderDocuments([
   ElevenlabsDocument,
   FireworksAiDocument,
   FishAudioDocument,
-  GladiaDocument,
   GoogleVertexAiStudioDocument,
   GroqDocument,
   HuggingFaceInferenceApiDocument,
   HyperbolicDocument,
   IbmWatsonxDocument,
-  InworldAiDocument,
-  LemonfoxAiDocument,
   LeptonAiDocument,
   LmntDocument,
   MicrosoftAzureDocument,
   MinimaxDocument,
   MistralAiDocument,
   MoonshotAiKimiDocument,
-  MurfAiDocument,
-  NeetsAiDocument,
   NovitaAiDocument,
   NvidiaNimDocument,
   OpenaiDocument,
   PerplexityDocument,
-  PicovoiceDocument,
-  PlayhtDocument,
-  RekaDocument,
   ReplicateDocument,
   ResembleAiDocument,
-  RevAiDocument,
   SambanovaDocument,
   SiliconflowDocument,
-  SonioxDocument,
-  SpeechifyDocument,
-  SpeechmaticsDocument,
   StepfunDocument,
   TogetherAiDocument,
-  WellsaidLabsDocument,
   XaiDocument,
   XiaomiMimoDocument,
   ZAiZhipuAiDocument,

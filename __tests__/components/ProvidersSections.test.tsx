@@ -46,10 +46,10 @@ describe("ProviderSelectionGrid", () => {
       </ThemeProvider>,
     );
 
-    expect(screen.getAllByRole("button")).toHaveLength(56);
+    expect(screen.getAllByRole("button")).toHaveLength(42);
     expect(
       screen.getByText(
-        "Showing 46 extra catalog-only providers here for UI inspection. Only the wired providers can be configured and called right now.",
+        "Showing 32 extra catalog-only providers here for UI inspection. Only the wired providers can be configured and called right now.",
       ),
     ).toBeTruthy();
 
@@ -92,5 +92,34 @@ describe("ProviderApiKeyCard", () => {
     expect(screen.getByText("GLM-ASR-2512")).toBeTruthy();
     expect(screen.getByText("glm-asr-2512")).toBeTruthy();
     expect(screen.getByText("No documented models.")).toBeTruthy();
+  });
+
+  it("shows the catalog reference block for a wired provider as well", () => {
+    const screen = render(
+      <ThemeProvider mode="light">
+        <LocalizationProvider language="en">
+          <ProviderApiKeyCard
+            catalogProviderId="openai"
+            runtimeProvider="openai"
+            apiKey=""
+            apiKeyVisible={false}
+            secureApiKey={false}
+            validationState={{ status: "idle" }}
+            shouldShowValidateAction={false}
+            onOpenProviderPortal={jest.fn()}
+            onUpdateApiKey={jest.fn()}
+            onTextInputFocus={jest.fn()}
+            onToggleApiKeyVisibility={jest.fn()}
+            onValidateProvider={jest.fn()}
+          />
+        </LocalizationProvider>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByText("OpenAI")).toBeTruthy();
+    expect(screen.getByText("Create API key")).toBeTruthy();
+    expect(screen.getByText("Catalog reference for this provider:")).toBeTruthy();
+    expect(screen.getByText("GPT-5.4")).toBeTruthy();
+    expect(screen.getByText("gpt-5.4")).toBeTruthy();
   });
 });
