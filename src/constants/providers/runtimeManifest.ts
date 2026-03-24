@@ -2,6 +2,7 @@ import type { CatalogProviderId } from "../../catalog/types";
 import { PROVIDER_DOCUMENTS } from "../../../data/providers";
 
 export type RuntimeAppProviderId =
+  | "01-ai-yi"
   | "openai"
   | "anthropic"
   | "assemblyai"
@@ -33,6 +34,7 @@ export type RuntimeAppProviderId =
   | "stepfun"
   | "together"
   | "xai"
+  | "xiaomi-mimo"
   | "z-ai-zhipu-ai";
 
 export type RuntimeLlmTransport =
@@ -205,6 +207,7 @@ function catalogModelSpecs(
 }
 
 export const RUNTIME_PROVIDER_ORDER = [
+  "01-ai-yi",
   "openai",
   "anthropic",
   "assemblyai",
@@ -237,12 +240,41 @@ export const RUNTIME_PROVIDER_ORDER = [
   "siliconflow",
   "stepfun",
   "z-ai-zhipu-ai",
+  "xiaomi-mimo",
 ] as const satisfies readonly RuntimeAppProviderId[];
 
 export const RUNTIME_PROVIDER_MANIFEST: Record<
   RuntimeAppProviderId,
   RuntimeProviderManifestEntry
 > = {
+  "01-ai-yi": {
+    appProvider: "01-ai-yi",
+    catalogProviderId: "01-ai-yi",
+    label: "01.AI",
+    shortLabel: "01.AI",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks Yi chat models through 01.AI's OpenAI-compatible API surface.",
+    apiKeyUrl: "https://platform.lingyiwanwu.com/docs",
+    llm: {
+      support: "provider",
+      transport: "openai-compatible",
+      endpoint: "https://api.lingyiwanwu.com/v1/chat/completions",
+      defaultModel: "yi-lightning",
+      models: catalogModelSpecs("01-ai-yi", "llm"),
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
   openai: {
     appProvider: "openai",
     catalogProviderId: "openai",
@@ -872,6 +904,34 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       ],
       languageNote:
         "xAI TTS currently supports Arabic, Dutch, English, French, German, Hindi, Indonesian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Spanish, Thai, Turkish, Vietnamese, and Chinese.",
+    },
+  },
+  "xiaomi-mimo": {
+    appProvider: "xiaomi-mimo",
+    catalogProviderId: "xiaomi-mimo",
+    label: "Xiaomi MiMo",
+    shortLabel: "MIMO",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks MiMo hosted text models through Xiaomi's OpenAI-compatible chat API.",
+    apiKeyUrl: "https://platform.xiaomimimo.com/",
+    llm: {
+      support: "provider",
+      transport: "openai-compatible",
+      endpoint: "https://api.xiaomimimo.com/v1/chat/completions",
+      defaultModel: "mimo-v2-flash",
+      models: catalogModelSpecs("xiaomi-mimo", "llm"),
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
     },
   },
   groq: {

@@ -20,6 +20,7 @@ import {
 describe("app provider catalog bridge", () => {
   it("maps every runtime provider to a catalog provider", () => {
     expect(PROVIDER_CATALOG_IDS).toEqual({
+      "01-ai-yi": "01-ai-yi",
       openai: "openai",
       anthropic: "anthropic",
       assemblyai: "assemblyai",
@@ -51,12 +52,15 @@ describe("app provider catalog bridge", () => {
       stepfun: "stepfun",
       together: "together-ai",
       xai: "xai",
+      "xiaomi-mimo": "xiaomi-mimo",
       "z-ai-zhipu-ai": "z-ai-zhipu-ai",
     });
 
+    expect(getCatalogProviderIdForAppProvider("01-ai-yi")).toBe("01-ai-yi");
     expect(getCatalogProviderIdForAppProvider("gemini")).toBe(
       "google-vertex-ai-studio",
     );
+    expect(getAppProviderForCatalogProviderId("01-ai-yi")).toBe("01-ai-yi");
     expect(getAppProviderForCatalogProviderId("openai")).toBe("openai");
     expect(getAppProviderForCatalogProviderId("assemblyai")).toBe("assemblyai");
     expect(getAppProviderForCatalogProviderId("baidu-ernie-qianfan")).toBe(
@@ -65,8 +69,10 @@ describe("app provider catalog bridge", () => {
     expect(getAppProviderForCatalogProviderId("deepgram")).toBe("deepgram");
     expect(getAppProviderForCatalogProviderId("elevenlabs")).toBe("elevenlabs");
     expect(getAppProviderForCatalogProviderId("fish-audio")).toBe("fish-audio");
+    expect(getAppProviderForCatalogProviderId("xiaomi-mimo")).toBe("xiaomi-mimo");
     expect(isCatalogProviderId("google-vertex-ai-studio")).toBe(true);
     expect(isCatalogProviderId("not-a-provider")).toBe(false);
+    expect(listCatalogProviderIds()).toContain("xiaomi-mimo");
     expect(listCatalogProviderIds()).toContain("z-ai-zhipu-ai");
   });
 

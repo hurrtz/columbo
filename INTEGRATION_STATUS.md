@@ -11,32 +11,32 @@ Catalog updated: 2026-03-23
 ## Summary
 
 - Catalog providers: 40
-- Providers with any runtime integration: 32
+- Providers with any runtime integration: 34
 - Catalog models: 455
-- Integrated models: 340
-- LLM: 245/294 integrated
+- Integrated models: 353
+- LLM: 258/294 integrated
 - STT: 37/71 integrated
 - TTS: 58/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
 
-- Runtime provider: catalog-only
-- Model integration: 0/10 integrated
+- Runtime provider: `01-ai-yi`
+- Model integration: 10/10 integrated
 - Verified support: LLM `native`, STT `unsupported`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `yi-large` | Yi-Large | Not integrated | — |
-| LLM | `yi-large-fc` | Yi-Large-FC | Not integrated | — |
-| LLM | `yi-large-rag` | Yi-Large-RAG | Not integrated | — |
-| LLM | `yi-large-turbo` | Yi-Large-Turbo | Not integrated | — |
-| LLM | `yi-lightning` | Yi-Lightning | Not integrated | — |
-| LLM | `yi-lightning-lite` | Yi-Lightning-Lite | Not integrated | — |
-| LLM | `yi-medium` | Yi-Medium | Not integrated | — |
-| LLM | `yi-medium-200k` | Yi-Medium-200K | Not integrated | — |
-| LLM | `yi-spark` | Yi-Spark | Not integrated | — |
-| LLM | `yi-vision` | Yi-Vision | Not integrated | — |
+| LLM | `yi-large` | Yi-Large | Integrated | `yi-large` |
+| LLM | `yi-large-fc` | Yi-Large-FC | Integrated | `yi-large-fc` |
+| LLM | `yi-large-rag` | Yi-Large-RAG | Integrated | `yi-large-rag` |
+| LLM | `yi-large-turbo` | Yi-Large-Turbo | Integrated | `yi-large-turbo` |
+| LLM | `yi-lightning` | Yi-Lightning | Integrated | `yi-lightning` |
+| LLM | `yi-lightning-lite` | Yi-Lightning-Lite | Integrated | `yi-lightning-lite` |
+| LLM | `yi-medium` | Yi-Medium | Integrated | `yi-medium` |
+| LLM | `yi-medium-200k` | Yi-Medium-200K | Integrated | `yi-medium-200k` |
+| LLM | `yi-spark` | Yi-Spark | Integrated | `yi-spark` |
+| LLM | `yi-vision` | Yi-Vision | Integrated | `yi-vision` |
 
 ## AI21 Labs `ai21-labs`
 
@@ -793,15 +793,15 @@ Catalog updated: 2026-03-23
 
 ## Xiaomi Mimo `xiaomi-mimo`
 
-- Runtime provider: catalog-only
-- Model integration: 0/4 integrated
+- Runtime provider: `xiaomi-mimo`
+- Model integration: 3/4 integrated
 - Verified support: LLM `native`, STT `partial`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `mimo-v2-flash` | MiMo-V2-Flash | Not integrated | — |
-| LLM | `mimo-v2-omni` | MiMo-V2-Omni | Not integrated | — |
-| LLM | `mimo-v2-pro` | MiMo-V2-Pro | Not integrated | — |
+| LLM | `mimo-v2-flash` | MiMo-V2-Flash | Integrated | `mimo-v2-flash` |
+| LLM | `mimo-v2-omni` | MiMo-V2-Omni | Integrated | `mimo-v2-omni` |
+| LLM | `mimo-v2-pro` | MiMo-V2-Pro | Integrated | `mimo-v2-pro` |
 | TTS | `mimo-v2-tts` | MiMo-V2-TTS | Not integrated | — |
 
 ## Z.ai / Zhipu AI `z-ai-zhipu-ai`

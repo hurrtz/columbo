@@ -176,6 +176,74 @@ describe("streamChat", () => {
     expect(JSON.parse(options.body).model).toBe("doubao-seed-2-0-lite-260215");
   });
 
+  it("uses the Yi chat-completions compatibility endpoint for 01.AI", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "yi-lightning",
+      provider: "01-ai-yi",
+      apiKey: "yi-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi"]);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.lingyiwanwu.com/v1/chat/completions");
+    expect(JSON.parse(options.body).model).toBe("yi-lightning");
+  });
+
+  it("uses the Xiaomi MiMo chat-completions endpoint", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "mimo-v2-flash",
+      provider: "xiaomi-mimo",
+      apiKey: "mimo-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi"]);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.xiaomimimo.com/v1/chat/completions");
+    expect(JSON.parse(options.body).model).toBe("mimo-v2-flash");
+  });
+
   it("uses the Qianfan chat-completions compatibility endpoint for Baidu", async () => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
