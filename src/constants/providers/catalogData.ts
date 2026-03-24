@@ -1,3 +1,4 @@
+import { getCatalogModelForAppProvider } from "../../catalog";
 import { Provider } from "../../types";
 import type { ModelInfo, ProviderConfig } from "./types";
 
@@ -23,7 +24,19 @@ export const PROVIDER_ORDER: Provider[] = [
   "nvidia",
 ];
 
-const OPENAI_MODELS: ModelInfo[] = [
+function withCatalogLlmLabels(
+  provider: Provider,
+  models: ModelInfo[],
+): ModelInfo[] {
+  return models.map((model) => ({
+    ...model,
+    name:
+      getCatalogModelForAppProvider(provider, model.id, "llm")?.publicName ??
+      model.name,
+  }));
+}
+
+const OPENAI_MODELS: ModelInfo[] = withCatalogLlmLabels("openai", [
   { id: "gpt-5.4", name: "GPT-5.4", releaseDate: "2026-03-01" },
   { id: "gpt-5.4-mini", name: "GPT-5.4 Mini" },
   { id: "gpt-5.4-nano", name: "GPT-5.4 Nano" },
@@ -49,9 +62,9 @@ const OPENAI_MODELS: ModelInfo[] = [
   { id: "gpt-4-turbo", name: "GPT-4 Turbo" },
   { id: "gpt-4", name: "GPT-4" },
   { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
-];
+]);
 
-const ANTHROPIC_MODELS: ModelInfo[] = [
+const ANTHROPIC_MODELS: ModelInfo[] = withCatalogLlmLabels("anthropic", [
   { id: "claude-opus-4-6", name: "Claude Opus 4.6" },
   { id: "claude-sonnet-4-6", name: "Claude Sonnet 4.6" },
   {
@@ -89,9 +102,9 @@ const ANTHROPIC_MODELS: ModelInfo[] = [
     name: "Claude 3 Haiku",
     releaseDate: "2024-03-07",
   },
-];
+]);
 
-const GOOGLE_MODELS: ModelInfo[] = [
+const GOOGLE_MODELS: ModelInfo[] = withCatalogLlmLabels("gemini", [
   { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro Preview" },
   {
     id: "gemini-3.1-flash-lite-preview",
@@ -103,9 +116,9 @@ const GOOGLE_MODELS: ModelInfo[] = [
   { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash-Lite" },
   { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash" },
   { id: "gemini-2.0-flash-lite", name: "Gemini 2.0 Flash-Lite" },
-];
+]);
 
-const XAI_MODELS: ModelInfo[] = [
+const XAI_MODELS: ModelInfo[] = withCatalogLlmLabels("xai", [
   { id: "grok-4", name: "Grok 4" },
   { id: "grok-4-1-fast-reasoning", name: "Grok 4.1 Fast Reasoning" },
   {
@@ -116,9 +129,9 @@ const XAI_MODELS: ModelInfo[] = [
   { id: "grok-3", name: "Grok 3" },
   { id: "grok-3-fast", name: "Grok 3 Fast" },
   { id: "grok-3-mini", name: "Grok 3 Mini" },
-];
+]);
 
-const GROQ_MODELS: ModelInfo[] = [
+const GROQ_MODELS: ModelInfo[] = withCatalogLlmLabels("groq", [
   { id: "groq/compound", name: "Compound" },
   { id: "groq/compound-mini", name: "Compound Mini" },
   {
@@ -135,14 +148,14 @@ const GROQ_MODELS: ModelInfo[] = [
   { id: "openai/gpt-oss-20b", name: "GPT-OSS 20B" },
   { id: "moonshotai/kimi-k2-instruct-0905", name: "Kimi K2 Instruct" },
   { id: "qwen/qwen3-32b", name: "Qwen3 32B" },
-];
+]);
 
-const DEEPSEEK_MODELS: ModelInfo[] = [
+const DEEPSEEK_MODELS: ModelInfo[] = withCatalogLlmLabels("deepseek", [
   { id: "deepseek-chat", name: "DeepSeek Chat" },
   { id: "deepseek-reasoner", name: "DeepSeek Reasoner" },
-];
+]);
 
-const MISTRAL_MODELS: ModelInfo[] = [
+const MISTRAL_MODELS: ModelInfo[] = withCatalogLlmLabels("mistral", [
   { id: "mistral-large-latest", name: "Mistral Large 3" },
   { id: "mistral-medium-latest", name: "Mistral Medium 3" },
   { id: "magistral-medium-latest", name: "Magistral Medium" },
@@ -151,18 +164,18 @@ const MISTRAL_MODELS: ModelInfo[] = [
   { id: "ministral-8b-latest", name: "Ministral 8B" },
   { id: "open-mistral-nemo", name: "Mistral Nemo" },
   { id: "codestral-latest", name: "Codestral 2" },
-];
+]);
 
-const COHERE_MODELS: ModelInfo[] = [
+const COHERE_MODELS: ModelInfo[] = withCatalogLlmLabels("cohere", [
   { id: "command-a-03-2025", name: "Command A" },
   { id: "command-a-reasoning-08-2025", name: "Command A Reasoning" },
   { id: "command-a-vision-07-2025", name: "Command A Vision" },
   { id: "command-r7b-12-2024", name: "Command R7B" },
   { id: "command-r-plus-08-2024", name: "Command R+" },
   { id: "command-r-08-2024", name: "Command R" },
-];
+]);
 
-const TOGETHER_MODELS: ModelInfo[] = [
+const TOGETHER_MODELS: ModelInfo[] = withCatalogLlmLabels("together", [
   { id: "MiniMaxAI/MiniMax-M2.5", name: "MiniMax M2.5" },
   { id: "Qwen/Qwen3.5-397B-A17B", name: "Qwen3.5 397B A17B" },
   { id: "Qwen/Qwen3-235B-A22B-FP8", name: "Qwen3 235B" },
@@ -192,9 +205,9 @@ const TOGETHER_MODELS: ModelInfo[] = [
     id: "Qwen/Qwen3-Coder-Next-FP8",
     name: "Qwen3 Coder Next",
   },
-];
+]);
 
-const NVIDIA_MODELS: ModelInfo[] = [
+const NVIDIA_MODELS: ModelInfo[] = withCatalogLlmLabels("nvidia", [
   {
     id: "nvidia/llama-3.3-nemotron-super-49b-v1.5",
     name: "Llama 3.3 Nemotron Super 49B",
@@ -207,19 +220,19 @@ const NVIDIA_MODELS: ModelInfo[] = [
     id: "nvidia/llama-3.1-nemotron-nano-8b-v1",
     name: "Llama 3.1 Nemotron Nano 8B",
   },
-];
+]);
 
 export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
   openai: {
     label: "OpenAI",
     shortLabel: "OPENAI",
     apiKeyPlaceholder: "sk-...",
-    apiKeyHint: "Unlocks OpenAI models and OpenAI-hosted speech when you choose provider STT or TTS.",
+    apiKeyHint:
+      "Unlocks OpenAI models and OpenAI-hosted speech when you choose provider STT or TTS.",
     apiKeyUrl: "https://platform.openai.com/settings/organization/api-keys",
     sttSupport: "provider",
     ttsSupport: "provider",
-    sttLanguageNote:
-      `OpenAI currently exposes gpt-4o-transcribe, gpt-4o-mini-transcribe, and whisper-1 for speech-to-text. OpenAI's published well-supported language set is: ${WHISPER_WELL_SUPPORTED_LANGUAGES}`,
+    sttLanguageNote: `OpenAI currently exposes gpt-4o-transcribe, gpt-4o-mini-transcribe, and whisper-1 for speech-to-text. OpenAI's published well-supported language set is: ${WHISPER_WELL_SUPPORTED_LANGUAGES}`,
     ttsLanguageNote:
       "OpenAI currently exposes gpt-4o-mini-tts, tts-1, and tts-1-hd. OpenAI does not publish a compact well-supported language list for TTS in the same way it does for STT, and notes that the voices are optimized for English.",
     models: OPENAI_MODELS,
@@ -238,7 +251,8 @@ export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
     label: "Google",
     shortLabel: "GOOGLE",
     apiKeyPlaceholder: "AIza...",
-    apiKeyHint: "Unlocks Gemini models plus Google-hosted speech features through the Gemini API.",
+    apiKeyHint:
+      "Unlocks Gemini models plus Google-hosted speech features through the Gemini API.",
     apiKeyUrl: "https://aistudio.google.com/app/apikey",
     sttSupport: "provider",
     ttsSupport: "provider",
@@ -264,12 +278,12 @@ export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
     label: "Groq",
     shortLabel: "GROQ",
     apiKeyPlaceholder: "gsk_...",
-    apiKeyHint: "Groq offers a free tier and unlocks fast hosted inference models.",
+    apiKeyHint:
+      "Groq offers a free tier and unlocks fast hosted inference models.",
     apiKeyUrl: "https://console.groq.com/keys",
     sttSupport: "provider",
     ttsSupport: "none",
-    sttLanguageNote:
-      `The app uses whisper-large-v3-turbo here. Groq documents it as multilingual. For the Whisper family, a published well-supported language set is: ${WHISPER_WELL_SUPPORTED_LANGUAGES} If multilingual accuracy matters more than speed, Groq recommends whisper-large-v3 over the turbo variant.`,
+    sttLanguageNote: `The app uses whisper-large-v3-turbo here. Groq documents it as multilingual. For the Whisper family, a published well-supported language set is: ${WHISPER_WELL_SUPPORTED_LANGUAGES} If multilingual accuracy matters more than speed, Groq recommends whisper-large-v3 over the turbo variant.`,
     models: GROQ_MODELS,
   },
   deepseek: {
@@ -312,8 +326,7 @@ export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
     apiKeyUrl: "https://api.together.ai/settings/api-keys",
     sttSupport: "provider",
     ttsSupport: "provider",
-    sttLanguageNote:
-      `The current integration uses openai/whisper-large-v3. It is multilingual and accepts ISO 639-1 language hints. A published well-supported language set for Whisper is: ${WHISPER_WELL_SUPPORTED_LANGUAGES}`,
+    sttLanguageNote: `The current integration uses openai/whisper-large-v3. It is multilingual and accepts ISO 639-1 language hints. A published well-supported language set for Whisper is: ${WHISPER_WELL_SUPPORTED_LANGUAGES}`,
     ttsLanguageNote:
       "The current Together TTS route is configured for English, Spanish, French, German, Italian, Portuguese, Hindi, Japanese, Korean, and Chinese. Voice availability is model-specific.",
     models: TOGETHER_MODELS,
