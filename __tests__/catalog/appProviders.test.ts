@@ -24,6 +24,7 @@ describe("app provider catalog bridge", () => {
       anthropic: "anthropic",
       "alibaba-qwen-dashscope": "alibaba-qwen-dashscope",
       baichuan: "baichuan",
+      "bytedance-doubao-seed": "bytedance-doubao-seed",
       gemini: "google-vertex-ai-studio",
       cerebras: "cerebras",
       cohere: "cohere",

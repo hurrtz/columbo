@@ -11,10 +11,10 @@ Catalog updated: 2026-03-23
 ## Summary
 
 - Catalog providers: 40
-- Providers with any runtime integration: 25
+- Providers with any runtime integration: 26
 - Catalog models: 455
-- Integrated models: 129
-- LLM: 116/294 integrated
+- Integrated models: 133
+- LLM: 120/294 integrated
 - STT: 9/71 integrated
 - TTS: 4/90 integrated
 - Unresolved runtime manifest entries: 56
@@ -204,17 +204,17 @@ Catalog updated: 2026-03-23
 
 ## ByteDance (Doubao/Seed) `bytedance-doubao-seed`
 
-- Runtime provider: catalog-only
-- Model integration: 0/7 integrated
+- Runtime provider: `bytedance-doubao-seed`
+- Model integration: 4/7 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `doubao-seed-1-8-251228` | Doubao Seed 1.8 | Not integrated | — |
+| LLM | `doubao-seed-1-8-251228` | Doubao Seed 1.8 | Integrated | `doubao-seed-1-8-251228` |
 | LLM | `doubao-seed-2-0-code-preview-260215` | Doubao Seed 2.0 Code Preview | Not integrated | — |
-| LLM | `doubao-seed-2-0-lite-260215` | Doubao Seed 2.0 Lite | Not integrated | — |
-| LLM | `doubao-seed-2-0-mini-260215` | Doubao Seed 2.0 Mini | Not integrated | — |
-| LLM | `doubao-seed-2-0-pro-260215` | Doubao Seed 2.0 Pro | Not integrated | — |
+| LLM | `doubao-seed-2-0-lite-260215` | Doubao Seed 2.0 Lite | Integrated | `doubao-seed-2-0-lite-260215` |
+| LLM | `doubao-seed-2-0-mini-260215` | Doubao Seed 2.0 Mini | Integrated | `doubao-seed-2-0-mini-260215` |
+| LLM | `doubao-seed-2-0-pro-260215` | Doubao Seed 2.0 Pro | Integrated | `doubao-seed-2-0-pro-260215` |
 | STT | `bigmodel` | Doubao Big-Model Streaming ASR | Not integrated | — |
 | TTS | `unknown` | Doubao Large-Model TTS | Not integrated | — |
 

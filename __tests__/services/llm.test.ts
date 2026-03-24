@@ -142,6 +142,40 @@ describe("streamChat", () => {
     expect(JSON.parse(options.body).model).toBe("sonar");
   });
 
+  it("uses the Ark chat-completions compatibility endpoint for ByteDance", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "doubao-seed-2-0-lite-260215",
+      provider: "bytedance-doubao-seed",
+      apiKey: "doubao-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi"]);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://ark.cn-beijing.volces.com/api/v3/chat/completions");
+    expect(JSON.parse(options.body).model).toBe("doubao-seed-2-0-lite-260215");
+  });
+
   it("emits a chunk when openai-compatible streaming falls back to a full response", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

@@ -5,6 +5,7 @@ export type RuntimeAppProviderId =
   | "anthropic"
   | "alibaba-qwen-dashscope"
   | "baichuan"
+  | "bytedance-doubao-seed"
   | "gemini"
   | "cerebras"
   | "cohere"
@@ -123,6 +124,7 @@ export const RUNTIME_PROVIDER_ORDER = [
   "openai",
   "anthropic",
   "alibaba-qwen-dashscope",
+  "bytedance-doubao-seed",
   "gemini",
   "xai",
   "groq",
@@ -325,6 +327,38 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         model("Baichuan4"),
         model("Baichuan3-Turbo"),
         model("Baichuan3-Turbo-128k"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
+  "bytedance-doubao-seed": {
+    appProvider: "bytedance-doubao-seed",
+    catalogProviderId: "bytedance-doubao-seed",
+    label: "ByteDance",
+    shortLabel: "DOUBAO",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks Doubao / Seed hosted models through Volcano Engine Ark's OpenAI-compatible chat API.",
+    apiKeyUrl: "https://www.volcengine.com/docs/82379/1298459",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+      defaultModel: "doubao-seed-2-0-lite-260215",
+      models: [
+        model("doubao-seed-2-0-pro-260215"),
+        model("doubao-seed-2-0-lite-260215"),
+        model("doubao-seed-2-0-mini-260215"),
+        model("doubao-seed-1-8-251228"),
       ],
     },
     stt: {
