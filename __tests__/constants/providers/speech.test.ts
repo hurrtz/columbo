@@ -36,6 +36,7 @@ describe("speech provider constants", () => {
     ]);
     expect(getProviderSttModelOptions("stepfun")).toEqual([
       { id: "step-asr", name: "Step ASR" },
+      { id: "step-asr-1.1", name: "Step ASR 1.1" },
     ]);
     expect(getProviderSttModelOptions("siliconflow")).toEqual([
       { id: "FunAudioLLM/SenseVoiceSmall", name: "SenseVoiceSmall" },
@@ -51,6 +52,7 @@ describe("speech provider constants", () => {
     ).toBe("GPT-4o mini TTS");
     expect(getProviderTtsModelOptions("alibaba-qwen-dashscope")).toEqual([
       { id: "qwen3-tts-flash", name: "Qwen3-TTS-Flash" },
+      { id: "qwen3-tts-instruct-flash", name: "Qwen3-TTS-Instruct-Flash" },
     ]);
     expect(
       getProviderTtsModelOptions("gemini").find(

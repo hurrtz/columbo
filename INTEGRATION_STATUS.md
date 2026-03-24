@@ -11,12 +11,12 @@ Catalog updated: 2026-03-23
 ## Summary
 
 - Catalog providers: 40
-- Providers with any runtime integration: 27
+- Providers with any runtime integration: 28
 - Catalog models: 455
-- Integrated models: 235
-- LLM: 211/294 integrated
-- STT: 15/71 integrated
-- TTS: 9/90 integrated
+- Integrated models: 247
+- LLM: 221/294 integrated
+- STT: 16/71 integrated
+- TTS: 10/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -65,7 +65,7 @@ Catalog updated: 2026-03-23
 ## Alibaba / Qwen (DashScope) `alibaba-qwen-dashscope`
 
 - Runtime provider: `alibaba-qwen-dashscope`
-- Model integration: 7/13 integrated
+- Model integration: 8/13 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -81,7 +81,7 @@ Catalog updated: 2026-03-23
 | STT | `qwen3-asr-flash-realtime` | Qwen3-ASR-Flash-Realtime | Not integrated | — |
 | TTS | `qwen3-tts-flash` | Qwen3-TTS-Flash | Integrated | `qwen3-tts-flash` |
 | TTS | `qwen3-tts-flash-realtime` | Qwen3-TTS-Flash-Realtime | Not integrated | — |
-| TTS | `qwen3-tts-instruct-flash` | Qwen3-TTS-Instruct-Flash | Not integrated | — |
+| TTS | `qwen3-tts-instruct-flash` | Qwen3-TTS-Instruct-Flash | Integrated | `qwen3-tts-instruct-flash` |
 | TTS | `qwen3-tts-instruct-flash-realtime` | Qwen3-TTS-Instruct-Flash-Realtime | Not integrated | — |
 
 ## Amazon AWS `amazon-aws`
@@ -178,22 +178,22 @@ Catalog updated: 2026-03-23
 
 ## Baidu (ERNIE / Qianfan) `baidu-ernie-qianfan`
 
-- Runtime provider: catalog-only
-- Model integration: 0/17 integrated
+- Runtime provider: `baidu-ernie-qianfan`
+- Model integration: 10/17 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `ernie-4.5-21b-a3b` | ERNIE 4.5 21B A3B | Not integrated | — |
-| LLM | `ernie-4.5-21b-a3b-thinking` | ERNIE 4.5 21B A3B Thinking | Not integrated | — |
-| LLM | `ernie-4.5-turbo-128k` | ERNIE 4.5 Turbo 128K | Not integrated | — |
-| LLM | `ernie-4.5-turbo-vl` | ERNIE 4.5 Turbo VL | Not integrated | — |
-| LLM | `ernie-4.5-vl-28b-a3b` | ERNIE 4.5 VL 28B A3B | Not integrated | — |
-| LLM | `ernie-5.0` | ERNIE 5.0 | Not integrated | — |
-| LLM | `ernie-5.0-thinking-preview` | ERNIE 5.0 Thinking Preview | Not integrated | — |
-| LLM | `ernie-x1-turbo-32k` | ERNIE X1 Turbo 32K | Not integrated | — |
-| LLM | `ernie-x1.1` | ERNIE X1.1 | Not integrated | — |
-| LLM | `ernie-x1.1-preview` | ERNIE X1.1 Preview | Not integrated | — |
+| LLM | `ernie-4.5-21b-a3b` | ERNIE 4.5 21B A3B | Integrated | `ernie-4.5-21b-a3b` |
+| LLM | `ernie-4.5-21b-a3b-thinking` | ERNIE 4.5 21B A3B Thinking | Integrated | `ernie-4.5-21b-a3b-thinking` |
+| LLM | `ernie-4.5-turbo-128k` | ERNIE 4.5 Turbo 128K | Integrated | `ernie-4.5-turbo-128k` |
+| LLM | `ernie-4.5-turbo-vl` | ERNIE 4.5 Turbo VL | Integrated | `ernie-4.5-turbo-vl` |
+| LLM | `ernie-4.5-vl-28b-a3b` | ERNIE 4.5 VL 28B A3B | Integrated | `ernie-4.5-vl-28b-a3b` |
+| LLM | `ernie-5.0` | ERNIE 5.0 | Integrated | `ernie-5.0` |
+| LLM | `ernie-5.0-thinking-preview` | ERNIE 5.0 Thinking Preview | Integrated | `ernie-5.0-thinking-preview` |
+| LLM | `ernie-x1-turbo-32k` | ERNIE X1 Turbo 32K | Integrated | `ernie-x1-turbo-32k` |
+| LLM | `ernie-x1.1` | ERNIE X1.1 | Integrated | `ernie-x1.1` |
+| LLM | `ernie-x1.1-preview` | ERNIE X1.1 Preview | Integrated | `ernie-x1.1-preview` |
 | STT | `音频文件转写` | Audio File Transcription | Not integrated | — |
 | STT | `实时语音识别-websocket API` | Realtime Speech Recognition WebSocket API | Not integrated | — |
 | STT | `短语音识别` | Short Speech Recognition | Not integrated | — |
@@ -725,7 +725,7 @@ Catalog updated: 2026-03-23
 ## Stepfun `stepfun`
 
 - Runtime provider: `stepfun`
-- Model integration: 8/13 integrated
+- Model integration: 9/13 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -738,7 +738,7 @@ Catalog updated: 2026-03-23
 | LLM | `step-audio-2-mini` | Step Audio 2 Mini | Integrated | `step-audio-2-mini` |
 | LLM | `step-audio-r1.1` | Step Audio R1.1 | Integrated | `step-audio-r1.1` |
 | STT | `step-asr` | Step ASR | Integrated | `step-asr` |
-| STT | `step-asr-1.1` | Step ASR 1.1 | Not integrated | — |
+| STT | `step-asr-1.1` | Step ASR 1.1 | Integrated | `step-asr-1.1` |
 | STT | `step-asr-1.1-stream` | Step ASR 1.1 Stream | Not integrated | — |
 | TTS | `step-tts-2` | Step TTS 2 | Not integrated | — |
 | TTS | `step-tts-mini` | Step TTS Mini | Not integrated | — |

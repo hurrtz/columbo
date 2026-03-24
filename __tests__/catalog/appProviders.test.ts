@@ -25,6 +25,7 @@ describe("app provider catalog bridge", () => {
       "ai21-labs": "ai21-labs",
       "alibaba-qwen-dashscope": "alibaba-qwen-dashscope",
       baichuan: "baichuan",
+      "baidu-ernie-qianfan": "baidu-ernie-qianfan",
       "bytedance-doubao-seed": "bytedance-doubao-seed",
       gemini: "google-vertex-ai-studio",
       cerebras: "cerebras",
@@ -53,6 +54,9 @@ describe("app provider catalog bridge", () => {
       "google-vertex-ai-studio",
     );
     expect(getAppProviderForCatalogProviderId("openai")).toBe("openai");
+    expect(getAppProviderForCatalogProviderId("baidu-ernie-qianfan")).toBe(
+      "baidu-ernie-qianfan",
+    );
     expect(isCatalogProviderId("google-vertex-ai-studio")).toBe(true);
     expect(isCatalogProviderId("not-a-provider")).toBe(false);
     expect(listCatalogProviderIds()).toContain("z-ai-zhipu-ai");

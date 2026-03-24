@@ -7,6 +7,7 @@ export type RuntimeAppProviderId =
   | "ai21-labs"
   | "alibaba-qwen-dashscope"
   | "baichuan"
+  | "baidu-ernie-qianfan"
   | "bytedance-doubao-seed"
   | "gemini"
   | "cerebras"
@@ -170,6 +171,7 @@ export const RUNTIME_PROVIDER_ORDER = [
   "anthropic",
   "ai21-labs",
   "alibaba-qwen-dashscope",
+  "baidu-ernie-qianfan",
   "bytedance-doubao-seed",
   "gemini",
   "xai",
@@ -372,10 +374,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "qwen3-tts-flash",
       defaultVoice: "Cherry",
       voiceFallback: "Cherry",
-      models: [model("qwen3-tts-flash")],
+      models: catalogModelSpecs("alibaba-qwen-dashscope", "tts", [
+        "qwen3-tts-flash-realtime",
+        "qwen3-tts-instruct-flash-realtime",
+      ]),
       voiceOptions: [voice("Cherry", "Cherry")],
       languageNote:
-        "DashScope TTS is currently wired only for non-realtime Qwen3-TTS-Flash with the default Cherry voice. Catalog-only models like qwen3-tts-instruct-flash and the realtime Qwen TTS families still need dedicated transport and voice-surface support.",
+        "DashScope TTS is currently wired for the non-realtime Qwen3-TTS-Flash and Qwen3-TTS-Instruct-Flash families with the default Cherry voice. The realtime Qwen TTS families still need dedicated transport and voice-surface support.",
     },
   },
   baichuan: {
@@ -392,6 +397,33 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       endpoint: "https://api.baichuan-ai.com/v1/chat/completions",
       defaultModel: "Baichuan4-Air",
       models: catalogModelSpecs("baichuan", "llm"),
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
+  "baidu-ernie-qianfan": {
+    appProvider: "baidu-ernie-qianfan",
+    catalogProviderId: "baidu-ernie-qianfan",
+    label: "Baidu",
+    shortLabel: "BAIDU",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks Baidu Qianfan / ERNIE models through Qianfan's OpenAI-compatible chat API.",
+    apiKeyUrl: "https://cloud.baidu.com/product-s/qianfan_home",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://qianfan.baidubce.com/v2/chat/completions",
+      defaultModel: "ernie-5.0",
+      models: catalogModelSpecs("baidu-ernie-qianfan", "llm"),
     },
     stt: {
       support: "none",
@@ -967,9 +999,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "multipart",
       endpoint: "https://api.stepfun.com/v1/audio/transcriptions",
       defaultModel: "step-asr",
-      models: [namedModel("step-asr", "Step ASR")],
+      models: catalogModelSpecs("stepfun", "stt", ["step-asr-1.1-stream"]),
       languageNote:
-        "StepFun currently has the clearest file-transcription contract for step-asr on /v1/audio/transcriptions. Streaming-only step-asr-1.1-stream and the more weakly documented step-asr-1.1 remain catalog-only until the app grows dedicated streaming and endpoint-specific flows.",
+        "StepFun currently has the clearest file-transcription contract for step-asr and step-asr-1.1 on /v1/audio/transcriptions. The streaming-only step-asr-1.1-stream model remains catalog-only until the app grows a realtime STT transport.",
     },
     tts: {
       support: "none",
