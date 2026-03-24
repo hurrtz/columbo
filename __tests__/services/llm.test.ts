@@ -74,6 +74,74 @@ describe("streamChat", () => {
     );
   });
 
+  it("uses the configured routed endpoint for a hyphenated OpenAI-compatible provider", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "openai/gpt-oss-20b",
+      provider: "hugging-face-inference-api",
+      apiKey: "hf-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi"]);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://router.huggingface.co/v1/chat/completions");
+    expect(JSON.parse(options.body).model).toBe("openai/gpt-oss-20b");
+  });
+
+  it("uses the Sonar chat-completions compatibility endpoint for Perplexity", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "sonar",
+      provider: "perplexity",
+      apiKey: "pplx-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi"]);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.perplexity.ai/chat/completions");
+    expect(JSON.parse(options.body).model).toBe("sonar");
+  });
+
   it("emits a chunk when openai-compatible streaming falls back to a full response", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

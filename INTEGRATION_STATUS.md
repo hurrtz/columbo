@@ -18,7 +18,7 @@ This file is the temporary source of truth for what the app runtime should actua
 
 ## Wired LLM Providers And Models
 
-All 16 app runtime providers are currently wired for LLM generation.
+All 25 app runtime providers are currently wired for LLM generation.
 
 ### OpenAI
 
@@ -90,12 +90,33 @@ Route: OpenAI-compatible `https://integrate.api.nvidia.com/v1/chat/completions`
 Models:
 `nvidia/llama-3.3-nemotron-super-49b-v1.5`, `nvidia/llama-3.1-nemotron-ultra-253b-v1`, `nvidia/llama-3.1-nemotron-nano-8b-v1`
 
+### Alibaba / Qwen
+
+Route: OpenAI-compatible `https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions`
+
+Models:
+`qwen3.5-plus`, `qwen-plus`, `qwen3.5-flash`, `qwen-flash`, `qwen3-max`
+
+### Baichuan
+
+Route: OpenAI-compatible `https://api.baichuan-ai.com/v1/chat/completions`
+
+Models:
+`Baichuan4-Air`, `Baichuan4-Turbo`, `Baichuan4`, `Baichuan3-Turbo`, `Baichuan3-Turbo-128k`
+
 ### Cerebras
 
 Route: OpenAI-compatible `https://api.cerebras.ai/v1/chat/completions`
 
 Models:
 `gpt-oss-120b`, `llama3.1-8b`
+
+### DeepInfra
+
+Route: OpenAI-compatible `https://api.deepinfra.com/v1/openai/chat/completions`
+
+Models:
+`deepseek-ai/DeepSeek-V3.2`, `Qwen/Qwen3-Max`, `zai-org/GLM-4.7-Flash`, `nvidia/Nemotron-3-Nano-30B-A3B`
 
 ### Fireworks
 
@@ -104,12 +125,47 @@ Route: OpenAI-compatible `https://api.fireworks.ai/inference/v1/chat/completions
 Models:
 `accounts/fireworks/models/gpt-oss-20b`, `accounts/fireworks/models/gpt-oss-120b`, `accounts/fireworks/models/deepseek-v3p2`, `accounts/fireworks/models/glm-5`, `accounts/fireworks/models/kimi-k2p5`
 
+### Hugging Face
+
+Route: OpenAI-compatible `https://router.huggingface.co/v1/chat/completions`
+
+Models:
+`openai/gpt-oss-20b`, `openai/gpt-oss-120b`, `meta-llama/Llama-3.3-70B-Instruct`, `katanemo/Arch-Router-1.5B`
+
+### Hyperbolic
+
+Route: OpenAI-compatible `https://api.hyperbolic.xyz/v1/chat/completions`
+
+Models:
+`gpt-oss-120b`, `openai/gpt-oss-20b`, `DeepSeek-R1-0528`, `Llama-3.3-70B-Instruct`
+
+### MiniMax
+
+Route: OpenAI-compatible `https://api.minimax.io/v1/chat/completions`
+
+Models:
+`MiniMax-M2.7`, `MiniMax-M2.7-highspeed`, `MiniMax-M2.5`, `MiniMax-M2.5-highspeed`, `MiniMax-M2.1`, `MiniMax-M2.1-highspeed`, `MiniMax-M2`, `M2-her`
+
 ### Moonshot
 
 Route: OpenAI-compatible `https://api.moonshot.ai/v1/chat/completions`
 
 Models:
 `kimi-k2.5`, `kimi-k2-thinking`, `kimi-k2-thinking-turbo`, `moonshot-v1-8k`, `moonshot-v1-32k`, `moonshot-v1-128k`
+
+### Novita
+
+Route: OpenAI-compatible `https://api.novita.ai/openai/v1/chat/completions`
+
+Models:
+`deepseek/deepseek-v3.2`, `qwen/qwen3-235b-a22b-fp8`, `qwen/qwen3-coder-30b-a3b-instruct`, `zai-org/glm-4.6v`
+
+### Perplexity
+
+Route: OpenAI-compatible `https://api.perplexity.ai/chat/completions`
+
+Models:
+`sonar`, `sonar-pro`, `sonar-reasoning-pro`
 
 ### SambaNova
 
@@ -131,6 +187,13 @@ Route: OpenAI-compatible `https://api.stepfun.com/v1/chat/completions`
 
 Models:
 `step-3.5-flash`, `step-3`, `step-2-mini`
+
+### Z.ai
+
+Route: OpenAI-compatible `https://api.z.ai/api/paas/v4/chat/completions`
+
+Models:
+`glm-5`, `glm-5-turbo`, `glm-4.7`, `glm-4.7-flashx`, `glm-4.6`, `glm-4.5-air`
 
 ## Wired STT Providers And Models
 
@@ -207,13 +270,13 @@ Models:
 
 These provider documents exist in `data/providers` and now appear in the Providers-tab button grid for UI inspection, but they are not yet wired into the app runtime.
 
-`01-ai-yi`, `ai21-labs`, `aleph-alpha`, `alibaba-qwen-dashscope`, `amazon-aws`, `assemblyai`, `baichuan`, `baidu-ernie-qianfan`, `bytedance-doubao-seed`, `deepgram`, `deepinfra`, `elevenlabs`, `fish-audio`, `hugging-face-inference-api`, `hyperbolic`, `ibm-watsonx`, `lepton-ai`, `microsoft-azure`, `minimax`, `novita-ai`, `perplexity`, `replicate`, `xiaomi-mimo`, `z-ai-zhipu-ai`
+`01-ai-yi`, `ai21-labs`, `aleph-alpha`, `amazon-aws`, `assemblyai`, `baidu-ernie-qianfan`, `bytedance-doubao-seed`, `deepgram`, `elevenlabs`, `fish-audio`, `ibm-watsonx`, `lepton-ai`, `microsoft-azure`, `replicate`, `xiaomi-mimo`
 
 ## Practical Rule
 
 - Full catalog visibility in UI does not imply runtime support.
 - Runtime support currently means:
-  - provider is one of the 16 app providers for LLM
+  - provider is one of the 25 app providers for LLM
   - provider is one of the 5 STT providers above for provider STT
   - provider is one of the 4 TTS providers above for provider TTS
 - Anything else is catalog-visible only until the transport, settings validation, defaults, and tests are wired.

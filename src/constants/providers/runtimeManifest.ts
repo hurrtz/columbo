@@ -3,20 +3,29 @@ import type { CatalogProviderId } from "../../catalog/types";
 export type RuntimeAppProviderId =
   | "openai"
   | "anthropic"
+  | "alibaba-qwen-dashscope"
+  | "baichuan"
   | "gemini"
   | "cerebras"
   | "cohere"
+  | "deepinfra"
   | "deepseek"
   | "fireworks-ai"
   | "groq"
+  | "hugging-face-inference-api"
+  | "hyperbolic"
   | "mistral"
+  | "minimax"
   | "moonshot-ai-kimi"
   | "nvidia"
+  | "novita-ai"
+  | "perplexity"
   | "sambanova"
   | "siliconflow"
   | "stepfun"
   | "together"
-  | "xai";
+  | "xai"
+  | "z-ai-zhipu-ai";
 
 export type RuntimeLlmTransport =
   | "openai-compatible"
@@ -113,6 +122,7 @@ function voice(
 export const RUNTIME_PROVIDER_ORDER = [
   "openai",
   "anthropic",
+  "alibaba-qwen-dashscope",
   "gemini",
   "xai",
   "groq",
@@ -121,12 +131,20 @@ export const RUNTIME_PROVIDER_ORDER = [
   "cohere",
   "together",
   "nvidia",
+  "baichuan",
   "cerebras",
+  "deepinfra",
   "fireworks-ai",
+  "hugging-face-inference-api",
+  "hyperbolic",
+  "minimax",
   "moonshot-ai-kimi",
+  "novita-ai",
+  "perplexity",
   "sambanova",
   "siliconflow",
   "stepfun",
+  "z-ai-zhipu-ai",
 ] as const satisfies readonly RuntimeAppProviderId[];
 
 export const RUNTIME_PROVIDER_MANIFEST: Record<
@@ -253,6 +271,74 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       voiceOptions: [],
     },
   },
+  "alibaba-qwen-dashscope": {
+    appProvider: "alibaba-qwen-dashscope",
+    catalogProviderId: "alibaba-qwen-dashscope",
+    label: "Alibaba / Qwen",
+    shortLabel: "QWEN",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks Qwen hosted models through DashScope's OpenAI-compatible chat API.",
+    apiKeyUrl:
+      "https://www.alibabacloud.com/help/en/model-studio/compatibility-of-openai-with-dashscope",
+    llm: {
+      transport: "openai-compatible",
+      endpoint:
+        "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+      defaultModel: "qwen3.5-flash",
+      models: [
+        model("qwen3.5-plus"),
+        model("qwen-plus"),
+        model("qwen3.5-flash"),
+        model("qwen-flash"),
+        model("qwen3-max"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
+  baichuan: {
+    appProvider: "baichuan",
+    catalogProviderId: "baichuan",
+    label: "Baichuan",
+    shortLabel: "BAICHUAN",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks Baichuan hosted models through its OpenAI-style chat completions API.",
+    apiKeyUrl: "https://platform.baichuan-ai.com/docs/api",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://api.baichuan-ai.com/v1/chat/completions",
+      defaultModel: "Baichuan4-Air",
+      models: [
+        model("Baichuan4-Air"),
+        model("Baichuan4-Turbo"),
+        model("Baichuan4"),
+        model("Baichuan3-Turbo"),
+        model("Baichuan3-Turbo-128k"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
   gemini: {
     appProvider: "gemini",
     catalogProviderId: "google-vertex-ai-studio",
@@ -357,6 +443,38 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       endpoint: "https://api.cerebras.ai/v1/chat/completions",
       defaultModel: "gpt-oss-120b",
       models: [model("gpt-oss-120b"), model("llama3.1-8b")],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
+  deepinfra: {
+    appProvider: "deepinfra",
+    catalogProviderId: "deepinfra",
+    label: "DeepInfra",
+    shortLabel: "DEEPINFRA",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks DeepInfra hosted models through its OpenAI-compatible API.",
+    apiKeyUrl: "https://deepinfra.com/docs/openai_api",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://api.deepinfra.com/v1/openai/chat/completions",
+      defaultModel: "deepseek-ai/DeepSeek-V3.2",
+      models: [
+        model("deepseek-ai/DeepSeek-V3.2"),
+        model("Qwen/Qwen3-Max"),
+        model("zai-org/GLM-4.7-Flash"),
+        model("nvidia/Nemotron-3-Nano-30B-A3B"),
+      ],
     },
     stt: {
       support: "none",
@@ -520,6 +638,70 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       voiceOptions: [],
     },
   },
+  "hugging-face-inference-api": {
+    appProvider: "hugging-face-inference-api",
+    catalogProviderId: "hugging-face-inference-api",
+    label: "Hugging Face",
+    shortLabel: "HUGGINGFACE",
+    apiKeyPlaceholder: "hf_...",
+    apiKeyHint:
+      "Unlocks Hugging Face routed models through its OpenAI-compatible inference providers API.",
+    apiKeyUrl: "https://huggingface.co/docs/inference-providers/index",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://router.huggingface.co/v1/chat/completions",
+      defaultModel: "openai/gpt-oss-20b",
+      models: [
+        model("openai/gpt-oss-20b"),
+        model("openai/gpt-oss-120b"),
+        model("meta-llama/Llama-3.3-70B-Instruct"),
+        model("katanemo/Arch-Router-1.5B"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
+  hyperbolic: {
+    appProvider: "hyperbolic",
+    catalogProviderId: "hyperbolic",
+    label: "Hyperbolic",
+    shortLabel: "HYPERBOLIC",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks Hyperbolic hosted models through its OpenAI-compatible inference API.",
+    apiKeyUrl: "https://docs.hyperbolic.xyz/docs/inference-api",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://api.hyperbolic.xyz/v1/chat/completions",
+      defaultModel: "gpt-oss-120b",
+      models: [
+        model("gpt-oss-120b"),
+        model("openai/gpt-oss-20b"),
+        model("DeepSeek-R1-0528"),
+        model("Llama-3.3-70B-Instruct"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
   mistral: {
     appProvider: "mistral",
     catalogProviderId: "mistral-ai",
@@ -552,6 +734,42 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: [namedModel("voxtral-mini-latest", "Voxtral Mini Latest")],
       languageNote:
         "The current Voxtral transcription route is documented for English, Spanish, French, Portuguese, Hindi, German, Dutch, and Italian.",
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
+  minimax: {
+    appProvider: "minimax",
+    catalogProviderId: "minimax",
+    label: "MiniMax",
+    shortLabel: "MINIMAX",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks MiniMax hosted models through its OpenAI-compatible text generation API.",
+    apiKeyUrl: "https://www.minimax.io/platform/document/ChatCompletion%20v4",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://api.minimax.io/v1/chat/completions",
+      defaultModel: "MiniMax-M2.5",
+      models: [
+        model("MiniMax-M2.7"),
+        model("MiniMax-M2.7-highspeed"),
+        model("MiniMax-M2.5"),
+        model("MiniMax-M2.5-highspeed"),
+        model("MiniMax-M2.1"),
+        model("MiniMax-M2.1-highspeed"),
+        model("MiniMax-M2"),
+        model("M2-her"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
     },
     tts: {
       support: "none",
@@ -612,6 +830,37 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         namedModel("command-r7b-12-2024", "Command R7B"),
         namedModel("command-r-plus-08-2024", "Command R+"),
         namedModel("command-r-08-2024", "Command R"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
+  perplexity: {
+    appProvider: "perplexity",
+    catalogProviderId: "perplexity",
+    label: "Perplexity",
+    shortLabel: "PERPLEXITY",
+    apiKeyPlaceholder: "pplx-...",
+    apiKeyHint:
+      "Unlocks Perplexity Sonar models through the chat completions-compatible Sonar API.",
+    apiKeyUrl: "https://docs.perplexity.ai/docs/sonar/quickstart",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://api.perplexity.ai/chat/completions",
+      defaultModel: "sonar",
+      models: [
+        model("sonar"),
+        model("sonar-pro"),
+        model("sonar-reasoning-pro"),
       ],
     },
     stt: {
@@ -810,6 +1059,72 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         namedModel("nvidia/llama-3.3-nemotron-super-49b-v1.5", "Llama 3.3 Nemotron Super 49B"),
         namedModel("nvidia/llama-3.1-nemotron-ultra-253b-v1", "Llama 3.1 Nemotron Ultra 253B"),
         namedModel("nvidia/llama-3.1-nemotron-nano-8b-v1", "Llama 3.1 Nemotron Nano 8B"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
+  "novita-ai": {
+    appProvider: "novita-ai",
+    catalogProviderId: "novita-ai",
+    label: "Novita",
+    shortLabel: "NOVITA",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks Novita hosted models through its OpenAI-compatible API.",
+    apiKeyUrl: "https://novita.ai/docs/api-reference/model-apis-introduction",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://api.novita.ai/openai/v1/chat/completions",
+      defaultModel: "deepseek/deepseek-v3.2",
+      models: [
+        model("deepseek/deepseek-v3.2"),
+        model("qwen/qwen3-235b-a22b-fp8"),
+        model("qwen/qwen3-coder-30b-a3b-instruct"),
+        model("zai-org/glm-4.6v"),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  },
+  "z-ai-zhipu-ai": {
+    appProvider: "z-ai-zhipu-ai",
+    catalogProviderId: "z-ai-zhipu-ai",
+    label: "Z.ai",
+    shortLabel: "Z.AI",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks Z.ai hosted models through its OpenAI-compatible global chat API.",
+    apiKeyUrl: "https://docs.z.ai/api-reference/llm/chat-completion",
+    llm: {
+      transport: "openai-compatible",
+      endpoint: "https://api.z.ai/api/paas/v4/chat/completions",
+      defaultModel: "glm-4.7-flashx",
+      models: [
+        model("glm-5"),
+        model("glm-5-turbo"),
+        model("glm-4.7"),
+        model("glm-4.7-flashx"),
+        model("glm-4.6"),
+        model("glm-4.5-air"),
       ],
     },
     stt: {
