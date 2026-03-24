@@ -89,6 +89,16 @@ export const en: TranslationDictionary = {
       `Verified support: LLM ${llm}, STT ${stt}, TTS ${tts}.`,
     catalogProviderLiveDiscoveryHint:
       "This provider has a dynamic catalog, so a real integration will likely need live model discovery.",
+    catalogProviderPricingSummary: ({ summary }) => `Pricing: ${summary}`,
+    catalogProviderLimitsSummary: ({ summary }) => `Limits: ${summary}`,
+    catalogProviderRegionSummary: ({ summary }) => `Region: ${summary}`,
+    catalogProviderSttLanguagesSummary: ({ summary }) =>
+      `STT languages: ${summary}`,
+    catalogProviderTtsLanguagesSummary: ({ summary }) =>
+      `TTS languages: ${summary}`,
+    catalogProviderFreeTierSummary: ({ summary }) => `Free tier: ${summary}`,
+    catalogProviderIntegrationNotesSummary: ({ summary }) =>
+      `Integration notes: ${summary}`,
     catalogProviderNoModels: "No documented models.",
     validateKey: "Validate key",
     validatingKey: "Validating...",

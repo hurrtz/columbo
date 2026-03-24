@@ -1,0 +1,394 @@
+import { providerContext } from "./provider";
+
+export const llms = providerContext.defineLlms([
+  providerContext.llm(
+    {
+      "providerId": "xai",
+      "providerName": "xAI",
+      "service": "llm",
+      "modelId": "grok-4.20-reasoning",
+      "publicName": "Grok 4.20 Reasoning",
+      "aliases": [],
+      "status": "Documented active/current",
+      "catalogScope": "Dynamic/non-exhaustive",
+      "pricingSummary": "$2.00 / 1M input tokens, $6.00 / 1M output tokens on the official xAI API site.",
+      "limitsSummary": "2,000,000 context window. Batch pricing is 50% off standard token rates. Responses API storage is 30 days by default.",
+      "regionSummary": "Public API site presents it as current public API model. Regional availability may vary by team; use global endpoint or live discovery.",
+      "languagesSummary": "No official per-language matrix published; general-purpose multilingual LLM inferred, but no official count published.",
+      "notes": "Best candidate for a stable premium reasoning picker. Official docs repeatedly use this exact model ID in examples.",
+      "officialSources": [
+        "https://x.ai/api",
+        "https://docs.x.ai/developers/model-capabilities/text/generate-text",
+        "https://docs.x.ai/developers/models",
+        "https://docs.x.ai/developers/advanced-api-usage/batch-api"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [
+        {
+          "amountUsd": 2.0,
+          "unit": "million_input_tokens",
+          "sourceText": "Text Input $2.00"
+        },
+        {
+          "amountUsd": 6.0,
+          "unit": "million_output_tokens",
+          "sourceText": "Output $6.00"
+        }
+      ],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 2000000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Context window 2M / 2,000,000"
+        }
+      ],
+      "languageSupport": {
+        "rawText": "No official model-specific language coverage table found.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": [
+          "inference: general multilingual support likely, but official count unknown"
+        ]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "providerId": "xai",
+      "providerName": "xAI",
+      "service": "llm",
+      "modelId": "grok-4.20-non-reasoning",
+      "publicName": "Grok 4.20 Non-Reasoning",
+      "aliases": [],
+      "status": "Unknown",
+      "catalogScope": "Dynamic/non-exhaustive",
+      "pricingSummary": "$2.00 / 1M input tokens, $6.00 / 1M output tokens on xAI\u2019s official API site.",
+      "limitsSummary": "2,000,000 context window on the official API site.",
+      "regionSummary": "Appears on the official API site; regional/team availability should be live-discovered.",
+      "languagesSummary": "Unknown.",
+      "notes": "Publicly shown on xAI\u2019s API marketing page, but I did not find a matching first-party developer model page in docs.x.ai during this audit. Keep behind live discovery rather than a hard-coded stable picker.",
+      "officialSources": [
+        "https://x.ai/api"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [
+        {
+          "amountUsd": 2.0,
+          "unit": "million_input_tokens",
+          "sourceText": "Text Input $2.00"
+        },
+        {
+          "amountUsd": 6.0,
+          "unit": "million_output_tokens",
+          "sourceText": "Output $6.00"
+        }
+      ],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 2000000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Context window 2M"
+        }
+      ],
+      "languageSupport": {
+        "rawText": "Unknown.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": [
+          "inference",
+          "live-discovery-only recommended"
+        ]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "providerId": "xai",
+      "providerName": "xAI",
+      "service": "llm",
+      "modelId": "grok-4-1-fast-reasoning",
+      "publicName": "Grok 4.1 Fast Reasoning",
+      "aliases": [],
+      "status": "Documented active/current",
+      "catalogScope": "Dynamic/non-exhaustive",
+      "pricingSummary": "$0.20 / 1M input tokens, $0.50 / 1M output tokens on the official xAI API site.",
+      "limitsSummary": "2,000,000 context window on the official API site. Batch discount applies to text/language models.",
+      "regionSummary": "Use live discovery for exact regional/team availability.",
+      "languagesSummary": "No official language list published.",
+      "notes": "Best candidate for a stable low-cost picker. Official release note dates this family to 2025-11-19 for Enterprise API.",
+      "officialSources": [
+        "https://x.ai/api",
+        "https://docs.x.ai/developers/release-notes",
+        "https://docs.x.ai/developers/models"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [
+        {
+          "amountUsd": 0.2,
+          "unit": "million_input_tokens",
+          "sourceText": "Text Input $0.20"
+        },
+        {
+          "amountUsd": 0.5,
+          "unit": "million_output_tokens",
+          "sourceText": "Output $0.50"
+        }
+      ],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 2000000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Context window 2M"
+        }
+      ],
+      "languageSupport": {
+        "rawText": "No official model-specific language coverage table found.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": [
+          "inference: likely multilingual, but official count unknown"
+        ]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "providerId": "xai",
+      "providerName": "xAI",
+      "service": "llm",
+      "modelId": "grok-4-1-fast-non-reasoning",
+      "publicName": "Grok 4.1 Fast Non-Reasoning",
+      "aliases": [],
+      "status": "Unknown",
+      "catalogScope": "Dynamic/non-exhaustive",
+      "pricingSummary": "$0.20 / 1M input tokens, $0.50 / 1M output tokens on xAI\u2019s official API site.",
+      "limitsSummary": "2,000,000 context window on the official API site.",
+      "regionSummary": "Use live discovery for exact regional/team availability.",
+      "languagesSummary": "Unknown.",
+      "notes": "Officially shown on x.ai/api, but I did not find a matching full developer model page during this audit. Keep behind live discovery.",
+      "officialSources": [
+        "https://x.ai/api"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [
+        {
+          "amountUsd": 0.2,
+          "unit": "million_input_tokens",
+          "sourceText": "Text Input $0.20"
+        },
+        {
+          "amountUsd": 0.5,
+          "unit": "million_output_tokens",
+          "sourceText": "Output $0.50"
+        }
+      ],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 2000000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Context window 2M"
+        }
+      ],
+      "languageSupport": {
+        "rawText": "Unknown.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": [
+          "inference",
+          "live-discovery-only recommended"
+        ]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "providerId": "xai",
+      "providerName": "xAI",
+      "service": "llm",
+      "modelId": "grok-4-0709",
+      "publicName": "Grok 4",
+      "aliases": [
+        "grok-4",
+        "grok-4-latest"
+      ],
+      "status": "Documented active/current",
+      "catalogScope": "Dynamic/non-exhaustive",
+      "pricingSummary": "$3.00 / 1M input tokens, $15.00 / 1M output tokens.",
+      "limitsSummary": "Official docs cite it as a reasoning model; migration guidance warns there is no non-reasoning mode for Grok 4. Context window was not directly surfaced in the snippet set I could verify from official docs during this audit.",
+      "regionSummary": "Official snippet says us-east-1 and eu-west-1 regions.",
+      "languagesSummary": "Unknown.",
+      "notes": "Do not use alias IDs for a stable picker when determinism matters; use the dated ID. Safe as an advanced/legacy option, not as the primary default.",
+      "officialSources": [
+        "https://docs.x.ai/developers/models/grok-4",
+        "https://docs.x.ai/developers/models"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [
+        {
+          "amountUsd": 3.0,
+          "unit": "million_input_tokens",
+          "sourceText": "Input Tokens $3.00 / 1M tokens"
+        },
+        {
+          "amountUsd": 15.0,
+          "unit": "million_output_tokens",
+          "sourceText": "Output Tokens $15.00 / 1M tokens"
+        }
+      ],
+      "constraints": [],
+      "languageSupport": {
+        "rawText": "No official model-specific language table found.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": [
+          "reasoning-model family",
+          "official aliases documented"
+        ]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "providerId": "xai",
+      "providerName": "xAI",
+      "service": "llm",
+      "modelId": "grok-4-fast-reasoning",
+      "publicName": "Grok 4 Fast",
+      "aliases": [
+        "grok-4-fast",
+        "grok-4-fast-reasoning-latest"
+      ],
+      "status": "Documented active/current",
+      "catalogScope": "Dynamic/non-exhaustive",
+      "pricingSummary": "$0.20 / 1M input tokens, $0.05 / 1M cached input tokens, $0.50 / 1M output tokens.",
+      "limitsSummary": "No fully verified official context-window line was retrievable from openable docs during this audit, but official xAI API site groups the 4.1 Fast family at 2M context. Keep live-discovery support enabled in case this family is superseded.",
+      "regionSummary": "Official snippet says available on multiple clusters including us-east-1 and eu-west-1.",
+      "languagesSummary": "Unknown.",
+      "notes": "Official docs explicitly say the model name is grok-4-fast-reasoning and aliases include grok-4-fast.",
+      "officialSources": [
+        "https://docs.x.ai/developers/models/grok-4-fast",
+        "https://x.ai/api"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [
+        {
+          "amountUsd": 0.2,
+          "unit": "million_input_tokens",
+          "sourceText": "Input Tokens $0.20 / 1M tokens"
+        },
+        {
+          "amountUsd": 0.05,
+          "unit": "million_input_tokens",
+          "sourceText": "Cached tokens $0.05 / 1M tokens"
+        },
+        {
+          "amountUsd": 0.5,
+          "unit": "million_output_tokens",
+          "sourceText": "Output Tokens $0.50 / 1M tokens"
+        }
+      ],
+      "constraints": [],
+      "languageSupport": {
+        "rawText": "No official model-specific language table found.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": [
+          "official aliases documented",
+          "good live-discovery fallback"
+        ]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "providerId": "xai",
+      "providerName": "xAI",
+      "service": "llm",
+      "modelId": "grok-4.20-multi-agent-0309",
+      "publicName": "Grok 4.20 Multi-Agent",
+      "aliases": [
+        "grok-4.20-multi-agent"
+      ],
+      "status": "Preview",
+      "catalogScope": "Dynamic/non-exhaustive",
+      "pricingSummary": "$2.00 / 1M input tokens, $0.20 / 1M cached tokens, $6.00 / 1M output tokens.",
+      "limitsSummary": "Official docs expose this as beta/preview-style multi-agent research functionality. Use alias for latest behavior; use dated ID for deterministic pinning.",
+      "regionSummary": "Unknown from the evidence retrieved here.",
+      "languagesSummary": "Unknown.",
+      "notes": "Do not put in a normal mobile model picker unless the app explicitly supports research/agent workflows and citations.",
+      "officialSources": [
+        "https://docs.x.ai/developers/models/grok-4.20-multi-agent-beta-0309",
+        "https://docs.x.ai/developers/model-capabilities/text/multi-agent",
+        "https://docs.x.ai/developers/release-notes"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": true,
+      "supportsBatch": true,
+      "priceMeasurements": [
+        {
+          "amountUsd": 2.0,
+          "unit": "million_input_tokens",
+          "sourceText": "Input Tokens $2.00 / 1M tokens"
+        },
+        {
+          "amountUsd": 0.2,
+          "unit": "million_input_tokens",
+          "sourceText": "Cached tokens $0.20 / 1M tokens"
+        },
+        {
+          "amountUsd": 6.0,
+          "unit": "million_output_tokens",
+          "sourceText": "Output Tokens $6.00 / 1M tokens"
+        }
+      ],
+      "constraints": [],
+      "languageSupport": {
+        "rawText": "No official model-specific language table found.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": [
+          "research-oriented",
+          "preview/beta semantics"
+        ]
+      }
+    }
+  ),
+]);

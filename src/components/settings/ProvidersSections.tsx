@@ -299,6 +299,17 @@ type CatalogProviderEntryData = NonNullable<
   ReturnType<typeof getCatalogProviderEntry>
 >;
 
+function hasMeaningfulCatalogSummary(
+  summary?: string | null,
+): summary is string {
+  if (!summary) {
+    return false;
+  }
+
+  const normalized = summary.trim().toLowerCase();
+  return normalized.length > 0 && normalized !== "unknown" && normalized !== "unknown.";
+}
+
 function CatalogProviderSummary({
   catalogEntry,
   readOnly,
@@ -313,6 +324,43 @@ function CatalogProviderSummary({
     { key: "stt", label: t("stt"), models: catalogEntry.stt },
     { key: "tts", label: t("tts"), models: catalogEntry.tts },
   ] as const;
+  const summaryLines = [
+    hasMeaningfulCatalogSummary(catalogEntry.provider.summaries.pricing)
+      ? t("catalogProviderPricingSummary", {
+          summary: catalogEntry.provider.summaries.pricing,
+        })
+      : null,
+    hasMeaningfulCatalogSummary(catalogEntry.provider.summaries.limits)
+      ? t("catalogProviderLimitsSummary", {
+          summary: catalogEntry.provider.summaries.limits,
+        })
+      : null,
+    hasMeaningfulCatalogSummary(catalogEntry.provider.summaries.region)
+      ? t("catalogProviderRegionSummary", {
+          summary: catalogEntry.provider.summaries.region,
+        })
+      : null,
+    hasMeaningfulCatalogSummary(catalogEntry.provider.summaries.sttLanguages)
+      ? t("catalogProviderSttLanguagesSummary", {
+          summary: catalogEntry.provider.summaries.sttLanguages,
+        })
+      : null,
+    hasMeaningfulCatalogSummary(catalogEntry.provider.summaries.ttsLanguages)
+      ? t("catalogProviderTtsLanguagesSummary", {
+          summary: catalogEntry.provider.summaries.ttsLanguages,
+        })
+      : null,
+    hasMeaningfulCatalogSummary(catalogEntry.provider.summaries.freeTier)
+      ? t("catalogProviderFreeTierSummary", {
+          summary: catalogEntry.provider.summaries.freeTier,
+        })
+      : null,
+    hasMeaningfulCatalogSummary(catalogEntry.provider.summaries.integrationNotes)
+      ? t("catalogProviderIntegrationNotesSummary", {
+          summary: catalogEntry.provider.summaries.integrationNotes,
+        })
+      : null,
+  ].filter((line): line is string => Boolean(line));
 
   return (
     <>
@@ -344,11 +392,14 @@ function CatalogProviderSummary({
           {t("catalogProviderLiveDiscoveryHint")}
         </Text>
       ) : null}
-      {catalogEntry.provider.summaries.integrationNotes ? (
-        <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 8 }]}>
-          {catalogEntry.provider.summaries.integrationNotes}
+      {summaryLines.map((line) => (
+        <Text
+          key={line}
+          style={[styles.sectionHint, { color: colors.textMuted, marginTop: 8 }]}
+        >
+          {line}
         </Text>
-      ) : null}
+      ))}
       <View style={styles.catalogModelGroups}>
         {catalogModelGroups.map((group) => (
           <View key={group.key} style={styles.catalogModelGroup}>

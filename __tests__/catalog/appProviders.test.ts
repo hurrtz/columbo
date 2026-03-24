@@ -46,19 +46,19 @@ describe("app provider catalog bridge", () => {
       "native",
     );
     expect(getCatalogVerifiedServiceStateForAppProvider("xai", "stt")).toBe(
-      "unsupported",
+      "partial",
     );
     expect(getCatalogVerifiedServiceStateForAppProvider("mistral", "stt")).toBe(
       "native",
     );
 
     expect(PROVIDER_CATALOG_VERIFIED_SUPPORT.groq.tts).toBe("native");
-    expect(PROVIDER_CATALOG_VERIFIED_SUPPORT.xai.stt).toBe("unsupported");
+    expect(PROVIDER_CATALOG_VERIFIED_SUPPORT.xai.stt).toBe("partial");
   });
 
   it("exposes provider-level discovery hints and model accessors", () => {
     expect(PROVIDER_NEEDS_LIVE_MODEL_DISCOVERY.groq).toBe(true);
-    expect(PROVIDER_NEEDS_LIVE_MODEL_DISCOVERY.openai).toBe(false);
+    expect(PROVIDER_NEEDS_LIVE_MODEL_DISCOVERY.openai).toBe(true);
 
     expect(getCatalogProviderForAppProvider("openai")?.providerName).toBe(
       "OpenAI",
@@ -77,7 +77,7 @@ describe("app provider catalog bridge", () => {
       "stt",
     );
 
-    expect(openAiModel?.publicName).toBe("GPT-4o Mini Transcribe");
+    expect(openAiModel?.publicName).toBe("GPT-4o mini Transcribe");
     expect(openAiModel?.supportsRealtime).toBe(true);
 
     expect(
@@ -97,7 +97,7 @@ describe("app provider catalog bridge", () => {
 
     expect(
       getCatalogRealtimeModelsForAppProvider("gemini", "llm").some(
-        (model) => model.modelId === "gemini-live",
+        (model) => model.modelId === "gemini-live-2.5-flash-native-audio",
       ),
     ).toBe(true);
   });

@@ -1,7 +1,7 @@
 import {
   PROVIDER_CATALOG_UPDATED_AT,
   PROVIDER_DOCUMENTS,
-} from "../../data/provider-catalog";
+} from "../../data/providers";
 import { PROVIDER_CATALOG_SCHEMA_VERSION } from "./types";
 import type {
   CatalogConstraint,

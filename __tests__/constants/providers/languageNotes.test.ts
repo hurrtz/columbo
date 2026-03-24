@@ -12,7 +12,7 @@ describe("provider language notes", () => {
         "gpt-4o-mini-transcribe",
         "en",
       ),
-    ).toBe("Supports 98 languages.");
+    ).toBe("Supports 57 languages.");
   });
 
   it("resolves catalog aliases before building STT language notes", () => {
@@ -34,7 +34,7 @@ describe("provider language notes", () => {
   it("derives a TTS language note from exact catalog model metadata", () => {
     expect(
       getProviderTtsLanguageNoteForModel("openai", "gpt-4o-mini-tts", "en"),
-    ).toBe("Multilingual. Voices are optimized for English.");
+    ).toBe("13 voices across 57 languages. Voices are optimized for English.");
   });
 
   it("falls back to the curated provider TTS note when the selected model is not in the workbook catalog", () => {
@@ -56,6 +56,6 @@ describe("provider language notes", () => {
   it("builds an approximate tier-aware STT upload limit note when only rough limits exist", () => {
     expect(
       getProviderSttLimitNote("groq", "whisper-large-v3-turbo", "en"),
-    ).toBe("Approximate file upload limit 25 MB to 100 MB depending on tier.");
+    ).toBe("File upload up to 100 MiB.");
   });
 });

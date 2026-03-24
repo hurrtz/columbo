@@ -14,11 +14,11 @@ describe("provider catalog", () => {
   it("matches the normalized provider and model counts in the flattened catalog", () => {
     expect(getCatalogStats()).toEqual({
       providerCount: 40,
-      modelCount: 278,
+      modelCount: 455,
       serviceCounts: {
-        llm: 147,
-        stt: 61,
-        tts: 70,
+        llm: 294,
+        stt: 71,
+        tts: 90,
       },
     });
   });
@@ -39,11 +39,10 @@ describe("provider catalog", () => {
     const providersDir = path.join(
       process.cwd(),
       "data",
-      "provider-catalog",
       "providers",
     );
     const providerEntries = fs.readdirSync(providersDir).filter((entry) => {
-      if (entry === "index.ts") {
+      if (entry === "index.ts" || entry === "definitions.ts") {
         return false;
       }
 
@@ -59,7 +58,7 @@ describe("provider catalog", () => {
     expect(providerEntries).toHaveLength(40);
     expect(
       fs.existsSync(
-        path.join(process.cwd(), "data", "provider-catalog", "definitions.ts"),
+        path.join(process.cwd(), "data", "providers", "definitions.ts"),
       ),
     ).toBe(true);
     expect(
@@ -77,7 +76,6 @@ describe("provider catalog", () => {
         path.join(
           process.cwd(),
           "data",
-          "provider-catalog",
           "providers",
           "openai",
           "index.ts",
@@ -86,7 +84,7 @@ describe("provider catalog", () => {
     ).toBe(true);
     expect(
       fs.existsSync(
-        path.join(process.cwd(), "data", "provider-catalog", "catalog.snapshot.json"),
+        path.join(process.cwd(), "data", "providers", "catalog.snapshot.json"),
       ),
     ).toBe(false);
     expect(
@@ -94,7 +92,7 @@ describe("provider catalog", () => {
         path.join(
           process.cwd(),
           "data",
-          "provider-catalog",
+          "providers",
           "reports",
           "compass-research-report.json",
         ),
@@ -107,7 +105,7 @@ describe("provider catalog", () => {
     expect(mistral?.verifiedSupport.stt).toBe("native");
     expect(mistral?.verifiedSupport.tts).toBe("unsupported");
     expect(mistral?.summaries.activeModels.stt).toContain(
-      "Voxtral Mini [voxtral-mini] — Audio understanding",
+      "Voxtral Mini Transcribe 2 [voxtral-mini-2602]",
     );
   });
 
@@ -124,11 +122,6 @@ describe("provider catalog", () => {
           metric: "file_size_bytes",
           comparator: "<=",
           value: 25_000_000,
-        }),
-        expect.objectContaining({
-          metric: "duration_seconds",
-          comparator: ">=",
-          value: 30,
         }),
       ]),
     );
@@ -162,6 +155,18 @@ describe("provider catalog", () => {
         }),
       ]),
     );
-    expect(openaiStt?.languageSupport?.languageCount).toBe(98);
+    expect(openaiStt?.languageSupport?.languageCount).toBe(57);
+  });
+
+  it("stores provider-level source attribution on imported research-backed providers", () => {
+    const openai = getCatalogProvider("openai");
+
+    expect(openai?.sources?.length).toBeGreaterThan(0);
+    expect(openai?.sources?.[0]).toEqual(
+      expect.objectContaining({
+        type: "official",
+        url: expect.stringContaining("openai.com"),
+      }),
+    );
   });
 });

@@ -100,7 +100,7 @@ describe("transcribeAudio", () => {
         language: "en",
       })
     ).rejects.toThrow(
-      "OpenAI GPT-4o Mini Transcribe only accepts recordings up to 25 MB. Use a shorter clip or switch STT models."
+      "OpenAI GPT-4o mini Transcribe only accepts recordings up to 25 MB. Use a shorter clip or switch STT models."
     );
 
     expect(fetch).not.toHaveBeenCalled();

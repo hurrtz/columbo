@@ -163,7 +163,7 @@ Models:
 
 ## Catalog-Only Providers
 
-These provider documents exist in `data/provider-catalog/providers` and now appear in the Providers-tab button grid for UI inspection, but they are not yet wired into the app runtime.
+These provider documents exist in `data/providers` and now appear in the Providers-tab button grid for UI inspection, but they are not yet wired into the app runtime.
 
 `01-ai-yi`, `ai21-labs`, `aleph-alpha`, `alibaba-qwen-dashscope`, `amazon-aws`, `assemblyai`, `baichuan`, `baidu-ernie-qianfan`, `bytedance-doubao-seed`, `cerebras`, `deepgram`, `deepinfra`, `elevenlabs`, `fireworks-ai`, `fish-audio`, `hugging-face-inference-api`, `hyperbolic`, `ibm-watsonx`, `lepton-ai`, `microsoft-azure`, `minimax`, `moonshot-ai-kimi`, `novita-ai`, `perplexity`, `replicate`, `sambanova`, `siliconflow`, `stepfun`, `xiaomi-mimo`, `z-ai-zhipu-ai`
 

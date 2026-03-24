@@ -3,7 +3,7 @@ import {
   defineProviderDocument,
   defineProviderDefinition,
   defineProviderDocuments,
-} from "../../data/provider-catalog/definitions";
+} from "../../data/providers/definitions";
 import type { CatalogProviderDocument } from "../../src/catalog";
 
 function createDocument(
@@ -164,7 +164,7 @@ describe("catalog definitions", () => {
     ).toThrow("Catalog alias collides with canonical model ID");
   });
 
-  it("rejects alias collisions across services", () => {
+  it("allows alias reuse across services when lookups stay service-aware", () => {
     expect(() =>
       defineProviderDocument({
         ...createDocument(),
@@ -178,6 +178,6 @@ describe("catalog definitions", () => {
           },
         ],
       }),
-    ).toThrow("Catalog alias collision across services");
+    ).not.toThrow();
   });
 });

@@ -90,6 +90,17 @@ export const de: TranslationDictionary = {
       `Verifizierte Unterstützung: LLM ${llm}, STT ${stt}, TTS ${tts}.`,
     catalogProviderLiveDiscoveryHint:
       "Dieser Anbieter hat einen dynamischen Katalog. Für eine echte Integration wird voraussichtlich eine Live-Modellerkennung nötig sein.",
+    catalogProviderPricingSummary: ({ summary }) => `Preise: ${summary}`,
+    catalogProviderLimitsSummary: ({ summary }) => `Limits: ${summary}`,
+    catalogProviderRegionSummary: ({ summary }) => `Regionen: ${summary}`,
+    catalogProviderSttLanguagesSummary: ({ summary }) =>
+      `STT-Sprachen: ${summary}`,
+    catalogProviderTtsLanguagesSummary: ({ summary }) =>
+      `TTS-Sprachen: ${summary}`,
+    catalogProviderFreeTierSummary: ({ summary }) =>
+      `Kostenloser Umfang: ${summary}`,
+    catalogProviderIntegrationNotesSummary: ({ summary }) =>
+      `Integrationshinweise: ${summary}`,
     catalogProviderNoModels: "Keine dokumentierten Modelle.",
     validateKey: "Schlüssel prüfen",
     validatingKey: "Prüfe …",

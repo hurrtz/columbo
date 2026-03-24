@@ -9,13 +9,13 @@ import {
 describe("speech provider constants", () => {
   it("uses catalog labels for exact STT model matches", () => {
     expect(getSttModelLabel("openai", "gpt-4o-mini-transcribe")).toBe(
-      "GPT-4o Mini Transcribe",
+      "GPT-4o mini Transcribe",
     );
   });
 
   it("uses catalog labels for aliased STT model ids", () => {
     expect(getSttModelLabel("mistral", "voxtral-mini-latest")).toBe(
-      "Voxtral Mini",
+      "Voxtral Mini Transcribe 2",
     );
   });
 

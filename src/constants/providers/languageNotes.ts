@@ -200,11 +200,7 @@ function buildCatalogSpeechLanguageNote(params: {
     );
   } else if (
     languageSupport.isMultilingual &&
-    (
-      /^(multilingual[.!]?|multilingual;?)$/i.test(
-        (languageSupport.rawText ?? "").trim(),
-      ) || languageSupport.notes.includes("english-optimized")
-    )
+    languageSupport.notes.includes("english-optimized")
   ) {
     parts.push(params.language === "de" ? "Mehrsprachig" : "Multilingual");
   }
@@ -240,6 +236,14 @@ export function getProviderSttLanguageNoteForModel(
 }
 
 function formatByteLimit(bytes: number) {
+  if (bytes % (1024 * 1024 * 1024) === 0) {
+    return `${bytes / (1024 * 1024 * 1024)} GiB`;
+  }
+
+  if (bytes % (1024 * 1024) === 0) {
+    return `${bytes / (1024 * 1024)} MiB`;
+  }
+
   if (bytes >= 1_000_000_000) {
     return `${(bytes / 1_000_000_000).toFixed(1).replace(/\.0$/, "")} GB`;
   }

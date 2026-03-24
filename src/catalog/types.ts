@@ -1,4 +1,4 @@
-export const PROVIDER_CATALOG_SCHEMA_VERSION = 2;
+export const PROVIDER_CATALOG_SCHEMA_VERSION = 3;
 
 export type CatalogProviderId = string;
 export type CatalogService = "llm" | "stt" | "tts";
@@ -15,6 +15,9 @@ export type CatalogPricingUnit =
   | "million_utf8_bytes"
   | "minute"
   | "hour"
+  | "request"
+  | "second"
+  | "other"
   | "unknown";
 export type CatalogConstraintMetric =
   | "file_size_bytes"
@@ -23,8 +26,24 @@ export type CatalogConstraintMetric =
   | "session_duration_seconds"
   | "throughput_tps"
   | "concurrency"
+  | "context_tokens"
+  | "rate_limit_rpm"
+  | "rate_limit_rps"
+  | "rate_limit_tpm"
   | "other";
-export type CatalogConstraintComparator = "<=" | ">=" | "~" | "=";
+export type CatalogConstraintComparator = "<" | "<=" | "=" | ">" | ">=" | "~";
+export type CatalogConstraintUnit =
+  | "bytes"
+  | "seconds"
+  | "count"
+  | "tps"
+  | "tokens"
+  | "requests_per_minute"
+  | "tokens_per_minute"
+  | "sessions"
+  | "other"
+  | "unknown";
+export type CatalogSourceType = "official" | "secondary";
 
 export interface CatalogPriceMeasurement {
   amountUsd: number;
@@ -36,9 +55,17 @@ export interface CatalogConstraint {
   metric: CatalogConstraintMetric;
   comparator: CatalogConstraintComparator;
   value: number;
-  unit: "bytes" | "seconds" | "count" | "tps" | "unknown";
+  unit: CatalogConstraintUnit;
   scope: string;
   sourceText: string;
+}
+
+export interface CatalogSource {
+  url: string;
+  title: string | null;
+  type: CatalogSourceType;
+  lastUpdated: string | null;
+  usedFor: string[];
 }
 
 export interface CatalogLanguageSupport {
@@ -57,6 +84,7 @@ export interface CatalogProvider {
   hq: string | null;
   verifiedSupport: Record<CatalogService, CatalogSupportState>;
   officialSources: string[];
+  sources?: CatalogSource[];
   integration: {
     catalogType: string | null;
     coverage: string | null;
