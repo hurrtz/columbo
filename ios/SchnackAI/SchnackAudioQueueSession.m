@@ -9,7 +9,8 @@
   NSError *activeError = nil;
 
   [session setCategory:AVAudioSessionCategoryPlayback
-           withOptions:0
+                  mode:AVAudioSessionModeDefault
+               options:0
                  error:&categoryError];
   if (categoryError != nil) {
     if (error != nil) {

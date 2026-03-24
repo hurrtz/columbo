@@ -1,5 +1,24 @@
 import { useCallback, useRef } from "react";
+import { Platform } from "react-native";
 import { setAudioModeAsync, setIsAudioActiveAsync } from "expo-audio";
+import { ExpoSpeechRecognitionModule } from "expo-speech-recognition";
+
+function ensureIosPlaybackMode() {
+  if (
+    Platform.OS !== "ios" ||
+    typeof ExpoSpeechRecognitionModule.setCategoryIOS !== "function"
+  ) {
+    return;
+  }
+
+  // Recording/STT switches the shared session into `.measurement`,
+  // which lowers playback output. Reset it before TTS playback.
+  ExpoSpeechRecognitionModule.setCategoryIOS({
+    category: "playback",
+    categoryOptions: [],
+    mode: "default",
+  });
+}
 
 export function usePlaybackSession() {
   const audioSessionReadyRef = useRef(false);
@@ -26,6 +45,9 @@ export function usePlaybackSession() {
             playsInSilentMode: true,
           }),
         )
+        .then(() => {
+          ensureIosPlaybackMode();
+        })
         .then(() => {
           audioSessionReadyRef.current = true;
         })
