@@ -28,6 +28,8 @@ import {
 const GEMINI_TTS_RETRY_DELAYS_MS = [400, 1200];
 const BAIDU_LONG_TTS_POLL_INTERVAL_MS = 1000;
 const BAIDU_LONG_TTS_MAX_POLLS = 30;
+const NOVITA_ASYNC_TTS_POLL_INTERVAL_MS = 1000;
+const NOVITA_ASYNC_TTS_MAX_POLLS = 30;
 
 function wait(ms: number) {
   return new Promise<void>((resolve) => {
@@ -266,6 +268,14 @@ function getGroqVoice(selectedModel: string, selectedVoice: string) {
 }
 
 function getNovitaVoice(selectedModel: string, selectedVoice: string) {
+  if (selectedModel === "txt2speech") {
+    return ["Emily", "James", "Olivia", "Michael", "Sarah", "John"].includes(
+      selectedVoice,
+    )
+      ? selectedVoice
+      : "Emily";
+  }
+
   if (selectedModel === "glm-tts") {
     return [
       "tongtong",
@@ -972,6 +982,131 @@ export async function synthesizeProviderSpeech(params: {
 
   if (config.kind === "novita") {
     const resolvedVoice = getNovitaVoice(selectedModel, selectedVoice);
+
+    if (selectedModel === "txt2speech") {
+      const createResponse = await fetchWithTimeout(
+        `${config.endpointBase}/async/txt2speech`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+          },
+          body: JSON.stringify({
+            text,
+            voice_name: resolvedVoice,
+            language: "en-US",
+            response_audio_type: "mp3",
+          }),
+        },
+        timeoutMs,
+        () => createTtsTimeoutError({ provider, language }),
+        abortSignal,
+      );
+
+      if (!createResponse.ok) {
+        const errorText = await createResponse.text();
+        throw buildTtsRequestError({
+          provider,
+          status: createResponse.status,
+          errorText,
+          language,
+        });
+      }
+
+      const createData = await createResponse.json();
+      const taskId =
+        typeof createData?.task_id === "string" ? createData.task_id : null;
+
+      if (!taskId) {
+        throw new Error(
+          translate(language, "ttsDidNotReturnAudio", {
+            provider: PROVIDER_LABELS[provider],
+          }),
+        );
+      }
+
+      for (
+        let pollIndex = 0;
+        pollIndex < NOVITA_ASYNC_TTS_MAX_POLLS;
+        pollIndex += 1
+      ) {
+        const pollResponse = await fetchWithTimeout(
+          `${config.endpointBase}/async/task-result?task_id=${encodeURIComponent(taskId)}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${requireProviderKey(
+                provider,
+                apiKey,
+                language,
+              )}`,
+            },
+          },
+          timeoutMs,
+          () => createTtsTimeoutError({ provider, language }),
+          abortSignal,
+        );
+
+        if (!pollResponse.ok) {
+          const errorText = await pollResponse.text();
+          throw buildTtsRequestError({
+            provider,
+            status: pollResponse.status,
+            errorText,
+            language,
+          });
+        }
+
+        const pollData = await pollResponse.json();
+        const taskStatus =
+          typeof pollData?.task?.status === "string" ? pollData.task.status : null;
+        const audioUrl =
+          typeof pollData?.audios?.[0]?.audio_url === "string"
+            ? pollData.audios[0].audio_url
+            : null;
+
+        if (taskStatus === "TASK_STATUS_SUCCEED" && audioUrl) {
+          const audioResponse = await fetchWithTimeout(
+            audioUrl,
+            {
+              method: "GET",
+            },
+            timeoutMs,
+            () => createTtsTimeoutError({ provider, language }),
+            abortSignal,
+          );
+
+          if (!audioResponse.ok) {
+            const errorText = await audioResponse.text();
+            throw buildTtsRequestError({
+              provider,
+              status: audioResponse.status,
+              errorText,
+              language,
+            });
+          }
+
+          return writeBlobAudioFile(await audioResponse.blob(), "mp3");
+        }
+
+        if (
+          taskStatus &&
+          !["TASK_STATUS_PENDING", "TASK_STATUS_RUNNING"].includes(taskStatus)
+        ) {
+          const errorText =
+            pollData?.task?.message ||
+            pollData?.message ||
+            pollData?.detail ||
+            taskStatus;
+          throw new Error(errorText);
+        }
+
+        await wait(NOVITA_ASYNC_TTS_POLL_INTERVAL_MS);
+      }
+
+      throw createTtsTimeoutError({ provider, language });
+    }
 
     if (selectedModel === "glm-tts") {
       const response = await fetchWithTimeout(

@@ -13,10 +13,10 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 35
 - Catalog models: 455
-- Integrated models: 368
+- Integrated models: 369
 - LLM: 263/294 integrated
 - STT: 43/71 integrated
-- TTS: 62/90 integrated
+- TTS: 63/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -577,7 +577,7 @@ Catalog updated: 2026-03-23
 ## Novita AI `novita-ai`
 
 - Runtime provider: `novita-ai`
-- Model integration: 11/13 integrated
+- Model integration: 12/13 integrated
 - Verified support: LLM `routed`, STT `routed`, TTS `routed`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -588,7 +588,7 @@ Catalog updated: 2026-03-23
 | LLM | `qwen/qwen3-coder-30b-a3b-instruct` | Qwen3 Coder 30B A3B Instruct | Integrated | `qwen/qwen3-coder-30b-a3b-instruct` |
 | STT | `glm-asr` | GLM Audio to Text | Integrated | `glm-asr` |
 | TTS | `glm-tts` | GLM Text to Speech | Integrated | `glm-tts` |
-| TTS | `txt2speech` | Legacy Text to Speech | Not integrated | — |
+| TTS | `txt2speech` | Legacy Text to Speech | Integrated | `txt2speech` |
 | TTS | `minimax-voice-cloning` | MiniMax Quick Voice Cloning | Not integrated | — |
 | TTS | `minimax-speech-2.8-hd` | MiniMax Speech 2.8 HD | Integrated | `minimax-speech-2.8-hd` |
 | TTS | `minimax-speech-02-hd` | MiniMax Speech-02 HD | Integrated | `minimax-speech-02-hd` |

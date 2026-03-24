@@ -530,6 +530,59 @@ describe("synthesizeProviderSpeech", () => {
     });
   });
 
+  it("uses Novita legacy txt2speech through the async create and task-result flow", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          task_id: "task-123",
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          task: {
+            status: "TASK_STATUS_SUCCEED",
+          },
+          audios: [
+            {
+              audio_url: "https://novita.example/audio.mp3",
+            },
+          ],
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        blob: () => Promise.resolve(new Blob(["fake-audio"])),
+      });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "novita-ai",
+      providerModel: "txt2speech",
+      apiKey: "novita-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [createUrl, createOptions] = (fetch as jest.Mock).mock.calls[0];
+    expect(createUrl).toBe("https://api.novita.ai/v3/async/txt2speech");
+    expect(JSON.parse(createOptions.body)).toEqual({
+      text: "Hello world",
+      voice_name: "Emily",
+      language: "en-US",
+      response_audio_type: "mp3",
+    });
+
+    expect((fetch as jest.Mock).mock.calls[1][0]).toBe(
+      "https://api.novita.ai/v3/async/task-result?task_id=task-123",
+    );
+    expect((fetch as jest.Mock).mock.calls[2][0]).toBe(
+      "https://novita.example/audio.mp3",
+    );
+  });
+
   it("uses Novita MiniMax-family TTS routes with hex audio output", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

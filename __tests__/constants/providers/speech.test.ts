@@ -157,6 +157,7 @@ describe("speech provider constants", () => {
       { id: "minimax-speech-2.6-turbo", name: "MiniMax Speech-2.6 Turbo" },
       { id: "minimax-speech-2.8-hd", name: "MiniMax Speech 2.8 HD" },
       { id: "glm-tts", name: "GLM Text to Speech" },
+      { id: "txt2speech", name: "Legacy Text to Speech" },
     ]);
     expect(getProviderTtsModelOptions("baidu-ernie-qianfan")).toEqual([
       { id: "短文本语音合成", name: "Short Text Speech Synthesis" },
