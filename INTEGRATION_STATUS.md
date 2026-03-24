@@ -13,9 +13,9 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 27
 - Catalog models: 455
-- Integrated models: 135
+- Integrated models: 136
 - LLM: 122/294 integrated
-- STT: 9/71 integrated
+- STT: 10/71 integrated
 - TTS: 4/90 integrated
 - Unresolved runtime manifest entries: 56
 
@@ -65,7 +65,7 @@ Catalog updated: 2026-03-23
 ## Alibaba / Qwen (DashScope) `alibaba-qwen-dashscope`
 
 - Runtime provider: `alibaba-qwen-dashscope`
-- Model integration: 5/13 integrated
+- Model integration: 6/13 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -76,7 +76,7 @@ Catalog updated: 2026-03-23
 | LLM | `qwen3-omni-flash-realtime` | Qwen3-Omni-Flash-Realtime | Not integrated | — |
 | LLM | `qwen3.5-flash` | Qwen3.5-Flash | Integrated | `qwen3.5-flash` |
 | LLM | `qwen3.5-plus` | Qwen3.5-Plus | Integrated | `qwen3.5-plus` |
-| STT | `qwen3-asr-flash` | Qwen3-ASR-Flash | Not integrated | — |
+| STT | `qwen3-asr-flash` | Qwen3-ASR-Flash | Integrated | `qwen3-asr-flash` |
 | STT | `qwen3-asr-flash-filetrans` | Qwen3-ASR-Flash-Filetrans | Not integrated | — |
 | STT | `qwen3-asr-flash-realtime` | Qwen3-ASR-Flash-Realtime | Not integrated | — |
 | TTS | `qwen3-tts-flash` | Qwen3-TTS-Flash | Not integrated | — |

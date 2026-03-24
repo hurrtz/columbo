@@ -11,6 +11,7 @@ import { waitForRecordedFileReady } from "./whisper/recordedFileReady";
 import {
   transcribeWithGeminiProvider,
   transcribeWithMultipartProvider,
+  transcribeWithOpenAiAudioInputProvider,
 } from "./whisper/providers";
 
 function formatByteLimit(bytes: number) {
@@ -112,6 +113,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "gemini") {
     return transcribeWithGeminiProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: selectedModel,
+    });
+  }
+
+  if (config.kind === "openai-audio-input") {
+    return transcribeWithOpenAiAudioInputProvider({
       abortSignal,
       apiKey,
       config,

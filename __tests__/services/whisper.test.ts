@@ -86,6 +86,41 @@ describe("transcribeAudio", () => {
     expect(url).toBe("https://api.z.ai/api/paas/v4/audio/transcriptions");
   });
 
+  it("uses the configured audio-input endpoint for DashScope short-file STT", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: "Hello world",
+            },
+          },
+        ],
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "alibaba-qwen-dashscope",
+      apiKey: "dashscope-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello world");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+    );
+    const body = JSON.parse(options.body);
+    expect(body.model).toBe("qwen3-asr-flash");
+    expect(body.messages[0].content[0].type).toBe("input_audio");
+    expect(body.messages[0].content[0].input_audio.data).toMatch(
+      /^data:audio\/m4a;base64,/,
+    );
+  });
+
   it("aborts before starting the provider request when the signal is already cancelled", async () => {
     const controller = new AbortController();
     controller.abort();

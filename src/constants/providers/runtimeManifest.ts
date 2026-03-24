@@ -33,7 +33,11 @@ export type RuntimeLlmTransport =
   | "openai-compatible"
   | "anthropic"
   | "cohere";
-export type RuntimeSttTransport = "none" | "multipart" | "gemini";
+export type RuntimeSttTransport =
+  | "none"
+  | "multipart"
+  | "gemini"
+  | "openai-audio-input";
 export type RuntimeTtsTransport = "none" | "binary" | "gemini";
 export type RuntimeTtsBinaryRequestFormat =
   | "openai-speech"
@@ -328,9 +332,14 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       ],
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "openai-audio-input",
+      endpoint:
+        "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+      defaultModel: "qwen3-asr-flash",
+      models: [model("qwen3-asr-flash")],
+      languageNote:
+        "DashScope STT is currently wired only for Qwen3-ASR-Flash short-file transcription through the OpenAI-compatible endpoint. Catalog-only models like qwen3-asr-flash-filetrans and qwen3-asr-flash-realtime still need dedicated async or realtime transport support.",
     },
     tts: {
       support: "none",

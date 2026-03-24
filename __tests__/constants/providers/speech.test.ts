@@ -31,6 +31,9 @@ describe("speech provider constants", () => {
     expect(getProviderSttModelOptions("z-ai-zhipu-ai")).toEqual([
       { id: "glm-asr-2512", name: "GLM-ASR-2512" },
     ]);
+    expect(getProviderSttModelOptions("alibaba-qwen-dashscope")).toEqual([
+      { id: "qwen3-asr-flash", name: "Qwen3-ASR-Flash" },
+    ]);
   });
 
   it("uses catalog labels for exact TTS model matches", () => {

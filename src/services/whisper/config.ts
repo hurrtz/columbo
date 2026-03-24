@@ -9,6 +9,12 @@ export type MultipartTranscriptionConfig = {
   languageHint?: () => string | undefined;
 };
 
+export type OpenAiAudioInputTranscriptionConfig = {
+  kind: "openai-audio-input";
+  endpoint: string;
+  defaultModel: string;
+};
+
 export type GeminiTranscriptionConfig = {
   kind: "gemini";
   endpointBase: string;
@@ -29,7 +35,12 @@ function getLanguageHint(
 }
 
 const sttProviderConfigEntries: Array<
-  [Provider, MultipartTranscriptionConfig | GeminiTranscriptionConfig]
+  [
+    Provider,
+    | MultipartTranscriptionConfig
+    | GeminiTranscriptionConfig
+    | OpenAiAudioInputTranscriptionConfig,
+  ]
 > = [];
 
 for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
@@ -54,6 +65,21 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
   }
 
   if (
+    manifest.stt.transport === "openai-audio-input" &&
+    manifest.stt.endpoint &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "openai-audio-input",
+        endpoint: manifest.stt.endpoint,
+        defaultModel: manifest.stt.defaultModel,
+      },
+    ]);
+  }
+
+  if (
     manifest.stt.transport === "gemini" &&
     manifest.stt.endpointBase &&
     manifest.stt.defaultModel
@@ -70,5 +96,10 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
 }
 
 export const STT_PROVIDER_CONFIGS: Partial<
-  Record<Provider, MultipartTranscriptionConfig | GeminiTranscriptionConfig>
+  Record<
+    Provider,
+    | MultipartTranscriptionConfig
+    | GeminiTranscriptionConfig
+    | OpenAiAudioInputTranscriptionConfig
+  >
 > = Object.fromEntries(sttProviderConfigEntries);
