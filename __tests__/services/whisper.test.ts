@@ -113,6 +113,31 @@ describe("transcribeAudio", () => {
     );
   });
 
+  it("uses the customer-provided Aleph Alpha transcription endpoint", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        text: "Hello from Aleph Alpha",
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "aleph-alpha",
+      apiKey: "https://pharia.example.com/v2|aleph-test-key",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from Aleph Alpha");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://pharia.example.com/v2/transcribe");
+    expect(options.headers.Authorization).toBe("Bearer aleph-test-key");
+    expect((options.body as FormData).get("model")).toBe(
+      "whisperx-transcription-medium",
+    );
+  });
+
   it("uses IBM Speech to Text with basic auth and the selected locale model", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

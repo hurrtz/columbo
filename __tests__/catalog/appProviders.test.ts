@@ -23,6 +23,7 @@ describe("app provider catalog bridge", () => {
       "01-ai-yi": "01-ai-yi",
       openai: "openai",
       "microsoft-azure": "microsoft-azure",
+      "aleph-alpha": "aleph-alpha",
       anthropic: "anthropic",
       assemblyai: "assemblyai",
       "ai21-labs": "ai21-labs",
@@ -60,6 +61,7 @@ describe("app provider catalog bridge", () => {
     });
 
     expect(getCatalogProviderIdForAppProvider("01-ai-yi")).toBe("01-ai-yi");
+    expect(getCatalogProviderIdForAppProvider("aleph-alpha")).toBe("aleph-alpha");
     expect(getCatalogProviderIdForAppProvider("microsoft-azure")).toBe(
       "microsoft-azure",
     );
@@ -67,6 +69,7 @@ describe("app provider catalog bridge", () => {
       "google-vertex-ai-studio",
     );
     expect(getAppProviderForCatalogProviderId("01-ai-yi")).toBe("01-ai-yi");
+    expect(getAppProviderForCatalogProviderId("aleph-alpha")).toBe("aleph-alpha");
     expect(getAppProviderForCatalogProviderId("microsoft-azure")).toBe(
       "microsoft-azure",
     );

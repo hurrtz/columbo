@@ -4,6 +4,7 @@ import { buildProviderHttpError, normalizeProviderTransportError } from "../prov
 import {
   buildBasicAuthorizationHeader,
   buildAzureOpenAiUrl,
+  parseEndpointApiKeyCredentials,
   parseIbmWatsonxCredentials,
   parseAzureOpenAiCredentials,
 } from "../providerCredentials";
@@ -17,6 +18,7 @@ import { getDeviceLocale, getFileAudioMimeType } from "../../utils/speechLanguag
 import { fetchWithTimeout } from "./abort";
 import { STT_TIMEOUT_MS } from "./config";
 import type {
+  AlephAlphaTranscriptionConfig,
   AssemblyAiPreRecordedTranscriptionConfig,
   AzureOpenAiTranscriptionConfig,
   DeepInfraInferenceTranscriptionConfig,
@@ -190,6 +192,72 @@ export async function transcribeWithGeminiProvider(
 
   const data = await response.json();
   const text = extractTextFromGeminiResponse(data);
+  return text ? text : null;
+}
+
+export async function transcribeWithAlephAlphaProvider(
+  params: SharedProviderParams & {
+    config: AlephAlphaTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const credentials = parseEndpointApiKeyCredentials(provider, apiKey, language);
+  const formData = new FormData();
+  formData.append(
+    "file",
+    {
+      uri: fileUri,
+      type: getFileAudioMimeType(fileUri),
+      name: fileUri.split("/").pop() || "recording.m4a",
+    } as any,
+  );
+  formData.append("model", providerModel || config.defaultModel);
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      `${credentials.endpoint}/transcribe`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${credentials.apiKey}`,
+        },
+        body: formData,
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const rawText =
+    typeof data?.text === "string"
+      ? data.text
+      : typeof data?.result?.text === "string"
+        ? data.result.text
+        : "";
+  const text = rawText.trim();
   return text ? text : null;
 }
 

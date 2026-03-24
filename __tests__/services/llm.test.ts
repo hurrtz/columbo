@@ -112,6 +112,41 @@ describe("streamChat", () => {
     expect(JSON.parse(options.body).model).toBe("gpt-4.1-mini");
   });
 
+  it("uses the customer-provided Aleph Alpha chat endpoint", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode('data: {"choices":[{"delta":{"content":"Hi from Aleph"}}]}\n\n'),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "pharia-1-llm-7b-control-aligned",
+      provider: "aleph-alpha",
+      apiKey: "https://pharia.example.com/v2|aleph-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi from Aleph"]);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://pharia.example.com/v2/chat/completions");
+    expect(options.headers.Authorization).toBe("Bearer aleph-test-key");
+    expect(JSON.parse(options.body).model).toBe("pharia-1-llm-7b-control-aligned");
+  });
+
   it("uses IBM watsonx chat with IAM token exchange and project-scoped chat payloads", async () => {
     (fetch as jest.Mock)
       .mockResolvedValueOnce({

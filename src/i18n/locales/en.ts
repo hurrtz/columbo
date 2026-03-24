@@ -233,6 +233,8 @@ export const en: TranslationDictionary = {
     threadUnpinned: "Thread unpinned.",
     addProviderKeyToUseProvider: ({ provider }) =>
       `Add your ${provider} API key in Settings to use this provider.`,
+    endpointCredentialFormatInvalid: ({ provider }) =>
+      `For ${provider}, enter the provider base URL and API key as https://your-endpoint.example.com|your-api-key.`,
     azureCredentialFormatInvalid: ({ provider }) =>
       `For ${provider}, enter the Azure endpoint and API key as https://your-resource.openai.azure.com|your-api-key.`,
     ibmCredentialFormatInvalid: ({ provider }) =>

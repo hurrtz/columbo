@@ -5,6 +5,7 @@ export type RuntimeAppProviderId =
   | "01-ai-yi"
   | "openai"
   | "microsoft-azure"
+  | "aleph-alpha"
   | "anthropic"
   | "assemblyai"
   | "ai21-labs"
@@ -44,6 +45,7 @@ export type RuntimeLlmTransport =
   | "none"
   | "openai-compatible"
   | "azure-openai"
+  | "aleph-alpha"
   | "anthropic"
   | "cohere"
   | "ibm-watsonx"
@@ -52,6 +54,7 @@ export type RuntimeSttTransport =
   | "none"
   | "multipart"
   | "azure-openai"
+  | "aleph-alpha"
   | "deepinfra-inference"
   | "gemini"
   | "openai-audio-input"
@@ -223,6 +226,7 @@ export const RUNTIME_PROVIDER_ORDER = [
   "01-ai-yi",
   "openai",
   "microsoft-azure",
+  "aleph-alpha",
   "anthropic",
   "assemblyai",
   "ai21-labs",
@@ -426,6 +430,36 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       ],
       languageNote:
         "Azure OpenAI TTS is now wired for gpt-4o-mini-tts plus the legacy tts and tts-hd models on the v1 audio/speech route. Realtime Azure voice models still need a dedicated realtime transport.",
+    },
+  },
+  "aleph-alpha": {
+    appProvider: "aleph-alpha",
+    catalogProviderId: "aleph-alpha",
+    label: "Aleph Alpha",
+    shortLabel: "ALEPH",
+    apiKeyPlaceholder: "https://your-pharia-endpoint.example.com/v2|api-key",
+    apiKeyHint:
+      "Enter your PhariaInference base URL and API key separated by |. The app uses /chat/completions for LLMs and /transcribe for STT on that base URL.",
+    apiKeyUrl: "https://docs.aleph-alpha.com/",
+    llm: {
+      support: "provider",
+      transport: "aleph-alpha",
+      defaultModel: "pharia-1-llm-7b-control-aligned",
+      models: catalogModelSpecs("aleph-alpha", "llm"),
+    },
+    stt: {
+      support: "provider",
+      transport: "aleph-alpha",
+      defaultModel: "whisperx-transcription-medium",
+      models: catalogModelSpecs("aleph-alpha", "stt"),
+      languageNote:
+        "Aleph Alpha STT is wired against the documented request-response /transcribe surface on a customer-provided PhariaInference endpoint. Catalog drift is expected because installed-model inventories are deployment-specific.",
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
     },
   },
   anthropic: {

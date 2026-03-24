@@ -9,6 +9,11 @@ export type MultipartTranscriptionConfig = {
   languageHint?: () => string | undefined;
 };
 
+export type AlephAlphaTranscriptionConfig = {
+  kind: "aleph-alpha";
+  defaultModel: string;
+};
+
 export type OpenAiAudioInputTranscriptionConfig = {
   kind: "openai-audio-input";
   endpoint: string;
@@ -108,6 +113,7 @@ const sttProviderConfigEntries: Array<
     | GeminiTranscriptionConfig
     | OpenAiAudioInputTranscriptionConfig
     | AzureOpenAiTranscriptionConfig
+    | AlephAlphaTranscriptionConfig
     | BaiduShortSpeechTranscriptionConfig
     | AssemblyAiPreRecordedTranscriptionConfig
     | DeepgramPreRecordedTranscriptionConfig
@@ -139,6 +145,19 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
         ...(manifest.stt.languageHintKey
           ? { languageHint: getLanguageHint(manifest.stt.languageHintKey) }
           : {}),
+      },
+    ]);
+  }
+
+  if (
+    manifest.stt.transport === "aleph-alpha" &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "aleph-alpha",
+        defaultModel: manifest.stt.defaultModel,
       },
     ]);
   }
@@ -348,6 +367,7 @@ export const STT_PROVIDER_CONFIGS: Partial<
     | GeminiTranscriptionConfig
     | OpenAiAudioInputTranscriptionConfig
     | AzureOpenAiTranscriptionConfig
+    | AlephAlphaTranscriptionConfig
     | BaiduShortSpeechTranscriptionConfig
     | AssemblyAiPreRecordedTranscriptionConfig
     | DeepgramPreRecordedTranscriptionConfig

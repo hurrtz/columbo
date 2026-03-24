@@ -20,6 +20,10 @@ type AzureOpenAiLlmConfig = {
   transport: "azure-openai";
 };
 
+type AlephAlphaLlmConfig = {
+  transport: "aleph-alpha";
+};
+
 type IbmWatsonxLlmConfig = {
   transport: "ibm-watsonx";
 };
@@ -31,13 +35,18 @@ type ReplicateLlmConfig = {
 type TransportOnlyLlmConfig = {
   transport: Exclude<
     RuntimeLlmTransport,
-    "openai-compatible" | "azure-openai" | "ibm-watsonx" | "replicate"
+    | "openai-compatible"
+    | "azure-openai"
+    | "aleph-alpha"
+    | "ibm-watsonx"
+    | "replicate"
   >;
 };
 
 export type ProviderLlmConfig =
   | OpenAiCompatibleLlmConfig
   | AzureOpenAiLlmConfig
+  | AlephAlphaLlmConfig
   | IbmWatsonxLlmConfig
   | ReplicateLlmConfig
   | TransportOnlyLlmConfig;
@@ -70,6 +79,14 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
         provider,
         {
           transport: "azure-openai",
+        },
+      ]);
+      break;
+    case "aleph-alpha":
+      llmProviderConfigEntries.push([
+        provider,
+        {
+          transport: "aleph-alpha",
         },
       ]);
       break;

@@ -7,6 +7,11 @@ export interface AzureOpenAiCredentials {
   apiKey: string;
 }
 
+export interface EndpointApiKeyCredentials {
+  endpoint: string;
+  apiKey: string;
+}
+
 export interface IbmWatsonxCredentials {
   watsonxUrl: string;
   watsonxApiKey: string;
@@ -101,6 +106,44 @@ export function parseAzureOpenAiCredentials(
   if (!endpoint || !apiKey) {
     throw new Error(
       translate(language, "azureCredentialFormatInvalid", {
+        provider: PROVIDER_LABELS[provider],
+      }),
+    );
+  }
+
+  return {
+    endpoint,
+    apiKey,
+  };
+}
+
+export function parseEndpointApiKeyCredentials(
+  provider: Provider,
+  rawValue: string | undefined,
+  language: AppLanguage,
+): EndpointApiKeyCredentials {
+  const value = rawValue?.trim();
+
+  if (!value) {
+    throw buildMissingProviderKeyError(provider, language);
+  }
+
+  const separatorIndex = value.indexOf("|");
+
+  if (separatorIndex <= 0 || separatorIndex === value.length - 1) {
+    throw new Error(
+      translate(language, "endpointCredentialFormatInvalid", {
+        provider: PROVIDER_LABELS[provider],
+      }),
+    );
+  }
+
+  const endpoint = normalizeEndpoint(value.slice(0, separatorIndex));
+  const apiKey = value.slice(separatorIndex + 1).trim();
+
+  if (!endpoint || !apiKey) {
+    throw new Error(
+      translate(language, "endpointCredentialFormatInvalid", {
         provider: PROVIDER_LABELS[provider],
       }),
     );

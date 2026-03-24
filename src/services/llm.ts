@@ -26,6 +26,10 @@ import {
 import { requestIbmWatsonxChat } from "./llm/providers/ibmWatsonx";
 import { requestReplicateChat } from "./llm/providers/replicate";
 import {
+  requestAlephAlphaChat,
+  requestAlephAlphaChatStream,
+} from "./llm/providers/alephAlpha";
+import {
   ChatMessage,
   LLM_PROVIDER_CONFIGS,
   ProviderLlmConfig,
@@ -109,6 +113,16 @@ const LLM_TEXT_REQUESTERS = {
       systemPrompt: params.systemPrompt,
       abortSignal: params.abortSignal,
     }),
+  "aleph-alpha": async (params: LlmRequestParams) =>
+    requestAlephAlphaChat({
+      provider: params.provider,
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      abortSignal: params.abortSignal,
+    }),
   "ibm-watsonx": async (params: LlmRequestParams) =>
     requestIbmWatsonxChat({
       provider: params.provider,
@@ -176,6 +190,17 @@ const LLM_STREAM_REQUESTERS = {
       onChunk: params.onChunk,
       abortSignal: params.abortSignal,
     }),
+  "aleph-alpha": async (params: StreamingLlmRequestParams) =>
+    requestAlephAlphaChatStream({
+      provider: params.provider,
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      onChunk: params.onChunk,
+      abortSignal: params.abortSignal,
+    }),
   anthropic: async (params: StreamingLlmRequestParams) =>
     requestAnthropicChatStream({
       model: params.model,
@@ -204,6 +229,8 @@ async function requestChatText(params: {
       return LLM_TEXT_REQUESTERS["openai-compatible"](params, config);
     case "azure-openai":
       return LLM_TEXT_REQUESTERS["azure-openai"](params);
+    case "aleph-alpha":
+      return LLM_TEXT_REQUESTERS["aleph-alpha"](params);
     case "ibm-watsonx":
       return LLM_TEXT_REQUESTERS["ibm-watsonx"](params);
     case "replicate":
@@ -347,6 +374,18 @@ export async function streamChat({
         break;
       case "azure-openai":
         fullText = await LLM_STREAM_REQUESTERS["azure-openai"]({
+          messages,
+          model,
+          provider,
+          apiKey,
+          language,
+          systemPrompt,
+          onChunk,
+          abortSignal,
+        });
+        break;
+      case "aleph-alpha":
+        fullText = await LLM_STREAM_REQUESTERS["aleph-alpha"]({
           messages,
           model,
           provider,

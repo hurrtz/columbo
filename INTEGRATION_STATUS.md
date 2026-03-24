@@ -11,11 +11,11 @@ Catalog updated: 2026-03-23
 ## Summary
 
 - Catalog providers: 40
-- Providers with any runtime integration: 37
+- Providers with any runtime integration: 38
 - Catalog models: 455
-- Integrated models: 397
-- LLM: 275/294 integrated
-- STT: 50/71 integrated
+- Integrated models: 401
+- LLM: 278/294 integrated
+- STT: 51/71 integrated
 - TTS: 72/90 integrated
 - Unresolved runtime manifest entries: 31
 
@@ -51,16 +51,16 @@ Catalog updated: 2026-03-23
 
 ## Aleph Alpha `aleph-alpha`
 
-- Runtime provider: catalog-only
-- Model integration: 0/4 integrated
+- Runtime provider: `aleph-alpha`
+- Model integration: 4/4 integrated
 - Verified support: LLM `native`, STT `partial`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `luminous-base` | Luminous base | Not integrated | — |
-| LLM | `pharia-1-llm-7b-control` | Pharia-1-LLM-7B-control | Not integrated | — |
-| LLM | `pharia-1-llm-7b-control-aligned` | Pharia-1-LLM-7B-control-aligned | Not integrated | — |
-| STT | `whisperx-transcription-medium` | WhisperX transcription medium | Not integrated | — |
+| LLM | `luminous-base` | Luminous base | Integrated | `luminous-base` |
+| LLM | `pharia-1-llm-7b-control` | Pharia-1-LLM-7B-control | Integrated | `pharia-1-llm-7b-control` |
+| LLM | `pharia-1-llm-7b-control-aligned` | Pharia-1-LLM-7B-control-aligned | Integrated | `pharia-1-llm-7b-control-aligned` |
+| STT | `whisperx-transcription-medium` | WhisperX transcription medium | Integrated | `whisperx-transcription-medium` |
 
 ## Alibaba / Qwen (DashScope) `alibaba-qwen-dashscope`
 
