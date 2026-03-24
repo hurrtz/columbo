@@ -13,10 +13,10 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 31
 - Catalog models: 455
-- Integrated models: 312
+- Integrated models: 316
 - LLM: 243/294 integrated
-- STT: 32/71 integrated
-- TTS: 37/90 integrated
+- STT: 33/71 integrated
+- TTS: 40/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -410,7 +410,7 @@ Catalog updated: 2026-03-23
 ## Hyperbolic `hyperbolic`
 
 - Runtime provider: `hyperbolic`
-- Model integration: 19/20 integrated
+- Model integration: 20/20 integrated
 - Verified support: LLM `native`, STT `unsupported`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -434,7 +434,7 @@ Catalog updated: 2026-03-23
 | LLM | `Qwen3-Coder-480B-A35B-Instruct` | Qwen3-Coder-480B-A35B-Instruct | Integrated | `Qwen3-Coder-480B-A35B-Instruct` |
 | LLM | `Qwen3-Next-80B-A3B-Instruct` | Qwen3-Next-80B-A3B-Instruct | Integrated | `Qwen3-Next-80B-A3B-Instruct` |
 | LLM | `Qwen3-Next-80B-A3B-Thinking` | Qwen3-Next-80B-A3B-Thinking | Integrated | `Qwen3-Next-80B-A3B-Thinking` |
-| TTS | `Melo TTS` | Melo TTS | Not integrated | — |
+| TTS | `Melo TTS` | Melo TTS | Integrated | `Melo TTS` |
 
 ## IBM Watsonx `ibm-watsonx`
 
@@ -577,7 +577,7 @@ Catalog updated: 2026-03-23
 ## Novita AI `novita-ai`
 
 - Runtime provider: `novita-ai`
-- Model integration: 4/13 integrated
+- Model integration: 6/13 integrated
 - Verified support: LLM `routed`, STT `routed`, TTS `routed`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -586,8 +586,8 @@ Catalog updated: 2026-03-23
 | LLM | `zai-org/glm-4.6v` | GLM 4.6V | Integrated | `zai-org/glm-4.6v` |
 | LLM | `qwen/qwen3-235b-a22b-fp8` | Qwen3 235B A22B | Integrated | `qwen/qwen3-235b-a22b-fp8` |
 | LLM | `qwen/qwen3-coder-30b-a3b-instruct` | Qwen3 Coder 30B A3B Instruct | Integrated | `qwen/qwen3-coder-30b-a3b-instruct` |
-| STT | `glm-asr` | GLM Audio to Text | Not integrated | — |
-| TTS | `glm-tts` | GLM Text to Speech | Not integrated | — |
+| STT | `glm-asr` | GLM Audio to Text | Integrated | `glm-asr` |
+| TTS | `glm-tts` | GLM Text to Speech | Integrated | `glm-tts` |
 | TTS | `txt2speech` | Legacy Text to Speech | Not integrated | — |
 | TTS | `minimax-voice-cloning` | MiniMax Quick Voice Cloning | Not integrated | — |
 | TTS | `minimax-speech-2.8-hd` | MiniMax Speech 2.8 HD | Not integrated | — |
@@ -706,7 +706,7 @@ Catalog updated: 2026-03-23
 ## Siliconflow `siliconflow`
 
 - Runtime provider: `siliconflow`
-- Model integration: 8/10 integrated
+- Model integration: 9/10 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -718,7 +718,7 @@ Catalog updated: 2026-03-23
 | LLM | `Qwen/Qwen3-Omni-30B-A3B-Instruct` | Qwen3-Omni-30B-A3B-Instruct | Integrated | `Qwen/Qwen3-Omni-30B-A3B-Instruct` |
 | STT | `FunAudioLLM/SenseVoiceSmall` | SenseVoiceSmall | Integrated | `FunAudioLLM/SenseVoiceSmall` |
 | STT | `TeleAI/TeleSpeechASR` | TeleSpeechASR | Integrated | `TeleAI/TeleSpeechASR` |
-| TTS | `FunAudioLLM/CosyVoice2-0.5B` | CosyVoice2-0.5B | Not integrated | — |
+| TTS | `FunAudioLLM/CosyVoice2-0.5B` | CosyVoice2-0.5B | Integrated | `FunAudioLLM/CosyVoice2-0.5B` |
 | TTS | `fishaudio/fish-speech-1.5` | Fish-Speech-1.5 | Integrated | `fishaudio/fish-speech-1.5` |
 | TTS | `IndexTeam/IndexTTS-2` | IndexTTS-2 | Not integrated | — |
 

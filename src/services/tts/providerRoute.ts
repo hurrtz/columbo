@@ -17,6 +17,7 @@ import {
   TTS_PROVIDER_CONFIGS,
   TtsRequestError,
   TtsTimeoutError,
+  writeBase64AudioFile,
   writeBlobAudioFile,
 } from "./shared";
 
@@ -97,6 +98,14 @@ function buildBinaryTtsRequestBody(params: {
         stream: false,
         sample_rate: 44100,
       };
+    case "novita-glm-speech":
+      return {
+        input: params.text,
+        voice: params.selectedVoice,
+        speed: 1,
+        volume: 1,
+        response_format: "wav",
+      };
     case "zai-speech":
       return {
         model: params.selectedModel,
@@ -117,7 +126,9 @@ function buildBinaryTtsRequestBody(params: {
 }
 
 function getBinaryTtsFileExtension(requestFormat: RuntimeTtsBinaryRequestFormat) {
-  return requestFormat === "groq-speech" || requestFormat === "zai-speech"
+  return requestFormat === "groq-speech" ||
+    requestFormat === "novita-glm-speech" ||
+    requestFormat === "zai-speech"
     ? "wav"
     : "mp3";
 }
@@ -309,6 +320,10 @@ function getZaiVoice(selectedVoice: string) {
   ].includes(selectedVoice)
     ? selectedVoice
     : "tongtong";
+}
+
+function getHyperbolicLanguage(selectedVoice: string) {
+  return selectedVoice.startsWith("EN-") ? "EN" : selectedVoice;
 }
 
 function getBinaryTtsVoice(params: {
@@ -551,6 +566,52 @@ export async function synthesizeProviderSpeech(params: {
     }
 
     return writeBlobAudioFile(await response.blob());
+  }
+
+  if (config.kind === "hyperbolic") {
+    const selectedLanguage = getHyperbolicLanguage(selectedVoice);
+    const response = await fetchWithTimeout(
+      config.endpoint,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+        },
+        body: JSON.stringify({
+          text,
+          language: selectedLanguage,
+          speaker: selectedVoice,
+          speed: 1,
+        }),
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw buildTtsRequestError({
+        provider,
+        status: response.status,
+        errorText,
+        language,
+      });
+    }
+
+    const data = await response.json();
+    const audioBase64 = typeof data?.audio === "string" ? data.audio : null;
+
+    if (!audioBase64) {
+      throw new Error(
+        translate(language, "ttsDidNotReturnAudio", {
+          provider: PROVIDER_LABELS[provider],
+        }),
+      );
+    }
+
+    return writeBase64AudioFile(audioBase64, "mp3");
   }
 
   if (config.kind === "elevenlabs") {

@@ -77,6 +77,13 @@ type DeepgramTtsConfig = {
   voiceFallback: string;
 };
 
+type HyperbolicTtsConfig = {
+  kind: "hyperbolic";
+  endpoint: string;
+  defaultModel: string;
+  voiceFallback: string;
+};
+
 type ElevenLabsTtsConfig = {
   kind: "elevenlabs";
   endpointBase: string;
@@ -89,6 +96,7 @@ export type ProviderTtsConfig =
   | GeminiTtsConfig
   | DashScopeTtsConfig
   | DeepgramTtsConfig
+  | HyperbolicTtsConfig
   | ElevenLabsTtsConfig;
 
 const ttsProviderConfigEntries: Array<[Provider, ProviderTtsConfig]> = [];
@@ -143,6 +151,23 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       {
         kind: "deepgram",
         endpointBase: manifest.tts.endpointBase,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
+    manifest.tts.transport === "hyperbolic" &&
+    manifest.tts.endpoint &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "hyperbolic",
+        endpoint: manifest.tts.endpoint,
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,
       },

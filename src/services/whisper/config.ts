@@ -32,6 +32,12 @@ export type FireworksPreRecordedTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type NovitaJsonTranscriptionConfig = {
+  kind: "novita-json";
+  endpoint: string;
+  defaultModel: string;
+};
+
 export type ElevenLabsTranscriptionConfig = {
   kind: "elevenlabs";
   endpoint: string;
@@ -66,6 +72,7 @@ const sttProviderConfigEntries: Array<
     | AssemblyAiPreRecordedTranscriptionConfig
     | DeepgramPreRecordedTranscriptionConfig
     | FireworksPreRecordedTranscriptionConfig
+    | NovitaJsonTranscriptionConfig
     | ElevenLabsTranscriptionConfig,
   ]
 > = [];
@@ -165,6 +172,21 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
   }
 
   if (
+    manifest.stt.transport === "novita-json" &&
+    manifest.stt.endpoint &&
+    manifest.stt.defaultModel
+  ) {
+    sttProviderConfigEntries.push([
+      provider,
+      {
+        kind: "novita-json",
+        endpoint: manifest.stt.endpoint,
+        defaultModel: manifest.stt.defaultModel,
+      },
+    ]);
+  }
+
+  if (
     manifest.stt.transport === "elevenlabs" &&
     manifest.stt.endpoint &&
     manifest.stt.defaultModel
@@ -189,6 +211,7 @@ export const STT_PROVIDER_CONFIGS: Partial<
     | AssemblyAiPreRecordedTranscriptionConfig
     | DeepgramPreRecordedTranscriptionConfig
     | FireworksPreRecordedTranscriptionConfig
+    | NovitaJsonTranscriptionConfig
     | ElevenLabsTranscriptionConfig
   >
 > = Object.fromEntries(sttProviderConfigEntries);

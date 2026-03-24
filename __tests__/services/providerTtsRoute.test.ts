@@ -200,6 +200,62 @@ describe("synthesizeProviderSpeech", () => {
     });
   });
 
+  it("supports the CosyVoice2 SiliconFlow model on the same speech route", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "siliconflow",
+      providerModel: "FunAudioLLM/CosyVoice2-0.5B",
+      apiKey: "siliconflow-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.siliconflow.com/v1/audio/speech");
+    expect(JSON.parse(options.body)).toEqual({
+      model: "FunAudioLLM/CosyVoice2-0.5B",
+      voice: "FunAudioLLM/CosyVoice2-0.5B:alex",
+      input: "Hello world",
+      response_format: "mp3",
+      stream: false,
+      sample_rate: 44100,
+    });
+  });
+
+  it("uses Hyperbolic Melo TTS and decodes the returned base64 audio", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          audio: "ZmFrZQ==",
+        }),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "EN-AU",
+      provider: "hyperbolic",
+      apiKey: "hyperbolic-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.hyperbolic.xyz/v1/audio/generation");
+    expect(JSON.parse(options.body)).toEqual({
+      text: "Hello world",
+      language: "EN",
+      speaker: "EN-AU",
+      speed: 1,
+    });
+  });
+
   it("uses StepFun TTS with the documented speech endpoint", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
@@ -248,6 +304,32 @@ describe("synthesizeProviderSpeech", () => {
       input: "Hello world",
       response_format: "wav",
       stream: false,
+    });
+  });
+
+  it("uses Novita GLM-TTS with the documented voice and wav output", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "novita-ai",
+      apiKey: "novita-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.wav$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.novita.ai/v3/glm-tts");
+    expect(JSON.parse(options.body)).toEqual({
+      input: "Hello world",
+      voice: "tongtong",
+      speed: 1,
+      volume: 1,
+      response_format: "wav",
     });
   });
 });

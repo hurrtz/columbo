@@ -15,6 +15,7 @@ import {
   transcribeWithFireworksPreRecordedProvider,
   transcribeWithGeminiProvider,
   transcribeWithMultipartProvider,
+  transcribeWithNovitaJsonProvider,
   transcribeWithOpenAiAudioInputProvider,
 } from "./whisper/providers";
 
@@ -165,6 +166,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "fireworks-pre-recorded") {
     return transcribeWithFireworksPreRecordedProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: selectedModel,
+    });
+  }
+
+  if (config.kind === "novita-json") {
+    return transcribeWithNovitaJsonProvider({
       abortSignal,
       apiKey,
       config,

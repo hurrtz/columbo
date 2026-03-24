@@ -47,6 +47,7 @@ export type RuntimeSttTransport =
   | "assemblyai-pre-recorded"
   | "deepgram-pre-recorded"
   | "fireworks-pre-recorded"
+  | "novita-json"
   | "elevenlabs";
 export type RuntimeTtsTransport =
   | "none"
@@ -54,6 +55,7 @@ export type RuntimeTtsTransport =
   | "gemini"
   | "dashscope"
   | "deepgram"
+  | "hyperbolic"
   | "elevenlabs";
 export type RuntimeTtsBinaryRequestFormat =
   | "openai-speech"
@@ -61,6 +63,7 @@ export type RuntimeTtsBinaryRequestFormat =
   | "xai-speech"
   | "groq-speech"
   | "siliconflow-speech"
+  | "novita-glm-speech"
   | "zai-speech";
 export type RuntimeLanguageHintKey = "mistral-stt-language-code";
 
@@ -971,10 +974,26 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: [],
     },
     tts: {
-      support: "none",
-      transport: "none",
-      models: [],
-      voiceOptions: [],
+      support: "provider",
+      transport: "hyperbolic",
+      endpoint: "https://api.hyperbolic.xyz/v1/audio/generation",
+      defaultModel: "Melo TTS",
+      defaultVoice: "EN-US",
+      voiceFallback: "EN-US",
+      models: [namedModel("Melo TTS", "Melo TTS")],
+      voiceOptions: [
+        voice("EN-US", "English · US"),
+        voice("EN-BR", "English · British"),
+        voice("EN-INDIA", "English · India"),
+        voice("EN-AU", "English · Australia"),
+        voice("ES", "Spanish"),
+        voice("FR", "French"),
+        voice("ZH", "Chinese"),
+        voice("JP", "Japanese"),
+        voice("KR", "Korean"),
+      ],
+      languageNote:
+        "Hyperbolic TTS currently exposes a single Melo TTS route on /v1/audio/generation with six language families and nine documented speaker variants.",
     },
   },
   mistral: {
@@ -1184,7 +1203,10 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "fishaudio/fish-speech-1.5",
       defaultVoice: "fishaudio/fish-speech-1.5:alex",
       voiceFallback: "fishaudio/fish-speech-1.5:alex",
-      models: [namedModel("fishaudio/fish-speech-1.5", "Fish-Speech-1.5")],
+      models: [
+        namedModel("fishaudio/fish-speech-1.5", "Fish-Speech-1.5"),
+        namedModel("FunAudioLLM/CosyVoice2-0.5B", "CosyVoice2-0.5B"),
+      ],
       voiceOptions: [
         voice("fishaudio/fish-speech-1.5:alex", "Alex"),
         voice("fishaudio/fish-speech-1.5:anna", "Anna"),
@@ -1196,7 +1218,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         voice("fishaudio/fish-speech-1.5:diana", "Diana"),
       ],
       languageNote:
-        "SiliconFlow TTS is dynamic overall, but Fish-Speech-1.5 has a clearly documented /v1/audio/speech contract with eight preset voices and broad multilingual coverage.",
+        "SiliconFlow TTS is dynamic overall, but Fish-Speech-1.5 and CosyVoice2-0.5B both have public /v1/audio/speech documentation. Fish-Speech is the better-documented default; CosyVoice2 is also exposed for multilingual and dialect-heavy synthesis.",
     },
   },
   stepfun: {
@@ -1388,15 +1410,34 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("novita-ai", "llm"),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "novita-json",
+      endpoint: "https://api.novita.ai/v3/glm-asr",
+      defaultModel: "glm-asr",
+      models: [namedModel("glm-asr", "GLM Audio to Text")],
+      languageNote:
+        "Novita GLM-ASR accepts wav/mp3 audio via URL or base64 on /v3/glm-asr, with a documented 25 MB and 30 second cap.",
     },
     tts: {
-      support: "none",
-      transport: "none",
-      models: [],
-      voiceOptions: [],
+      support: "provider",
+      transport: "binary",
+      endpoint: "https://api.novita.ai/v3/glm-tts",
+      requestFormat: "novita-glm-speech",
+      defaultModel: "glm-tts",
+      defaultVoice: "tongtong",
+      voiceFallback: "tongtong",
+      models: [namedModel("glm-tts", "GLM Text to Speech")],
+      voiceOptions: [
+        voice("tongtong", "彤彤"),
+        voice("chuichui", "锤锤"),
+        voice("xiaochen", "小陈"),
+        voice("jam", "jam"),
+        voice("kazi", "kazi"),
+        voice("douji", "douji"),
+        voice("luodo", "luodo"),
+      ],
+      languageNote:
+        "Novita GLM-TTS exposes fixed system voices on /v3/glm-tts with wav/pcm output and a 1024-character input cap.",
     },
   },
   "z-ai-zhipu-ai": {

@@ -324,6 +324,31 @@ describe("transcribeAudio", () => {
     expect((options.body as FormData).get("model")).toBe("Whisper-Large-v3");
   });
 
+  it("uses the Novita GLM-ASR JSON route with base64 audio input", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        text: "Hello from Novita",
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "novita-ai",
+      apiKey: "novita-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from Novita");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.novita.ai/v3/glm-asr");
+    expect(options.headers.Authorization).toBe("Bearer novita-test");
+    expect(JSON.parse(options.body)).toEqual({
+      file: "ZmFrZQ==",
+    });
+  });
+
   it("uses the ElevenLabs multipart transcription endpoint for scribe models", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

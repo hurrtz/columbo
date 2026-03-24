@@ -11,6 +11,7 @@ import type {
   ElevenLabsTranscriptionConfig,
   FireworksPreRecordedTranscriptionConfig,
   GeminiTranscriptionConfig,
+  NovitaJsonTranscriptionConfig,
   OpenAiAudioInputTranscriptionConfig,
   MultipartTranscriptionConfig,
 } from "./config";
@@ -310,6 +311,60 @@ export async function transcribeWithFireworksPreRecordedProvider(
           Authorization: requireProviderKey(provider, apiKey, language),
         },
         body: formData,
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const text = data.text?.trim();
+  return text ? text : null;
+}
+
+export async function transcribeWithNovitaJsonProvider(
+  params: SharedProviderParams & {
+    config: NovitaJsonTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider } = params;
+  const base64 = await FileSystem.readAsStringAsync(fileUri, {
+    encoding: "base64",
+  });
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      config.endpoint,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+        },
+        body: JSON.stringify({
+          file: base64,
+        }),
       },
       STT_TIMEOUT_MS,
       () => createSttTimeoutError({ provider, language }),

@@ -68,6 +68,9 @@ describe("speech provider constants", () => {
     expect(getProviderSttModelOptions("sambanova")).toEqual([
       { id: "Whisper-Large-v3", name: "Whisper Large v3" },
     ]);
+    expect(getProviderSttModelOptions("novita-ai")).toEqual([
+      { id: "glm-asr", name: "GLM Audio to Text" },
+    ]);
   });
 
   it("uses catalog labels for exact TTS model matches", () => {
@@ -110,11 +113,18 @@ describe("speech provider constants", () => {
     ]);
     expect(getProviderTtsModelOptions("siliconflow")).toEqual([
       { id: "fishaudio/fish-speech-1.5", name: "Fish-Speech-1.5" },
+      { id: "FunAudioLLM/CosyVoice2-0.5B", name: "CosyVoice2-0.5B" },
     ]);
     expect(getProviderTtsModelOptions("stepfun")).toEqual([
       { id: "step-tts-2", name: "Step TTS 2" },
       { id: "step-tts-mini", name: "Step TTS Mini" },
       { id: "step-tts-vivid", name: "Step TTS Vivid" },
+    ]);
+    expect(getProviderTtsModelOptions("hyperbolic")).toEqual([
+      { id: "Melo TTS", name: "Melo TTS" },
+    ]);
+    expect(getProviderTtsModelOptions("novita-ai")).toEqual([
+      { id: "glm-tts", name: "GLM Text to Speech" },
     ]);
     expect(getProviderTtsModelOptions("z-ai-zhipu-ai")).toEqual([
       { id: "glm-tts", name: "GLM-TTS" },
