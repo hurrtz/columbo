@@ -18,4 +18,8 @@ describe("provider metadata constants", () => {
       PROVIDER_MODELS.xai.find((model) => model.id === "grok-4")?.name,
     ).toBe("Grok 4");
   });
+
+  it("uses direct catalog labels for known models even outside the curated picker list", () => {
+    expect(getProviderModelName("xai", "grok-4.20")).toBe("Grok 4.20");
+  });
 });

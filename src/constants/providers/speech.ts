@@ -1,5 +1,5 @@
 import { getCatalogModelForAppProvider } from "../../catalog";
-import { AppLanguage, Provider } from "../../types";
+import type { AppLanguage, Provider } from "../../types";
 import type { ModelInfo, TtsVoiceOption } from "./types";
 
 function getCatalogSpeechModelLabel(
@@ -17,61 +17,104 @@ function withCatalogSpeechLabels(
 ) {
   return options.map((option) => ({
     ...option,
-    name: getCatalogSpeechModelLabel(provider, service, option.id) ?? option.name,
+      name: getCatalogSpeechModelLabel(provider, service, option.id) ?? option.name,
   }));
 }
 
-const PROVIDER_STT_MODEL_OPTIONS_FALLBACK: Partial<Record<Provider, ModelInfo[]>> = {
+interface RuntimeSpeechModelSpec {
+  id: string;
+  fallbackName?: string;
+  isDefault?: boolean;
+}
+
+function speechModel(
+  id: string,
+  fallbackName?: string,
+  isDefault = false,
+): RuntimeSpeechModelSpec {
+  return {
+    id,
+    ...(fallbackName ? { fallbackName } : {}),
+    ...(isDefault ? { isDefault: true } : {}),
+  };
+}
+
+function buildRuntimeSpeechModelOptions(
+  provider: Provider,
+  service: "stt" | "tts",
+  specs: RuntimeSpeechModelSpec[],
+): ModelInfo[] {
+  return withCatalogSpeechLabels(
+    provider,
+    service,
+    specs.map(({ id, fallbackName }) => ({
+      id,
+      name: fallbackName ?? id,
+    })),
+  );
+}
+
+function buildRuntimeSpeechDefaults(
+  specsByProvider: Partial<Record<Provider, RuntimeSpeechModelSpec[]>>,
+) {
+  return Object.fromEntries(
+    Object.entries(specsByProvider).flatMap(([provider, specs]) => {
+      const defaultSpec = specs?.find((spec) => spec.isDefault) ?? specs?.[0];
+
+      return defaultSpec ? [[provider, defaultSpec.id]] : [];
+    }),
+  ) as Partial<Record<Provider, string>>;
+}
+
+const PROVIDER_STT_MODEL_SPECS: Partial<Record<Provider, RuntimeSpeechModelSpec[]>> = {
   openai: [
-    { id: "gpt-4o-transcribe", name: "GPT-4o Transcribe" },
-    { id: "gpt-4o-mini-transcribe", name: "GPT-4o Mini Transcribe" },
-    { id: "whisper-1", name: "Whisper-1" },
+    speechModel("gpt-4o-transcribe", "GPT-4o Transcribe"),
+    speechModel(
+      "gpt-4o-mini-transcribe",
+      "GPT-4o Mini Transcribe",
+      true,
+    ),
+    speechModel("whisper-1", "Whisper-1"),
   ],
   gemini: [
-    { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro Preview" },
-    {
-      id: "gemini-3.1-flash-lite-preview",
-      name: "Gemini 3.1 Flash-Lite Preview",
-    },
-    { id: "gemini-3-flash-preview", name: "Gemini 3 Flash Preview" },
-    { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro" },
-    { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
-    { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash-Lite" },
-    { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash" },
-    { id: "gemini-2.0-flash-lite", name: "Gemini 2.0 Flash-Lite" },
+    speechModel("gemini-3.1-pro-preview", "Gemini 3.1 Pro Preview"),
+    speechModel(
+      "gemini-3.1-flash-lite-preview",
+      "Gemini 3.1 Flash-Lite Preview",
+    ),
+    speechModel("gemini-3-flash-preview", "Gemini 3 Flash Preview"),
+    speechModel("gemini-2.5-pro", "Gemini 2.5 Pro"),
+    speechModel("gemini-2.5-flash", "Gemini 2.5 Flash", true),
+    speechModel("gemini-2.5-flash-lite", "Gemini 2.5 Flash-Lite"),
+    speechModel("gemini-2.0-flash", "Gemini 2.0 Flash"),
+    speechModel("gemini-2.0-flash-lite", "Gemini 2.0 Flash-Lite"),
   ],
   groq: [
-    { id: "whisper-large-v3-turbo", name: "Whisper Large v3 Turbo" },
-    { id: "whisper-large-v3", name: "Whisper Large v3" },
+    speechModel(
+      "whisper-large-v3-turbo",
+      "Whisper Large v3 Turbo",
+      true,
+    ),
+    speechModel("whisper-large-v3", "Whisper Large v3"),
   ],
-  mistral: [{ id: "voxtral-mini-latest", name: "Voxtral Mini Latest" }],
+  mistral: [speechModel("voxtral-mini-latest", "Voxtral Mini Latest", true)],
   together: [
-    { id: "openai/whisper-large-v3", name: "Whisper Large v3" },
-    {
-      id: "mistralai/Voxtral-Mini-3B-2507",
-      name: "Voxtral Mini 3B",
-    },
+    speechModel("openai/whisper-large-v3", "Whisper Large v3", true),
+    speechModel("mistralai/Voxtral-Mini-3B-2507", "Voxtral Mini 3B"),
   ],
 };
 
-export const PROVIDER_STT_MODEL_OPTIONS: Partial<
-  Record<Provider, ModelInfo[]>
-> = Object.fromEntries(
-  Object.entries(PROVIDER_STT_MODEL_OPTIONS_FALLBACK).map(
-    ([provider, options]) => [
+export const PROVIDER_STT_MODEL_OPTIONS: Partial<Record<Provider, ModelInfo[]>> =
+  Object.fromEntries(
+    Object.entries(PROVIDER_STT_MODEL_SPECS).map(([provider, specs]) => [
       provider,
-      withCatalogSpeechLabels(provider as Provider, "stt", options),
-    ],
-  ),
-) as Partial<Record<Provider, ModelInfo[]>>;
+      buildRuntimeSpeechModelOptions(provider as Provider, "stt", specs),
+    ]),
+  ) as Partial<Record<Provider, ModelInfo[]>>;
 
-export const PROVIDER_DEFAULT_STT_MODELS: Partial<Record<Provider, string>> = {
-  openai: "gpt-4o-mini-transcribe",
-  gemini: "gemini-2.5-flash",
-  groq: "whisper-large-v3-turbo",
-  mistral: "voxtral-mini-latest",
-  together: "openai/whisper-large-v3",
-};
+export const PROVIDER_DEFAULT_STT_MODELS = buildRuntimeSpeechDefaults(
+  PROVIDER_STT_MODEL_SPECS,
+);
 
 export function getProviderSttModelOptions(provider: Provider) {
   return PROVIDER_STT_MODEL_OPTIONS[provider] ?? [];
@@ -174,42 +217,38 @@ export const PROVIDER_DEFAULT_TTS_VOICES: Partial<Record<Provider, string>> = {
   xai: "ara",
 };
 
-const PROVIDER_TTS_MODEL_OPTIONS_FALLBACK: Partial<Record<Provider, ModelInfo[]>> = {
+const PROVIDER_TTS_MODEL_SPECS: Partial<Record<Provider, RuntimeSpeechModelSpec[]>> = {
   openai: [
-    { id: "gpt-4o-mini-tts", name: "GPT-4o Mini TTS" },
-    { id: "tts-1", name: "tts-1" },
-    { id: "tts-1-hd", name: "tts-1-hd" },
+    speechModel("gpt-4o-mini-tts", "GPT-4o Mini TTS", true),
+    speechModel("tts-1", "tts-1"),
+    speechModel("tts-1-hd", "tts-1-hd"),
   ],
   gemini: [
-    {
-      id: "gemini-2.5-flash-preview-tts",
-      name: "Gemini 2.5 Flash Preview TTS",
-    },
-    {
-      id: "gemini-2.5-pro-preview-tts",
-      name: "Gemini 2.5 Pro Preview TTS",
-    },
+    speechModel(
+      "gemini-2.5-flash-preview-tts",
+      "Gemini 2.5 Flash Preview TTS",
+      true,
+    ),
+    speechModel(
+      "gemini-2.5-pro-preview-tts",
+      "Gemini 2.5 Pro Preview TTS",
+    ),
   ],
-  together: [{ id: "hexgrad/Kokoro-82M", name: "Kokoro 82M" }],
+  together: [speechModel("hexgrad/Kokoro-82M", "Kokoro 82M", true)],
+  xai: [speechModel("grok-tts-mini", "Grok TTS Mini", true)],
 };
 
-export const PROVIDER_TTS_MODEL_OPTIONS: Partial<
-  Record<Provider, ModelInfo[]>
-> = Object.fromEntries(
-  Object.entries(PROVIDER_TTS_MODEL_OPTIONS_FALLBACK).map(
-    ([provider, options]) => [
+export const PROVIDER_TTS_MODEL_OPTIONS: Partial<Record<Provider, ModelInfo[]>> =
+  Object.fromEntries(
+    Object.entries(PROVIDER_TTS_MODEL_SPECS).map(([provider, specs]) => [
       provider,
-      withCatalogSpeechLabels(provider as Provider, "tts", options),
-    ],
-  ),
-) as Partial<Record<Provider, ModelInfo[]>>;
+      buildRuntimeSpeechModelOptions(provider as Provider, "tts", specs),
+    ]),
+  ) as Partial<Record<Provider, ModelInfo[]>>;
 
-export const PROVIDER_DEFAULT_TTS_MODELS: Partial<Record<Provider, string>> = {
-  openai: "gpt-4o-mini-tts",
-  gemini: "gemini-2.5-flash-preview-tts",
-  together: "hexgrad/Kokoro-82M",
-  xai: "grok-tts-mini",
-};
+export const PROVIDER_DEFAULT_TTS_MODELS = buildRuntimeSpeechDefaults(
+  PROVIDER_TTS_MODEL_SPECS,
+);
 
 function localizeVoiceOptions(
   options: TtsVoiceOption[],

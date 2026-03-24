@@ -1,4 +1,4 @@
-import { AppLanguage, Provider } from "../../types";
+import type { AppLanguage, Provider } from "../../types";
 import {
   getCatalogConstraintsForAppProvider,
   getCatalogModelForAppProvider,

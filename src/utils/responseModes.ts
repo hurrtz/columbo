@@ -1,4 +1,4 @@
-import { PROVIDER_MODELS } from "../constants/models";
+import { PROVIDER_DEFAULT_MODELS, PROVIDER_MODELS } from "../constants/models";
 import {
   Provider,
   ResponseMode,
@@ -35,6 +35,12 @@ export function isValidModelForProvider(
 }
 
 export function getDefaultModelForProvider(provider: Provider): string {
+  const curatedDefault = PROVIDER_DEFAULT_MODELS[provider];
+
+  if (isValidModelForProvider(provider, curatedDefault)) {
+    return curatedDefault;
+  }
+
   return PROVIDER_MODELS[provider][0]?.id ?? "";
 }
 

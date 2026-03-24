@@ -1,9 +1,10 @@
 import {
   APP_PROVIDER_CATALOG_IDS,
+  getCatalogModelForAppProvider,
   getCatalogProviderForAppProvider,
   getCatalogVerifiedServiceStateForAppProvider,
 } from "../../catalog";
-import { Provider } from "../../types";
+import type { Provider } from "../../types";
 import type { ModelInfo } from "./types";
 import { PROVIDER_CONFIGS, PROVIDER_ORDER } from "./catalogData";
 
@@ -20,6 +21,12 @@ export const PROVIDER_MODELS: Record<Provider, ModelInfo[]> = Object.fromEntries
 ) as Record<Provider, ModelInfo[]>;
 
 export function getProviderModelName(provider: Provider, modelId: string) {
+  const catalogMatch = getCatalogModelForAppProvider(provider, modelId, "llm");
+
+  if (catalogMatch) {
+    return catalogMatch.publicName;
+  }
+
   const match = PROVIDER_MODELS[provider].find((model) => model.id === modelId);
   return match?.name ?? modelId;
 }

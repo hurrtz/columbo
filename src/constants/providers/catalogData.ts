@@ -1,5 +1,5 @@
 import { getCatalogModelForAppProvider } from "../../catalog";
-import { Provider } from "../../types";
+import type { Provider } from "../../types";
 import type { ModelInfo, ProviderConfig } from "./types";
 
 export const NATIVE_STT_LANGUAGE_NOTE =
@@ -24,203 +24,192 @@ export const PROVIDER_ORDER: Provider[] = [
   "nvidia",
 ];
 
-function withCatalogLlmLabels(
+interface RuntimeLlmModelSpec {
+  id: string;
+  fallbackName?: string;
+  releaseDate?: string;
+}
+
+function model(id: string, releaseDate?: string): RuntimeLlmModelSpec {
+  return releaseDate ? { id, releaseDate } : { id };
+}
+
+function namedModel(
+  id: string,
+  fallbackName: string,
+  releaseDate?: string,
+): RuntimeLlmModelSpec {
+  return releaseDate ? { id, fallbackName, releaseDate } : { id, fallbackName };
+}
+
+function buildRuntimeLlmModels(
   provider: Provider,
-  models: ModelInfo[],
+  specs: RuntimeLlmModelSpec[],
 ): ModelInfo[] {
-  return models.map((model) => ({
-    ...model,
+  return specs.map(({ id, fallbackName, releaseDate }) => ({
+    id,
     name:
-      getCatalogModelForAppProvider(provider, model.id, "llm")?.publicName ??
-      model.name,
+      getCatalogModelForAppProvider(provider, id, "llm")?.publicName ??
+      fallbackName ??
+      id,
+    ...(releaseDate ? { releaseDate } : {}),
   }));
 }
 
-const OPENAI_MODELS: ModelInfo[] = withCatalogLlmLabels("openai", [
-  { id: "gpt-5.4", name: "GPT-5.4", releaseDate: "2026-03-01" },
-  { id: "gpt-5.4-mini", name: "GPT-5.4 Mini" },
-  { id: "gpt-5.4-nano", name: "GPT-5.4 Nano" },
-  { id: "gpt-5.4-pro", name: "GPT-5.4 Pro" },
-  { id: "gpt-5.2", name: "GPT-5.2" },
-  { id: "gpt-5.1", name: "GPT-5.1" },
-  { id: "gpt-5", name: "GPT-5" },
-  { id: "gpt-5-mini", name: "GPT-5 Mini", releaseDate: "2025-08-07" },
-  { id: "gpt-5-nano", name: "GPT-5 Nano" },
-  { id: "o3", name: "o3", releaseDate: "2025-04-16" },
-  { id: "o3-pro", name: "o3 Pro" },
-  { id: "o4-mini", name: "o4 Mini", releaseDate: "2025-04-16" },
-  { id: "o3-mini", name: "o3 Mini" },
-  { id: "o1", name: "o1" },
-  { id: "o1-mini", name: "o1 Mini (Deprecated)" },
-  { id: "o1-preview", name: "o1 Preview (Deprecated)" },
-  { id: "gpt-4.5-preview", name: "GPT-4.5 Preview (Deprecated)" },
-  { id: "gpt-4.1", name: "GPT-4.1", releaseDate: "2025-04-14" },
-  { id: "gpt-4.1-mini", name: "GPT-4.1 Mini", releaseDate: "2025-04-14" },
-  { id: "gpt-4.1-nano", name: "GPT-4.1 Nano", releaseDate: "2025-04-14" },
-  { id: "gpt-4o", name: "GPT-4o" },
-  { id: "gpt-4o-mini", name: "GPT-4o Mini" },
-  { id: "gpt-4-turbo", name: "GPT-4 Turbo" },
-  { id: "gpt-4", name: "GPT-4" },
-  { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
-]);
+// Curated allowlist for the LLM models the current app transport can route.
+const SUPPORTED_LLM_MODEL_SPECS: Record<Provider, RuntimeLlmModelSpec[]> = {
+  openai: [
+    model("gpt-5.4", "2026-03-01"),
+    model("gpt-5.4-mini"),
+    model("gpt-5.4-nano"),
+    namedModel("gpt-5.4-pro", "GPT-5.4 Pro"),
+    namedModel("gpt-5.2", "GPT-5.2"),
+    namedModel("gpt-5.1", "GPT-5.1"),
+    namedModel("gpt-5", "GPT-5"),
+    namedModel("gpt-5-mini", "GPT-5 Mini", "2025-08-07"),
+    namedModel("gpt-5-nano", "GPT-5 Nano"),
+    model("o3", "2025-04-16"),
+    namedModel("o3-pro", "o3 Pro"),
+    model("o4-mini", "2025-04-16"),
+    namedModel("o3-mini", "o3 Mini"),
+    namedModel("o1", "o1"),
+    namedModel("o1-mini", "o1 Mini (Deprecated)"),
+    namedModel("o1-preview", "o1 Preview (Deprecated)"),
+    namedModel("gpt-4.5-preview", "GPT-4.5 Preview (Deprecated)"),
+    model("gpt-4.1", "2025-04-14"),
+    model("gpt-4.1-mini", "2025-04-14"),
+    model("gpt-4.1-nano", "2025-04-14"),
+    namedModel("gpt-4o", "GPT-4o"),
+    namedModel("gpt-4o-mini", "GPT-4o Mini"),
+    namedModel("gpt-4-turbo", "GPT-4 Turbo"),
+    namedModel("gpt-4", "GPT-4"),
+    namedModel("gpt-3.5-turbo", "GPT-3.5 Turbo"),
+  ],
+  anthropic: [
+    namedModel("claude-opus-4-6", "Claude Opus 4.6"),
+    namedModel("claude-sonnet-4-6", "Claude Sonnet 4.6"),
+    namedModel("claude-haiku-4-5-20251001", "Claude Haiku 4.5", "2025-10-01"),
+    namedModel("claude-opus-4-5-20251101", "Claude Opus 4.5", "2025-11-01"),
+    namedModel(
+      "claude-sonnet-4-5-20250929",
+      "Claude Sonnet 4.5",
+      "2025-09-29",
+    ),
+    namedModel("claude-opus-4-1-20250805", "Claude Opus 4.1", "2025-08-05"),
+    namedModel("claude-opus-4-20250522", "Claude Opus 4", "2025-05-22"),
+    namedModel(
+      "claude-sonnet-4-20250514",
+      "Claude Sonnet 4",
+      "2025-05-14",
+    ),
+    namedModel("claude-3-haiku-20240307", "Claude 3 Haiku", "2024-03-07"),
+  ],
+  gemini: [
+    model("gemini-3.1-pro-preview"),
+    model("gemini-3.1-flash-lite-preview"),
+    namedModel("gemini-3-flash-preview", "Gemini 3 Flash Preview"),
+    model("gemini-2.5-pro"),
+    model("gemini-2.5-flash"),
+    namedModel("gemini-2.5-flash-lite", "Gemini 2.5 Flash-Lite"),
+    model("gemini-2.0-flash"),
+    model("gemini-2.0-flash-lite"),
+  ],
+  xai: [
+    namedModel("grok-4", "Grok 4"),
+    namedModel("grok-4-1-fast-reasoning", "Grok 4.1 Fast Reasoning"),
+    namedModel(
+      "grok-4-1-fast-non-reasoning",
+      "Grok 4.1 Fast Non-Reasoning",
+    ),
+    model("grok-code-fast-1"),
+    namedModel("grok-3", "Grok 3"),
+    namedModel("grok-3-fast", "Grok 3 Fast"),
+    namedModel("grok-3-mini", "Grok 3 Mini"),
+  ],
+  groq: [
+    model("groq/compound"),
+    model("groq/compound-mini"),
+    namedModel(
+      "meta-llama/llama-4-maverick-17b-128e-instruct",
+      "Llama 4 Maverick",
+    ),
+    namedModel(
+      "meta-llama/llama-4-scout-17b-16e-instruct",
+      "Llama 4 Scout",
+    ),
+    namedModel("llama-3.3-70b-versatile", "Llama 3.3 70B Versatile"),
+    namedModel("llama-3.1-8b-instant", "Llama 3.1 8B Instant"),
+    namedModel("openai/gpt-oss-120b", "GPT-OSS 120B"),
+    namedModel("openai/gpt-oss-20b", "GPT-OSS 20B"),
+    namedModel("moonshotai/kimi-k2-instruct-0905", "Kimi K2 Instruct"),
+    namedModel("qwen/qwen3-32b", "Qwen3 32B"),
+  ],
+  deepseek: [model("deepseek-chat"), model("deepseek-reasoner")],
+  mistral: [
+    namedModel("mistral-large-latest", "Mistral Large 3"),
+    namedModel("mistral-medium-latest", "Mistral Medium 3"),
+    namedModel("magistral-medium-latest", "Magistral Medium"),
+    namedModel("magistral-small-latest", "Magistral Small"),
+    namedModel("mistral-small-latest", "Mistral Small 3.1"),
+    namedModel("ministral-8b-latest", "Ministral 8B"),
+    namedModel("open-mistral-nemo", "Mistral Nemo"),
+    namedModel("codestral-latest", "Codestral 2"),
+  ],
+  cohere: [
+    namedModel("command-a-03-2025", "Command A"),
+    namedModel("command-a-reasoning-08-2025", "Command A Reasoning"),
+    namedModel("command-a-vision-07-2025", "Command A Vision"),
+    namedModel("command-r7b-12-2024", "Command R7B"),
+    namedModel("command-r-plus-08-2024", "Command R+"),
+    namedModel("command-r-08-2024", "Command R"),
+  ],
+  together: [
+    namedModel("MiniMaxAI/MiniMax-M2.5", "MiniMax M2.5"),
+    namedModel("Qwen/Qwen3.5-397B-A17B", "Qwen3.5 397B A17B"),
+    namedModel("Qwen/Qwen3-235B-A22B-FP8", "Qwen3 235B"),
+    namedModel("Qwen/Qwen3.5-9B", "Qwen3.5 9B"),
+    namedModel("openai/gpt-oss-20b", "GPT-OSS 20B"),
+    namedModel("openai/gpt-oss-120b", "GPT-OSS 120B"),
+    namedModel("moonshotai/Kimi-K2.5", "Kimi K2.5"),
+    namedModel("deepseek-ai/DeepSeek-V3.1", "DeepSeek V3.1"),
+    namedModel("deepseek-ai/DeepSeek-R1", "DeepSeek R1"),
+    namedModel(
+      "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "Llama 3.3 70B Turbo",
+    ),
+    namedModel(
+      "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+      "Llama 3.1 8B Turbo",
+    ),
+    namedModel(
+      "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "Llama 4 Maverick",
+    ),
+    namedModel("Qwen/Qwen3-Next-80B-A3B-Instruct", "Qwen3 Next 80B"),
+    namedModel("Qwen/Qwen3-Coder-Next-FP8", "Qwen3 Coder Next"),
+  ],
+  nvidia: [
+    namedModel(
+      "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+      "Llama 3.3 Nemotron Super 49B",
+    ),
+    namedModel(
+      "nvidia/llama-3.1-nemotron-ultra-253b-v1",
+      "Llama 3.1 Nemotron Ultra 253B",
+    ),
+    namedModel(
+      "nvidia/llama-3.1-nemotron-nano-8b-v1",
+      "Llama 3.1 Nemotron Nano 8B",
+    ),
+  ],
+};
 
-const ANTHROPIC_MODELS: ModelInfo[] = withCatalogLlmLabels("anthropic", [
-  { id: "claude-opus-4-6", name: "Claude Opus 4.6" },
-  { id: "claude-sonnet-4-6", name: "Claude Sonnet 4.6" },
-  {
-    id: "claude-haiku-4-5-20251001",
-    name: "Claude Haiku 4.5",
-    releaseDate: "2025-10-01",
-  },
-  {
-    id: "claude-opus-4-5-20251101",
-    name: "Claude Opus 4.5",
-    releaseDate: "2025-11-01",
-  },
-  {
-    id: "claude-sonnet-4-5-20250929",
-    name: "Claude Sonnet 4.5",
-    releaseDate: "2025-09-29",
-  },
-  {
-    id: "claude-opus-4-1-20250805",
-    name: "Claude Opus 4.1",
-    releaseDate: "2025-08-05",
-  },
-  {
-    id: "claude-opus-4-20250522",
-    name: "Claude Opus 4",
-    releaseDate: "2025-05-22",
-  },
-  {
-    id: "claude-sonnet-4-20250514",
-    name: "Claude Sonnet 4",
-    releaseDate: "2025-05-14",
-  },
-  {
-    id: "claude-3-haiku-20240307",
-    name: "Claude 3 Haiku",
-    releaseDate: "2024-03-07",
-  },
-]);
-
-const GOOGLE_MODELS: ModelInfo[] = withCatalogLlmLabels("gemini", [
-  { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro Preview" },
-  {
-    id: "gemini-3.1-flash-lite-preview",
-    name: "Gemini 3.1 Flash-Lite Preview",
-  },
-  { id: "gemini-3-flash-preview", name: "Gemini 3 Flash Preview" },
-  { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro" },
-  { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
-  { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash-Lite" },
-  { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash" },
-  { id: "gemini-2.0-flash-lite", name: "Gemini 2.0 Flash-Lite" },
-]);
-
-const XAI_MODELS: ModelInfo[] = withCatalogLlmLabels("xai", [
-  { id: "grok-4", name: "Grok 4" },
-  { id: "grok-4-1-fast-reasoning", name: "Grok 4.1 Fast Reasoning" },
-  {
-    id: "grok-4-1-fast-non-reasoning",
-    name: "Grok 4.1 Fast Non-Reasoning",
-  },
-  { id: "grok-code-fast-1", name: "Grok Code Fast 1" },
-  { id: "grok-3", name: "Grok 3" },
-  { id: "grok-3-fast", name: "Grok 3 Fast" },
-  { id: "grok-3-mini", name: "Grok 3 Mini" },
-]);
-
-const GROQ_MODELS: ModelInfo[] = withCatalogLlmLabels("groq", [
-  { id: "groq/compound", name: "Compound" },
-  { id: "groq/compound-mini", name: "Compound Mini" },
-  {
-    id: "meta-llama/llama-4-maverick-17b-128e-instruct",
-    name: "Llama 4 Maverick",
-  },
-  {
-    id: "meta-llama/llama-4-scout-17b-16e-instruct",
-    name: "Llama 4 Scout",
-  },
-  { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B Versatile" },
-  { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B Instant" },
-  { id: "openai/gpt-oss-120b", name: "GPT-OSS 120B" },
-  { id: "openai/gpt-oss-20b", name: "GPT-OSS 20B" },
-  { id: "moonshotai/kimi-k2-instruct-0905", name: "Kimi K2 Instruct" },
-  { id: "qwen/qwen3-32b", name: "Qwen3 32B" },
-]);
-
-const DEEPSEEK_MODELS: ModelInfo[] = withCatalogLlmLabels("deepseek", [
-  { id: "deepseek-chat", name: "DeepSeek Chat" },
-  { id: "deepseek-reasoner", name: "DeepSeek Reasoner" },
-]);
-
-const MISTRAL_MODELS: ModelInfo[] = withCatalogLlmLabels("mistral", [
-  { id: "mistral-large-latest", name: "Mistral Large 3" },
-  { id: "mistral-medium-latest", name: "Mistral Medium 3" },
-  { id: "magistral-medium-latest", name: "Magistral Medium" },
-  { id: "magistral-small-latest", name: "Magistral Small" },
-  { id: "mistral-small-latest", name: "Mistral Small 3.1" },
-  { id: "ministral-8b-latest", name: "Ministral 8B" },
-  { id: "open-mistral-nemo", name: "Mistral Nemo" },
-  { id: "codestral-latest", name: "Codestral 2" },
-]);
-
-const COHERE_MODELS: ModelInfo[] = withCatalogLlmLabels("cohere", [
-  { id: "command-a-03-2025", name: "Command A" },
-  { id: "command-a-reasoning-08-2025", name: "Command A Reasoning" },
-  { id: "command-a-vision-07-2025", name: "Command A Vision" },
-  { id: "command-r7b-12-2024", name: "Command R7B" },
-  { id: "command-r-plus-08-2024", name: "Command R+" },
-  { id: "command-r-08-2024", name: "Command R" },
-]);
-
-const TOGETHER_MODELS: ModelInfo[] = withCatalogLlmLabels("together", [
-  { id: "MiniMaxAI/MiniMax-M2.5", name: "MiniMax M2.5" },
-  { id: "Qwen/Qwen3.5-397B-A17B", name: "Qwen3.5 397B A17B" },
-  { id: "Qwen/Qwen3-235B-A22B-FP8", name: "Qwen3 235B" },
-  { id: "Qwen/Qwen3.5-9B", name: "Qwen3.5 9B" },
-  { id: "openai/gpt-oss-20b", name: "GPT-OSS 20B" },
-  { id: "openai/gpt-oss-120b", name: "GPT-OSS 120B" },
-  { id: "moonshotai/Kimi-K2.5", name: "Kimi K2.5" },
-  { id: "deepseek-ai/DeepSeek-V3.1", name: "DeepSeek V3.1" },
-  { id: "deepseek-ai/DeepSeek-R1", name: "DeepSeek R1" },
-  {
-    id: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
-    name: "Llama 3.3 70B Turbo",
-  },
-  {
-    id: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
-    name: "Llama 3.1 8B Turbo",
-  },
-  {
-    id: "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
-    name: "Llama 4 Maverick",
-  },
-  {
-    id: "Qwen/Qwen3-Next-80B-A3B-Instruct",
-    name: "Qwen3 Next 80B",
-  },
-  {
-    id: "Qwen/Qwen3-Coder-Next-FP8",
-    name: "Qwen3 Coder Next",
-  },
-]);
-
-const NVIDIA_MODELS: ModelInfo[] = withCatalogLlmLabels("nvidia", [
-  {
-    id: "nvidia/llama-3.3-nemotron-super-49b-v1.5",
-    name: "Llama 3.3 Nemotron Super 49B",
-  },
-  {
-    id: "nvidia/llama-3.1-nemotron-ultra-253b-v1",
-    name: "Llama 3.1 Nemotron Ultra 253B",
-  },
-  {
-    id: "nvidia/llama-3.1-nemotron-nano-8b-v1",
-    name: "Llama 3.1 Nemotron Nano 8B",
-  },
-]);
+const PROVIDER_LLM_MODELS: Record<Provider, ModelInfo[]> = Object.fromEntries(
+  PROVIDER_ORDER.map((provider) => [
+    provider,
+    buildRuntimeLlmModels(provider, SUPPORTED_LLM_MODEL_SPECS[provider]),
+  ]),
+) as Record<Provider, ModelInfo[]>;
 
 export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
   openai: {
@@ -235,7 +224,7 @@ export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
     sttLanguageNote: `OpenAI currently exposes gpt-4o-transcribe, gpt-4o-mini-transcribe, and whisper-1 for speech-to-text. OpenAI's published well-supported language set is: ${WHISPER_WELL_SUPPORTED_LANGUAGES}`,
     ttsLanguageNote:
       "OpenAI currently exposes gpt-4o-mini-tts, tts-1, and tts-1-hd. OpenAI does not publish a compact well-supported language list for TTS in the same way it does for STT, and notes that the voices are optimized for English.",
-    models: OPENAI_MODELS,
+    models: PROVIDER_LLM_MODELS.openai,
   },
   anthropic: {
     label: "Anthropic",
@@ -245,7 +234,7 @@ export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
     apiKeyUrl: "https://platform.claude.com/settings/keys",
     sttSupport: "none",
     ttsSupport: "none",
-    models: ANTHROPIC_MODELS,
+    models: PROVIDER_LLM_MODELS.anthropic,
   },
   gemini: {
     label: "Google",
@@ -260,7 +249,7 @@ export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
       "Gemini audio understanding is multilingual, but Google does not publish a compact supported-language table for this transcription path. It is a broad general-purpose transcription route rather than a dedicated telephony STT API.",
     ttsLanguageNote:
       "Gemini TTS currently supports Arabic, Bengali, Dutch, English, French, German, Hindi, Indonesian, Italian, Japanese, Korean, Mandarin Chinese, Polish, Portuguese, Romanian, Russian, Spanish, Tamil, Telugu, Thai, Turkish, Ukrainian, Urdu, and Vietnamese.",
-    models: GOOGLE_MODELS,
+    models: PROVIDER_LLM_MODELS.gemini,
   },
   xai: {
     label: "xAI",
@@ -272,7 +261,7 @@ export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
     ttsSupport: "provider",
     ttsLanguageNote:
       "xAI TTS currently supports Arabic, Dutch, English, French, German, Hindi, Indonesian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Spanish, Thai, Turkish, Vietnamese, and Chinese.",
-    models: XAI_MODELS,
+    models: PROVIDER_LLM_MODELS.xai,
   },
   groq: {
     label: "Groq",
@@ -284,7 +273,7 @@ export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
     sttSupport: "provider",
     ttsSupport: "none",
     sttLanguageNote: `The app uses whisper-large-v3-turbo here. Groq documents it as multilingual. For the Whisper family, a published well-supported language set is: ${WHISPER_WELL_SUPPORTED_LANGUAGES} If multilingual accuracy matters more than speed, Groq recommends whisper-large-v3 over the turbo variant.`,
-    models: GROQ_MODELS,
+    models: PROVIDER_LLM_MODELS.groq,
   },
   deepseek: {
     label: "DeepSeek",
@@ -294,7 +283,7 @@ export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
     apiKeyUrl: "https://platform.deepseek.com/api_keys",
     sttSupport: "none",
     ttsSupport: "none",
-    models: DEEPSEEK_MODELS,
+    models: PROVIDER_LLM_MODELS.deepseek,
   },
   mistral: {
     label: "Mistral",
@@ -306,7 +295,7 @@ export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
     ttsSupport: "none",
     sttLanguageNote:
       "The current Voxtral transcription route is documented for English, Spanish, French, Portuguese, Hindi, German, Dutch, and Italian.",
-    models: MISTRAL_MODELS,
+    models: PROVIDER_LLM_MODELS.mistral,
   },
   cohere: {
     label: "Cohere",
@@ -316,7 +305,7 @@ export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
     apiKeyUrl: "https://dashboard.cohere.com/api-keys",
     sttSupport: "none",
     ttsSupport: "none",
-    models: COHERE_MODELS,
+    models: PROVIDER_LLM_MODELS.cohere,
   },
   together: {
     label: "Together",
@@ -329,7 +318,7 @@ export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
     sttLanguageNote: `The current integration uses openai/whisper-large-v3. It is multilingual and accepts ISO 639-1 language hints. A published well-supported language set for Whisper is: ${WHISPER_WELL_SUPPORTED_LANGUAGES}`,
     ttsLanguageNote:
       "The current Together TTS route is configured for English, Spanish, French, German, Italian, Portuguese, Hindi, Japanese, Korean, and Chinese. Voice availability is model-specific.",
-    models: TOGETHER_MODELS,
+    models: PROVIDER_LLM_MODELS.together,
   },
   nvidia: {
     label: "NVIDIA",
@@ -339,6 +328,6 @@ export const PROVIDER_CONFIGS: Record<Provider, ProviderConfig> = {
     apiKeyUrl: "https://build.nvidia.com/settings/api-keys",
     sttSupport: "none",
     ttsSupport: "none",
-    models: NVIDIA_MODELS,
+    models: PROVIDER_LLM_MODELS.nvidia,
   },
 };

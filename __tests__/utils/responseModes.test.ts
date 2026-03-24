@@ -1,5 +1,6 @@
 import {
   getAvailableResponseModes,
+  getDefaultModelForProvider,
   getProviderValidationModel,
 } from "../../src/utils/responseModes";
 import { DEFAULT_SETTINGS } from "../../src/types";
@@ -42,5 +43,9 @@ describe("response mode selectors", () => {
     expect(getProviderValidationModel(settings, "openai")).toBe(
       "gpt-5-mini",
     );
+  });
+
+  it("uses the curated provider default instead of the first picker entry", () => {
+    expect(getDefaultModelForProvider("anthropic")).toBe("claude-sonnet-4-6");
   });
 });

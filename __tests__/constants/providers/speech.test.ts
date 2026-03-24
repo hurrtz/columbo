@@ -1,4 +1,5 @@
 import {
+  PROVIDER_DEFAULT_TTS_MODELS,
   getProviderSttModelOptions,
   getProviderTtsModelOptions,
   getSttModelLabel,
@@ -38,5 +39,12 @@ describe("speech provider constants", () => {
     expect(getTtsModelLabel("gemini", "gemini-2.5-flash-preview-tts")).toBe(
       "Gemini 2.5 Flash Preview TTS",
     );
+  });
+
+  it("keeps xAI TTS coherent even without an exact catalog model id", () => {
+    expect(getProviderTtsModelOptions("xai")).toEqual([
+      { id: "grok-tts-mini", name: "Grok TTS Mini" },
+    ]);
+    expect(PROVIDER_DEFAULT_TTS_MODELS.xai).toBe("grok-tts-mini");
   });
 });
