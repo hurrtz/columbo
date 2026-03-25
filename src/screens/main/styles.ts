@@ -112,27 +112,11 @@ export const styles = StyleSheet.create({
   webSearchToggleHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    gap: 12,
   },
   webSearchToggleTitle: {
     fontSize: 14,
     fontFamily: fonts.display,
-  },
-  webSearchModeRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  webSearchModeButton: {
-    borderRadius: 999,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-  },
-  webSearchModeButtonText: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 0.9,
-    fontFamily: fonts.mono,
   },
   webSearchProviderIcon: {
     alignSelf: "center",

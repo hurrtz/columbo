@@ -201,36 +201,7 @@ export function SettingsModal(props: SettingsModalProps) {
           />
         );
       case "app":
-        return (
-          <>
-            <View
-              style={[
-                styles.sectionCard,
-                {
-                  backgroundColor: colors.surfaceElevated,
-                  borderColor: colors.border,
-                },
-              ]}
-            >
-              <View style={styles.settingsSectionHeader}>
-                <Text
-                  style={[styles.settingsSectionTitle, { color: colors.text }]}
-                >
-                  {t("settingsSectionApp")}
-                </Text>
-                <Text
-                  style={[
-                    styles.settingsSectionDescription,
-                    { color: colors.textMuted },
-                  ]}
-                >
-                  {t("settingsSectionAppDescription")}
-                </Text>
-              </View>
-            </View>
-            <UiTab settings={settings} onUpdate={onUpdate} />
-          </>
-        );
+        return <UiTab settings={settings} onUpdate={onUpdate} />;
     }
   })();
 

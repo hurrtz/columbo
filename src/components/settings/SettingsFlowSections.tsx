@@ -87,31 +87,6 @@ import type {
 
 type CapabilityFilter = "all" | ProviderCapability;
 
-function SettingsSectionHeading({
-  title,
-  description,
-}: {
-  title: string;
-  description?: string;
-}) {
-  const { colors } = useTheme();
-
-  return (
-    <View style={styles.settingsSectionHeader}>
-      <Text style={[styles.settingsSectionTitle, { color: colors.text }]}>
-        {title}
-      </Text>
-      {description ? (
-        <Text
-          style={[styles.settingsSectionDescription, { color: colors.textMuted }]}
-        >
-          {description}
-        </Text>
-      ) : null}
-    </View>
-  );
-}
-
 function buildProviderPickerOptions(
   providers: Provider[],
   selectedProvider: Provider | null | undefined,
@@ -624,17 +599,7 @@ export function ApiKeysSection({
   ];
 
   return (
-    <View
-      style={[
-        styles.sectionCard,
-        { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
-      ]}
-    >
-      <SettingsSectionHeading
-        title={t("settingsSectionApiKeys")}
-        description={t("settingsSectionApiKeysDescription")}
-      />
-
+    <View style={styles.tabPane}>
       <View
         style={[
           styles.searchFieldWrap,
@@ -776,17 +741,7 @@ export function AiModelsSection({
   );
 
   return (
-    <View
-      style={[
-        styles.sectionCard,
-        { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
-      ]}
-    >
-      <SettingsSectionHeading
-        title={t("settingsSectionAiModels")}
-        description={t("settingsSectionAiModelsDescription")}
-      />
-
+    <View style={styles.tabPane}>
       <View
         style={[
           styles.promptCard,
@@ -901,6 +856,7 @@ export function AiModelsSection({
               value={selectedWebSearchProvider}
               options={webSearchPickerOptions}
               disabled={webSearchPickerOptions.length === 0}
+              containerStyle={styles.webSearchProviderPicker}
               onChange={(value) =>
                 onUpdate({ webSearchProvider: value as WebSearchProvider })
               }
@@ -1113,32 +1069,17 @@ export function VoiceSection({
   );
 
   return (
-    <View
-      style={[
-        styles.sectionCard,
-        { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
-      ]}
-    >
-      <SettingsSectionHeading
-        title={t("settingsSectionVoice")}
-        description={t("settingsSectionVoiceDescription")}
-      />
+    <View style={styles.tabPane}>
+      <View style={styles.settingsSubsectionIntro}>
+        <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
+          {t("voiceInput")}
+        </Text>
+        <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
+          {t("voiceInputDescription")}
+        </Text>
+      </View>
 
       <View style={styles.settingsSubsectionStack}>
-        <View
-          style={[
-            styles.settingsSubsectionCard,
-            { backgroundColor: colors.surface, borderColor: colors.border },
-          ]}
-        >
-          <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
-            {t("voiceInput")}
-          </Text>
-          <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
-            {t("voiceInputDescription")}
-          </Text>
-        </View>
-
         <RadioGroup<InputMode>
           label={t("inputMode")}
           options={[
@@ -1211,21 +1152,16 @@ export function VoiceSection({
         ) : null}
       </View>
 
-      <View style={styles.settingsSubsectionStack}>
-        <View
-          style={[
-            styles.settingsSubsectionCard,
-            { backgroundColor: colors.surface, borderColor: colors.border },
-          ]}
-        >
-          <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
-            {t("voiceOutput")}
-          </Text>
-          <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
-            {t("voiceOutputDescription")}
-          </Text>
-        </View>
+      <View style={styles.settingsSubsectionIntro}>
+        <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
+          {t("voiceOutput")}
+        </Text>
+        <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
+          {t("voiceOutputDescription")}
+        </Text>
+      </View>
 
+      <View style={styles.settingsSubsectionStack}>
         <ListenLanguageSelector
           selectedLanguages={settings.ttsListenLanguages}
           onToggleLanguage={onToggleListenLanguage}

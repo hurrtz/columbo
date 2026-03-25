@@ -167,6 +167,7 @@ export const en: TranslationDictionary = {
     webSearchModeOff: "Off",
     webSearchModeAuto: "Auto",
     webSearchModeOn: "On",
+    webSearchModeAlways: "Always",
     webSearchModeOffDescription:
       "Never run a web lookup before the assistant reply.",
     webSearchModeAutoDescription:

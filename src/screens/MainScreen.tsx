@@ -14,7 +14,6 @@ import { Toast } from "../components/Toast";
 import {
   DEFAULT_WEB_SEARCH_PROVIDER,
   type WebSearchProvider,
-  type WebSearchMode,
 } from "../constants/webSearch";
 import { getTtsListenLanguageLabel } from "../constants/localTts";
 import {
@@ -1025,15 +1024,9 @@ export function MainScreen() {
             availableResponseModes={loaded ? availableResponseModes : []}
             colors={colors}
             onOpenGroqSettings={() => openSettings("groq")}
-            onOpenWebSearchSettings={() =>
-              openSettings(
-                webSearchProvider ?? DEFAULT_WEB_SEARCH_PROVIDER,
-                "web",
-              )
-            }
             onSelectResponseMode={handleResponseModeChange}
-            onSelectWebSearchMode={(nextMode: WebSearchMode) => {
-              if (nextMode !== "off" && !webSearchReady) {
+            onToggleWebSearchEnabled={() => {
+              if (!webSearchActive && !webSearchReady) {
                 openSettings(
                   webSearchProvider ?? DEFAULT_WEB_SEARCH_PROVIDER,
                   "web",
@@ -1041,10 +1034,13 @@ export function MainScreen() {
                 return;
               }
 
-              updateSettings({ webSearchMode: nextMode });
+              updateSettings({
+                webSearchMode: webSearchActive ? "off" : "auto",
+              });
             }}
             responseModes={settings.responseModes}
             t={t}
+            webSearchEnabled={webSearchActive}
             webSearchMode={webSearchMode}
             webSearchProvider={webSearchProvider}
             webSearchReady={webSearchReady}

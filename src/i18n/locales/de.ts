@@ -170,6 +170,7 @@ export const de: TranslationDictionary = {
     webSearchModeOff: "Aus",
     webSearchModeAuto: "Auto",
     webSearchModeOn: "An",
+    webSearchModeAlways: "Immer",
     webSearchModeOffDescription:
       "Vor der Antwort wird niemals eine Websuche ausgeführt.",
     webSearchModeAutoDescription:

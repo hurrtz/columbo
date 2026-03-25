@@ -96,9 +96,12 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingHorizontal: 18,
+    paddingHorizontal: 12,
     paddingTop: 12,
     paddingBottom: 20,
+    gap: 14,
+  },
+  tabPane: {
     gap: 14,
   },
   tabIntroText: {
@@ -401,9 +404,16 @@ export const styles = StyleSheet.create({
   inlineSwitchCopy: {
     flex: 1,
   },
+  webSearchProviderPicker: {
+    marginTop: 24,
+  },
+  settingsSubsectionIntro: {
+    gap: 4,
+    marginTop: 2,
+    marginBottom: 12,
+  },
   settingsSubsectionStack: {
     gap: 12,
-    marginTop: 2,
     marginBottom: 18,
   },
   settingsSubsectionCard: {
