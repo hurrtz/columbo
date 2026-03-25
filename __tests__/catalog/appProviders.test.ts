@@ -45,6 +45,7 @@ describe("app provider catalog bridge", () => {
       "hugging-face-inference-api": "hugging-face-inference-api",
       hyperbolic: "hyperbolic",
       "ibm-watsonx": "ibm-watsonx",
+      "lepton-ai": "lepton-ai",
       mistral: "mistral-ai",
       minimax: "minimax",
       "moonshot-ai-kimi": "moonshot-ai-kimi",
@@ -63,6 +64,7 @@ describe("app provider catalog bridge", () => {
 
     expect(getCatalogProviderIdForAppProvider("01-ai-yi")).toBe("01-ai-yi");
     expect(getCatalogProviderIdForAppProvider("aleph-alpha")).toBe("aleph-alpha");
+    expect(getCatalogProviderIdForAppProvider("lepton-ai")).toBe("lepton-ai");
     expect(getCatalogProviderIdForAppProvider("microsoft-azure")).toBe(
       "microsoft-azure",
     );
@@ -72,6 +74,7 @@ describe("app provider catalog bridge", () => {
     );
     expect(getAppProviderForCatalogProviderId("01-ai-yi")).toBe("01-ai-yi");
     expect(getAppProviderForCatalogProviderId("aleph-alpha")).toBe("aleph-alpha");
+    expect(getAppProviderForCatalogProviderId("lepton-ai")).toBe("lepton-ai");
     expect(getAppProviderForCatalogProviderId("microsoft-azure")).toBe(
       "microsoft-azure",
     );
@@ -94,6 +97,7 @@ describe("app provider catalog bridge", () => {
     expect(listCatalogProviderIds()).toContain("xiaomi-mimo");
     expect(listCatalogProviderIds()).toContain("z-ai-zhipu-ai");
     expect(listCatalogProviderIds()).toContain("ibm-watsonx");
+    expect(listCatalogProviderIds()).toContain("lepton-ai");
   });
 
   it("reads verified support states from the catalog without changing runtime support flags", () => {

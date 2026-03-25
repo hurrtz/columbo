@@ -11,10 +11,10 @@ Catalog updated: 2026-03-23
 ## Summary
 
 - Catalog providers: 40
-- Providers with any runtime integration: 39
+- Providers with any runtime integration: 40
 - Catalog models: 455
-- Integrated models: 414
-- LLM: 290/294 integrated
+- Integrated models: 416
+- LLM: 292/294 integrated
 - STT: 51/71 integrated
 - TTS: 73/90 integrated
 - Unresolved runtime manifest entries: 31
@@ -463,14 +463,14 @@ Catalog updated: 2026-03-23
 
 ## Lepton AI `lepton-ai`
 
-- Runtime provider: catalog-only
-- Model integration: 0/3 integrated
+- Runtime provider: `lepton-ai`
+- Model integration: 2/3 integrated
 - Verified support: LLM `native`, STT `partial`, TTS `partial`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `nim/openai/gpt-oss-120b:latest` | GPT-OSS-120B NIM image on DGX Cloud Lepton | Not integrated | — |
-| LLM | `meta-llama/Llama-3.1-8B-Instruct` | Meta Llama 3.1 8B Instruct (deployment example via Hugging Face) | Not integrated | — |
+| LLM | `nim/openai/gpt-oss-120b:latest` | GPT-OSS-120B NIM image on DGX Cloud Lepton | Integrated | `nim/openai/gpt-oss-120b:latest` |
+| LLM | `meta-llama/Llama-3.1-8B-Instruct` | Meta Llama 3.1 8B Instruct (deployment example via Hugging Face) | Integrated | `meta-llama/Llama-3.1-8B-Instruct` |
 | TTS | `nari-labs/Dia-1.6B-0626` | Dia 1.6B (upstream TTS model used in Lepton deployment example) | Not integrated | — |
 
 ## Microsoft Azure `microsoft-azure`

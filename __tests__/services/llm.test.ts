@@ -319,6 +319,43 @@ describe("streamChat", () => {
     expect(JSON.parse(options.body).model).toBe("pharia-1-llm-7b-control-aligned");
   });
 
+  it("uses the customer-provided Lepton chat endpoint", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode('data: {"choices":[{"delta":{"content":"Hi from Lepton"}}]}\n\n'),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "nim/openai/gpt-oss-120b:latest",
+      provider: "lepton-ai",
+      apiKey: "https://lepton.example.com/v1|lepton-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi from Lepton"]);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://lepton.example.com/v1/chat/completions");
+    expect(options.headers.Authorization).toBe("Bearer lepton-test-key");
+    expect(JSON.parse(options.body).model).toBe(
+      "nim/openai/gpt-oss-120b:latest",
+    );
+  });
+
   it("uses IBM watsonx chat with IAM token exchange and project-scoped chat payloads", async () => {
     (fetch as jest.Mock)
       .mockResolvedValueOnce({

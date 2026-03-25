@@ -27,6 +27,7 @@ export type RuntimeAppProviderId =
   | "hugging-face-inference-api"
   | "hyperbolic"
   | "ibm-watsonx"
+  | "lepton-ai"
   | "mistral"
   | "minimax"
   | "moonshot-ai-kimi"
@@ -257,6 +258,7 @@ export const RUNTIME_PROVIDER_ORDER = [
   "hugging-face-inference-api",
   "hyperbolic",
   "ibm-watsonx",
+  "lepton-ai",
   "minimax",
   "moonshot-ai-kimi",
   "novita-ai",
@@ -1333,6 +1335,42 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       voiceOptions: [],
       languageNote:
         "IBM Text to Speech is voice-addressed rather than model-family-addressed. The app maps each catalog voice row directly onto IBM's /v1/synthesize voice parameter.",
+    },
+  },
+  "lepton-ai": {
+    appProvider: "lepton-ai",
+    catalogProviderId: "lepton-ai",
+    label: "Lepton",
+    shortLabel: "LEPTON",
+    apiKeyPlaceholder: "https://your-lepton-endpoint.example.com/v1|api-key",
+    apiKeyHint:
+      "Enter your Lepton endpoint base URL and API key separated by |. The app uses the deployed OpenAI-compatible chat surface on that endpoint.",
+    apiKeyUrl: "https://docs.nvidia.com/dgx-cloud/lepton/features/endpoints/create-llm/",
+    llm: {
+      support: "provider",
+      transport: "aleph-alpha",
+      defaultModel: "nim/openai/gpt-oss-120b:latest",
+      models: [
+        namedModel(
+          "nim/openai/gpt-oss-120b:latest",
+          "GPT-OSS-120B NIM image on DGX Cloud Lepton",
+        ),
+        namedModel(
+          "meta-llama/Llama-3.1-8B-Instruct",
+          "Meta Llama 3.1 8B Instruct (deployment example via Hugging Face)",
+        ),
+      ],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
     },
   },
   minimax: {
