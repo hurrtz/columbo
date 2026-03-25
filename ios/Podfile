@@ -22,6 +22,20 @@ def append_unique_build_setting_values(existing, values)
   (current_values + values).uniq
 end
 
+def configure_fmt_build_settings!(build_configuration)
+  build_configuration.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+  build_configuration.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] =
+    append_unique_build_setting_values(
+      build_configuration.build_settings['GCC_PREPROCESSOR_DEFINITIONS'],
+      ['$(inherited)', 'FMT_USE_CONSTEVAL=0'],
+    )
+  build_configuration.build_settings['OTHER_CPLUSPLUSFLAGS'] =
+    append_unique_build_setting_values(
+      build_configuration.build_settings['OTHER_CPLUSPLUSFLAGS'],
+      ['$(inherited)', '-DFMT_USE_CONSTEVAL=0'],
+    )
+end
+
 def ccache_enabled?(podfile_properties)
   # Environment variable takes precedence
   return ENV['USE_CCACHE'] == '1' if ENV['USE_CCACHE']
@@ -83,11 +97,10 @@ target 'SchnackAI' do
         build_configuration.build_settings['CLANG_ENABLE_EXPLICIT_MODULES'] = 'NO'
         build_configuration.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
         build_configuration.build_settings['SWIFT_ENABLE_EXPLICIT_MODULES'] = 'NO'
-        build_configuration.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] =
-          append_unique_build_setting_values(
-            build_configuration.build_settings['GCC_PREPROCESSOR_DEFINITIONS'],
-            ['$(inherited)', 'FMT_USE_CONSTEVAL=0'],
-          )
+
+        next unless target.name == 'fmt'
+
+        configure_fmt_build_settings!(build_configuration)
       end
     end
 
