@@ -141,8 +141,15 @@ export interface MessageWebSearchMetadata {
   sources: WebSearchSource[];
 }
 
+export interface MessagePipelineNotice {
+  stage: "stt" | "tts" | "web-search";
+  level: "warning" | "error";
+  message: string;
+}
+
 export interface MessageMetadata {
   webSearch?: MessageWebSearchMetadata;
+  notices?: MessagePipelineNotice[];
 }
 
 export const DEFAULT_ASSISTANT_INSTRUCTIONS_BY_LANGUAGE: Record<

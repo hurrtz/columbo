@@ -34,12 +34,16 @@ export type AudioPlayer = ReturnType<typeof useAudioPlayer>;
 
 export interface UseVoicePipelineParams {
   activeConversation: Conversation | null;
-  addMessage: (msg: Omit<Message, "id" | "timestamp">) => void;
+  addMessage: (msg: Omit<Message, "id" | "timestamp">) => Message | null;
   createConversation: (
     firstMessage: string,
     initialModel?: string | null,
     initialProvider?: Provider | null,
   ) => void;
+  updateMessage: (
+    messageId: string,
+    updater: (message: Message) => Message,
+  ) => Message | null;
   updateConversationContextSummary: (
     summary: string,
     summarizedCount: number,

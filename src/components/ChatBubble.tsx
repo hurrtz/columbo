@@ -105,7 +105,9 @@ export function ChatBubble({
       : message.model;
   const usage = !isUser && showUsageStats ? message.usage : undefined;
   const webSearch = !isUser ? message.metadata?.webSearch : undefined;
+  const notices = !isUser ? message.metadata?.notices ?? [] : [];
   const hasSources = !!webSearch?.sources.length;
+  const hasContent = message.content.trim().length > 0;
 
   const bubbleContent = (
     <>
@@ -154,12 +156,74 @@ export function ChatBubble({
           ) : null}
         </View>
       ) : null}
-      <Text
-        selectable={selectable}
-        style={[styles.content, { color: isUser ? "#F5FBFF" : colors.text }]}
-      >
-        {message.content}
-      </Text>
+      {hasContent ? (
+        <Text
+          selectable={selectable}
+          style={[styles.content, { color: isUser ? "#F5FBFF" : colors.text }]}
+        >
+          {message.content}
+        </Text>
+      ) : null}
+      {notices.length > 0 ? (
+        <View style={styles.noticeList}>
+          {notices.map((notice, index) => (
+            <View
+              key={`${notice.stage}:${notice.message}:${index}`}
+              style={[
+                styles.noticeCard,
+                {
+                  backgroundColor: colors.surfaceAlt,
+                  borderColor:
+                    notice.level === "error" ? colors.danger : colors.border,
+                },
+              ]}
+            >
+              <View
+                style={[
+                  styles.noticeIcon,
+                  {
+                    backgroundColor:
+                      notice.level === "error"
+                        ? colors.surface
+                        : colors.accentSoft,
+                    borderColor:
+                      notice.level === "error"
+                        ? colors.danger
+                        : colors.borderStrong,
+                  },
+                ]}
+              >
+                <Feather
+                  name={notice.level === "error" ? "alert-triangle" : "info"}
+                  size={12}
+                  color={
+                    notice.level === "error" ? colors.danger : colors.accent
+                  }
+                />
+              </View>
+              <View style={styles.noticeCopy}>
+                <Text
+                  style={[
+                    styles.noticeLabel,
+                    { color: notice.level === "error" ? colors.danger : colors.text },
+                  ]}
+                >
+                  {notice.stage === "stt"
+                    ? t("speechToText")
+                    : notice.stage === "tts"
+                      ? t("textToSpeech")
+                      : t("webSearch")}
+                </Text>
+                <Text
+                  style={[styles.noticeText, { color: colors.textSecondary }]}
+                >
+                  {notice.message}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      ) : null}
       {webSearch ? (
         <View
           style={[
@@ -457,6 +521,43 @@ const styles = StyleSheet.create({
   content: {
     fontSize: 15,
     lineHeight: 22,
+    fontFamily: fonts.body,
+  },
+  noticeList: {
+    gap: 8,
+    marginTop: 10,
+  },
+  noticeCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 10,
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 9,
+  },
+  noticeIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 1,
+  },
+  noticeCopy: {
+    flex: 1,
+    gap: 3,
+  },
+  noticeLabel: {
+    fontSize: 11,
+    letterSpacing: 0.9,
+    textTransform: "uppercase",
+    fontFamily: fonts.mono,
+  },
+  noticeText: {
+    fontSize: 12,
+    lineHeight: 18,
     fontFamily: fonts.body,
   },
   referenceCard: {

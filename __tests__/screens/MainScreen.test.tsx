@@ -62,6 +62,7 @@ jest.mock("../../src/hooks/useConversations", () => ({
     selectConversation: jest.fn(),
     getConversationById: jest.fn(),
     addMessage: jest.fn(),
+    updateMessage: jest.fn(),
     updateConversationContextSummary: jest.fn(),
     clearConversationMemory: jest.fn(),
     renameConversation: jest.fn(),

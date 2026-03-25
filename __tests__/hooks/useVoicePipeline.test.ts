@@ -4,6 +4,14 @@ import { translate } from "../../src/i18n";
 import { useVoicePipeline } from "../../src/hooks/useVoicePipeline";
 import { DEFAULT_SETTINGS, type UsageEstimate } from "../../src/types";
 
+jest.mock("expo-clipboard", () => ({
+  setStringAsync: jest.fn(async () => undefined),
+}));
+
+jest.mock("expo-file-system/legacy", () => ({
+  deleteAsync: jest.fn(async () => undefined),
+}));
+
 jest.mock("../../src/services/voicePipeline", () => ({
   runVoicePipeline: jest.fn(),
 }));
@@ -100,6 +108,7 @@ function createParams(
     activeConversation: null,
     addMessage: jest.fn(),
     createConversation: jest.fn(),
+    updateMessage: jest.fn(),
     updateConversationContextSummary: jest.fn(),
     player,
     provider: "openai" as const,
@@ -353,6 +362,110 @@ describe("useVoicePipeline", () => {
       translate("en", "couldntCatchThatTryAgain"),
     );
     expect(result.current.pipelinePhase).toBe("idle");
+  });
+
+  it("stores a durable assistant notice when provider TTS falls back", async () => {
+    const params = createParams();
+    (params.addMessage as jest.Mock)
+      .mockReturnValueOnce({
+        id: "user-1",
+        role: "user",
+        content: "Hello from the microphone",
+        model: null,
+        provider: null,
+        timestamp: "2026-03-25T12:00:00.000Z",
+      })
+      .mockReturnValueOnce({
+        id: "assistant-1",
+        role: "assistant",
+        content: "Completed reply",
+        model: "gpt-5.4",
+        provider: "openai",
+        timestamp: "2026-03-25T12:00:01.000Z",
+      });
+    (runVoicePipeline as jest.Mock).mockImplementation(
+      async ({ callbacks }: any) => {
+        callbacks.onTranscription("Hello from the microphone");
+        callbacks.onResponseDone("Completed reply");
+        callbacks.onTtsFallback(new Error("Provider fallback"));
+        return "Hello from the microphone";
+      },
+    );
+
+    const { result } = renderHook(() => useVoicePipeline(params));
+
+    await act(async () => {
+      await result.current.handleVoiceCaptureDone({
+        audioUri: "file://capture.wav",
+      });
+    });
+
+    expect(params.updateMessage).toHaveBeenCalledWith(
+      "assistant-1",
+      expect.any(Function),
+    );
+    const updater = (params.updateMessage as jest.Mock).mock.calls[0][1];
+    expect(
+      updater({
+        id: "assistant-1",
+        role: "assistant",
+        content: "Completed reply",
+        model: "gpt-5.4",
+        provider: "openai",
+        timestamp: "2026-03-25T12:00:01.000Z",
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        metadata: {
+          notices: [
+            {
+              stage: "tts",
+              level: "warning",
+              message: translate("en", "providerVoiceFallback"),
+            },
+          ],
+        },
+      }),
+    );
+  });
+
+  it("stores a durable STT failure notice inside an existing conversation", async () => {
+    const params = createParams({
+      activeConversation: {
+        id: "conversation-1",
+        title: "Existing conversation",
+        createdAt: "2026-03-25T11:00:00.000Z",
+        updatedAt: "2026-03-25T11:00:00.000Z",
+        messages: [],
+      },
+    });
+    (runVoicePipeline as jest.Mock).mockRejectedValue(
+      new Error("OpenAI speech transcription took too long."),
+    );
+
+    const { result } = renderHook(() => useVoicePipeline(params));
+
+    await act(async () => {
+      await result.current.handleVoiceCaptureDone({
+        audioUri: "file://capture.wav",
+      });
+    });
+
+    expect(params.addMessage).toHaveBeenCalledWith({
+      role: "assistant",
+      content: "",
+      model: null,
+      provider: null,
+      metadata: {
+        notices: [
+          {
+            stage: "stt",
+            level: "error",
+            message: "OpenAI speech transcription took too long.",
+          },
+        ],
+      },
+    });
   });
 
   it("keeps the phase at speaking once streamed playback has already started", async () => {

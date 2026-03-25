@@ -81,4 +81,32 @@ describe("ChatBubble", () => {
     expect(queryByText("Used web search")).toBeNull();
     expect(queryByText("Sources")).toBeNull();
   });
+
+  it("renders durable pipeline notices without requiring message content", () => {
+    const { getByText, queryByText } = renderWithProviders(
+      <ChatBubble
+        message={{
+          id: "assistant-3",
+          role: "assistant",
+          content: "",
+          model: null,
+          provider: null,
+          timestamp: "2026-03-25T12:10:00.000Z",
+          metadata: {
+            notices: [
+              {
+                stage: "stt",
+                level: "error",
+                message: "OpenAI speech transcription took too long.",
+              },
+            ],
+          },
+        }}
+      />,
+    );
+
+    expect(getByText("Speech to Text")).toBeTruthy();
+    expect(getByText("OpenAI speech transcription took too long.")).toBeTruthy();
+    expect(queryByText("Just a normal answer.")).toBeNull();
+  });
 });

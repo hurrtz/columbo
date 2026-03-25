@@ -96,7 +96,7 @@ export function useConversationMutations(params: {
       const currentConversation = activeConversationRef.current;
 
       if (!currentConversation) {
-        return;
+        return null;
       }
 
       const message: Message = {
@@ -148,6 +148,57 @@ export function useConversationMutations(params: {
           ),
         ),
       );
+
+      return message;
+    },
+    [activeConversationRef, persistMetas, setActiveConversationValue, setConversations],
+  );
+
+  const updateMessage = useCallback(
+    (messageId: string, updater: (message: Message) => Message) => {
+      const currentConversation = activeConversationRef.current;
+
+      if (!currentConversation) {
+        return null;
+      }
+
+      let updatedMessage: Message | null = null;
+      const nextMessages = currentConversation.messages.map((message) => {
+        if (message.id !== messageId) {
+          return message;
+        }
+
+        updatedMessage = updater(message);
+        return updatedMessage;
+      });
+
+      if (!updatedMessage) {
+        return null;
+      }
+
+      const updatedAt = new Date().toISOString();
+      const updatedConversation: Conversation = {
+        ...currentConversation,
+        updatedAt,
+        messages: nextMessages,
+      };
+
+      setActiveConversationValue(updatedConversation);
+      saveConversation(updatedConversation);
+      setConversations((previous) =>
+        persistMetas(
+          previous.map((meta) =>
+            meta.id === updatedConversation.id
+              ? {
+                  ...meta,
+                  updatedAt,
+                }
+              : meta,
+          ),
+        ),
+      );
+
+      return updatedMessage;
     },
     [activeConversationRef, persistMetas, setActiveConversationValue, setConversations],
   );
@@ -315,6 +366,7 @@ export function useConversationMutations(params: {
     renameConversation,
     selectConversation,
     toggleConversationPinned,
+    updateMessage,
     updateConversationContextSummary,
   };
 }

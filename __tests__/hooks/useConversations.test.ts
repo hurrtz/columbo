@@ -80,6 +80,55 @@ describe("useConversations", () => {
     expect(result.current.activeConversation!.messages).toHaveLength(1);
   });
 
+  it("updates a stored message in place", async () => {
+    const { result } = renderHook(() => useConversations());
+
+    await act(async () => {
+      result.current.createConversation("Test");
+    });
+
+    let messageId = "";
+
+    await act(async () => {
+      const message = result.current.addMessage({
+        role: "assistant",
+        content: "Original reply",
+        model: "gpt-5.4",
+        provider: "openai",
+      });
+      messageId = message?.id ?? "";
+    });
+
+    await act(async () => {
+      result.current.updateMessage(messageId, (message) => ({
+        ...message,
+        metadata: {
+          notices: [
+            {
+              stage: "tts",
+              level: "warning",
+              message: "Provider voice fallback was used.",
+            },
+          ],
+        },
+      }));
+    });
+
+    expect(result.current.activeConversation?.messages[0]).toEqual(
+      expect.objectContaining({
+        metadata: {
+          notices: [
+            {
+              stage: "tts",
+              level: "warning",
+              message: "Provider voice fallback was used.",
+            },
+          ],
+        },
+      }),
+    );
+  });
+
   it("persists a rolling context summary on the active conversation", async () => {
     const { result } = renderHook(() => useConversations());
 

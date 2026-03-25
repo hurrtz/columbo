@@ -2,7 +2,11 @@ import { useCallback, useRef } from "react";
 
 import { recordDebugLogEvent } from "../../services/debugLogCapture";
 import { runVoicePipeline } from "../../services/voicePipeline";
-import type { MessageMetadata, UsageEstimate } from "../../types";
+import type {
+  MessageMetadata,
+  MessagePipelineNotice,
+  UsageEstimate,
+} from "../../types";
 import type { PipelinePhase, UseVoicePipelineParams } from "./types";
 
 type VoiceCaptureHandlerParams = Omit<UseVoicePipelineParams, "isRecording"> & {
@@ -48,6 +52,7 @@ export function useVoiceCaptureHandler({
   ttsMode,
   ttsProvider,
   updateConversationContextSummary,
+  updateMessage,
   webSearchApiKey,
   webSearchMode,
   webSearchOptions,
@@ -55,6 +60,28 @@ export function useVoiceCaptureHandler({
 }: VoiceCaptureHandlerParams) {
   const ttsFallbackToastShownRef = useRef(false);
   const playbackStartedRef = useRef(false);
+  const lastUserMessageIdRef = useRef<string | null>(null);
+  const lastAssistantMessageIdRef = useRef<string | null>(null);
+  const pendingAssistantNoticesRef = useRef<MessagePipelineNotice[]>([]);
+
+  const appendNoticeMetadata = useCallback(
+    (
+      metadata: MessageMetadata | undefined,
+      notice: MessagePipelineNotice,
+    ): MessageMetadata => {
+      const notices = metadata?.notices ?? [];
+      const alreadyPresent = notices.some(
+        (entry) =>
+          entry.stage === notice.stage && entry.message === notice.message,
+      );
+
+      return {
+        ...metadata,
+        notices: alreadyPresent ? notices : [...notices, notice],
+      };
+    },
+    [],
+  );
 
   const handleVoiceCaptureDone = useCallback(
     async ({
@@ -76,6 +103,9 @@ export function useVoiceCaptureHandler({
       setStreamingText("");
       ttsFallbackToastShownRef.current = false;
       playbackStartedRef.current = false;
+      lastUserMessageIdRef.current = null;
+      lastAssistantMessageIdRef.current = null;
+      pendingAssistantNoticesRef.current = [];
       abortRef.current = new AbortController();
       player.resetCancellation();
 
@@ -122,14 +152,13 @@ export function useVoiceCaptureHandler({
               if (!activeConversation) {
                 createConversation(text, model, provider);
               }
-              setTimeout(() => {
-                addMessage({
-                  role: "user",
-                  content: text,
-                  model: null,
-                  provider: null,
-                });
-              }, 0);
+              const userMessage = addMessage({
+                role: "user",
+                content: text,
+                model: null,
+                provider: null,
+              });
+              lastUserMessageIdRef.current = userMessage?.id ?? null;
             },
             onContextSummary: (summary, summarizedCount, usage) => {
               recordDebugLogEvent({
@@ -163,6 +192,11 @@ export function useVoiceCaptureHandler({
               );
             },
             onWebSearchFallback: (error) => {
+              const notice: MessagePipelineNotice = {
+                stage: "web-search",
+                level: "warning",
+                message: t("webSearchFallback"),
+              };
               recordDebugLogEvent({
                 event: "voice-pipeline-web-search-fallback",
                 level: "warn",
@@ -173,7 +207,11 @@ export function useVoiceCaptureHandler({
               setPipelinePhase(
                 playbackStartedRef.current ? "speaking" : "thinking",
               );
-              showToast(t("webSearchFallback"));
+              pendingAssistantNoticesRef.current = [
+                ...pendingAssistantNoticesRef.current,
+                notice,
+              ];
+              showToast(notice.message);
             },
             onChunk: (text) => {
               recordDebugLogEvent({
@@ -206,14 +244,30 @@ export function useVoiceCaptureHandler({
                   : "synthesizing",
               );
               lastCompletedReplyRef.current = fullText;
-              addMessage({
+              const assistantNotices = pendingAssistantNoticesRef.current;
+              const assistantMessage = addMessage({
                 role: "assistant",
                 content: fullText,
                 model,
                 provider,
                 usage,
-                metadata,
+                metadata:
+                  assistantNotices.length > 0
+                    ? {
+                        ...metadata,
+                        notices: assistantNotices.reduce(
+                          (allNotices, notice) =>
+                            appendNoticeMetadata(
+                              { notices: allNotices },
+                              notice,
+                            ).notices ?? allNotices,
+                          metadata?.notices ?? [],
+                        ),
+                      }
+                    : metadata,
               });
+              lastAssistantMessageIdRef.current = assistantMessage?.id ?? null;
+              pendingAssistantNoticesRef.current = [];
             },
             onAudioReady: (audioData, diagnostics) => {
               recordDebugLogEvent({
@@ -242,6 +296,15 @@ export function useVoiceCaptureHandler({
               });
             },
             onTtsFallback: () => {
+              const noticeMessage =
+                ttsMode === "local"
+                  ? t("localVoiceFallback")
+                  : t("providerVoiceFallback");
+              const notice: MessagePipelineNotice = {
+                stage: "tts",
+                level: "warning",
+                message: noticeMessage,
+              };
               recordDebugLogEvent({
                 event: "voice-pipeline-tts-fallback",
                 level: "warn",
@@ -253,12 +316,20 @@ export function useVoiceCaptureHandler({
                 return;
               }
 
+              if (lastAssistantMessageIdRef.current) {
+                updateMessage(lastAssistantMessageIdRef.current, (message) => ({
+                  ...message,
+                  metadata: appendNoticeMetadata(message.metadata, notice),
+                }));
+              } else {
+                pendingAssistantNoticesRef.current = [
+                  ...pendingAssistantNoticesRef.current,
+                  notice,
+                ];
+              }
+
               ttsFallbackToastShownRef.current = true;
-              showToast(
-                ttsMode === "local"
-                  ? t("localVoiceFallback")
-                  : t("providerVoiceFallback"),
-              );
+              showToast(notice.message);
             },
             onError: async (error) => {
               recordDebugLogEvent({
@@ -315,9 +386,54 @@ export function useVoiceCaptureHandler({
               error instanceof Error ? error.message : t("couldntProcessVoiceInput"),
           },
         });
-        showToast(
-          error instanceof Error ? error.message : t("couldntProcessVoiceInput"),
-        );
+        const errorMessage =
+          error instanceof Error ? error.message : t("couldntProcessVoiceInput");
+
+        if (!lastAssistantMessageIdRef.current && lastUserMessageIdRef.current) {
+          const pendingNotices = pendingAssistantNoticesRef.current;
+
+          if (pendingNotices.length > 0) {
+            updateMessage(lastUserMessageIdRef.current, (message) => ({
+              ...message,
+              metadata: {
+                ...message.metadata,
+                notices: pendingNotices.reduce(
+                  (allNotices, notice) =>
+                    appendNoticeMetadata(
+                      { notices: allNotices },
+                      notice,
+                    ).notices ?? allNotices,
+                  message.metadata?.notices ?? [],
+                ),
+              },
+            }));
+            pendingAssistantNoticesRef.current = [];
+          }
+        }
+
+        if (
+          !transcriptionOverride &&
+          !lastUserMessageIdRef.current &&
+          activeConversation
+        ) {
+          addMessage({
+            role: "assistant",
+            content: "",
+            model: null,
+            provider: null,
+            metadata: {
+              notices: [
+                {
+                  stage: "stt",
+                  level: "error",
+                  message: errorMessage,
+                },
+              ],
+            },
+          });
+        }
+
+        showToast(errorMessage);
       } finally {
         recordDebugLogEvent({
           event: "voice-pipeline-finalizing",
@@ -345,6 +461,7 @@ export function useVoiceCaptureHandler({
       abortRef,
       activeConversation,
       addMessage,
+      appendNoticeMetadata,
       assistantInstructions,
       createConversation,
       handleRepeatLastReply,
@@ -373,6 +490,11 @@ export function useVoiceCaptureHandler({
       ttsMode,
       ttsProvider,
       updateConversationContextSummary,
+      updateMessage,
+      webSearchApiKey,
+      webSearchMode,
+      webSearchOptions,
+      webSearchProvider,
     ],
   );
 
