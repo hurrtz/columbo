@@ -12,6 +12,13 @@ export interface EndpointApiKeyCredentials {
   apiKey: string;
 }
 
+export interface AmazonAwsCredentials {
+  region: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  sessionToken?: string;
+}
+
 export interface IbmWatsonxCredentials {
   watsonxUrl: string;
   watsonxApiKey: string;
@@ -152,6 +159,45 @@ export function parseEndpointApiKeyCredentials(
   return {
     endpoint,
     apiKey,
+  };
+}
+
+export function parseAmazonAwsCredentials(
+  provider: Provider,
+  rawValue: string | undefined,
+  language: AppLanguage,
+): AmazonAwsCredentials {
+  const value = rawValue?.trim();
+
+  if (!value) {
+    throw buildMissingProviderKeyError(provider, language);
+  }
+
+  const parts = value.split("|").map((part) => part.trim());
+
+  if (parts.length < 3 || parts.length > 4) {
+    throw new Error(
+      translate(language, "awsCredentialFormatInvalid", {
+        provider: PROVIDER_LABELS[provider],
+      }),
+    );
+  }
+
+  const [region, accessKeyId, secretAccessKey, sessionToken] = parts;
+
+  if (!region || !accessKeyId || !secretAccessKey) {
+    throw new Error(
+      translate(language, "awsCredentialFormatInvalid", {
+        provider: PROVIDER_LABELS[provider],
+      }),
+    );
+  }
+
+  return {
+    region,
+    accessKeyId,
+    secretAccessKey,
+    ...(sessionToken ? { sessionToken } : {}),
   };
 }
 

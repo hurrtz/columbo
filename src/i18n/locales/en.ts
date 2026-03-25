@@ -237,6 +237,8 @@ export const en: TranslationDictionary = {
       `For ${provider}, enter the provider base URL and API key as https://your-endpoint.example.com|your-api-key.`,
     azureCredentialFormatInvalid: ({ provider }) =>
       `For ${provider}, enter the Azure endpoint and API key as https://your-resource.openai.azure.com|your-api-key.`,
+    awsCredentialFormatInvalid: ({ provider }) =>
+      `For ${provider}, enter the AWS region, access key ID, secret access key, and optional session token as us-east-1|access-key-id|secret-access-key|session-token.`,
     ibmCredentialFormatInvalid: ({ provider }) =>
       `For ${provider}, enter watsonx URL, watsonx API key, project ID, Speech to Text URL, Speech to Text API key, Text to Speech URL, and Text to Speech API key separated by |.`,
     speechRecognitionUnavailableOnDevice:

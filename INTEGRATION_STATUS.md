@@ -11,10 +11,10 @@ Catalog updated: 2026-03-23
 ## Summary
 
 - Catalog providers: 40
-- Providers with any runtime integration: 38
+- Providers with any runtime integration: 39
 - Catalog models: 455
-- Integrated models: 406
-- LLM: 283/294 integrated
+- Integrated models: 413
+- LLM: 290/294 integrated
 - STT: 51/71 integrated
 - TTS: 72/90 integrated
 - Unresolved runtime manifest entries: 31
@@ -86,19 +86,19 @@ Catalog updated: 2026-03-23
 
 ## Amazon AWS `amazon-aws`
 
-- Runtime provider: catalog-only
-- Model integration: 0/7 integrated
+- Runtime provider: `amazon-aws`
+- Model integration: 7/7 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
-| LLM | `amazon.nova-2-lite-v1:0` | Amazon Nova 2 Lite | Not integrated | — |
-| LLM | `amazon.nova-2-sonic-v1:0` | Amazon Nova 2 Sonic | Not integrated | — |
-| LLM | `amazon.nova-lite-v1:0` | Amazon Nova Lite | Not integrated | — |
-| LLM | `amazon.nova-micro-v1:0` | Amazon Nova Micro | Not integrated | — |
-| LLM | `amazon.nova-premier-v1:0` | Amazon Nova Premier | Not integrated | — |
-| LLM | `amazon.nova-pro-v1:0` | Amazon Nova Pro | Not integrated | — |
-| LLM | `amazon.nova-sonic-v1:0` | Amazon Nova Sonic | Not integrated | — |
+| LLM | `amazon.nova-2-lite-v1:0` | Amazon Nova 2 Lite | Integrated | `amazon.nova-2-lite-v1:0` |
+| LLM | `amazon.nova-2-sonic-v1:0` | Amazon Nova 2 Sonic | Integrated | `amazon.nova-2-sonic-v1:0` |
+| LLM | `amazon.nova-lite-v1:0` | Amazon Nova Lite | Integrated | `amazon.nova-lite-v1:0` |
+| LLM | `amazon.nova-micro-v1:0` | Amazon Nova Micro | Integrated | `amazon.nova-micro-v1:0` |
+| LLM | `amazon.nova-premier-v1:0` | Amazon Nova Premier | Integrated | `amazon.nova-premier-v1:0` |
+| LLM | `amazon.nova-pro-v1:0` | Amazon Nova Pro | Integrated | `amazon.nova-pro-v1:0` |
+| LLM | `amazon.nova-sonic-v1:0` | Amazon Nova Sonic | Integrated | `amazon.nova-sonic-v1:0` |
 
 ## Anthropic `anthropic`
 

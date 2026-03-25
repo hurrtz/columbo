@@ -28,6 +28,10 @@ type AzureOpenAiRealtimeLlmConfig = {
   transport: "azure-openai-realtime";
 };
 
+type AmazonBedrockLlmConfig = {
+  transport: "amazon-bedrock";
+};
+
 type AlephAlphaLlmConfig = {
   transport: "aleph-alpha";
 };
@@ -47,6 +51,7 @@ type TransportOnlyLlmConfig = {
     | "openai-realtime"
     | "azure-openai"
     | "azure-openai-realtime"
+    | "amazon-bedrock"
     | "aleph-alpha"
     | "ibm-watsonx"
     | "replicate"
@@ -58,6 +63,7 @@ export type ProviderLlmConfig =
   | OpenAiRealtimeLlmConfig
   | AzureOpenAiLlmConfig
   | AzureOpenAiRealtimeLlmConfig
+  | AmazonBedrockLlmConfig
   | AlephAlphaLlmConfig
   | IbmWatsonxLlmConfig
   | ReplicateLlmConfig
@@ -94,6 +100,10 @@ export function getProviderLlmConfig(
     case "azure-openai":
       return {
         transport: isRealtimeModel ? "azure-openai-realtime" : "azure-openai",
+      };
+    case "amazon-bedrock":
+      return {
+        transport: "amazon-bedrock",
       };
     case "aleph-alpha":
       return {

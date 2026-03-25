@@ -128,6 +128,53 @@ describe("streamChat", () => {
     );
   });
 
+  it("uses Amazon Bedrock Converse with SigV4-style headers", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        output: {
+          message: {
+            content: [{ text: "Hi from AWS" }],
+          },
+        },
+      }),
+    });
+
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "amazon.nova-lite-v1:0",
+      provider: "amazon-aws",
+      apiKey: "eu-central-1|aws-access-key|aws-secret-key|aws-session-token",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi from AWS"]);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://bedrock-runtime.eu-central-1.amazonaws.com/model/amazon.nova-lite-v1%3A0/converse",
+    );
+    expect(options.headers.Authorization).toContain(
+      "AWS4-HMAC-SHA256 Credential=aws-access-key/",
+    );
+    expect(options.headers["X-Amz-Date"]).toBeDefined();
+    expect(options.headers["X-Amz-Content-Sha256"]).toBeDefined();
+    expect(options.headers["X-Amz-Security-Token"]).toBe("aws-session-token");
+    expect(JSON.parse(options.body)).toEqual(
+      expect.objectContaining({
+        system: [{ text: expect.any(String) }],
+        messages: [{ role: "user", content: [{ text: "Hello" }] }],
+      }),
+    );
+  });
+
   it("uses the Azure OpenAI v1 chat endpoint with api-key auth", async () => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({

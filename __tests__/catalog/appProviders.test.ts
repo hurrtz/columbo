@@ -28,6 +28,7 @@ describe("app provider catalog bridge", () => {
       assemblyai: "assemblyai",
       "ai21-labs": "ai21-labs",
       "alibaba-qwen-dashscope": "alibaba-qwen-dashscope",
+      "amazon-aws": "amazon-aws",
       baichuan: "baichuan",
       "baidu-ernie-qianfan": "baidu-ernie-qianfan",
       "bytedance-doubao-seed": "bytedance-doubao-seed",
@@ -65,6 +66,7 @@ describe("app provider catalog bridge", () => {
     expect(getCatalogProviderIdForAppProvider("microsoft-azure")).toBe(
       "microsoft-azure",
     );
+    expect(getCatalogProviderIdForAppProvider("amazon-aws")).toBe("amazon-aws");
     expect(getCatalogProviderIdForAppProvider("gemini")).toBe(
       "google-vertex-ai-studio",
     );
@@ -75,6 +77,7 @@ describe("app provider catalog bridge", () => {
     );
     expect(getAppProviderForCatalogProviderId("openai")).toBe("openai");
     expect(getAppProviderForCatalogProviderId("assemblyai")).toBe("assemblyai");
+    expect(getAppProviderForCatalogProviderId("amazon-aws")).toBe("amazon-aws");
     expect(getAppProviderForCatalogProviderId("baidu-ernie-qianfan")).toBe(
       "baidu-ernie-qianfan",
     );

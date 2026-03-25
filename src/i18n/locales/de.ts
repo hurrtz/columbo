@@ -240,6 +240,8 @@ export const de: TranslationDictionary = {
       `Gib für ${provider} die Basis-URL des Anbieters und den API-Schlüssel als https://dein-endpunkt.example.com|dein-api-schluessel ein.`,
     azureCredentialFormatInvalid: ({ provider }) =>
       `Gib für ${provider} den Azure-Endpunkt und den API-Schlüssel als https://your-resource.openai.azure.com|dein-api-schluessel ein.`,
+    awsCredentialFormatInvalid: ({ provider }) =>
+      `Gib für ${provider} AWS-Region, Access Key ID, Secret Access Key und optional Session-Token als us-east-1|access-key-id|secret-access-key|session-token ein.`,
     ibmCredentialFormatInvalid: ({ provider }) =>
       `Gib für ${provider} watsonx-URL, watsonx-API-Schlüssel, Projekt-ID, Speech-to-Text-URL, Speech-to-Text-API-Schlüssel, Text-to-Speech-URL und Text-to-Speech-API-Schlüssel getrennt durch | ein.`,
     speechRecognitionUnavailableOnDevice:

@@ -10,6 +10,7 @@ export type RuntimeAppProviderId =
   | "assemblyai"
   | "ai21-labs"
   | "alibaba-qwen-dashscope"
+  | "amazon-aws"
   | "baichuan"
   | "baidu-ernie-qianfan"
   | "bytedance-doubao-seed"
@@ -47,6 +48,7 @@ export type RuntimeLlmTransport =
   | "openai-realtime"
   | "azure-openai"
   | "azure-openai-realtime"
+  | "amazon-bedrock"
   | "aleph-alpha"
   | "anthropic"
   | "cohere"
@@ -234,6 +236,7 @@ export const RUNTIME_PROVIDER_ORDER = [
   "assemblyai",
   "ai21-labs",
   "alibaba-qwen-dashscope",
+  "amazon-aws",
   "baidu-ernie-qianfan",
   "bytedance-doubao-seed",
   "deepgram",
@@ -602,6 +605,34 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       voiceOptions: [voice("Cherry", "Cherry")],
       languageNote:
         "DashScope TTS is currently wired for the non-realtime Qwen3-TTS-Flash and Qwen3-TTS-Instruct-Flash families with the default Cherry voice. The realtime Qwen TTS families still need dedicated transport and voice-surface support.",
+    },
+  },
+  "amazon-aws": {
+    appProvider: "amazon-aws",
+    catalogProviderId: "amazon-aws",
+    label: "AWS",
+    shortLabel: "AWS",
+    apiKeyPlaceholder:
+      "us-east-1|access-key-id|secret-access-key|optional-session-token",
+    apiKeyHint:
+      "Enter your AWS region, access key ID, secret access key, and optional session token separated by |. The app uses Amazon Bedrock Converse for Nova text models.",
+    apiKeyUrl: "https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started-api-ex-python.html",
+    llm: {
+      support: "provider",
+      transport: "amazon-bedrock",
+      defaultModel: "amazon.nova-lite-v1:0",
+      models: catalogModelSpecs("amazon-aws", "llm"),
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
     },
   },
   baichuan: {

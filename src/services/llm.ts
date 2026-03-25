@@ -29,6 +29,7 @@ import {
   requestOpenAiRealtimeChat,
   requestOpenAiRealtimeChatStream,
 } from "./llm/providers/openaiRealtime";
+import { requestAmazonBedrockChat } from "./llm/providers/amazonBedrock";
 import { requestIbmWatsonxChat } from "./llm/providers/ibmWatsonx";
 import { requestReplicateChat } from "./llm/providers/replicate";
 import {
@@ -132,6 +133,16 @@ const LLM_TEXT_REQUESTERS = {
     }),
   "azure-openai-realtime": async (params: LlmRequestParams) =>
     requestAzureOpenAiRealtimeChat({
+      provider: params.provider,
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      abortSignal: params.abortSignal,
+    }),
+  "amazon-bedrock": async (params: LlmRequestParams) =>
+    requestAmazonBedrockChat({
       provider: params.provider,
       model: params.model,
       messages: params.messages,
@@ -286,6 +297,8 @@ async function requestChatText(params: {
       return LLM_TEXT_REQUESTERS["azure-openai"](params);
     case "azure-openai-realtime":
       return LLM_TEXT_REQUESTERS["azure-openai-realtime"](params);
+    case "amazon-bedrock":
+      return LLM_TEXT_REQUESTERS["amazon-bedrock"](params);
     case "aleph-alpha":
       return LLM_TEXT_REQUESTERS["aleph-alpha"](params);
     case "ibm-watsonx":
