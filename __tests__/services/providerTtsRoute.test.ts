@@ -121,6 +121,45 @@ describe("synthesizeProviderSpeech", () => {
     });
   });
 
+  it("uses DeepInfra native inference TTS and downloads provider-hosted audio", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            audio_url: "https://deepinfra.example/audio.wav",
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        blob: () => Promise.resolve(new Blob(["fake-audio"])),
+      });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "deepinfra",
+      providerModel: "Qwen/Qwen3-TTS-VoiceDesign",
+      apiKey: "deepinfra-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.wav$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://api.deepinfra.com/v1/inference/Qwen%2FQwen3-TTS-VoiceDesign",
+    );
+    expect(options.headers.Authorization).toBe("Bearer deepinfra-test");
+    expect(JSON.parse(options.body)).toEqual({
+      text: "Hello world",
+      voice_description: "Warm neutral voice",
+      stream: false,
+    });
+    expect((fetch as jest.Mock).mock.calls[1][0]).toBe(
+      "https://deepinfra.example/audio.wav",
+    );
+  });
+
   it("uses ElevenLabs TTS with the selected voice id and model id", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

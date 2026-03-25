@@ -103,6 +103,11 @@ describe("speech provider constants", () => {
       { id: "aura-2", name: "Aura-2 Voice Family" },
       { id: "aura-1", name: "Aura-1 Voice Family" },
     ]);
+    expect(getProviderTtsModelOptions("deepinfra")).toEqual([
+      { id: "Qwen/Qwen3-TTS", name: "Qwen3-TTS" },
+      { id: "Qwen/Qwen3-TTS-VoiceDesign", name: "Qwen3-TTS-VoiceDesign" },
+      { id: "ResembleAI/chatterbox-turbo", name: "chatterbox-turbo" },
+    ]);
     expect(getProviderTtsModelOptions("elevenlabs")).toEqual([
       { id: "eleven_v3", name: "Eleven v3" },
       { id: "eleven_multilingual_v2", name: "Eleven Multilingual v2" },

@@ -80,6 +80,7 @@ export type RuntimeTtsTransport =
   | "baidu"
   | "gemini"
   | "dashscope"
+  | "deepinfra"
   | "deepgram"
   | "fish-audio"
   | "hyperbolic"
@@ -1006,10 +1007,20 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         "DeepInfra STT is now wired through the native inference API for the documented Whisper and Voxtral catalog entries. DeepInfra does not publish a single provider-wide upload cap for all native ASR models, so catalog constraints remain model-specific.",
     },
     tts: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "deepinfra",
+      endpointBase: "https://api.deepinfra.com/v1/inference",
+      defaultModel: "ResembleAI/chatterbox-turbo",
+      defaultVoice: "Warm neutral voice",
+      voiceFallback: "Warm neutral voice",
+      models: [
+        namedModel("Qwen/Qwen3-TTS", "Qwen3-TTS"),
+        namedModel("Qwen/Qwen3-TTS-VoiceDesign", "Qwen3-TTS-VoiceDesign"),
+        namedModel("ResembleAI/chatterbox-turbo", "chatterbox-turbo"),
+      ],
       voiceOptions: [],
+      languageNote:
+        "DeepInfra TTS is wired on the native inference API for the curated Qwen and Resemble models. Voice and output schemas differ across those hosted models, so this path is lower-confidence than providers with a single uniform speech contract.",
     },
   },
   xai: {

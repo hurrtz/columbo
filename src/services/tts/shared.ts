@@ -90,6 +90,13 @@ type DeepgramTtsConfig = {
   voiceFallback: string;
 };
 
+type DeepInfraTtsConfig = {
+  kind: "deepinfra";
+  endpointBase: string;
+  defaultModel: string;
+  voiceFallback: string;
+};
+
 type FishAudioTtsConfig = {
   kind: "fish-audio";
   endpoint: string;
@@ -142,6 +149,7 @@ export type ProviderTtsConfig =
   | BaiduTtsConfig
   | GeminiTtsConfig
   | DashScopeTtsConfig
+  | DeepInfraTtsConfig
   | DeepgramTtsConfig
   | FishAudioTtsConfig
   | HyperbolicTtsConfig
@@ -218,6 +226,23 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       {
         kind: "dashscope",
         endpoint: manifest.tts.endpoint,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
+    manifest.tts.transport === "deepinfra" &&
+    manifest.tts.endpointBase &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "deepinfra",
+        endpointBase: manifest.tts.endpointBase,
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,
       },

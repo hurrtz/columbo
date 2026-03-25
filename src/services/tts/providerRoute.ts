@@ -191,6 +191,46 @@ function getDeepgramVoiceModel(selectedModel: string, selectedVoice: string) {
   return selectedVoice || "aura-asteria-en";
 }
 
+function getDeepInfraTtsBody(selectedModel: string, selectedVoice: string, text: string) {
+  if (selectedModel === "Qwen/Qwen3-TTS-VoiceDesign") {
+    return {
+      text,
+      voice_description: selectedVoice || "Warm neutral voice",
+      stream: false,
+    };
+  }
+
+  return {
+    text,
+    ...(selectedModel === "Qwen/Qwen3-TTS" && selectedVoice
+      ? {
+          voice: selectedVoice,
+        }
+      : {}),
+    stream: false,
+  };
+}
+
+function getDeepInfraAudioUrl(data: any) {
+  return typeof data?.audio_url === "string"
+    ? data.audio_url
+    : typeof data?.output_url === "string"
+      ? data.output_url
+      : typeof data?.url === "string"
+        ? data.url
+        : null;
+}
+
+function getDeepInfraAudioBase64(data: any) {
+  return typeof data?.audio === "string"
+    ? data.audio
+    : typeof data?.audio_base64 === "string"
+      ? data.audio_base64
+      : typeof data?.wav === "string"
+        ? data.wav
+        : null;
+}
+
 const TOGETHER_KOKORO_VOICES = new Set([
   "af_heart",
   "af_alloy",
@@ -877,6 +917,75 @@ export async function synthesizeProviderSpeech(params: {
     }
 
     return writeBlobAudioFile(await response.blob());
+  }
+
+  if (config.kind === "deepinfra") {
+    const response = await fetchWithTimeout(
+      `${config.endpointBase}/${encodeURIComponent(selectedModel)}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+        },
+        body: JSON.stringify(
+          getDeepInfraTtsBody(selectedModel, selectedVoice, text),
+        ),
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw buildTtsRequestError({
+        provider,
+        status: response.status,
+        errorText,
+        language,
+      });
+    }
+
+    const data = await response.json();
+    const audioUrl = getDeepInfraAudioUrl(data);
+
+    if (audioUrl) {
+      const audioResponse = await fetchWithTimeout(
+        audioUrl,
+        {
+          method: "GET",
+        },
+        timeoutMs,
+        () => createTtsTimeoutError({ provider, language }),
+        abortSignal,
+      );
+
+      if (!audioResponse.ok) {
+        const errorText = await audioResponse.text();
+        throw buildTtsRequestError({
+          provider,
+          status: audioResponse.status,
+          errorText,
+          language,
+        });
+      }
+
+      return writeBlobAudioFile(await audioResponse.blob(), "wav");
+    }
+
+    const base64Audio = getDeepInfraAudioBase64(data);
+
+    if (!base64Audio) {
+      throw buildTtsRequestError({
+        provider,
+        status: 500,
+        errorText: JSON.stringify(data),
+        language,
+      });
+    }
+
+    return writeBase64AudioFile(base64Audio, "wav");
   }
 
   if (config.kind === "fish-audio") {
