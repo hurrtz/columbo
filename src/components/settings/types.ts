@@ -59,6 +59,8 @@ export type SettingsTab =
   | "tts"
   | "ui";
 
+export type SettingsFlowTab = "keys" | "ai" | "voice" | "app";
+
 export type TextInputFocusHandler = NonNullable<
   React.ComponentProps<typeof TextInput>["onFocus"]
 >;

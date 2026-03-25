@@ -38,6 +38,8 @@ import {
 
 export { buildSystemPrompt } from "./llm/prompts";
 
+const LLM_REPLY_INACTIVITY_TIMEOUT_MS = 45_000;
+
 interface StreamChatParams {
   messages: Message[];
   model: string;
@@ -73,6 +75,18 @@ function buildProviderNotWiredUpError(provider: Provider, language: AppLanguage)
   return new Error(
     translate(language, "providerNotWiredUpYet", {
       provider: PROVIDER_LABELS[provider],
+    }),
+  );
+}
+
+function buildProviderReplyTimeoutError(
+  provider: Provider,
+  language: AppLanguage,
+) {
+  return new Error(
+    translate(language, "providerTimeoutError", {
+      provider: PROVIDER_LABELS[provider],
+      action: translate(language, "replyGenerationAction"),
     }),
   );
 }
@@ -341,6 +355,9 @@ export async function streamChat({
   onError,
   abortSignal,
 }: StreamChatParams): Promise<void> {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  let timedOut = false;
+
   try {
     const systemPrompt = buildSystemPrompt({
       assistantInstructions,
@@ -351,75 +368,115 @@ export async function streamChat({
       webSearchContext,
     });
     const config = getLlmProviderConfigOrThrow(provider, model, language);
-    let fullText = "";
+    const timeoutError = buildProviderReplyTimeoutError(provider, language);
+    let rejectTimeout: ((reason?: unknown) => void) | null = null;
+    const armTimeout = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
 
-    switch (config.transport) {
-      case "openai-compatible":
-        fullText = await LLM_STREAM_REQUESTERS["openai-compatible"](
-          {
+      timeoutId = setTimeout(() => {
+        timedOut = true;
+        rejectTimeout?.(timeoutError);
+      }, LLM_REPLY_INACTIVITY_TIMEOUT_MS);
+    };
+    const onChunkWithTimeout = (text: string) => {
+      if (timedOut) {
+        return;
+      }
+
+      armTimeout();
+      onChunk(text);
+    };
+    const requestPromise = (async () => {
+      let fullText = "";
+
+      switch (config.transport) {
+        case "openai-compatible":
+          fullText = await LLM_STREAM_REQUESTERS["openai-compatible"](
+            {
+              messages,
+              model,
+              provider,
+              apiKey,
+              language,
+              systemPrompt,
+              onChunk: onChunkWithTimeout,
+              abortSignal,
+            },
+            config,
+          );
+          break;
+        case "openai-realtime":
+          fullText = await LLM_STREAM_REQUESTERS["openai-realtime"]({
             messages,
             model,
             provider,
             apiKey,
             language,
             systemPrompt,
-            onChunk,
+            onChunk: onChunkWithTimeout,
             abortSignal,
-          },
-          config,
-        );
-        break;
-      case "openai-realtime":
-        fullText = await LLM_STREAM_REQUESTERS["openai-realtime"]({
-          messages,
-          model,
-          provider,
-          apiKey,
-          language,
-          systemPrompt,
-          onChunk,
-          abortSignal,
-        });
-        break;
-      case "gemini-live":
-        fullText = await LLM_STREAM_REQUESTERS["gemini-live"]({
-          messages,
-          model,
-          provider,
-          apiKey,
-          language,
-          systemPrompt,
-          onChunk,
-          abortSignal,
-        });
-        break;
-      case "anthropic":
-        fullText = await LLM_STREAM_REQUESTERS.anthropic({
-          messages,
-          model,
-          provider,
-          apiKey,
-          language,
-          systemPrompt,
-          onChunk,
-          abortSignal,
-        });
-        break;
-      case "cohere":
-      default:
-      fullText = await requestChatText({
-        messages,
-        model,
-        provider,
-        apiKey,
-        language,
-        systemPrompt,
-        abortSignal,
-      });
+          });
+          break;
+        case "gemini-live":
+          fullText = await LLM_STREAM_REQUESTERS["gemini-live"]({
+            messages,
+            model,
+            provider,
+            apiKey,
+            language,
+            systemPrompt,
+            onChunk: onChunkWithTimeout,
+            abortSignal,
+          });
+          break;
+        case "anthropic":
+          fullText = await LLM_STREAM_REQUESTERS.anthropic({
+            messages,
+            model,
+            provider,
+            apiKey,
+            language,
+            systemPrompt,
+            onChunk: onChunkWithTimeout,
+            abortSignal,
+          });
+          break;
+        case "cohere":
+        default:
+          fullText = await requestChatText({
+            messages,
+            model,
+            provider,
+            apiKey,
+            language,
+            systemPrompt,
+            abortSignal,
+          });
 
-      if (fullText) {
-        onChunk(fullText);
+          if (fullText) {
+            onChunkWithTimeout(fullText);
+          }
       }
+
+      return fullText;
+    })().catch((error) => {
+      if (timedOut) {
+        return "";
+      }
+
+      throw error;
+    });
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      rejectTimeout = reject;
+    });
+
+    armTimeout();
+    const fullText = await Promise.race([requestPromise, timeoutPromise]);
+
+    if (timedOut) {
+      return;
     }
 
     await onDone(
@@ -439,5 +496,9 @@ export async function streamChat({
     }
 
     await onError(error instanceof Error ? error : new Error(String(error)));
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
   }
 }

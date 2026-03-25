@@ -7,6 +7,7 @@ export const en: TranslationDictionary = {
     selection: "Selection",
     chooseCompatibleProviderFirst: "Choose a compatible provider first",
     settings: "Settings",
+    all: "All",
     firstRun: "First Run",
     instructions: "Instructions",
     providers: "Providers",
@@ -14,6 +15,18 @@ export const en: TranslationDictionary = {
     stt: "STT",
     tts: "TTS",
     ui: "UI",
+    settingsSectionApiKeys: "API Keys",
+    settingsSectionApiKeysDescription:
+      "Store every provider credential in one vault, then filter by capability when you need something specific.",
+    settingsSectionAiModels: "AI & Models",
+    settingsSectionAiModelsDescription:
+      "Set the system prompt, response style, model routing, and optional web grounding in one place.",
+    settingsSectionVoice: "Voice",
+    settingsSectionVoiceDescription:
+      "Choose how you speak to the app and how the app speaks back.",
+    settingsSectionApp: "App",
+    settingsSectionAppDescription:
+      "Control theme, language, usage visibility, and pricing references.",
     theme: "Theme",
     language: "Language",
     usageStats: "Usage Stats",
@@ -82,6 +95,16 @@ export const en: TranslationDictionary = {
     createProviderApiKey: ({ provider }) => `Create ${provider} API key`,
     useProvider: ({ provider }) => `Use ${provider}`,
     createApiKey: "Create API key",
+    searchProviders: "Search providers",
+    aboutThisProvider: "About this provider",
+    providerStatusInvalid: "Invalid",
+    providerStatusTesting: "Testing",
+    providerStatusConfigured: "Configured",
+    providerStatusNotSetup: "Not set up",
+    testProviderKey: "Test key",
+    providerValidationUnavailable:
+      "Live validation is not wired for this provider yet. Save the key here and verify it during actual use.",
+    providerNeedsAttention: "needs attention",
     catalogProviderReadOnlyHint:
       "This provider is present in the central catalog for inspection, but it is not wired into the app runtime yet.",
     catalogProviderReferenceHint:
@@ -110,6 +133,7 @@ export const en: TranslationDictionary = {
     apiKeyProtectedHint:
       "Stored keys stay hidden by default. Reveal them only when you need to verify or edit a value.",
     assistantInstructions: "Assistant Instructions",
+    systemPrompt: "System Prompt",
     assistantInstructionsIntro:
       "Shape the hidden guidance the model receives before every reply.",
     baseInstructions: "Base Instructions",
@@ -119,6 +143,9 @@ export const en: TranslationDictionary = {
     adaptiveLength: "Adaptive Length",
     responseTone: "Response Tone",
     inputMode: "Input Mode",
+    voiceInput: "Voice Input",
+    voiceInputDescription:
+      "Control how your speech is captured before it reaches the model.",
     pushToTalk: "Push to Talk",
     pushToTalkDescription:
       "Hold the main button while speaking, then release to send.",
@@ -133,7 +160,10 @@ export const en: TranslationDictionary = {
     webSearchProvider: "Web Search Provider",
     webSearchProviderHint:
       "Choose the provider that performs live web lookups. Its API key is stored on-device like any other provider key.",
+    webSearchProviderMissingHint:
+      "Configure at least one search-capable provider in API Keys to enable web grounding here.",
     webSearchMode: "Web Search Mode",
+    webSearchBehavior: "When to search",
     webSearchModeOff: "Off",
     webSearchModeAuto: "Auto",
     webSearchModeOn: "On",
@@ -147,6 +177,9 @@ export const en: TranslationDictionary = {
       `Uses ${model} behind the scenes for live web grounding.`,
     webSearchHomeHint:
       "Use the home-screen control to switch web grounding off, auto, or always on for this thread.",
+    settingsWebSearchCompactHint:
+      "Optionally prepend fresh web context before the main model replies.",
+    webSearchAdvanced: "Advanced Search Controls",
     webSearchSetupNeeded: "Add the provider key to use live web search.",
     webSearchEnabledDescription:
       "Fresh web context is added before the model replies.",
@@ -186,6 +219,8 @@ export const en: TranslationDictionary = {
     textToSpeech: "Text to Speech",
     nativeTtsDescription:
       "Use the device speech engine for spoken replies and voice preview.",
+    voiceOutputDescription:
+      "Pick the speech engine, listening languages, and voice previews for spoken replies.",
     localTts: "Local",
     localTtsDescription:
       "Try a matching downloaded local voice first, then the selected provider if available, then the system voice.",
@@ -462,6 +497,8 @@ export const en: TranslationDictionary = {
       `${provider} rejected the credentials for ${action}. Check the API key and permissions.`,
     providerRateLimitError: ({ provider, action }) =>
       `${provider} is rate limiting ${action} right now. Try again in a moment.`,
+    providerTimeoutError: ({ provider, action }) =>
+      `${provider} took too long during ${action}. Try again.`,
     providerTemporaryError: ({ provider, action }) =>
       `${provider} had a temporary problem during ${action}. Try again shortly.`,
     providerContextTooLong: ({ provider }) =>

@@ -94,6 +94,41 @@ describe("streamChat", () => {
     expect((fetch as jest.Mock).mock.calls[0][0]).toBe("https://api.anthropic.com/v1/messages");
   });
 
+  it("times out stalled reply generation requests", async () => {
+    jest.useFakeTimers();
+    (fetch as jest.Mock).mockImplementation(() => new Promise(() => undefined));
+    const onDone = jest.fn();
+    const onError = jest.fn();
+
+    try {
+      const promise = streamChat({
+        messages: mockMessages,
+        model: "gpt-4o",
+        provider: "openai",
+        apiKey: "sk-test-key",
+        assistantInstructions: "",
+        responseLength: "normal",
+        responseTone: "professional",
+        language: "en",
+        onChunk: () => undefined,
+        onDone,
+        onError,
+      });
+
+      await jest.advanceTimersByTimeAsync(45_000);
+      await promise;
+
+      expect(onDone).not.toHaveBeenCalled();
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: "OpenAI took too long during reply generation. Try again.",
+        }),
+      );
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it("uses the configured OpenAI-compatible endpoint for a newly wired provider", async () => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({

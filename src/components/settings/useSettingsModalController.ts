@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Platform, ScrollView } from "react-native";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,13 +22,44 @@ import {
   getEnabledTtsProviders,
 } from "../../utils/providerCapabilities";
 
-import { SettingsModalProps, SettingsTab, TextInputFocusHandler } from "./types";
+import {
+  SettingsFlowTab,
+  SettingsModalProps,
+  SettingsTab,
+  TextInputFocusHandler,
+} from "./types";
 import { useNativeVoiceOptions } from "./useNativeVoiceOptions";
 import { usePreviewTextState } from "./usePreviewTextState";
 import { useSettingsKeyboardInset } from "./useSettingsKeyboardInset";
 import { useSettingsModalAnimation } from "./useSettingsModalAnimation";
 import { useSettingsNormalization } from "./useSettingsNormalization";
 import { useVoicePreviewState } from "./useVoicePreviewState";
+
+function getInitialSettingsFlowTab(params: {
+  focusProvider?: SettingsModalProps["focusProvider"];
+  focusCatalogProviderId?: SettingsModalProps["focusCatalogProviderId"];
+  focusTab?: SettingsTab;
+}): SettingsFlowTab {
+  const { focusProvider, focusCatalogProviderId, focusTab } = params;
+
+  if (focusTab === "ui") {
+    return "app";
+  }
+
+  if (focusTab === "stt" || focusTab === "tts") {
+    return "voice";
+  }
+
+  if (focusTab === "instructions" || focusTab === "web") {
+    return "ai";
+  }
+
+  if (focusTab === "providers" || focusProvider || focusCatalogProviderId) {
+    return "keys";
+  }
+
+  return "keys";
+}
 
 export function useSettingsModalController({
   visible,
@@ -53,7 +84,13 @@ export function useSettingsModalController({
   const { t, language } = useLocalization();
   const insets = useSafeAreaInsets();
   const contentScrollRef = useRef<ScrollView>(null);
-  const [activeTab, setActiveTab] = useState<SettingsTab>("instructions");
+  const [activeTab, setActiveTab] = useState<SettingsFlowTab>(() =>
+    getInitialSettingsFlowTab({
+      focusProvider,
+      focusCatalogProviderId,
+      focusTab,
+    }),
+  );
   const speechDiagnostics = useSpeechDiagnostics(6);
   const {
     providerPreviewTexts,
@@ -87,34 +124,23 @@ export function useSettingsModalController({
     setSelectedNativeVoice,
   } = useNativeVoiceOptions({
     visible,
-    activeTab,
+    shouldLoad: activeTab === "voice",
     language,
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!visible) {
       return;
     }
 
-    if (focusTab) {
-      setActiveTab(focusTab);
-      return;
-    }
-
-    if (focusCatalogProviderId || focusProvider) {
-      setActiveTab("providers");
-    }
+    setActiveTab(
+      getInitialSettingsFlowTab({
+        focusProvider,
+        focusCatalogProviderId,
+        focusTab,
+      }),
+    );
   }, [focusCatalogProviderId, focusProvider, focusTab, visible]);
-
-  useEffect(() => {
-    if (!visible) {
-      return;
-    }
-
-    requestAnimationFrame(() => {
-      contentScrollRef.current?.scrollTo({ y: 0, animated: false });
-    });
-  }, [activeTab, visible]);
   useSettingsNormalization({
     visible,
     settings,
@@ -254,9 +280,9 @@ export function useSettingsModalController({
   };
 
   return {
-    contentScrollRef,
     activeTab,
     setActiveTab,
+    contentScrollRef,
     providerPreviewTexts,
     setProviderPreviewText,
     localPreviewTexts,

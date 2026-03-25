@@ -7,6 +7,7 @@ export const de: TranslationDictionary = {
     selection: "Auswahl",
     chooseCompatibleProviderFirst: "Wähle zuerst nen geeigneten Anbieter",
     settings: "Einstellungen",
+    all: "Alle",
     firstRun: "Erster Start",
     instructions: "Befehle",
     providers: "Anbieter",
@@ -14,6 +15,18 @@ export const de: TranslationDictionary = {
     stt: "STT",
     tts: "TTS",
     ui: "UI",
+    settingsSectionApiKeys: "API-Keys",
+    settingsSectionApiKeysDescription:
+      "Hinterlege hier alle Anbieter-Keys zentral und filtere bei Bedarf nach Fähigkeiten.",
+    settingsSectionAiModels: "KI & Modelle",
+    settingsSectionAiModelsDescription:
+      "Lege Systemprompt, Antwortstil, Modellrouting und optionale Web-Grundierung an einer Stelle fest.",
+    settingsSectionVoice: "Stimme",
+    settingsSectionVoiceDescription:
+      "Bestimme, wie du mit der App sprichst und wie die App mit dir spricht.",
+    settingsSectionApp: "App",
+    settingsSectionAppDescription:
+      "Steuere Design, Sprache, Sichtbarkeit der Nutzung und Preisreferenzen.",
     theme: "Design",
     language: "Sprache",
     usageStats: "Nutzungsdaten",
@@ -83,6 +96,16 @@ export const de: TranslationDictionary = {
       `API-Schlüssel für ${provider} erstellen`,
     useProvider: ({ provider }) => `${provider} verwenden`,
     createApiKey: "API-Schlüssel erstellen",
+    searchProviders: "Anbieter suchen",
+    aboutThisProvider: "Über diesen Anbieter",
+    providerStatusInvalid: "Ungültig",
+    providerStatusTesting: "Prüfe",
+    providerStatusConfigured: "Konfiguriert",
+    providerStatusNotSetup: "Nicht eingerichtet",
+    testProviderKey: "Key testen",
+    providerValidationUnavailable:
+      "Für diesen Anbieter ist noch kein Live-Test verdrahtet. Speichere den Key hier und prüfe ihn bei der echten Nutzung.",
+    providerNeedsAttention: "braucht Aufmerksamkeit",
     catalogProviderReadOnlyHint:
       "Dieser Anbieter ist zur Ansicht im zentralen Katalog vorhanden, aber noch nicht in die App-Laufzeit integriert.",
     catalogProviderReferenceHint:
@@ -112,6 +135,7 @@ export const de: TranslationDictionary = {
     apiKeyProtectedHint:
       "Gespeicherte API-Keys bleiben standardmäßig verborgen. Zeige sie nur an, wenn du einen Wert prüfen oder ändern musst.",
     assistantInstructions: "Assistent-Anweisungen",
+    systemPrompt: "Systemprompt",
     assistantInstructionsIntro:
       "Definiere den versteckten Befehl, der jedem Modell vor jeder Antwort vorangestellt wird.",
     baseInstructions: "Grundbefehle",
@@ -122,6 +146,9 @@ export const de: TranslationDictionary = {
     adaptiveLength: "Antwortlänge",
     responseTone: "Antwortstil",
     inputMode: "Eingabemodus",
+    voiceInput: "Spracheingabe",
+    voiceInputDescription:
+      "Steuere, wie deine Sprache aufgenommen wird, bevor sie das Modell erreicht.",
     pushToTalk: "Push to talk",
     pushToTalkDescription:
       "Lass den Button während des Sprechens gedrückt und lass ihn los, wenn du fertig bist.",
@@ -136,7 +163,10 @@ export const de: TranslationDictionary = {
     webSearchProvider: "Websuche-Anbieter",
     webSearchProviderHint:
       "Wähle den Anbieter für Live-Websuchen. Sein API-Key wird wie alle anderen Anbieter-Keys lokal auf dem Gerät gespeichert.",
+    webSearchProviderMissingHint:
+      "Richte in den API-Keys mindestens einen suchfähigen Anbieter ein, damit Web-Grundierung hier verfügbar ist.",
     webSearchMode: "Websuche-Modus",
+    webSearchBehavior: "Wann gesucht wird",
     webSearchModeOff: "Aus",
     webSearchModeAuto: "Auto",
     webSearchModeOn: "An",
@@ -150,6 +180,9 @@ export const de: TranslationDictionary = {
       `Verwendet im Hintergrund ${model} für die Live-Webrecherche.`,
     webSearchHomeHint:
       "Nutze den Homescreen-Schalter, um Web-Grundierung für diesen Schnack auszuschalten, automatisch zu steuern oder immer zu erzwingen.",
+    settingsWebSearchCompactHint:
+      "Optional wird vor der eigentlichen Antwort frischer Web-Kontext eingefügt.",
+    webSearchAdvanced: "Erweiterte Suchregler",
     webSearchSetupNeeded:
       "Hinterlege den Anbieter-Key, um die Live-Websuche zu nutzen.",
     webSearchEnabledDescription:
@@ -190,6 +223,8 @@ export const de: TranslationDictionary = {
     textToSpeech: "Text zu Sprache",
     nativeTtsDescription:
       "Verwende die Sprachausgabe des Geräts für die Sprachausgabe.",
+    voiceOutputDescription:
+      "Wähle Sprachengine, Zielsprachen und Stimmvorschauen für die Sprachausgabe.",
     localTts: "Lokal",
     localTtsDescription:
       "Nutze zuerst ein passendes lokales LLM, dann (falls vorhanden) den ausgewählten Anbieter, und zuletzt die Systemstimme.",
@@ -473,6 +508,8 @@ export const de: TranslationDictionary = {
       `${provider} hat die Zugangsdaten für ${action} abgelehnt. Prüfe API-Schlüssel und Berechtigungen.`,
     providerRateLimitError: ({ provider, action }) =>
       `${provider} drosselt ${action} gerade. Versuch es gleich noch einmal.`,
+    providerTimeoutError: ({ provider, action }) =>
+      `${provider} hat für ${action} zu lange gebraucht. Versuch es erneut.`,
     providerTemporaryError: ({ provider, action }) =>
       `${provider} hatte während ${action} ein vorübergehendes Problem. Versuch es in Kürze erneut.`,
     providerContextTooLong: ({ provider }) =>

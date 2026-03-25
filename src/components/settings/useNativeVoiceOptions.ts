@@ -9,15 +9,15 @@ import { NativeSpeechVoice } from "./types";
 
 export function useNativeVoiceOptions(params: {
   visible: boolean;
-  activeTab: string;
+  shouldLoad: boolean;
   language: AppLanguage;
 }) {
-  const { visible, activeTab, language } = params;
+  const { visible, shouldLoad, language } = params;
   const [nativeVoices, setNativeVoices] = useState<NativeSpeechVoice[]>([]);
   const [selectedNativeVoice, setSelectedNativeVoice] = useState("");
 
   useEffect(() => {
-    if (!visible || activeTab !== "tts") {
+    if (!visible || !shouldLoad) {
       return;
     }
 
@@ -85,7 +85,7 @@ export function useNativeVoiceOptions(params: {
     return () => {
       cancelled = true;
     };
-  }, [activeTab, language, visible]);
+  }, [language, shouldLoad, visible]);
 
   const nativeVoiceOptions = useMemo(
     () =>

@@ -1,5 +1,5 @@
 import React from "react";
-import { render, waitFor } from "@testing-library/react-native";
+import { fireEvent, render, waitFor } from "@testing-library/react-native";
 
 import { SettingsModal } from "../../src/components/SettingsModal";
 import { LocalizationProvider } from "../../src/i18n";
@@ -100,37 +100,67 @@ function renderSettingsModal(overrideProps: Partial<React.ComponentProps<typeof 
 }
 
 describe("SettingsModal", () => {
-  it("renders the modal shell and default tab controls", () => {
+  it("renders the modal shell and switches between distinct tab contents", async () => {
     const screen = renderSettingsModal();
 
-    expect(screen.getByText("Settings")).toBeTruthy();
-    expect(screen.getByText("Instructions")).toBeTruthy();
-    expect(screen.getByText("Providers")).toBeTruthy();
-    expect(screen.getByText("Web Search")).toBeTruthy();
-    expect(screen.getByText("STT")).toBeTruthy();
-    expect(screen.getByText("TTS")).toBeTruthy();
-    expect(screen.getByText("UI")).toBeTruthy();
-  });
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeTruthy();
+      expect(screen.getAllByText("API Keys").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("AI & Models").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("Voice").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("App").length).toBeGreaterThan(0);
+      expect(screen.getByPlaceholderText("Search providers")).toBeTruthy();
+      expect(screen.queryByText("System Prompt")).toBeNull();
+      expect(screen.queryByText("Voice Input")).toBeNull();
+      expect(screen.queryByText("Theme")).toBeNull();
+    });
 
-  it("opens the providers tab when a focus provider is supplied", async () => {
-    const screen = renderSettingsModal({ focusProvider: "openai" });
+    fireEvent.press(screen.getAllByText("AI & Models")[0]);
 
     await waitFor(() => {
-      expect(screen.getByText("Create API key")).toBeTruthy();
+      expect(screen.getByText("System Prompt")).toBeTruthy();
+      expect(screen.queryByPlaceholderText("Search providers")).toBeNull();
+      expect(screen.queryByText("Voice Input")).toBeNull();
+      expect(screen.queryByText("Theme")).toBeNull();
+    });
+
+    fireEvent.press(screen.getAllByText("Voice")[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText("Voice Input")).toBeTruthy();
+      expect(screen.getByText("Voice Output")).toBeTruthy();
+      expect(screen.queryByText("System Prompt")).toBeNull();
+      expect(screen.queryByText("Theme")).toBeNull();
+    });
+
+    fireEvent.press(screen.getAllByText("App")[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText("Theme")).toBeTruthy();
+      expect(screen.getByText("Usage Stats")).toBeTruthy();
+      expect(screen.queryByText("Voice Input")).toBeNull();
+      expect(screen.queryByText("System Prompt")).toBeNull();
     });
   });
 
-  it("opens the providers tab when a catalog focus provider id is supplied", async () => {
+  it("opens the API keys tab when a focus provider is supplied", async () => {
+    const screen = renderSettingsModal({ focusProvider: "openai" });
+
+    await waitFor(() => {
+      expect(screen.getByText("OpenAI")).toBeTruthy();
+      expect(screen.getByText("Test key")).toBeTruthy();
+      expect(screen.queryByText("System Prompt")).toBeNull();
+    });
+  });
+
+  it("opens the API keys tab even when a catalog-only provider id is supplied", async () => {
     const screen = renderSettingsModal({
       focusCatalogProviderId: "ibm-watsonx",
     });
 
     await waitFor(() => {
-      expect(
-        screen.getByText(
-          "This provider is present in the central catalog for inspection, but it is not wired into the app runtime yet.",
-        ),
-      ).toBeTruthy();
+      expect(screen.getByPlaceholderText("Search providers")).toBeTruthy();
+      expect(screen.queryByText("System Prompt")).toBeNull();
     });
   });
 });

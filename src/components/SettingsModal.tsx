@@ -7,21 +7,19 @@ import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useLocalization } from "../i18n";
-import { AppLanguage, Provider, TtsListenLanguage } from "../types";
+import { Provider, TtsListenLanguage } from "../types";
 import { useTheme } from "../theme/ThemeContext";
 
-import { TABS } from "./settings/constants";
-import { getTabLabel } from "./settings/helpers";
-import { InstructionsTab } from "./settings/InstructionsTab";
-import { ProvidersTab } from "./settings/ProvidersTab";
-import { TabIntro } from "./settings/shared";
+import {
+  AiModelsSection,
+  ApiKeysSection,
+  VoiceSection,
+} from "./settings/SettingsFlowSections";
 import { styles } from "./settings/styles";
-import { SttTab } from "./settings/SttTab";
-import { TtsTab } from "./settings/TtsTab";
-import { SettingsModalProps } from "./settings/types";
+import { SettingsFlowTab, SettingsModalProps } from "./settings/types";
 import { UiTab } from "./settings/UiTab";
+import { useProviderValidationState } from "./settings/useProviderValidationState";
 import { useSettingsModalController } from "./settings/useSettingsModalController";
-import { WebSearchTab } from "./settings/WebSearchTab";
 
 export function SettingsModal(props: SettingsModalProps) {
   const {
@@ -49,9 +47,9 @@ export function SettingsModal(props: SettingsModalProps) {
   const { t } = useLocalization();
   const insets = useSafeAreaInsets();
   const {
-    contentScrollRef,
     activeTab,
     setActiveTab,
+    contentScrollRef,
     providerPreviewTexts,
     setProviderPreviewText,
     localPreviewTexts,
@@ -61,15 +59,11 @@ export function SettingsModal(props: SettingsModalProps) {
     activePreview,
     keyboardInset,
     speechDiagnostics,
-    enabledSttProviders,
-    enabledTtsProviders,
     modalAnimStyle,
     handleTextInputFocus,
     handlePreviewLocalVoice,
     handlePreviewProviderVoice,
     handlePreviewNativeVoice,
-    providerPickerDisabled,
-    ttsProviderPickerDisabled,
     selectedSttProviderModelOptions,
     selectedSttProviderModel,
     sttLanguageNote,
@@ -92,6 +86,153 @@ export function SettingsModal(props: SettingsModalProps) {
     onPreviewVoice,
     onStopPreviewVoice,
   });
+  const {
+    getHealthState,
+    getValidationState,
+    canValidateProvider,
+    validateProviderForSettings,
+    selectableLlmProviders,
+    selectableSttProviders,
+    selectableTtsProviders,
+    selectableSearchProviders,
+  } = useProviderValidationState({
+    settings,
+    onValidateProvider,
+    onValidateWebSearchProvider,
+  });
+  const tabOrder: SettingsFlowTab[] = ["keys", "ai", "voice", "app"];
+
+  const getSectionLabel = React.useCallback(
+    (section: SettingsFlowTab) => {
+      switch (section) {
+        case "keys":
+          return t("settingsSectionApiKeys");
+        case "ai":
+          return t("settingsSectionAiModels");
+        case "voice":
+          return t("settingsSectionVoice");
+        case "app":
+          return t("settingsSectionApp");
+      }
+    },
+    [t],
+  );
+
+  React.useEffect(() => {
+    if (!visible) {
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      contentScrollRef.current?.scrollTo({ y: 0, animated: false });
+    });
+  }, [activeTab, contentScrollRef, visible]);
+
+  const activeContent = (() => {
+    switch (activeTab) {
+      case "keys":
+        return (
+          <ApiKeysSection
+            settings={settings}
+            focusProvider={focusProvider}
+            focusCatalogProviderId={focusCatalogProviderId}
+            getProviderHealthState={getHealthState}
+            getProviderValidationState={getValidationState}
+            canValidateProvider={canValidateProvider}
+            onValidateProvider={validateProviderForSettings}
+            onUpdateApiKey={onUpdateApiKey}
+            onTextInputFocus={handleTextInputFocus}
+          />
+        );
+      case "ai":
+        return (
+          <AiModelsSection
+            settings={settings}
+            llmProviders={selectableLlmProviders}
+            searchProviders={selectableSearchProviders}
+            onUpdate={onUpdate}
+            onUpdateResponseModeRoute={onUpdateResponseModeRoute}
+          />
+        );
+      case "voice":
+        return (
+          <VoiceSection
+            settings={settings}
+            selectableSttProviders={selectableSttProviders}
+            selectableTtsProviders={selectableTtsProviders}
+            selectedSttProviderModelOptions={selectedSttProviderModelOptions}
+            selectedSttProviderModel={selectedSttProviderModel}
+            sttLanguageNote={sttLanguageNote}
+            sttLimitNote={sttLimitNote}
+            ttsLanguageNote={ttsLanguageNote}
+            selectedPreviewProvider={selectedPreviewProvider}
+            selectedPreviewProviderModelOptions={
+              selectedPreviewProviderModelOptions
+            }
+            selectedPreviewProviderModel={selectedPreviewProviderModel}
+            providerPreviewTexts={providerPreviewTexts}
+            localPreviewTexts={localPreviewTexts}
+            activePreview={activePreview}
+            localTtsPackStates={localTtsPackStates}
+            nativeVoiceOptions={nativeVoiceOptions}
+            selectedNativeVoice={selectedNativeVoice}
+            nativePreviewText={nativePreviewText}
+            speechDiagnostics={speechDiagnostics}
+            onUpdate={onUpdate}
+            onUpdateProviderSttModel={onUpdateProviderSttModel}
+            onUpdateProviderTtsModel={onUpdateProviderTtsModel}
+            onUpdateProviderTtsVoice={onUpdateProviderTtsVoice}
+            onUpdateLocalTtsVoice={onUpdateLocalTtsVoice}
+            onInstallLocalTtsLanguagePack={onInstallLocalTtsLanguagePack}
+            onStopPreviewVoice={onStopPreviewVoice}
+            onSetProviderPreviewText={(
+              provider: Provider,
+              language: TtsListenLanguage,
+              text: string,
+            ) => setProviderPreviewText(provider, language, text)}
+            onSetLocalPreviewText={setLocalPreviewText}
+            onSetNativePreviewText={setNativePreviewText}
+            onPreviewProviderVoice={handlePreviewProviderVoice}
+            onPreviewLocalVoice={handlePreviewLocalVoice}
+            onPreviewNativeVoice={handlePreviewNativeVoice}
+            onSelectNativeVoice={setSelectedNativeVoice}
+            onTextInputFocus={handleTextInputFocus}
+            onToggleListenLanguage={toggleListenLanguage}
+          />
+        );
+      case "app":
+        return (
+          <>
+            <View
+              style={[
+                styles.sectionCard,
+                {
+                  backgroundColor: colors.surfaceElevated,
+                  borderColor: colors.border,
+                },
+              ]}
+            >
+              <View style={styles.settingsSectionHeader}>
+                <Text
+                  style={[styles.settingsSectionTitle, { color: colors.text }]}
+                >
+                  {t("settingsSectionApp")}
+                </Text>
+                <Text
+                  style={[
+                    styles.settingsSectionDescription,
+                    { color: colors.textMuted },
+                  ]}
+                >
+                  {t("settingsSectionAppDescription")}
+                </Text>
+              </View>
+            </View>
+            <UiTab settings={settings} onUpdate={onUpdate} />
+          </>
+        );
+    }
+  })();
 
   return (
     <Modal visible={visible} transparent animationType="none">
@@ -154,33 +295,33 @@ export function SettingsModal(props: SettingsModalProps) {
             contentContainerStyle={styles.tabRow}
             contentInsetAdjustmentBehavior="never"
           >
-            {TABS.map((tab) => {
-              const active = tab === activeTab;
+            {tabOrder.map((section) => {
+              const active = activeTab === section;
 
               return (
-                <TouchableOpacity
-                  key={tab}
+              <TouchableOpacity
+                key={section}
+                style={[
+                  styles.tabButton,
+                  {
+                    backgroundColor: active ? colors.accentSoft : colors.surface,
+                    borderColor: active ? colors.accent : colors.border,
+                  },
+                ]}
+                onPress={() => setActiveTab(section)}
+                activeOpacity={0.85}
+              >
+                <Text
                   style={[
-                    styles.tabButton,
+                    styles.tabButtonText,
                     {
-                      backgroundColor: active
-                        ? colors.surfaceElevated
-                        : colors.surface,
-                      borderColor: active ? colors.borderStrong : colors.border,
+                      color: active ? colors.accent : colors.textSecondary,
                     },
                   ]}
-                  onPress={() => setActiveTab(tab)}
-                  activeOpacity={0.85}
                 >
-                  <Text
-                    style={[
-                      styles.tabButtonText,
-                      { color: active ? colors.text : colors.textSecondary },
-                    ]}
-                  >
-                    {getTabLabel(tab, t)}
-                  </Text>
-                </TouchableOpacity>
+                  {getSectionLabel(section)}
+                </Text>
+              </TouchableOpacity>
               );
             })}
           </ScrollView>
@@ -198,96 +339,7 @@ export function SettingsModal(props: SettingsModalProps) {
             keyboardDismissMode="interactive"
             nestedScrollEnabled
           >
-            <TabIntro tab={activeTab} />
-
-            {activeTab === "instructions" ? (
-              <InstructionsTab
-                settings={settings}
-                onUpdate={onUpdate}
-                onTextInputFocus={handleTextInputFocus}
-              />
-            ) : null}
-
-            {activeTab === "providers" ? (
-              <ProvidersTab
-                settings={settings}
-                focusProvider={focusProvider}
-                focusCatalogProviderId={focusCatalogProviderId}
-                onUpdateResponseModeRoute={onUpdateResponseModeRoute}
-                onUpdateApiKey={onUpdateApiKey}
-                onTextInputFocus={handleTextInputFocus}
-                onValidateProvider={onValidateProvider}
-              />
-            ) : null}
-
-            {activeTab === "stt" ? (
-              <SttTab
-                settings={settings}
-                enabledSttProviders={enabledSttProviders}
-                providerPickerDisabled={providerPickerDisabled}
-                selectedSttProviderModelOptions={selectedSttProviderModelOptions}
-                selectedSttProviderModel={selectedSttProviderModel}
-                sttLanguageNote={sttLanguageNote}
-                sttLimitNote={sttLimitNote}
-                onUpdate={onUpdate}
-                onUpdateProviderSttModel={onUpdateProviderSttModel}
-              />
-            ) : null}
-
-            {activeTab === "web" ? (
-              <WebSearchTab
-                settings={settings}
-                onUpdate={onUpdate}
-                onUpdateApiKey={onUpdateApiKey}
-                onTextInputFocus={handleTextInputFocus}
-                onValidateWebSearchProvider={onValidateWebSearchProvider}
-              />
-            ) : null}
-
-            {activeTab === "tts" ? (
-              <TtsTab
-                settings={settings}
-                enabledTtsProviders={enabledTtsProviders}
-                ttsProviderPickerDisabled={ttsProviderPickerDisabled}
-                ttsLanguageNote={ttsLanguageNote}
-                selectedPreviewProvider={selectedPreviewProvider}
-                selectedPreviewProviderModelOptions={
-                  selectedPreviewProviderModelOptions
-                }
-                selectedPreviewProviderModel={selectedPreviewProviderModel}
-                providerPreviewTexts={providerPreviewTexts}
-                localPreviewTexts={localPreviewTexts}
-                activePreview={activePreview}
-                localTtsPackStates={localTtsPackStates}
-                nativeVoiceOptions={nativeVoiceOptions}
-                selectedNativeVoice={selectedNativeVoice}
-                nativePreviewText={nativePreviewText}
-                speechDiagnostics={speechDiagnostics}
-                onUpdate={onUpdate}
-                onUpdateProviderTtsModel={onUpdateProviderTtsModel}
-                onUpdateProviderTtsVoice={onUpdateProviderTtsVoice}
-                onUpdateLocalTtsVoice={onUpdateLocalTtsVoice}
-                onInstallLocalTtsLanguagePack={onInstallLocalTtsLanguagePack}
-                onStopPreviewVoice={onStopPreviewVoice}
-                onSetProviderPreviewText={(
-                  provider: Provider,
-                  language: TtsListenLanguage,
-                  text: string,
-                ) => setProviderPreviewText(provider, language, text)}
-                onSetLocalPreviewText={setLocalPreviewText}
-                onSetNativePreviewText={setNativePreviewText}
-                onPreviewProviderVoice={handlePreviewProviderVoice}
-                onPreviewLocalVoice={handlePreviewLocalVoice}
-                onPreviewNativeVoice={handlePreviewNativeVoice}
-                onSelectNativeVoice={setSelectedNativeVoice}
-                onTextInputFocus={handleTextInputFocus}
-                onToggleListenLanguage={toggleListenLanguage}
-              />
-            ) : null}
-
-            {activeTab === "ui" ? (
-              <UiTab settings={settings} onUpdate={onUpdate} />
-            ) : null}
+            {activeContent}
           </ScrollView>
         </Animated.View>
       </View>

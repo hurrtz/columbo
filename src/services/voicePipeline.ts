@@ -208,6 +208,16 @@ export async function runVoicePipeline(
       ttsVoice,
     });
 
+    recordDebugLogEvent({
+      event: "voice-pipeline-llm-requested",
+      payload: {
+        model,
+        provider,
+        hasWebSearchContext: !!webSearchContext,
+        webSearchContextLength: webSearchContext?.length ?? 0,
+      },
+    });
+
     await streamChat({
       messages: allMessages,
       model,
@@ -230,6 +240,13 @@ export async function runVoicePipeline(
         await ttsQueue.handleResponseDone(fullText);
       },
       onError: callbacks.onError,
+    });
+    recordDebugLogEvent({
+      event: "voice-pipeline-llm-complete",
+      payload: {
+        model,
+        provider,
+      },
     });
     recordDebugLogEvent({
       event: "voice-pipeline-run-complete",
