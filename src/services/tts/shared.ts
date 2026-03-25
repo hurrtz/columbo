@@ -152,6 +152,12 @@ type ElevenLabsTtsConfig = {
 
 export type ProviderTtsConfig =
   | BinaryTtsConfig
+  | {
+      kind: "credential-endpoint-binary";
+      requestFormat: RuntimeTtsBinaryRequestFormat;
+      defaultModel: string;
+      voiceFallback: string;
+    }
   | AzureOpenAiTtsConfig
   | BaiduTtsConfig
   | GeminiTtsConfig
@@ -199,6 +205,23 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       {
         kind: "binary",
         endpoint: manifest.tts.endpoint,
+        requestFormat: manifest.tts.requestFormat,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
+    manifest.tts.transport === "credential-endpoint-binary" &&
+    manifest.tts.requestFormat &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "credential-endpoint-binary",
         requestFormat: manifest.tts.requestFormat,
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,

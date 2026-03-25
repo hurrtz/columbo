@@ -12,6 +12,12 @@ export type MultipartTranscriptionConfig = {
   languageHint?: () => string | undefined;
 };
 
+export type CredentialEndpointMultipartTranscriptionConfig = {
+  kind: "credential-endpoint-multipart";
+  defaultModel: string;
+  languageHint?: () => string | undefined;
+};
+
 export type GoogleCloudSpeechTranscriptionConfig = {
   kind: "google-cloud-speech";
   defaultModel: string;
@@ -150,6 +156,7 @@ export type XaiVoiceAgentTranscriptionConfig = {
 
 export type ProviderSttConfig =
   | MultipartTranscriptionConfig
+  | CredentialEndpointMultipartTranscriptionConfig
   | GoogleCloudSpeechTranscriptionConfig
   | GeminiTranscriptionConfig
   | OpenAiAudioInputTranscriptionConfig
@@ -208,6 +215,14 @@ function buildConfigForTransport(params: {
               : {}),
           }
         : null;
+    case "credential-endpoint-multipart":
+      return {
+        kind: "credential-endpoint-multipart",
+        defaultModel: params.defaultModel,
+        ...(params.languageHintKey
+          ? { languageHint: getLanguageHint(params.languageHintKey) }
+          : {}),
+      };
     case "google-cloud-speech":
       return {
         kind: "google-cloud-speech",

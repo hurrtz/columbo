@@ -272,6 +272,60 @@ describe("synthesizeProviderSpeech", () => {
     });
   });
 
+  it("uses Xiaomi's experimental OpenAI-style speech route for MiMo TTS", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "xiaomi-mimo",
+      providerModel: "mimo-v2-tts",
+      apiKey: "mimo-test-key",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.xiaomimimo.com/v1/audio/speech");
+    expect(options.headers.Authorization).toBe("Bearer mimo-test-key");
+    expect(JSON.parse(options.body)).toEqual({
+      model: "mimo-v2-tts",
+      voice: "alloy",
+      input: "Hello world",
+      response_format: "mp3",
+    });
+  });
+
+  it("uses deployment-specific Lepton speech endpoints for Dia TTS", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "lepton-ai",
+      providerModel: "nari-labs/Dia-1.6B-0626",
+      apiKey: "https://lepton.example.com/v1|lepton-test-key",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://lepton.example.com/v1/audio/speech");
+    expect(options.headers.Authorization).toBe("Bearer lepton-test-key");
+    expect(JSON.parse(options.body)).toEqual({
+      model: "nari-labs/Dia-1.6B-0626",
+      voice: "alloy",
+      input: "Hello world",
+      response_format: "mp3",
+    });
+  });
+
   it("uses Deepgram native speak and sends the selected voice model", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

@@ -52,7 +52,7 @@ const GERMAN_PROVIDER_API_KEY_PLACEHOLDER_OVERRIDES: Partial<
   mistral: "API-Schluessel eingeben",
   cohere: "API-Schluessel eingeben",
   together: "API-Schluessel eingeben",
-  nvidia: "nvapi-...",
+  nvidia: "nvapi-...|https://stt-endpoint.example.com/v1|https://tts-endpoint.example.com/v1",
 };
 
 const PROVIDER_API_KEY_HINTS_BY_LANGUAGE: Record<AppLanguage, Record<Provider, string>> = {

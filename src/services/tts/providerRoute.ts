@@ -11,6 +11,10 @@ import {
 } from "../providerCredentials";
 import { parseVolcengineSpeechCredentials } from "../volcengineCredentials";
 import {
+  resolveCustomSpeechEndpointCredentials,
+  resolveCustomSpeechEndpointUrl,
+} from "../customSpeechCredentials";
+import {
   getReplicateInputProperty,
   getReplicateModelMetadata,
   runReplicatePrediction,
@@ -1691,6 +1695,27 @@ export async function synthesizeProviderSpeech(params: {
     return writeBlobAudioFile(await response.blob());
   }
 
+  const endpoint =
+    config.kind === "credential-endpoint-binary"
+      ? resolveCustomSpeechEndpointUrl(
+          resolveCustomSpeechEndpointCredentials(
+            provider,
+            apiKey,
+            language,
+            "tts",
+          ).endpoint,
+          "/audio/speech",
+        )
+      : config.endpoint;
+  const authorizationKey =
+    config.kind === "credential-endpoint-binary"
+      ? resolveCustomSpeechEndpointCredentials(
+          provider,
+          apiKey,
+          language,
+          "tts",
+        ).apiKey
+      : requireProviderKey(provider, apiKey, language);
   const resolvedVoice = getBinaryTtsVoice({
     requestFormat: config.requestFormat,
     selectedModel,
@@ -1705,12 +1730,12 @@ export async function synthesizeProviderSpeech(params: {
   });
 
   const response = await fetchWithTimeout(
-    config.endpoint,
+    endpoint,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+        Authorization: `Bearer ${authorizationKey}`,
       },
       body: JSON.stringify(requestBody),
     },

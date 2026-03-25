@@ -224,6 +224,7 @@ describe("speech provider constants", () => {
       { id: "minimax-speech-2.8-hd", name: "MiniMax Speech 2.8 HD" },
       { id: "glm-tts", name: "GLM Text to Speech" },
       { id: "txt2speech", name: "Legacy Text to Speech" },
+      { id: "minimax-voice-cloning", name: "MiniMax Quick Voice Cloning" },
     ]);
     expect(getProviderTtsModelOptions("baidu-ernie-qianfan")).toEqual([
       { id: "短文本语音合成", name: "Short Text Speech Synthesis" },
@@ -232,9 +233,31 @@ describe("speech provider constants", () => {
     ]);
     expect(getProviderTtsModelOptions("z-ai-zhipu-ai")).toEqual([
       { id: "glm-tts", name: "GLM-TTS" },
+      { id: "glm-tts-clone", name: "GLM-TTS-Clone" },
+      { id: "glm-4-voice", name: "GLM-4-Voice" },
+      { id: "glm-realtime-flash", name: "GLM-Realtime-Flash" },
+      { id: "glm-realtime-air", name: "GLM-Realtime-Air" },
     ]);
     expect(getProviderTtsModelOptions("bytedance-doubao-seed")).toEqual([
       { id: "unknown", name: "Doubao Large-Model TTS" },
+    ]);
+    expect(getProviderTtsModelOptions("xiaomi-mimo")).toEqual([
+      { id: "mimo-v2-tts", name: "MiMo-V2-TTS" },
+    ]);
+    expect(getProviderTtsModelOptions("lepton-ai")).toEqual([
+      {
+        id: "nari-labs/Dia-1.6B-0626",
+        name: "Dia 1.6B (upstream TTS model used in Lepton deployment example)",
+      },
+    ]);
+    expect(getProviderSttModelOptions("nvidia")).toEqual([
+      { id: "parakeet-ctc-1_1b-asr", name: "Parakeet CTC 1.1B ASR" },
+      { id: "canary-1b-asr", name: "Canary 1B ASR" },
+    ]);
+    expect(getProviderTtsModelOptions("nvidia")).toEqual([
+      { id: "magpie-tts-multilingual", name: "Magpie TTS Multilingual" },
+      { id: "magpie-tts-zeroshot", name: "Magpie TTS Zeroshot" },
+      { id: "magpie-tts-flow", name: "Magpie TTS Flow" },
     ]);
     expect(getProviderTtsModelOptions("together")).toEqual([
       { id: "canopylabs/orpheus-3b-0.1-ft", name: "Orpheus 3B" },

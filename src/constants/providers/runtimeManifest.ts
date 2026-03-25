@@ -59,6 +59,7 @@ export type RuntimeLlmTransport =
 export type RuntimeSttTransport =
   | "none"
   | "multipart"
+  | "credential-endpoint-multipart"
   | "google-cloud-speech"
   | "azure-openai"
   | "aleph-alpha"
@@ -86,6 +87,7 @@ export type RuntimeSttTransport =
 export type RuntimeTtsTransport =
   | "none"
   | "binary"
+  | "credential-endpoint-binary"
   | "azure-openai"
   | "baidu"
   | "gemini"
@@ -1155,10 +1157,17 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: [],
     },
     tts: {
-      support: "none",
-      transport: "none",
-      models: [],
-      voiceOptions: [],
+      support: "provider",
+      transport: "binary",
+      endpoint: "https://api.xiaomimimo.com/v1/audio/speech",
+      requestFormat: "openai-speech",
+      defaultModel: "mimo-v2-tts",
+      defaultVoice: "alloy",
+      voiceFallback: "alloy",
+      models: catalogModelSpecs("xiaomi-mimo", "tts"),
+      voiceOptions: [voice("alloy", "Default")],
+      languageNote:
+        "MiMo-V2-TTS is still under-documented at the protocol level. The app uses an experimental OpenAI-style speech request until Xiaomi publishes a fuller public API reference.",
     },
   },
   groq: {
@@ -1441,7 +1450,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     shortLabel: "LEPTON",
     apiKeyPlaceholder: "https://your-lepton-endpoint.example.com/v1|api-key",
     apiKeyHint:
-      "Enter your Lepton endpoint base URL and API key separated by |. The app uses the deployed OpenAI-compatible chat surface on that endpoint.",
+      "Enter your Lepton endpoint base URL and API key separated by |. The app uses the deployed OpenAI-compatible chat surface and, if present, the deployed /audio/speech surface on that endpoint.",
     apiKeyUrl: "https://docs.nvidia.com/dgx-cloud/lepton/features/endpoints/create-llm/",
     llm: {
       support: "provider",
@@ -1464,10 +1473,16 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: [],
     },
     tts: {
-      support: "none",
-      transport: "none",
-      models: [],
-      voiceOptions: [],
+      support: "provider",
+      transport: "credential-endpoint-binary",
+      requestFormat: "openai-speech",
+      defaultModel: "nari-labs/Dia-1.6B-0626",
+      defaultVoice: "alloy",
+      voiceFallback: "alloy",
+      models: catalogModelSpecs("lepton-ai", "tts"),
+      voiceOptions: [voice("alloy", "Default")],
+      languageNote:
+        "Lepton TTS is deployment-specific. Configure a Lepton endpoint that exposes an OpenAI-style /audio/speech surface if you want this catalog row to be callable in-app.",
     },
   },
   minimax: {
@@ -1860,8 +1875,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     catalogProviderId: "nvidia-nim",
     label: "NVIDIA",
     shortLabel: "NVIDIA",
-    apiKeyPlaceholder: "Enter API key",
-    apiKeyHint: "Unlocks NVIDIA hosted models.",
+    apiKeyPlaceholder: "nvapi-...|https://stt-endpoint.example.com/v1|https://tts-endpoint.example.com/v1",
+    apiKeyHint:
+      "Enter your NVIDIA API key. To use experimental custom speech routes, append STT and TTS endpoint URLs as primaryApiKey|sttEndpoint|ttsEndpoint.",
     apiKeyUrl: "https://build.nvidia.com",
     llm: {
       support: "provider",
@@ -1871,15 +1887,24 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("nvidia-nim", "llm"),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "credential-endpoint-multipart",
+      defaultModel: "parakeet-ctc-1_1b-asr",
+      models: catalogModelSpecs("nvidia-nim", "stt"),
+      languageNote:
+        "NVIDIA speech is deployment-specific in the app. Provide a custom STT endpoint URL in the credentials field to call Parakeet or Canary from the existing multipart upload flow.",
     },
     tts: {
-      support: "none",
-      transport: "none",
-      models: [],
-      voiceOptions: [],
+      support: "provider",
+      transport: "credential-endpoint-binary",
+      requestFormat: "openai-speech",
+      defaultModel: "magpie-tts-multilingual",
+      defaultVoice: "alloy",
+      voiceFallback: "alloy",
+      models: catalogModelSpecs("nvidia-nim", "tts"),
+      voiceOptions: [voice("alloy", "Default")],
+      languageNote:
+        "NVIDIA TTS is deployment-specific in the app. Provide a custom TTS endpoint URL in the credentials field to call Magpie-family deployments from the existing speech request flow.",
     },
   },
   "novita-ai": {
@@ -1914,7 +1939,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "glm-tts",
       defaultVoice: "tongtong",
       voiceFallback: "tongtong",
-      models: catalogModelSpecs("novita-ai", "tts", ["minimax-voice-cloning"]),
+      models: catalogModelSpecs("novita-ai", "tts"),
       voiceOptions: [
         voice("tongtong", "彤彤"),
         voice("chuichui", "锤锤"),
@@ -1936,7 +1961,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         voice("English_WiseWoman", "English wise woman"),
       ],
       languageNote:
-        "Novita speech is now wired for GLM-TTS, the legacy async txt2speech route, and the documented MiniMax speech-02/2.6/2.8 model families. MiniMax voice-cloning remains catalog-only because it needs a custom-voice workflow the app does not have yet.",
+        "Novita speech is now wired for GLM-TTS, the legacy async txt2speech route, the documented MiniMax speech-02/2.6/2.8 model families, and the advanced MiniMax voice-cloning route. Voice-cloning still depends on provider-side custom voice assets.",
     },
   },
   "z-ai-zhipu-ai": {
@@ -1972,7 +1997,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "glm-tts",
       defaultVoice: "tongtong",
       voiceFallback: "tongtong",
-      models: [namedModel("glm-tts", "GLM-TTS")],
+      models: catalogModelSpecs("z-ai-zhipu-ai", "tts"),
       voiceOptions: [
         voice("tongtong", "彤彤"),
         voice("chuichui", "锤锤"),
@@ -1983,7 +2008,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         voice("luodo", "luodo"),
       ],
       languageNote:
-        "Z.ai TTS is region-gated to the mainland BigModel stack today. The documented public path is glm-tts on /audio/speech with seven system voices and a 1024-character cap.",
+        "Z.ai speech models are region-gated to the mainland BigModel stack today. The app maps GLM-TTS plus the advanced glm-4-voice / glm-realtime / glm-tts-clone rows onto the currently documented BigModel speech surfaces as an experimental integration.",
     },
   },
 };

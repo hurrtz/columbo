@@ -275,6 +275,30 @@ describe("transcribeAudio", () => {
     );
   });
 
+  it("uses custom credential-supplied multipart speech endpoints for NVIDIA STT", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        text: "Hello from NVIDIA speech",
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "nvidia",
+      providerModel: "parakeet-ctc-1_1b-asr",
+      apiKey: "nvapi-test|https://nvidia.example.com/v1|https://nvidia.example.com/v1",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from NVIDIA speech");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://nvidia.example.com/v1/audio/transcriptions");
+    expect(options.headers.Authorization).toBe("Bearer nvapi-test");
+    expect((options.body as FormData).get("model")).toBe("parakeet-ctc-1_1b-asr");
+  });
+
   it("uses IBM Speech to Text with basic auth and the selected locale model", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

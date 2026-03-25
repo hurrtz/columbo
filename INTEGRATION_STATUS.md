@@ -13,10 +13,10 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 40
 - Catalog models: 455
-- Integrated models: 443
+- Integrated models: 455
 - LLM: 294/294 integrated
-- STT: 69/71 integrated
-- TTS: 80/90 integrated
+- STT: 71/71 integrated
+- TTS: 90/90 integrated
 - Unresolved runtime manifest entries: 32
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -464,14 +464,14 @@ Catalog updated: 2026-03-23
 ## Lepton AI `lepton-ai`
 
 - Runtime provider: `lepton-ai`
-- Model integration: 2/3 integrated
+- Model integration: 3/3 integrated
 - Verified support: LLM `native`, STT `partial`, TTS `partial`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
 | LLM | `nim/openai/gpt-oss-120b:latest` | GPT-OSS-120B NIM image on DGX Cloud Lepton | Integrated | `nim/openai/gpt-oss-120b:latest` |
 | LLM | `meta-llama/Llama-3.1-8B-Instruct` | Meta Llama 3.1 8B Instruct (deployment example via Hugging Face) | Integrated | `meta-llama/Llama-3.1-8B-Instruct` |
-| TTS | `nari-labs/Dia-1.6B-0626` | Dia 1.6B (upstream TTS model used in Lepton deployment example) | Not integrated | — |
+| TTS | `nari-labs/Dia-1.6B-0626` | Dia 1.6B (upstream TTS model used in Lepton deployment example) | Integrated | `nari-labs/Dia-1.6B-0626` |
 
 ## Microsoft Azure `microsoft-azure`
 
@@ -577,7 +577,7 @@ Catalog updated: 2026-03-23
 ## Novita AI `novita-ai`
 
 - Runtime provider: `novita-ai`
-- Model integration: 12/13 integrated
+- Model integration: 13/13 integrated
 - Verified support: LLM `routed`, STT `routed`, TTS `routed`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -589,7 +589,7 @@ Catalog updated: 2026-03-23
 | STT | `glm-asr` | GLM Audio to Text | Integrated | `glm-asr` |
 | TTS | `glm-tts` | GLM Text to Speech | Integrated | `glm-tts` |
 | TTS | `txt2speech` | Legacy Text to Speech | Integrated | `txt2speech` |
-| TTS | `minimax-voice-cloning` | MiniMax Quick Voice Cloning | Not integrated | — |
+| TTS | `minimax-voice-cloning` | MiniMax Quick Voice Cloning | Integrated | `minimax-voice-cloning` |
 | TTS | `minimax-speech-2.8-hd` | MiniMax Speech 2.8 HD | Integrated | `minimax-speech-2.8-hd` |
 | TTS | `minimax-speech-02-hd` | MiniMax Speech-02 HD | Integrated | `minimax-speech-02-hd` |
 | TTS | `minimax-speech-02-turbo` | MiniMax Speech-02 Turbo | Integrated | `minimax-speech-02-turbo` |
@@ -599,7 +599,7 @@ Catalog updated: 2026-03-23
 ## NVIDIA (NIM) `nvidia-nim`
 
 - Runtime provider: `nvidia`
-- Model integration: 5/10 integrated
+- Model integration: 10/10 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -609,11 +609,11 @@ Catalog updated: 2026-03-23
 | LLM | `nemotron-3-nano-30b-a3b` | NVIDIA Nemotron 3 Nano 30B A3B | Integrated | `nemotron-3-nano-30b-a3b` |
 | LLM | `nemotron-3-super-120b-a12b` | NVIDIA Nemotron 3 Super 120B A12B | Integrated | `nemotron-3-super-120b-a12b` |
 | LLM | `nvidia-nemotron-nano-9b-v2` | NVIDIA Nemotron Nano 9B v2 | Integrated | `nvidia-nemotron-nano-9b-v2` |
-| STT | `canary-1b-asr` | Canary 1B ASR | Not integrated | — |
-| STT | `parakeet-ctc-1_1b-asr` | Parakeet CTC 1.1B ASR | Not integrated | — |
-| TTS | `magpie-tts-flow` | Magpie TTS Flow | Not integrated | — |
-| TTS | `magpie-tts-multilingual` | Magpie TTS Multilingual | Not integrated | — |
-| TTS | `magpie-tts-zeroshot` | Magpie TTS Zeroshot | Not integrated | — |
+| STT | `canary-1b-asr` | Canary 1B ASR | Integrated | `canary-1b-asr` |
+| STT | `parakeet-ctc-1_1b-asr` | Parakeet CTC 1.1B ASR | Integrated | `parakeet-ctc-1_1b-asr` |
+| TTS | `magpie-tts-flow` | Magpie TTS Flow | Integrated | `magpie-tts-flow` |
+| TTS | `magpie-tts-multilingual` | Magpie TTS Multilingual | Integrated | `magpie-tts-multilingual` |
+| TTS | `magpie-tts-zeroshot` | Magpie TTS Zeroshot | Integrated | `magpie-tts-zeroshot` |
 
 ## OpenAI `openai`
 
@@ -794,7 +794,7 @@ Catalog updated: 2026-03-23
 ## Xiaomi Mimo `xiaomi-mimo`
 
 - Runtime provider: `xiaomi-mimo`
-- Model integration: 3/4 integrated
+- Model integration: 4/4 integrated
 - Verified support: LLM `native`, STT `partial`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -802,12 +802,12 @@ Catalog updated: 2026-03-23
 | LLM | `mimo-v2-flash` | MiMo-V2-Flash | Integrated | `mimo-v2-flash` |
 | LLM | `mimo-v2-omni` | MiMo-V2-Omni | Integrated | `mimo-v2-omni` |
 | LLM | `mimo-v2-pro` | MiMo-V2-Pro | Integrated | `mimo-v2-pro` |
-| TTS | `mimo-v2-tts` | MiMo-V2-TTS | Not integrated | — |
+| TTS | `mimo-v2-tts` | MiMo-V2-TTS | Integrated | `mimo-v2-tts` |
 
 ## Z.ai / Zhipu AI `z-ai-zhipu-ai`
 
 - Runtime provider: `z-ai-zhipu-ai`
-- Model integration: 17/21 integrated
+- Model integration: 21/21 integrated
 - Verified support: LLM `native`, STT `native`, TTS `partial`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -828,11 +828,11 @@ Catalog updated: 2026-03-23
 | LLM | `glm-5` | GLM-5 | Integrated | `glm-5` |
 | LLM | `glm-5-turbo` | GLM-5-Turbo | Integrated | `glm-5-turbo` |
 | STT | `glm-asr-2512` | GLM-ASR-2512 | Integrated | `glm-asr-2512` |
-| TTS | `glm-4-voice` | GLM-4-Voice | Not integrated | — |
-| TTS | `glm-realtime-air` | GLM-Realtime-Air | Not integrated | — |
-| TTS | `glm-realtime-flash` | GLM-Realtime-Flash | Not integrated | — |
+| TTS | `glm-4-voice` | GLM-4-Voice | Integrated | `glm-4-voice` |
+| TTS | `glm-realtime-air` | GLM-Realtime-Air | Integrated | `glm-realtime-air` |
+| TTS | `glm-realtime-flash` | GLM-Realtime-Flash | Integrated | `glm-realtime-flash` |
 | TTS | `glm-tts` | GLM-TTS | Integrated | `glm-tts` |
-| TTS | `glm-tts-clone` | GLM-TTS-Clone | Not integrated | — |
+| TTS | `glm-tts-clone` | GLM-TTS-Clone | Integrated | `glm-tts-clone` |
 
 ## Unresolved Runtime Entries
 

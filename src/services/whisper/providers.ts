@@ -16,6 +16,10 @@ import {
 } from "../replicate/runtime";
 import { parseVolcengineSpeechCredentials } from "../volcengineCredentials";
 import { parseGoogleSpeechCredentials } from "../googleSpeechCredentials";
+import {
+  resolveCustomSpeechEndpointCredentials,
+  resolveCustomSpeechEndpointUrl,
+} from "../customSpeechCredentials";
 import { getDeviceLocale, getFileAudioMimeType } from "../../utils/speechLanguage";
 import { fetchWithTimeout } from "./abort";
 import { parseBaiduSpeechCredentials } from "./baiduCredentials";
@@ -31,6 +35,7 @@ import type {
   FishAudioTranscriptionConfig,
   FireworksPreRecordedTranscriptionConfig,
   GeminiTranscriptionConfig,
+  CredentialEndpointMultipartTranscriptionConfig,
   GoogleCloudSpeechTranscriptionConfig,
   HuggingFaceJsonTranscriptionConfig,
   IbmWatsonxTranscriptionConfig,
@@ -438,6 +443,80 @@ export async function transcribeWithMultipartProvider(
 
   const data = await response.json();
   const text = data.text?.trim();
+  return text ? text : null;
+}
+
+export async function transcribeWithCredentialEndpointMultipartProvider(
+  params: SharedProviderParams & {
+    config: CredentialEndpointMultipartTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const credentials = resolveCustomSpeechEndpointCredentials(
+    provider,
+    apiKey,
+    language,
+    "stt",
+  );
+  const formData = new FormData();
+  formData.append(
+    "file",
+    {
+      uri: fileUri,
+      type: getFileAudioMimeType(fileUri),
+      name: fileUri.split("/").pop() || "recording.m4a",
+    } as any,
+  );
+  formData.append("model", providerModel || config.defaultModel);
+  const languageHint = config.languageHint?.();
+  if (languageHint) {
+    formData.append("language", languageHint);
+  }
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      resolveCustomSpeechEndpointUrl(credentials.endpoint, "/audio/transcriptions"),
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${credentials.apiKey}`,
+        },
+        body: formData,
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const text =
+    typeof data?.text === "string"
+      ? data.text.trim()
+      : typeof data?.transcript === "string"
+        ? data.transcript.trim()
+        : "";
   return text ? text : null;
 }
 

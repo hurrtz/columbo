@@ -14,6 +14,7 @@ import {
   transcribeWithAzureOpenAiProvider,
   transcribeWithBaiduFileTranscriptionProvider,
   transcribeWithBaiduShortSpeechProvider,
+  transcribeWithCredentialEndpointMultipartProvider,
   transcribeWithDashScopeFileTranscriptionProvider,
   transcribeWithDeepgramPreRecordedProvider,
   transcribeWithDeepInfraInferenceProvider,
@@ -226,6 +227,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "openai-audio-input") {
     return transcribeWithOpenAiAudioInputProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
+    });
+  }
+
+  if (config.kind === "credential-endpoint-multipart") {
+    return transcribeWithCredentialEndpointMultipartProvider({
       abortSignal,
       apiKey,
       config,
