@@ -56,12 +56,6 @@ type BinaryTtsConfig = {
   voiceFallback: string;
 };
 
-type AzureOpenAiTtsConfig = {
-  kind: "azure-openai";
-  defaultModel: string;
-  voiceFallback: string;
-};
-
 type BaiduTtsConfig = {
   kind: "baidu";
   endpoint: string;
@@ -110,12 +104,6 @@ type HyperbolicTtsConfig = {
   voiceFallback: string;
 };
 
-type IbmWatsonxTtsConfig = {
-  kind: "ibm-watsonx";
-  defaultModel: string;
-  voiceFallback: string;
-};
-
 type MinimaxTtsConfig = {
   kind: "minimax";
   endpoint: string;
@@ -125,13 +113,6 @@ type MinimaxTtsConfig = {
 
 type NovitaTtsConfig = {
   kind: "novita";
-  endpointBase: string;
-  defaultModel: string;
-  voiceFallback: string;
-};
-
-type VolcengineTtsConfig = {
-  kind: "volcengine-tts";
   endpointBase: string;
   defaultModel: string;
   voiceFallback: string;
@@ -152,13 +133,6 @@ type ElevenLabsTtsConfig = {
 
 export type ProviderTtsConfig =
   | BinaryTtsConfig
-  | {
-      kind: "credential-endpoint-binary";
-      requestFormat: RuntimeTtsBinaryRequestFormat;
-      defaultModel: string;
-      voiceFallback: string;
-    }
-  | AzureOpenAiTtsConfig
   | BaiduTtsConfig
   | GeminiTtsConfig
   | DashScopeTtsConfig
@@ -166,10 +140,8 @@ export type ProviderTtsConfig =
   | DeepgramTtsConfig
   | FishAudioTtsConfig
   | HyperbolicTtsConfig
-  | IbmWatsonxTtsConfig
   | MinimaxTtsConfig
   | NovitaTtsConfig
-  | VolcengineTtsConfig
   | ReplicateTtsConfig
   | ElevenLabsTtsConfig;
 
@@ -177,21 +149,6 @@ const ttsProviderConfigEntries: Array<[Provider, ProviderTtsConfig]> = [];
 
 for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
   const manifest = RUNTIME_PROVIDER_MANIFEST[provider];
-
-  if (
-    manifest.tts.transport === "azure-openai" &&
-    manifest.tts.defaultModel &&
-    manifest.tts.voiceFallback
-  ) {
-    ttsProviderConfigEntries.push([
-      provider,
-      {
-        kind: "azure-openai",
-        defaultModel: manifest.tts.defaultModel,
-        voiceFallback: manifest.tts.voiceFallback,
-      },
-    ]);
-  }
 
   if (
     manifest.tts.transport === "binary" &&
@@ -205,23 +162,6 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       {
         kind: "binary",
         endpoint: manifest.tts.endpoint,
-        requestFormat: manifest.tts.requestFormat,
-        defaultModel: manifest.tts.defaultModel,
-        voiceFallback: manifest.tts.voiceFallback,
-      },
-    ]);
-  }
-
-  if (
-    manifest.tts.transport === "credential-endpoint-binary" &&
-    manifest.tts.requestFormat &&
-    manifest.tts.defaultModel &&
-    manifest.tts.voiceFallback
-  ) {
-    ttsProviderConfigEntries.push([
-      provider,
-      {
-        kind: "credential-endpoint-binary",
         requestFormat: manifest.tts.requestFormat,
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,
@@ -330,21 +270,6 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
   }
 
   if (
-    manifest.tts.transport === "ibm-watsonx" &&
-    manifest.tts.defaultModel &&
-    manifest.tts.voiceFallback
-  ) {
-    ttsProviderConfigEntries.push([
-      provider,
-      {
-        kind: "ibm-watsonx",
-        defaultModel: manifest.tts.defaultModel,
-        voiceFallback: manifest.tts.voiceFallback,
-      },
-    ]);
-  }
-
-  if (
     manifest.tts.transport === "minimax" &&
     manifest.tts.endpoint &&
     manifest.tts.defaultModel &&
@@ -371,23 +296,6 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       provider,
       {
         kind: "novita",
-        endpointBase: manifest.tts.endpointBase,
-        defaultModel: manifest.tts.defaultModel,
-        voiceFallback: manifest.tts.voiceFallback,
-      },
-    ]);
-  }
-
-  if (
-    manifest.tts.transport === "volcengine-tts" &&
-    manifest.tts.endpointBase &&
-    manifest.tts.defaultModel &&
-    manifest.tts.voiceFallback
-  ) {
-    ttsProviderConfigEntries.push([
-      provider,
-      {
-        kind: "volcengine-tts",
         endpointBase: manifest.tts.endpointBase,
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,

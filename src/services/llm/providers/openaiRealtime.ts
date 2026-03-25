@@ -2,25 +2,12 @@ import {
   buildProviderHttpError,
   normalizeProviderTransportError,
 } from "../../providerErrors";
-import { parseAzureOpenAiCredentials } from "../../providerCredentials";
 import { AppLanguage, Provider } from "../../../types";
 
 import { ChatMessage, requireProviderKey } from "../shared";
 
-const AZURE_OPENAI_REALTIME_API_VERSION = "2025-04-01-preview";
-
 function buildOpenAiRealtimeUrl(model: string) {
   return `wss://api.openai.com/v1/realtime?model=${encodeURIComponent(model)}`;
-}
-
-function buildAzureRealtimeUrl(endpoint: string, deployment: string) {
-  const url = new URL(`${endpoint}/openai/realtime`);
-
-  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-  url.searchParams.set("api-version", AZURE_OPENAI_REALTIME_API_VERSION);
-  url.searchParams.set("deployment", deployment);
-
-  return url.toString();
 }
 
 function buildRealtimePrompt(messages: ChatMessage[]) {
@@ -311,66 +298,6 @@ export async function requestOpenAiRealtimeChatStream(params: {
         params.language,
       )}`,
       "OpenAI-Beta": "realtime=v1",
-    },
-    onChunk: params.onChunk,
-    abortSignal: params.abortSignal,
-  });
-}
-
-export async function requestAzureOpenAiRealtimeChat(params: {
-  provider: Provider;
-  model: string;
-  messages: ChatMessage[];
-  apiKey: string;
-  language: AppLanguage;
-  systemPrompt: string;
-  abortSignal?: AbortSignal;
-}) {
-  const credentials = parseAzureOpenAiCredentials(
-    params.provider,
-    params.apiKey,
-    params.language,
-  );
-
-  return requestRealtimeChatViaWebSocket({
-    provider: params.provider,
-    model: params.model,
-    language: params.language,
-    systemPrompt: params.systemPrompt,
-    messages: params.messages,
-    url: buildAzureRealtimeUrl(credentials.endpoint, params.model),
-    headers: {
-      "api-key": credentials.apiKey,
-    },
-    abortSignal: params.abortSignal,
-  });
-}
-
-export async function requestAzureOpenAiRealtimeChatStream(params: {
-  provider: Provider;
-  model: string;
-  messages: ChatMessage[];
-  apiKey: string;
-  language: AppLanguage;
-  systemPrompt: string;
-  onChunk: (text: string) => void;
-  abortSignal?: AbortSignal;
-}) {
-  const credentials = parseAzureOpenAiCredentials(
-    params.provider,
-    params.apiKey,
-    params.language,
-  );
-
-  return requestRealtimeChatViaWebSocket({
-    provider: params.provider,
-    model: params.model,
-    language: params.language,
-    systemPrompt: params.systemPrompt,
-    messages: params.messages,
-    url: buildAzureRealtimeUrl(credentials.endpoint, params.model),
-    headers: {
-      "api-key": credentials.apiKey,
     },
     onChunk: params.onChunk,
     abortSignal: params.abortSignal,

@@ -4,17 +4,6 @@ import { translate } from "../../i18n";
 import { AppLanguage, Provider } from "../../types";
 import { getTogetherTtsLanguageCode } from "../../utils/speechLanguage";
 import {
-  buildBasicAuthorizationHeader,
-  buildAzureOpenAiUrl,
-  parseIbmWatsonxCredentials,
-  parseAzureOpenAiCredentials,
-} from "../providerCredentials";
-import { parseVolcengineSpeechCredentials } from "../volcengineCredentials";
-import {
-  resolveCustomSpeechEndpointCredentials,
-  resolveCustomSpeechEndpointUrl,
-} from "../customSpeechCredentials";
-import {
   getReplicateInputProperty,
   getReplicateModelMetadata,
   runReplicatePrediction,
@@ -36,31 +25,15 @@ import {
   writeBase64AudioFile,
   writeBlobAudioFile,
 } from "./shared";
-import {
-  synthesizeWithBaiduStreamingProvider,
-  synthesizeWithDashScopeRealtimeProvider,
-} from "./realtimeProviders";
 
 const GEMINI_TTS_RETRY_DELAYS_MS = [400, 1200];
-const BAIDU_LONG_TTS_POLL_INTERVAL_MS = 1000;
-const BAIDU_LONG_TTS_MAX_POLLS = 30;
 const NOVITA_ASYNC_TTS_POLL_INTERVAL_MS = 1000;
 const NOVITA_ASYNC_TTS_MAX_POLLS = 30;
-const VOLCENGINE_ASYNC_TTS_POLL_INTERVAL_MS = 1000;
-const VOLCENGINE_ASYNC_TTS_MAX_POLLS = 30;
-const DASHSCOPE_REALTIME_TTS_MODEL_IDS = new Set([
-  "qwen3-tts-flash-realtime",
-  "qwen3-tts-instruct-flash-realtime",
-]);
 
 function wait(ms: number) {
   return new Promise<void>((resolve) => {
     setTimeout(resolve, ms);
   });
-}
-
-function createTaskId(prefix: string) {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 function isRetryableGeminiTransportError(error: unknown) {
@@ -552,44 +525,6 @@ export async function synthesizeProviderSpeech(params: {
     config,
   });
 
-  if (config.kind === "azure-openai") {
-    const credentials = parseAzureOpenAiCredentials(provider, apiKey, language);
-    const resolvedVoice = selectedVoice || config.voiceFallback;
-    const response = await fetchWithTimeout(
-      buildAzureOpenAiUrl(credentials.endpoint, "audio/speech"),
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "api-key": credentials.apiKey,
-        },
-        body: JSON.stringify(
-          buildBinaryTtsRequestBody({
-            requestFormat: "openai-speech",
-            selectedModel,
-            selectedVoice: resolvedVoice,
-            text,
-          }),
-        ),
-      },
-      timeoutMs,
-      () => createTtsTimeoutError({ provider, language }),
-      abortSignal,
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw buildTtsRequestError({
-        provider,
-        status: response.status,
-        errorText,
-        language,
-      });
-    }
-
-    return writeBlobAudioFile(await response.blob(), "mp3");
-  }
-
   if (config.kind === "gemini") {
     for (let attempt = 0; attempt <= GEMINI_TTS_RETRY_DELAYS_MS.length; attempt += 1) {
       try {
@@ -674,20 +609,6 @@ export async function synthesizeProviderSpeech(params: {
   }
 
   if (config.kind === "dashscope") {
-    if (DASHSCOPE_REALTIME_TTS_MODEL_IDS.has(selectedModel)) {
-      return synthesizeWithDashScopeRealtimeProvider({
-        abortSignal,
-        apiKey,
-        endpoint: "wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime",
-        language,
-        model: selectedModel,
-        provider,
-        text,
-        timeoutMs,
-        voice: selectedVoice || config.voiceFallback,
-      });
-    }
-
     const response = await fetchWithTimeout(
       config.endpoint,
       {
@@ -754,144 +675,7 @@ export async function synthesizeProviderSpeech(params: {
   }
 
   if (config.kind === "baidu") {
-    if (selectedModel === "流式文本在线合成") {
-      return synthesizeWithBaiduStreamingProvider({
-        abortSignal,
-        apiKey,
-        endpoint: "wss://aip.baidubce.com/ws/2.0/speech/publiccloudspeech/v1/tts",
-        language,
-        provider,
-        text,
-        timeoutMs,
-        voice: selectedVoice || config.voiceFallback,
-      });
-    }
-
     const authToken = requireProviderKey(provider, apiKey, language);
-
-    if (selectedModel === "长文本合成") {
-      const createResponse = await fetchWithTimeout(
-        `https://aip.baidubce.com/rpc/2.0/tts/v1/create?access_token=${encodeURIComponent(authToken)}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            text: [text],
-            format: "mp3-16k",
-            voice: Number.parseInt(selectedVoice || config.voiceFallback, 10) || 0,
-            lang: "zh",
-            speed: 5,
-            pitch: 5,
-            volume: 5,
-          }),
-        },
-        timeoutMs,
-        () => createTtsTimeoutError({ provider, language }),
-        abortSignal,
-      );
-
-      if (!createResponse.ok) {
-        const errorText = await createResponse.text();
-        throw buildTtsRequestError({
-          provider,
-          status: createResponse.status,
-          errorText,
-          language,
-        });
-      }
-
-      const createData = await createResponse.json();
-      const taskId =
-        typeof createData?.task_id === "string" ? createData.task_id : null;
-
-      if (!taskId) {
-        throw new Error(
-          translate(language, "ttsDidNotReturnAudio", {
-            provider: PROVIDER_LABELS[provider],
-          }),
-        );
-      }
-
-      for (let pollIndex = 0; pollIndex < BAIDU_LONG_TTS_MAX_POLLS; pollIndex += 1) {
-        const queryResponse = await fetchWithTimeout(
-          `https://aip.baidubce.com/rpc/2.0/tts/v1/query?access_token=${encodeURIComponent(authToken)}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              task_ids: [taskId],
-            }),
-          },
-          timeoutMs,
-          () => createTtsTimeoutError({ provider, language }),
-          abortSignal,
-        );
-
-        if (!queryResponse.ok) {
-          const errorText = await queryResponse.text();
-          throw buildTtsRequestError({
-            provider,
-            status: queryResponse.status,
-            errorText,
-            language,
-          });
-        }
-
-        const queryData = await queryResponse.json();
-        const taskInfo = Array.isArray(queryData?.tasks_info)
-          ? queryData.tasks_info[0]
-          : null;
-        const taskStatus =
-          typeof taskInfo?.task_status === "string" ? taskInfo.task_status : null;
-        const speechUrl =
-          typeof taskInfo?.task_result?.speech_url === "string"
-            ? taskInfo.task_result.speech_url
-            : null;
-
-        if (taskStatus === "Success" && speechUrl) {
-          const audioResponse = await fetchWithTimeout(
-            speechUrl,
-            {
-              method: "GET",
-            },
-            timeoutMs,
-            () => createTtsTimeoutError({ provider, language }),
-            abortSignal,
-          );
-
-          if (!audioResponse.ok) {
-            const errorText = await audioResponse.text();
-            throw buildTtsRequestError({
-              provider,
-              status: audioResponse.status,
-              errorText,
-              language,
-            });
-          }
-
-          return writeBlobAudioFile(await audioResponse.blob(), "mp3");
-        }
-
-        if (
-          taskStatus &&
-          !["Running", "Created", "Pending"].includes(taskStatus)
-        ) {
-          const errorText =
-            taskInfo?.task_result?.err_msg ||
-            queryData?.error_msg ||
-            taskStatus;
-          throw new Error(errorText);
-        }
-
-        await wait(BAIDU_LONG_TTS_POLL_INTERVAL_MS);
-      }
-
-      throw createTtsTimeoutError({ provider, language });
-    }
 
     const formData = new URLSearchParams();
     formData.set("tex", text);
@@ -1118,44 +902,6 @@ export async function synthesizeProviderSpeech(params: {
     }
 
     return writeBase64AudioFile(audioBase64, "mp3");
-  }
-
-  if (config.kind === "ibm-watsonx") {
-    const credentials = parseIbmWatsonxCredentials(provider, apiKey, language);
-    const response = await fetchWithTimeout(
-      `${credentials.textToSpeechUrl}/v1/synthesize?voice=${encodeURIComponent(
-        selectedModel || selectedVoice || config.voiceFallback,
-      )}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: buildBasicAuthorizationHeader(
-            "apikey",
-            credentials.textToSpeechApiKey,
-          ),
-          "Content-Type": "application/json",
-          Accept: "audio/mp3",
-        },
-        body: JSON.stringify({
-          text,
-        }),
-      },
-      timeoutMs,
-      () => createTtsTimeoutError({ provider, language }),
-      abortSignal,
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw buildTtsRequestError({
-        provider,
-        status: response.status,
-        errorText,
-        language,
-      });
-    }
-
-    return writeBlobAudioFile(await response.blob(), "mp3");
   }
 
   if (config.kind === "minimax") {
@@ -1436,150 +1182,6 @@ export async function synthesizeProviderSpeech(params: {
     return writeBase64AudioFile(hexToBase64(audioHex, language), "mp3");
   }
 
-  if (config.kind === "volcengine-tts") {
-    const { speechAppId, speechAccessKey } = parseVolcengineSpeechCredentials(
-      provider,
-      apiKey,
-      language,
-    );
-    const requestId = createTaskId("doubao-tts");
-    const resolvedVoice = selectedVoice || config.voiceFallback;
-
-    const submitResponse = await fetchWithTimeout(
-      `${config.endpointBase}/submit`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Api-App-Id": speechAppId,
-          "X-Api-Access-Key": speechAccessKey,
-          "X-Api-Resource-Id": "seed-tts-2.0",
-          "X-Api-Request-Id": requestId,
-        },
-        body: JSON.stringify({
-          user: {
-            uid: "schnackai",
-          },
-          unique_id: requestId,
-          namespace: "BidirectionalTTS",
-          req_params: {
-            text,
-            speaker: resolvedVoice,
-            audio_params: {
-              format: "mp3",
-              sample_rate: 24000,
-            },
-          },
-        }),
-      },
-      timeoutMs,
-      () => createTtsTimeoutError({ provider, language }),
-      abortSignal,
-    );
-
-    if (!submitResponse.ok) {
-      const errorText = await submitResponse.text();
-      throw buildTtsRequestError({
-        provider,
-        status: submitResponse.status,
-        errorText,
-        language,
-      });
-    }
-
-    const submitData = await submitResponse.json();
-    const taskId =
-      typeof submitData?.data?.task_id === "string"
-        ? submitData.data.task_id
-        : null;
-
-    if (!taskId) {
-      throw new Error(
-        translate(language, "ttsDidNotReturnAudio", {
-          provider: PROVIDER_LABELS[provider],
-        }),
-      );
-    }
-
-    for (
-      let pollIndex = 0;
-      pollIndex < VOLCENGINE_ASYNC_TTS_MAX_POLLS;
-      pollIndex += 1
-    ) {
-      const queryResponse = await fetchWithTimeout(
-        `${config.endpointBase}/query`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Api-App-Id": speechAppId,
-            "X-Api-Access-Key": speechAccessKey,
-            "X-Api-Resource-Id": "volc.service_type.10029",
-            "X-Api-Request-Id": requestId,
-          },
-          body: JSON.stringify({
-            task_id: taskId,
-          }),
-        },
-        timeoutMs,
-        () => createTtsTimeoutError({ provider, language }),
-        abortSignal,
-      );
-
-      if (!queryResponse.ok) {
-        const errorText = await queryResponse.text();
-        throw buildTtsRequestError({
-          provider,
-          status: queryResponse.status,
-          errorText,
-          language,
-        });
-      }
-
-      const queryData = await queryResponse.json();
-      const taskStatus =
-        typeof queryData?.data?.task_status === "number"
-          ? queryData.data.task_status
-          : null;
-      const audioUrl =
-        typeof queryData?.data?.audio_url === "string"
-          ? queryData.data.audio_url
-          : null;
-
-      if (taskStatus === 2 && audioUrl) {
-        const audioResponse = await fetchWithTimeout(
-          audioUrl,
-          {
-            method: "GET",
-          },
-          timeoutMs,
-          () => createTtsTimeoutError({ provider, language }),
-          abortSignal,
-        );
-
-        if (!audioResponse.ok) {
-          const errorText = await audioResponse.text();
-          throw buildTtsRequestError({
-            provider,
-            status: audioResponse.status,
-            errorText,
-            language,
-          });
-        }
-
-        return writeBlobAudioFile(await audioResponse.blob(), "mp3");
-      }
-
-      if (taskStatus && ![1].includes(taskStatus)) {
-        throw new Error(queryData?.message || String(taskStatus));
-      }
-
-      await wait(VOLCENGINE_ASYNC_TTS_POLL_INTERVAL_MS);
-    }
-
-    throw createTtsTimeoutError({ provider, language });
-  }
-
   if (config.kind === "replicate") {
     const resolvedApiKey = requireProviderKey(provider, apiKey, language);
     const resolvedVoice = getReplicateVoice(selectedModel, selectedVoice);
@@ -1695,27 +1297,8 @@ export async function synthesizeProviderSpeech(params: {
     return writeBlobAudioFile(await response.blob());
   }
 
-  const endpoint =
-    config.kind === "credential-endpoint-binary"
-      ? resolveCustomSpeechEndpointUrl(
-          resolveCustomSpeechEndpointCredentials(
-            provider,
-            apiKey,
-            language,
-            "tts",
-          ).endpoint,
-          "/audio/speech",
-        )
-      : config.endpoint;
-  const authorizationKey =
-    config.kind === "credential-endpoint-binary"
-      ? resolveCustomSpeechEndpointCredentials(
-          provider,
-          apiKey,
-          language,
-          "tts",
-        ).apiKey
-      : requireProviderKey(provider, apiKey, language);
+  const endpoint = config.endpoint;
+  const authorizationKey = requireProviderKey(provider, apiKey, language);
   const resolvedVoice = getBinaryTtsVoice({
     requestFormat: config.requestFormat,
     selectedModel,

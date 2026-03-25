@@ -24,26 +24,6 @@ type GeminiLiveLlmConfig = {
   transport: "gemini-live";
 };
 
-type AzureOpenAiLlmConfig = {
-  transport: "azure-openai";
-};
-
-type AzureOpenAiRealtimeLlmConfig = {
-  transport: "azure-openai-realtime";
-};
-
-type AmazonBedrockLlmConfig = {
-  transport: "amazon-bedrock";
-};
-
-type AlephAlphaLlmConfig = {
-  transport: "aleph-alpha";
-};
-
-type IbmWatsonxLlmConfig = {
-  transport: "ibm-watsonx";
-};
-
 type ReplicateLlmConfig = {
   transport: "replicate";
 };
@@ -51,14 +31,7 @@ type ReplicateLlmConfig = {
 type TransportOnlyLlmConfig = {
   transport: Exclude<
     RuntimeLlmTransport,
-    | "openai-compatible"
-    | "openai-realtime"
-    | "azure-openai"
-    | "azure-openai-realtime"
-    | "amazon-bedrock"
-    | "aleph-alpha"
-    | "ibm-watsonx"
-    | "replicate"
+    "openai-compatible" | "openai-realtime" | "replicate"
   >;
 };
 
@@ -66,11 +39,6 @@ export type ProviderLlmConfig =
   | OpenAiCompatibleLlmConfig
   | OpenAiRealtimeLlmConfig
   | GeminiLiveLlmConfig
-  | AzureOpenAiLlmConfig
-  | AzureOpenAiRealtimeLlmConfig
-  | AmazonBedrockLlmConfig
-  | AlephAlphaLlmConfig
-  | IbmWatsonxLlmConfig
   | ReplicateLlmConfig
   | TransportOnlyLlmConfig;
 
@@ -108,22 +76,6 @@ export function getProviderLlmConfig(
       return {
         transport: "openai-compatible",
         endpoint: manifest.llm.endpoint,
-      };
-    case "azure-openai":
-      return {
-        transport: isRealtimeModel ? "azure-openai-realtime" : "azure-openai",
-      };
-    case "amazon-bedrock":
-      return {
-        transport: "amazon-bedrock",
-      };
-    case "aleph-alpha":
-      return {
-        transport: "aleph-alpha",
-      };
-    case "ibm-watsonx":
-      return {
-        transport: "ibm-watsonx",
       };
     case "replicate":
       return {

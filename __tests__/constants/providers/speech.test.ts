@@ -21,28 +21,16 @@ describe("speech provider constants", () => {
 
   it("keeps the manual fallback label when the STT model is not in the workbook catalog", () => {
     expect(
-      getProviderSttModelOptions("gemini").find(
+      getProviderTtsModelOptions("gemini").find(
         (option) => option.id === "gemini-2.5-flash",
       )?.name,
-    ).toBe("Gemini 2.5 Flash");
+    ).toBeUndefined();
   });
 
-  it("surfaces catalog-backed Google and Mistral STT rows from the runtime manifest", () => {
-    expect(getProviderSttModelOptions("gemini")).toEqual(
-      expect.arrayContaining([
-        { id: "chirp_3", name: "Chirp 3: Transcription" },
-        { id: "chirp_2", name: "Chirp 2: Transcription" },
-        { id: "telephony", name: "Telephony" },
-      ]),
-    );
+  it("surfaces the remaining simple Mistral STT rows from the runtime manifest", () => {
+    expect(getProviderSttModelOptions("gemini")).toEqual([]);
     expect(getProviderSttModelOptions("mistral")).toEqual(
-      expect.arrayContaining([
-        { id: "voxtral-mini-latest", name: "Voxtral Mini Transcribe 2" },
-        {
-          id: "voxtral-mini-transcribe-realtime-2602",
-          name: "Voxtral Mini Transcribe Realtime",
-        },
-      ]),
+      [{ id: "voxtral-mini-latest", name: "Voxtral Mini Transcribe 2" }],
     );
   });
 
@@ -64,24 +52,13 @@ describe("speech provider constants", () => {
     expect(getProviderSttModelOptions("z-ai-zhipu-ai")).toEqual([
       { id: "glm-asr-2512", name: "GLM-ASR-2512" },
     ]);
-    expect(getProviderSttModelOptions("bytedance-doubao-seed")).toEqual([
-      { id: "bigmodel", name: "Doubao Big-Model Streaming ASR" },
-    ]);
+    expect(getProviderSttModelOptions("bytedance-doubao-seed")).toEqual([]);
     expect(getProviderSttModelOptions("alibaba-qwen-dashscope")).toEqual([
       { id: "qwen3-asr-flash", name: "Qwen3-ASR-Flash" },
-      {
-        id: "qwen3-asr-flash-filetrans",
-        name: "Qwen3-ASR-Flash-Filetrans",
-      },
-      {
-        id: "qwen3-asr-flash-realtime",
-        name: "Qwen3-ASR-Flash-Realtime",
-      },
     ]);
     expect(getProviderSttModelOptions("stepfun")).toEqual([
       { id: "step-asr", name: "Step ASR" },
       { id: "step-asr-1.1", name: "Step ASR 1.1" },
-      { id: "step-asr-1.1-stream", name: "Step ASR 1.1 Stream" },
     ]);
     expect(getProviderSttModelOptions("siliconflow")).toEqual([
       { id: "FunAudioLLM/SenseVoiceSmall", name: "SenseVoiceSmall" },
@@ -115,12 +92,7 @@ describe("speech provider constants", () => {
     expect(getProviderSttModelOptions("novita-ai")).toEqual([
       { id: "glm-asr", name: "GLM Audio to Text" },
     ]);
-    expect(getProviderSttModelOptions("xai")).toEqual([
-      {
-        id: "voice-agent-api",
-        name: "Voice Agent API (speech input inside realtime agent)",
-      },
-    ]);
+    expect(getProviderSttModelOptions("xai")).toEqual([]);
     expect(getProviderSttModelOptions("hugging-face-inference-api")).toEqual([
       { id: "openai/whisper-large-v3", name: "Whisper large-v3" },
       {
@@ -129,11 +101,6 @@ describe("speech provider constants", () => {
       },
     ]);
     expect(getProviderSttModelOptions("baidu-ernie-qianfan")).toEqual([
-      { id: "音频文件转写", name: "Audio File Transcription" },
-      {
-        id: "实时语音识别-websocket API",
-        name: "Realtime Speech Recognition WebSocket API",
-      },
       { id: "短语音识别", name: "Short Speech Recognition" },
       { id: "短语音识别极速版", name: "Short Speech Recognition Pro / 极速版" },
     ]);
@@ -148,11 +115,6 @@ describe("speech provider constants", () => {
     expect(getProviderTtsModelOptions("alibaba-qwen-dashscope")).toEqual([
       { id: "qwen3-tts-flash", name: "Qwen3-TTS-Flash" },
       { id: "qwen3-tts-instruct-flash", name: "Qwen3-TTS-Instruct-Flash" },
-      { id: "qwen3-tts-flash-realtime", name: "Qwen3-TTS-Flash-Realtime" },
-      {
-        id: "qwen3-tts-instruct-flash-realtime",
-        name: "Qwen3-TTS-Instruct-Flash-Realtime",
-      },
     ]);
     expect(
       getProviderTtsModelOptions("gemini").find(
@@ -224,54 +186,22 @@ describe("speech provider constants", () => {
       { id: "minimax-speech-2.8-hd", name: "MiniMax Speech 2.8 HD" },
       { id: "glm-tts", name: "GLM Text to Speech" },
       { id: "txt2speech", name: "Legacy Text to Speech" },
-      { id: "minimax-voice-cloning", name: "MiniMax Quick Voice Cloning" },
     ]);
     expect(getProviderTtsModelOptions("baidu-ernie-qianfan")).toEqual([
       { id: "短文本语音合成", name: "Short Text Speech Synthesis" },
-      { id: "长文本合成", name: "Long Text Speech Synthesis" },
-      { id: "流式文本在线合成", name: "Streaming Text-to-Speech" },
     ]);
     expect(getProviderTtsModelOptions("z-ai-zhipu-ai")).toEqual([
       { id: "glm-tts", name: "GLM-TTS" },
-      { id: "glm-tts-clone", name: "GLM-TTS-Clone" },
-      { id: "glm-4-voice", name: "GLM-4-Voice" },
-      { id: "glm-realtime-flash", name: "GLM-Realtime-Flash" },
-      { id: "glm-realtime-air", name: "GLM-Realtime-Air" },
     ]);
-    expect(getProviderTtsModelOptions("bytedance-doubao-seed")).toEqual([
-      { id: "unknown", name: "Doubao Large-Model TTS" },
-    ]);
+    expect(getProviderTtsModelOptions("bytedance-doubao-seed")).toEqual([]);
     expect(getProviderTtsModelOptions("xiaomi-mimo")).toEqual([
       { id: "mimo-v2-tts", name: "MiMo-V2-TTS" },
     ]);
-    expect(getProviderTtsModelOptions("lepton-ai")).toEqual([
-      {
-        id: "nari-labs/Dia-1.6B-0626",
-        name: "Dia 1.6B (upstream TTS model used in Lepton deployment example)",
-      },
-    ]);
-    expect(getProviderSttModelOptions("nvidia")).toEqual([
-      { id: "parakeet-ctc-1_1b-asr", name: "Parakeet CTC 1.1B ASR" },
-      { id: "canary-1b-asr", name: "Canary 1B ASR" },
-    ]);
-    expect(getProviderTtsModelOptions("nvidia")).toEqual([
-      { id: "magpie-tts-multilingual", name: "Magpie TTS Multilingual" },
-      { id: "magpie-tts-zeroshot", name: "Magpie TTS Zeroshot" },
-      { id: "magpie-tts-flow", name: "Magpie TTS Flow" },
-    ]);
+    expect(getProviderSttModelOptions("nvidia")).toEqual([]);
+    expect(getProviderTtsModelOptions("nvidia")).toEqual([]);
     expect(getProviderTtsModelOptions("together")).toEqual([
       { id: "canopylabs/orpheus-3b-0.1-ft", name: "Orpheus 3B" },
       { id: "hexgrad/Kokoro-82M", name: "Kokoro" },
-      { id: "cartesia/sonic", name: "Cartesia Sonic" },
-      { id: "cartesia/sonic-2", name: "Cartesia Sonic 2" },
-      { id: "cartesia/sonic-3", name: "Cartesia Sonic 3" },
-      { id: "deepgram/deepgram-aura-2", name: "Deepgram Aura 2" },
-      { id: "rime-labs/rime-arcana-v3-turbo", name: "Rime Arcana v3 Turbo" },
-      { id: "rime-labs/rime-arcana-v3", name: "Rime Arcana v3" },
-      { id: "rime-labs/rime-arcana-v2", name: "Rime Arcana v2" },
-      { id: "rime-labs/rime-mist-v3", name: "Rime Mist v3" },
-      { id: "rime-labs/rime-mist-v2", name: "Rime Mist v2" },
-      { id: "minimax/speech-2.6-turbo", name: "Minimax Speech 2.6 Turbo" },
     ]);
   });
 

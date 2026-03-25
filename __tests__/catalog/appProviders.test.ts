@@ -22,13 +22,10 @@ describe("app provider catalog bridge", () => {
     expect(PROVIDER_CATALOG_IDS).toEqual({
       "01-ai-yi": "01-ai-yi",
       openai: "openai",
-      "microsoft-azure": "microsoft-azure",
-      "aleph-alpha": "aleph-alpha",
       anthropic: "anthropic",
       assemblyai: "assemblyai",
       "ai21-labs": "ai21-labs",
       "alibaba-qwen-dashscope": "alibaba-qwen-dashscope",
-      "amazon-aws": "amazon-aws",
       baichuan: "baichuan",
       "baidu-ernie-qianfan": "baidu-ernie-qianfan",
       "bytedance-doubao-seed": "bytedance-doubao-seed",
@@ -44,8 +41,6 @@ describe("app provider catalog bridge", () => {
       groq: "groq",
       "hugging-face-inference-api": "hugging-face-inference-api",
       hyperbolic: "hyperbolic",
-      "ibm-watsonx": "ibm-watsonx",
-      "lepton-ai": "lepton-ai",
       mistral: "mistral-ai",
       minimax: "minimax",
       "moonshot-ai-kimi": "moonshot-ai-kimi",
@@ -63,33 +58,18 @@ describe("app provider catalog bridge", () => {
     });
 
     expect(getCatalogProviderIdForAppProvider("01-ai-yi")).toBe("01-ai-yi");
-    expect(getCatalogProviderIdForAppProvider("aleph-alpha")).toBe("aleph-alpha");
-    expect(getCatalogProviderIdForAppProvider("lepton-ai")).toBe("lepton-ai");
-    expect(getCatalogProviderIdForAppProvider("microsoft-azure")).toBe(
-      "microsoft-azure",
-    );
-    expect(getCatalogProviderIdForAppProvider("amazon-aws")).toBe("amazon-aws");
     expect(getCatalogProviderIdForAppProvider("gemini")).toBe(
       "google-vertex-ai-studio",
     );
     expect(getAppProviderForCatalogProviderId("01-ai-yi")).toBe("01-ai-yi");
-    expect(getAppProviderForCatalogProviderId("aleph-alpha")).toBe("aleph-alpha");
-    expect(getAppProviderForCatalogProviderId("lepton-ai")).toBe("lepton-ai");
-    expect(getAppProviderForCatalogProviderId("microsoft-azure")).toBe(
-      "microsoft-azure",
-    );
     expect(getAppProviderForCatalogProviderId("openai")).toBe("openai");
     expect(getAppProviderForCatalogProviderId("assemblyai")).toBe("assemblyai");
-    expect(getAppProviderForCatalogProviderId("amazon-aws")).toBe("amazon-aws");
     expect(getAppProviderForCatalogProviderId("baidu-ernie-qianfan")).toBe(
       "baidu-ernie-qianfan",
     );
     expect(getAppProviderForCatalogProviderId("deepgram")).toBe("deepgram");
     expect(getAppProviderForCatalogProviderId("elevenlabs")).toBe("elevenlabs");
     expect(getAppProviderForCatalogProviderId("fish-audio")).toBe("fish-audio");
-    expect(getAppProviderForCatalogProviderId("ibm-watsonx")).toBe(
-      "ibm-watsonx",
-    );
     expect(getAppProviderForCatalogProviderId("replicate")).toBe("replicate");
     expect(getAppProviderForCatalogProviderId("xiaomi-mimo")).toBe("xiaomi-mimo");
     expect(isCatalogProviderId("google-vertex-ai-studio")).toBe(true);

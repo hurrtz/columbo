@@ -12,41 +12,14 @@ export type MultipartTranscriptionConfig = {
   languageHint?: () => string | undefined;
 };
 
-export type CredentialEndpointMultipartTranscriptionConfig = {
-  kind: "credential-endpoint-multipart";
-  defaultModel: string;
-  languageHint?: () => string | undefined;
-};
-
-export type GoogleCloudSpeechTranscriptionConfig = {
-  kind: "google-cloud-speech";
-  defaultModel: string;
-};
-
-export type AlephAlphaTranscriptionConfig = {
-  kind: "aleph-alpha";
-  defaultModel: string;
-};
-
 export type OpenAiAudioInputTranscriptionConfig = {
   kind: "openai-audio-input";
   endpoint: string;
   defaultModel: string;
 };
 
-export type AzureOpenAiTranscriptionConfig = {
-  kind: "azure-openai";
-  defaultModel: string;
-};
-
 export type BaiduShortSpeechTranscriptionConfig = {
   kind: "baidu-short-speech";
-  defaultModel: string;
-};
-
-export type BaiduRealtimeTranscriptionConfig = {
-  kind: "baidu-realtime";
-  endpoint: string;
   defaultModel: string;
 };
 
@@ -58,12 +31,6 @@ export type AssemblyAiPreRecordedTranscriptionConfig = {
 
 export type AssemblyAiRealtimeTranscriptionConfig = {
   kind: "assemblyai-realtime";
-  endpoint: string;
-  defaultModel: string;
-};
-
-export type DashScopeRealtimeTranscriptionConfig = {
-  kind: "dashscope-realtime";
   endpoint: string;
   defaultModel: string;
 };
@@ -103,11 +70,6 @@ export type HuggingFaceJsonTranscriptionConfig = {
   defaultModel: string;
 };
 
-export type IbmWatsonxTranscriptionConfig = {
-  kind: "ibm-watsonx";
-  defaultModel: string;
-};
-
 export type NovitaJsonTranscriptionConfig = {
   kind: "novita-json";
   endpoint: string;
@@ -126,61 +88,27 @@ export type ElevenLabsRealtimeTranscriptionConfig = {
   defaultModel: string;
 };
 
-export type VolcengineFileAsrTranscriptionConfig = {
-  kind: "volcengine-file-asr";
-  defaultModel: string;
-};
-
-export type GeminiTranscriptionConfig = {
-  kind: "gemini";
-  endpointBase: string;
-  defaultModel: string;
-};
-
 export type ReplicateTranscriptionConfig = {
   kind: "replicate";
   defaultModel: string;
 };
 
-export type StepfunRealtimeTranscriptionConfig = {
-  kind: "stepfun-realtime";
-  endpoint: string;
-  defaultModel: string;
-};
-
-export type XaiVoiceAgentTranscriptionConfig = {
-  kind: "xai-voice-agent";
-  endpoint: string;
-  defaultModel: string;
-};
-
 export type ProviderSttConfig =
   | MultipartTranscriptionConfig
-  | CredentialEndpointMultipartTranscriptionConfig
-  | GoogleCloudSpeechTranscriptionConfig
-  | GeminiTranscriptionConfig
   | OpenAiAudioInputTranscriptionConfig
-  | AzureOpenAiTranscriptionConfig
-  | AlephAlphaTranscriptionConfig
   | BaiduShortSpeechTranscriptionConfig
-  | BaiduRealtimeTranscriptionConfig
   | AssemblyAiPreRecordedTranscriptionConfig
   | AssemblyAiRealtimeTranscriptionConfig
-  | DashScopeRealtimeTranscriptionConfig
   | DeepgramPreRecordedTranscriptionConfig
   | DeepInfraInferenceTranscriptionConfig
   | FireworksPreRecordedTranscriptionConfig
   | FireworksStreamingTranscriptionConfig
   | FishAudioTranscriptionConfig
   | HuggingFaceJsonTranscriptionConfig
-  | IbmWatsonxTranscriptionConfig
   | NovitaJsonTranscriptionConfig
   | ReplicateTranscriptionConfig
   | ElevenLabsTranscriptionConfig
-  | ElevenLabsRealtimeTranscriptionConfig
-  | StepfunRealtimeTranscriptionConfig
-  | VolcengineFileAsrTranscriptionConfig
-  | XaiVoiceAgentTranscriptionConfig;
+  | ElevenLabsRealtimeTranscriptionConfig;
 
 export const STT_TIMEOUT_MS = 30000;
 
@@ -215,24 +143,6 @@ function buildConfigForTransport(params: {
               : {}),
           }
         : null;
-    case "credential-endpoint-multipart":
-      return {
-        kind: "credential-endpoint-multipart",
-        defaultModel: params.defaultModel,
-        ...(params.languageHintKey
-          ? { languageHint: getLanguageHint(params.languageHintKey) }
-          : {}),
-      };
-    case "google-cloud-speech":
-      return {
-        kind: "google-cloud-speech",
-        defaultModel: params.defaultModel,
-      };
-    case "aleph-alpha":
-      return {
-        kind: "aleph-alpha",
-        defaultModel: params.defaultModel,
-      };
     case "assemblyai-pre-recorded":
       return params.endpointBase
         ? {
@@ -249,32 +159,11 @@ function buildConfigForTransport(params: {
             defaultModel: params.defaultModel,
           }
         : null;
-    case "azure-openai":
-      return {
-        kind: "azure-openai",
-        defaultModel: params.defaultModel,
-      };
     case "baidu-short-speech":
       return {
         kind: "baidu-short-speech",
         defaultModel: params.defaultModel,
       };
-    case "baidu-realtime":
-      return params.endpoint
-        ? {
-            kind: "baidu-realtime",
-            endpoint: params.endpoint,
-            defaultModel: params.defaultModel,
-          }
-        : null;
-    case "dashscope-realtime":
-      return params.endpoint
-        ? {
-            kind: "dashscope-realtime",
-            endpoint: params.endpoint,
-            defaultModel: params.defaultModel,
-          }
-        : null;
     case "deepgram-pre-recorded":
       return params.endpointBase
         ? {
@@ -328,14 +217,6 @@ function buildConfigForTransport(params: {
             defaultModel: params.defaultModel,
           }
         : null;
-    case "gemini":
-      return params.endpointBase
-        ? {
-            kind: "gemini",
-            endpointBase: params.endpointBase,
-            defaultModel: params.defaultModel,
-          }
-        : null;
     case "huggingface-json":
       return params.endpointBase
         ? {
@@ -344,11 +225,6 @@ function buildConfigForTransport(params: {
             defaultModel: params.defaultModel,
           }
         : null;
-    case "ibm-watsonx":
-      return {
-        kind: "ibm-watsonx",
-        defaultModel: params.defaultModel,
-      };
     case "novita-json":
       return params.endpoint
         ? {
@@ -370,27 +246,6 @@ function buildConfigForTransport(params: {
         kind: "replicate",
         defaultModel: params.defaultModel,
       };
-    case "stepfun-realtime":
-      return params.endpoint
-        ? {
-            kind: "stepfun-realtime",
-            endpoint: params.endpoint,
-            defaultModel: params.defaultModel,
-          }
-        : null;
-    case "volcengine-file-asr":
-      return {
-        kind: "volcengine-file-asr",
-        defaultModel: params.defaultModel,
-      };
-    case "xai-voice-agent":
-      return params.endpoint
-        ? {
-            kind: "xai-voice-agent",
-            endpoint: params.endpoint,
-            defaultModel: params.defaultModel,
-          }
-        : null;
     default:
       return null;
   }
@@ -400,16 +255,6 @@ export function getProviderSttConfig(
   provider: Provider,
   model: string,
 ): ProviderSttConfig | null {
-  if (
-    provider === "gemini" &&
-    ["chirp_3", "chirp_2", "telephony"].includes(model)
-  ) {
-    return {
-      kind: "google-cloud-speech",
-      defaultModel: model,
-    };
-  }
-
   const manifest = RUNTIME_PROVIDER_MANIFEST[provider];
 
   if (!manifest || manifest.stt.support !== "provider") {

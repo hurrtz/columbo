@@ -18,14 +18,10 @@ import {
 import { requestAnthropicChat, requestAnthropicChatStream } from "./llm/providers/anthropic";
 import { requestCohereChat } from "./llm/providers/cohere";
 import {
-  requestAzureOpenAiChat,
-  requestAzureOpenAiChatStream,
   requestOpenAICompatibleChat,
   requestOpenAICompatibleChatStream,
 } from "./llm/providers/openaiCompatible";
 import {
-  requestAzureOpenAiRealtimeChat,
-  requestAzureOpenAiRealtimeChatStream,
   requestOpenAiRealtimeChat,
   requestOpenAiRealtimeChatStream,
 } from "./llm/providers/openaiRealtime";
@@ -33,13 +29,7 @@ import {
   requestGeminiLiveChat,
   requestGeminiLiveChatStream,
 } from "./llm/providers/geminiLive";
-import { requestAmazonBedrockChat } from "./llm/providers/amazonBedrock";
-import { requestIbmWatsonxChat } from "./llm/providers/ibmWatsonx";
 import { requestReplicateChat } from "./llm/providers/replicate";
-import {
-  requestAlephAlphaChat,
-  requestAlephAlphaChatStream,
-} from "./llm/providers/alephAlpha";
 import {
   ChatMessage,
   getProviderLlmConfig,
@@ -115,16 +105,6 @@ const LLM_TEXT_REQUESTERS = {
       systemPrompt: params.systemPrompt,
       abortSignal: params.abortSignal,
     }),
-  "azure-openai": async (params: LlmRequestParams) =>
-    requestAzureOpenAiChat({
-      provider: params.provider,
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      abortSignal: params.abortSignal,
-    }),
   "openai-realtime": async (params: LlmRequestParams) =>
     requestOpenAiRealtimeChat({
       provider: params.provider,
@@ -137,46 +117,6 @@ const LLM_TEXT_REQUESTERS = {
     }),
   "gemini-live": async (params: LlmRequestParams) =>
     requestGeminiLiveChat({
-      provider: params.provider,
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      abortSignal: params.abortSignal,
-    }),
-  "azure-openai-realtime": async (params: LlmRequestParams) =>
-    requestAzureOpenAiRealtimeChat({
-      provider: params.provider,
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      abortSignal: params.abortSignal,
-    }),
-  "amazon-bedrock": async (params: LlmRequestParams) =>
-    requestAmazonBedrockChat({
-      provider: params.provider,
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      abortSignal: params.abortSignal,
-    }),
-  "aleph-alpha": async (params: LlmRequestParams) =>
-    requestAlephAlphaChat({
-      provider: params.provider,
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      abortSignal: params.abortSignal,
-    }),
-  "ibm-watsonx": async (params: LlmRequestParams) =>
-    requestIbmWatsonxChat({
       provider: params.provider,
       model: params.model,
       messages: params.messages,
@@ -231,17 +171,6 @@ const LLM_STREAM_REQUESTERS = {
       onChunk: params.onChunk,
       abortSignal: params.abortSignal,
     }),
-  "azure-openai": async (params: StreamingLlmRequestParams) =>
-    requestAzureOpenAiChatStream({
-      provider: params.provider,
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      onChunk: params.onChunk,
-      abortSignal: params.abortSignal,
-    }),
   "openai-realtime": async (params: StreamingLlmRequestParams) =>
     requestOpenAiRealtimeChatStream({
       provider: params.provider,
@@ -255,28 +184,6 @@ const LLM_STREAM_REQUESTERS = {
     }),
   "gemini-live": async (params: StreamingLlmRequestParams) =>
     requestGeminiLiveChatStream({
-      provider: params.provider,
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      onChunk: params.onChunk,
-      abortSignal: params.abortSignal,
-    }),
-  "azure-openai-realtime": async (params: StreamingLlmRequestParams) =>
-    requestAzureOpenAiRealtimeChatStream({
-      provider: params.provider,
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      onChunk: params.onChunk,
-      abortSignal: params.abortSignal,
-    }),
-  "aleph-alpha": async (params: StreamingLlmRequestParams) =>
-    requestAlephAlphaChatStream({
       provider: params.provider,
       model: params.model,
       messages: params.messages,
@@ -320,16 +227,6 @@ async function requestChatText(params: {
       return LLM_TEXT_REQUESTERS["openai-realtime"](params);
     case "gemini-live":
       return LLM_TEXT_REQUESTERS["gemini-live"](params);
-    case "azure-openai":
-      return LLM_TEXT_REQUESTERS["azure-openai"](params);
-    case "azure-openai-realtime":
-      return LLM_TEXT_REQUESTERS["azure-openai-realtime"](params);
-    case "amazon-bedrock":
-      return LLM_TEXT_REQUESTERS["amazon-bedrock"](params);
-    case "aleph-alpha":
-      return LLM_TEXT_REQUESTERS["aleph-alpha"](params);
-    case "ibm-watsonx":
-      return LLM_TEXT_REQUESTERS["ibm-watsonx"](params);
     case "replicate":
       return LLM_TEXT_REQUESTERS.replicate(params);
     case "anthropic":
@@ -483,42 +380,6 @@ export async function streamChat({
         break;
       case "gemini-live":
         fullText = await LLM_STREAM_REQUESTERS["gemini-live"]({
-          messages,
-          model,
-          provider,
-          apiKey,
-          language,
-          systemPrompt,
-          onChunk,
-          abortSignal,
-        });
-        break;
-      case "azure-openai":
-        fullText = await LLM_STREAM_REQUESTERS["azure-openai"]({
-          messages,
-          model,
-          provider,
-          apiKey,
-          language,
-          systemPrompt,
-          onChunk,
-          abortSignal,
-        });
-        break;
-      case "azure-openai-realtime":
-        fullText = await LLM_STREAM_REQUESTERS["azure-openai-realtime"]({
-          messages,
-          model,
-          provider,
-          apiKey,
-          language,
-          systemPrompt,
-          onChunk,
-          abortSignal,
-        });
-        break;
-      case "aleph-alpha":
-        fullText = await LLM_STREAM_REQUESTERS["aleph-alpha"]({
           messages,
           model,
           provider,

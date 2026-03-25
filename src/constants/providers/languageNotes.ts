@@ -29,7 +29,7 @@ const GERMAN_PROVIDER_API_KEY_HINT_OVERRIDES: Partial<Record<Provider, string>> 
     "Schaltet OpenAI-Modelle und von OpenAI gehostete Sprachfunktionen frei, wenn du STT oder TTS ueber einen Anbieter nutzt.",
   anthropic: "Schaltet Anthropic-Modelle auf der Hauptbuehne frei.",
   gemini:
-    "Schaltet Gemini-Modelle frei. Fuer Chirp- und Telephony-Cloud-Speech-Modelle werden zusaetzlich Access-Token, Projekt-ID und optional eine Location im Format primaryApiKey|accessToken|projectId|location benoetigt.",
+    "Schaltet Gemini-Modelle und Gemini-gehostete Sprachfunktionen ueber einen einzelnen API-Schluessel frei.",
   xai: "Schaltet Grok-Modelle von xAI frei.",
   groq:
     "Groq bietet einen kostenlosen Tarif und schaltet schnelle gehostete Inferenzmodelle frei.",
@@ -37,7 +37,7 @@ const GERMAN_PROVIDER_API_KEY_HINT_OVERRIDES: Partial<Record<Provider, string>> 
   mistral: "Schaltet gehostete Mistral-Modelle frei.",
   cohere: "Schaltet Command-Modelle von Cohere frei.",
   together: "Schaltet bei Together gehostete Open-Modelle frei.",
-  nvidia: "Schaltet gehostete Foundation-Modelle von NVIDIA frei.",
+  nvidia: "Schaltet gehostete Sprachmodelle von NVIDIA ueber die Integrate-API frei.",
 };
 
 const GERMAN_PROVIDER_API_KEY_PLACEHOLDER_OVERRIDES: Partial<
@@ -45,14 +45,14 @@ const GERMAN_PROVIDER_API_KEY_PLACEHOLDER_OVERRIDES: Partial<
 > = {
   openai: "sk-...",
   anthropic: "sk-ant-...",
-  gemini: "AIza...|ya29...|project-id|us",
+  gemini: "AIza...",
   xai: "xai-...",
   groq: "gsk_...",
   deepseek: "sk-...",
   mistral: "API-Schluessel eingeben",
   cohere: "API-Schluessel eingeben",
   together: "API-Schluessel eingeben",
-  nvidia: "nvapi-...|https://stt-endpoint.example.com/v1|https://tts-endpoint.example.com/v1",
+  nvidia: "nvapi-...",
 };
 
 const PROVIDER_API_KEY_HINTS_BY_LANGUAGE: Record<AppLanguage, Record<Provider, string>> = {
@@ -100,8 +100,6 @@ const PROVIDER_STT_LANGUAGE_NOTES_BY_LANGUAGE: Partial<
   de: {
     openai:
       `OpenAI bietet aktuell gpt-4o-transcribe, gpt-4o-mini-transcribe und whisper-1 fuer Speech-to-Text an. Der von OpenAI veroeffentlichte Satz gut unterstuetzter Sprachen lautet: ${WHISPER_WELL_SUPPORTED_LANGUAGES}`,
-    gemini:
-      "Gemini Audio Understanding ist mehrsprachig, aber Google veroeffentlicht fuer diesen Transkriptionspfad keine kompakte Tabelle unterstuetzter Sprachen. Es handelt sich eher um eine breite allgemeine Transkriptionsroute als um eine dedizierte Telephony-STT-API.",
     groq:
       `Die App nutzt hier whisper-large-v3-turbo. Groq dokumentiert das Modell als mehrsprachig. Fuer die Whisper-Familie ist dieser Satz gut unterstuetzter Sprachen veroeffentlicht: ${WHISPER_WELL_SUPPORTED_LANGUAGES} Wenn dir mehrsprachige Genauigkeit wichtiger ist als Geschwindigkeit, empfiehlt Groq whisper-large-v3 statt der Turbo-Variante.`,
     mistral:

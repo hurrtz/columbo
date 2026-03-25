@@ -2,74 +2,10 @@ import { synthesizeProviderSpeech } from "../../src/services/tts/providerRoute";
 
 global.fetch = jest.fn();
 
-const OriginalWebSocket = (globalThis as any).WebSocket;
-
 jest.mock("expo-file-system/legacy", () => ({
   cacheDirectory: "/tmp/",
   writeAsStringAsync: jest.fn(() => Promise.resolve()),
 }));
-
-class MockWebSocket {
-  static instances: MockWebSocket[] = [];
-
-  readonly url: string;
-  readonly protocols: any;
-  readonly options: any;
-  readonly sent: any[] = [];
-  binaryType?: string;
-  onopen: ((event: any) => void) | null = null;
-  onmessage: ((event: any) => void) | null = null;
-  onerror: ((event: any) => void) | null = null;
-  onclose: ((event: any) => void) | null = null;
-
-  constructor(url: string, protocols?: any, options?: any) {
-    this.url = url;
-    this.protocols = protocols;
-    this.options = options;
-    MockWebSocket.instances.push(this);
-  }
-
-  send(data: any) {
-    this.sent.push(data);
-  }
-
-  close() {
-    this.onclose?.({ code: 1000, reason: "closed" });
-  }
-
-  emitOpen() {
-    this.onopen?.({});
-  }
-
-  emitMessage(data: any) {
-    this.onmessage?.({
-      data: typeof data === "string" ? data : JSON.stringify(data),
-    });
-  }
-
-  emitBinary(bytes: Uint8Array) {
-    this.onmessage?.({
-      data: bytes.buffer.slice(
-        bytes.byteOffset,
-        bytes.byteOffset + bytes.byteLength,
-      ),
-    });
-  }
-}
-
-async function waitForMockSocket() {
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    const socket = MockWebSocket.instances[0];
-
-    if (socket) {
-      return socket;
-    }
-
-    await Promise.resolve();
-  }
-
-  throw new Error("Expected realtime TTS socket to be created.");
-}
 
 class MockFileReader {
   public result: string | ArrayBuffer | null = null;
@@ -88,17 +24,8 @@ Object.defineProperty(global, "FileReader", {
 });
 
 describe("synthesizeProviderSpeech", () => {
-  beforeAll(() => {
-    (globalThis as any).WebSocket = MockWebSocket;
-  });
-
-  afterAll(() => {
-    (globalThis as any).WebSocket = OriginalWebSocket;
-  });
-
   beforeEach(() => {
     jest.clearAllMocks();
-    MockWebSocket.instances = [];
   });
 
   it("uses DashScope TTS and downloads the generated wav file", async () => {
@@ -141,137 +68,6 @@ describe("synthesizeProviderSpeech", () => {
     );
   });
 
-  it("uses DashScope realtime TTS for websocket speech models", async () => {
-    const promise = synthesizeProviderSpeech({
-      text: "Hello world",
-      voice: "",
-      provider: "alibaba-qwen-dashscope",
-      providerModel: "qwen3-tts-flash-realtime",
-      apiKey: "dashscope-test",
-      language: "en",
-    });
-
-    const socket = await waitForMockSocket();
-    expect(socket.url).toBe(
-      "wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime?model=qwen3-tts-flash-realtime",
-    );
-    expect(socket.options.headers.Authorization).toBe("Bearer dashscope-test");
-
-    socket.emitOpen();
-    expect(JSON.parse(socket.sent[0])).toMatchObject({
-      type: "session.update",
-      session: {
-        mode: "server_commit",
-        voice: "Cherry",
-        response_format: "pcm_24000hz_mono_16bit",
-      },
-    });
-
-    socket.emitMessage({
-      type: "response.audio.delta",
-      delta: Buffer.from([1, 2, 3, 4]).toString("base64"),
-    });
-    socket.emitMessage({
-      type: "response.done",
-    });
-
-    await expect(promise).resolves.toMatch(/^\/tmp\/tts-.*\.wav$/);
-    expect(fetch).not.toHaveBeenCalled();
-  });
-
-  it("uses the ByteDance async TTS submit/query flow for Doubao speech", async () => {
-    (fetch as jest.Mock)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: {
-              task_id: "doubao-tts-task",
-            },
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: {
-              task_status: 2,
-              audio_url: "https://doubao.example/audio.mp3",
-            },
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        blob: () => Promise.resolve(new Blob(["fake-audio"])),
-      });
-
-    const result = await synthesizeProviderSpeech({
-      text: "Hello world",
-      voice: "",
-      provider: "bytedance-doubao-seed",
-      providerModel: "unknown",
-      apiKey: "ark-key|speech-app-id|speech-access-key",
-      language: "en",
-    });
-
-    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
-    const [submitUrl, submitOptions] = (fetch as jest.Mock).mock.calls[0];
-    expect(submitUrl).toBe("https://openspeech.bytedance.com/api/v3/tts/submit");
-    expect(submitOptions.headers["X-Api-App-Id"]).toBe("speech-app-id");
-    expect(submitOptions.headers["X-Api-Access-Key"]).toBe("speech-access-key");
-    expect(submitOptions.headers["X-Api-Resource-Id"]).toBe("seed-tts-2.0");
-    expect(JSON.parse(submitOptions.body)).toMatchObject({
-      req_params: {
-        text: "Hello world",
-        speaker: "zh_female_qingxin",
-        audio_params: {
-          format: "mp3",
-          sample_rate: 24000,
-        },
-      },
-    });
-
-    const [queryUrl, queryOptions] = (fetch as jest.Mock).mock.calls[1];
-    expect(queryUrl).toBe("https://openspeech.bytedance.com/api/v3/tts/query");
-    expect(queryOptions.headers["X-Api-Resource-Id"]).toBe(
-      "volc.service_type.10029",
-    );
-    expect(JSON.parse(queryOptions.body)).toEqual({
-      task_id: "doubao-tts-task",
-    });
-    expect((fetch as jest.Mock).mock.calls[2][0]).toBe(
-      "https://doubao.example/audio.mp3",
-    );
-  });
-
-  it("uses the Azure OpenAI v1 speech route with api-key auth", async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      blob: () => Promise.resolve(new Blob(["fake-audio"])),
-    });
-
-    const result = await synthesizeProviderSpeech({
-      text: "Hello world",
-      voice: "",
-      provider: "microsoft-azure",
-      apiKey: "https://example-resource.openai.azure.com|azure-test-key",
-      language: "en",
-    });
-
-    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
-    const [url, options] = (fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe(
-      "https://example-resource.openai.azure.com/openai/v1/audio/speech",
-    );
-    expect(options.headers["api-key"]).toBe("azure-test-key");
-    expect(JSON.parse(options.body)).toEqual({
-      model: "gpt-4o-mini-tts",
-      voice: "alloy",
-      input: "Hello world",
-      response_format: "mp3",
-    });
-  });
-
   it("uses Xiaomi's experimental OpenAI-style speech route for MiMo TTS", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
@@ -299,32 +95,6 @@ describe("synthesizeProviderSpeech", () => {
     });
   });
 
-  it("uses deployment-specific Lepton speech endpoints for Dia TTS", async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      blob: () => Promise.resolve(new Blob(["fake-audio"])),
-    });
-
-    const result = await synthesizeProviderSpeech({
-      text: "Hello world",
-      voice: "",
-      provider: "lepton-ai",
-      providerModel: "nari-labs/Dia-1.6B-0626",
-      apiKey: "https://lepton.example.com/v1|lepton-test-key",
-      language: "en",
-    });
-
-    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
-    const [url, options] = (fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe("https://lepton.example.com/v1/audio/speech");
-    expect(options.headers.Authorization).toBe("Bearer lepton-test-key");
-    expect(JSON.parse(options.body)).toEqual({
-      model: "nari-labs/Dia-1.6B-0626",
-      voice: "alloy",
-      input: "Hello world",
-      response_format: "mp3",
-    });
-  });
 
   it("uses Deepgram native speak and sends the selected voice model", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
@@ -613,33 +383,6 @@ describe("synthesizeProviderSpeech", () => {
     });
   });
 
-  it("uses IBM Text to Speech with basic auth and model-id-as-voice routing", async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      blob: () => Promise.resolve(new Blob(["fake-audio"])),
-    });
-
-    const result = await synthesizeProviderSpeech({
-      text: "Hello world",
-      voice: "",
-      provider: "ibm-watsonx",
-      providerModel: "pt-BR_CamilaNatural",
-      apiKey:
-        "https://us-south.ml.cloud.ibm.com|watsonx-key|project-123|https://api.us-south.speech-to-text.watson.cloud.ibm.com|stt-key|https://api.us-south.text-to-speech.watson.cloud.ibm.com|tts-key",
-      language: "en",
-    });
-
-    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
-    const [url, options] = (fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe(
-      "https://api.us-south.text-to-speech.watson.cloud.ibm.com/v1/synthesize?voice=pt-BR_CamilaNatural",
-    );
-    expect(options.headers.Authorization).toBe("Basic YXBpa2V5OnR0cy1rZXk=");
-    expect(options.headers.Accept).toBe("audio/mp3");
-    expect(JSON.parse(options.body)).toEqual({
-      text: "Hello world",
-    });
-  });
 
   it("uses Replicate predictions for official TTS models", async () => {
     (fetch as jest.Mock)
@@ -823,111 +566,6 @@ describe("synthesizeProviderSpeech", () => {
     );
   });
 
-  it("uses Baidu long-text TTS through the async create/query flow", async () => {
-    (fetch as jest.Mock)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            task_id: "baidu-task-1",
-            task_status: "Running",
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            tasks_info: [
-              {
-                task_status: "Success",
-                task_result: {
-                  speech_url: "https://baidu.example/audio.mp3",
-                },
-              },
-            ],
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        blob: () => Promise.resolve(new Blob(["fake-audio"])),
-      });
-
-    const result = await synthesizeProviderSpeech({
-      text: "Hello world",
-      voice: "",
-      provider: "baidu-ernie-qianfan",
-      providerModel: "长文本合成",
-      apiKey: "baidu-test",
-      language: "en",
-    });
-
-    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
-
-    const [createUrl, createOptions] = (fetch as jest.Mock).mock.calls[0];
-    expect(createUrl).toBe(
-      "https://aip.baidubce.com/rpc/2.0/tts/v1/create?access_token=baidu-test",
-    );
-    expect(JSON.parse(createOptions.body)).toEqual({
-      text: ["Hello world"],
-      format: "mp3-16k",
-      voice: 0,
-      lang: "zh",
-      speed: 5,
-      pitch: 5,
-      volume: 5,
-    });
-
-    const [queryUrl, queryOptions] = (fetch as jest.Mock).mock.calls[1];
-    expect(queryUrl).toBe(
-      "https://aip.baidubce.com/rpc/2.0/tts/v1/query?access_token=baidu-test",
-    );
-    expect(JSON.parse(queryOptions.body)).toEqual({
-      task_ids: ["baidu-task-1"],
-    });
-
-    expect((fetch as jest.Mock).mock.calls[2][0]).toBe(
-      "https://baidu.example/audio.mp3",
-    );
-  });
-
-  it("uses Baidu streaming TTS over WebSocket for the streaming speech model", async () => {
-    const promise = synthesizeProviderSpeech({
-      text: "你好，百度",
-      voice: "0",
-      provider: "baidu-ernie-qianfan",
-      providerModel: "流式文本在线合成",
-      apiKey: "baidu-test",
-      language: "en",
-    });
-
-    const socket = await waitForMockSocket();
-    expect(socket.url).toBe(
-      "wss://aip.baidubce.com/ws/2.0/speech/publiccloudspeech/v1/tts?access_token=baidu-test&per=0",
-    );
-
-    socket.emitOpen();
-    expect(JSON.parse(socket.sent[0])).toMatchObject({
-      type: "system.start",
-      payload: {
-        aue: 3,
-        spd: 5,
-        pit: 5,
-        vol: 5,
-      },
-    });
-    expect(JSON.parse(socket.sent[1])).toEqual({
-      type: "text",
-      payload: {
-        text: "你好，百度",
-      },
-    });
-
-    socket.emitBinary(new Uint8Array([1, 2, 3, 4]));
-    socket.close();
-
-    await expect(promise).resolves.toMatch(/^\/tmp\/tts-.*\.mp3$/);
-    expect(fetch).not.toHaveBeenCalled();
-  });
 
   it("uses Novita GLM-TTS with the documented voice and wav output", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({

@@ -4,13 +4,10 @@ import { PROVIDER_DOCUMENTS } from "../../../data/providers";
 export type RuntimeAppProviderId =
   | "01-ai-yi"
   | "openai"
-  | "microsoft-azure"
-  | "aleph-alpha"
   | "anthropic"
   | "assemblyai"
   | "ai21-labs"
   | "alibaba-qwen-dashscope"
-  | "amazon-aws"
   | "baichuan"
   | "baidu-ernie-qianfan"
   | "bytedance-doubao-seed"
@@ -26,8 +23,6 @@ export type RuntimeAppProviderId =
   | "groq"
   | "hugging-face-inference-api"
   | "hyperbolic"
-  | "ibm-watsonx"
-  | "lepton-ai"
   | "mistral"
   | "minimax"
   | "moonshot-ai-kimi"
@@ -47,29 +42,17 @@ export type RuntimeLlmTransport =
   | "none"
   | "openai-compatible"
   | "openai-realtime"
-  | "azure-openai"
-  | "azure-openai-realtime"
-  | "amazon-bedrock"
   | "gemini-live"
-  | "aleph-alpha"
   | "anthropic"
   | "cohere"
-  | "ibm-watsonx"
   | "replicate";
 export type RuntimeSttTransport =
   | "none"
   | "multipart"
-  | "credential-endpoint-multipart"
-  | "google-cloud-speech"
-  | "azure-openai"
-  | "aleph-alpha"
   | "assemblyai-realtime"
-  | "dashscope-realtime"
   | "deepinfra-inference"
-  | "gemini"
   | "openai-audio-input"
   | "baidu-short-speech"
-  | "baidu-realtime"
   | "assemblyai-pre-recorded"
   | "deepgram-pre-recorded"
   | "elevenlabs-realtime"
@@ -77,18 +60,12 @@ export type RuntimeSttTransport =
   | "fireworks-pre-recorded"
   | "fish-audio"
   | "huggingface-json"
-  | "ibm-watsonx"
   | "novita-json"
-  | "stepfun-realtime"
-  | "volcengine-file-asr"
-  | "xai-voice-agent"
   | "elevenlabs"
   | "replicate";
 export type RuntimeTtsTransport =
   | "none"
   | "binary"
-  | "credential-endpoint-binary"
-  | "azure-openai"
   | "baidu"
   | "gemini"
   | "dashscope"
@@ -96,10 +73,8 @@ export type RuntimeTtsTransport =
   | "deepgram"
   | "fish-audio"
   | "hyperbolic"
-  | "ibm-watsonx"
   | "minimax"
   | "novita"
-  | "volcengine-tts"
   | "elevenlabs"
   | "replicate";
 export type RuntimeTtsBinaryRequestFormat =
@@ -251,13 +226,10 @@ function catalogModelSpecs(
 export const RUNTIME_PROVIDER_ORDER = [
   "01-ai-yi",
   "openai",
-  "microsoft-azure",
-  "aleph-alpha",
   "anthropic",
   "assemblyai",
   "ai21-labs",
   "alibaba-qwen-dashscope",
-  "amazon-aws",
   "baidu-ernie-qianfan",
   "bytedance-doubao-seed",
   "deepgram",
@@ -277,8 +249,6 @@ export const RUNTIME_PROVIDER_ORDER = [
   "fireworks-ai",
   "hugging-face-inference-api",
   "hyperbolic",
-  "ibm-watsonx",
-  "lepton-ai",
   "minimax",
   "moonshot-ai-kimi",
   "novita-ai",
@@ -312,13 +282,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("01-ai-yi", "llm"),
     },
     stt: {
-      support: "provider",
-      transport: "xai-voice-agent",
-      endpoint: "wss://api.x.ai/v1/realtime",
-      defaultModel: "voice-agent-api",
-      models: [namedModel("voice-agent-api", "Voice Agent API")],
-      languageNote:
-        "xAI speech input is wired through the realtime Voice Agent WebSocket. It behaves like live conversational speech input rather than a standalone batch transcription API.",
+      support: "none",
+      transport: "none",
+      models: [],
     },
     tts: {
       support: "none",
@@ -344,34 +310,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       realtimeModelIds: ["gpt-realtime-1.5", "gpt-realtime-mini"],
       models: [
         model("gpt-5.4", "2026-03-01"),
-        model("gpt-5.4-mini"),
-        model("gpt-5.4-nano"),
-        namedModel("gpt-5.4-pro", "GPT-5.4 Pro"),
-        namedModel("gpt-5.2", "GPT-5.2"),
-        namedModel("gpt-5.1", "GPT-5.1"),
-        namedModel("gpt-5", "GPT-5"),
-        namedModel("gpt-5-mini", "GPT-5 Mini", "2025-08-07"),
-        namedModel("gpt-5-nano", "GPT-5 Nano"),
-        model("o3", "2025-04-16"),
-        namedModel("o3-pro", "o3 Pro"),
-        model("o4-mini", "2025-04-16"),
-        namedModel("o3-mini", "o3 Mini"),
-        namedModel("o1", "o1"),
-        namedModel("o1-mini", "o1 Mini (Deprecated)"),
-        namedModel("o1-preview", "o1 Preview (Deprecated)"),
-        namedModel("gpt-4.5-preview", "GPT-4.5 Preview (Deprecated)"),
+        model("gpt-5.4-mini", "2026-03-17"),
+        model("gpt-5.4-nano", "2026-03-17"),
         model("gpt-4.1", "2025-04-14"),
         model("gpt-4.1-mini", "2025-04-14"),
         model("gpt-4.1-nano", "2025-04-14"),
         namedModel("gpt-realtime-1.5", "GPT-Realtime-1.5"),
         namedModel("gpt-realtime-mini", "GPT-Realtime-mini"),
-        namedModel("gpt-audio-1.5", "GPT-Audio-1.5"),
-        namedModel("gpt-audio-mini", "GPT-Audio-mini"),
-        namedModel("gpt-4o", "GPT-4o"),
-        namedModel("gpt-4o-mini", "GPT-4o Mini"),
-        namedModel("gpt-4-turbo", "GPT-4 Turbo"),
-        namedModel("gpt-4", "GPT-4"),
-        namedModel("gpt-3.5-turbo", "GPT-3.5 Turbo"),
       ],
     },
     stt: {
@@ -412,86 +357,6 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       ],
       languageNote:
         "OpenAI currently exposes gpt-4o-mini-tts, tts-1, and tts-1-hd. OpenAI does not publish a compact well-supported language list for TTS in the same way it does for STT, and notes that the voices are optimized for English.",
-    },
-  },
-  "microsoft-azure": {
-    appProvider: "microsoft-azure",
-    catalogProviderId: "microsoft-azure",
-    label: "Azure",
-    shortLabel: "AZURE",
-    apiKeyPlaceholder: "https://your-resource.openai.azure.com|api-key",
-    apiKeyHint:
-      "Enter your Azure OpenAI resource endpoint and API key separated by |. Model ids should match your Azure deployment names for chat and speech calls.",
-    apiKeyUrl: "https://learn.microsoft.com/en-us/azure/foundry/openai/reference",
-    llm: {
-      support: "provider",
-      transport: "azure-openai",
-      defaultModel: "gpt-4.1-mini",
-      realtimeModelIds: ["gpt-realtime", "gpt-realtime-1.5", "gpt-realtime-mini"],
-      models: catalogModelSpecs("microsoft-azure", "llm"),
-    },
-    stt: {
-      support: "provider",
-      transport: "azure-openai",
-      defaultModel: "gpt-4o-mini-transcribe",
-      models: catalogModelSpecs("microsoft-azure", "stt"),
-      languageNote:
-        "Azure OpenAI STT is now wired for the non-realtime transcription models in the catalog. Azure Speech and realtime Azure audio flows remain broader than this picker and still need dedicated transports.",
-    },
-    tts: {
-      support: "provider",
-      transport: "azure-openai",
-      defaultModel: "gpt-4o-mini-tts",
-      defaultVoice: "alloy",
-      voiceFallback: "alloy",
-      models: catalogModelSpecs("microsoft-azure", "tts"),
-      voiceOptions: [
-        voice("alloy", "Alloy"),
-        voice("ash", "Ash"),
-        voice("ballad", "Ballad"),
-        voice("cedar", "Cedar"),
-        voice("coral", "Coral"),
-        voice("echo", "Echo"),
-        voice("fable", "Fable"),
-        voice("marin", "Marin"),
-        voice("onyx", "Onyx"),
-        voice("nova", "Nova"),
-        voice("sage", "Sage"),
-        voice("shimmer", "Shimmer"),
-        voice("verse", "Verse"),
-      ],
-      languageNote:
-        "Azure OpenAI TTS is now wired for gpt-4o-mini-tts plus the legacy tts and tts-hd models on the v1 audio/speech route. Realtime Azure voice models still need a dedicated realtime transport.",
-    },
-  },
-  "aleph-alpha": {
-    appProvider: "aleph-alpha",
-    catalogProviderId: "aleph-alpha",
-    label: "Aleph Alpha",
-    shortLabel: "ALEPH",
-    apiKeyPlaceholder: "https://your-pharia-endpoint.example.com/v2|api-key",
-    apiKeyHint:
-      "Enter your PhariaInference base URL and API key separated by |. The app uses /chat/completions for LLMs and /transcribe for STT on that base URL.",
-    apiKeyUrl: "https://docs.aleph-alpha.com/",
-    llm: {
-      support: "provider",
-      transport: "aleph-alpha",
-      defaultModel: "pharia-1-llm-7b-control-aligned",
-      models: catalogModelSpecs("aleph-alpha", "llm"),
-    },
-    stt: {
-      support: "provider",
-      transport: "aleph-alpha",
-      defaultModel: "whisperx-transcription-medium",
-      models: catalogModelSpecs("aleph-alpha", "stt"),
-      languageNote:
-        "Aleph Alpha STT is wired against the documented request-response /transcribe surface on a customer-provided PhariaInference endpoint. Catalog drift is expected because installed-model inventories are deployment-specific.",
-    },
-    tts: {
-      support: "none",
-      transport: "none",
-      models: [],
-      voiceOptions: [],
     },
   },
   anthropic: {
@@ -628,16 +493,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       endpoint:
         "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
       defaultModel: "qwen3-asr-flash",
-      realtimeTransport: "dashscope-realtime",
-      realtimeEndpoint: "wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime",
-      realtimeModelIds: ["qwen3-asr-flash-realtime"],
-      models: [
-        model("qwen3-asr-flash"),
-        model("qwen3-asr-flash-filetrans"),
-        model("qwen3-asr-flash-realtime"),
-      ],
+      models: [model("qwen3-asr-flash")],
       languageNote:
-        "DashScope STT is wired for Qwen3-ASR-Flash short-file transcription, Qwen3-ASR-Flash-Filetrans long-file async transcription with a public audio URL, and Qwen3-ASR-Flash-Realtime through the realtime WebSocket.",
+        "DashScope STT is limited to the simple Qwen3-ASR-Flash short-file transcription route. Long-file async transcription and realtime WebSocket ASR stay catalog-only to keep the app on straightforward BYOK flows.",
     },
     tts: {
       support: "provider",
@@ -647,38 +505,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "qwen3-tts-flash",
       defaultVoice: "Cherry",
       voiceFallback: "Cherry",
-      models: catalogModelSpecs("alibaba-qwen-dashscope", "tts"),
+      models: [
+        namedModel("qwen3-tts-flash", "Qwen3-TTS-Flash"),
+        namedModel("qwen3-tts-instruct-flash", "Qwen3-TTS-Instruct-Flash"),
+      ],
       voiceOptions: [voice("Cherry", "Cherry")],
       languageNote:
-        "DashScope TTS is wired for both the standard Qwen3-TTS-Flash families and the realtime Qwen3-TTS-Flash-Realtime families with the default Cherry voice.",
-    },
-  },
-  "amazon-aws": {
-    appProvider: "amazon-aws",
-    catalogProviderId: "amazon-aws",
-    label: "AWS",
-    shortLabel: "AWS",
-    apiKeyPlaceholder:
-      "us-east-1|access-key-id|secret-access-key|optional-session-token",
-    apiKeyHint:
-      "Enter your AWS region, access key ID, secret access key, and optional session token separated by |. The app uses Amazon Bedrock Converse for Nova text models.",
-    apiKeyUrl: "https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started-api-ex-python.html",
-    llm: {
-      support: "provider",
-      transport: "amazon-bedrock",
-      defaultModel: "amazon.nova-lite-v1:0",
-      models: catalogModelSpecs("amazon-aws", "llm"),
-    },
-    stt: {
-      support: "none",
-      transport: "none",
-      models: [],
-    },
-    tts: {
-      support: "none",
-      transport: "none",
-      models: [],
-      voiceOptions: [],
+        "DashScope TTS is limited to the standard non-realtime Qwen3-TTS-Flash families with the default Cherry voice. Realtime TTS rows stay catalog-only to keep the app on straightforward BYOK flows.",
     },
   },
   baichuan: {
@@ -729,17 +562,12 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "provider",
       transport: "baidu-short-speech",
       defaultModel: "短语音识别",
-      realtimeTransport: "baidu-realtime",
-      realtimeEndpoint: "wss://vop.baidu.com/realtime_asr",
-      realtimeModelIds: ["实时语音识别-websocket API"],
       models: [
-        namedModel("音频文件转写", "Audio File Transcription"),
-        namedModel("实时语音识别-websocket API", "Realtime Speech Recognition WebSocket API"),
         namedModel("短语音识别", "Short Speech Recognition"),
         namedModel("短语音识别极速版", "Short Speech Recognition Pro / 极速版"),
       ],
       languageNote:
-        "Baidu is wired for short-form request/response STT, async file transcription via public audio URLs, and the realtime WebSocket STT surface. Realtime STT requires provider credentials in the format apiKey|appId|appKey.",
+        "Baidu is wired for the simple short-form request/response STT routes only. Async file transcription and realtime WebSocket STT stay out of the app because they require extra setup beyond a basic BYOK flow.",
     },
     tts: {
       support: "provider",
@@ -748,7 +576,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "短文本语音合成",
       defaultVoice: "0",
       voiceFallback: "0",
-      models: catalogModelSpecs("baidu-ernie-qianfan", "tts"),
+      models: [namedModel("短文本语音合成", "Short Text Speech Synthesis")],
       voiceOptions: [
         voice("0", "Standard female"),
         voice("1", "Standard male"),
@@ -756,7 +584,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         voice("4", "Emotional child"),
       ],
       languageNote:
-        "Baidu is wired for short-text REST TTS, long-text async synthesis jobs, and the streaming WebSocket TTS surface.",
+        "Baidu is wired for the simple short-text REST TTS route only. Long-text async jobs and streaming WebSocket TTS stay catalog-only because they add extra operational complexity beyond a basic BYOK flow.",
     },
   },
   "bytedance-doubao-seed": {
@@ -764,9 +592,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     catalogProviderId: "bytedance-doubao-seed",
     label: "ByteDance",
     shortLabel: "DOUBAO",
-    apiKeyPlaceholder: "ark-api-key|speech-app-id|speech-access-key",
+    apiKeyPlaceholder: "Enter API key",
     apiKeyHint:
-      "Use ark-api-key for chat. Add speech-app-id and speech-access-key after | to unlock Doubao Speech file ASR and async TTS.",
+      "Unlocks ByteDance / Doubao chat models through Volcengine Ark's OpenAI-compatible API.",
     apiKeyUrl: "https://www.volcengine.com/docs/82379/1298459",
     llm: {
       support: "provider",
@@ -776,28 +604,15 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("bytedance-doubao-seed", "llm"),
     },
     stt: {
-      support: "provider",
-      transport: "volcengine-file-asr",
-      defaultModel: "bigmodel",
-      models: [namedModel("bigmodel", "Doubao Big-Model ASR")],
-      languageNote:
-        "ByteDance speech uses Doubao Speech rather than Ark. The current app route is the async file-ASR submit/query flow and requires a public audio URL plus speech-app-id and speech-access-key in settings.",
+      support: "none",
+      transport: "none",
+      models: [],
     },
     tts: {
-      support: "provider",
-      transport: "volcengine-tts",
-      endpointBase: "https://openspeech.bytedance.com/api/v3/tts",
-      defaultModel: "unknown",
-      defaultVoice: "zh_female_qingxin",
-      voiceFallback: "zh_female_qingxin",
-      models: [namedModel("unknown", "Doubao Large-Model TTS")],
-      voiceOptions: [
-        voice("zh_female_qingxin", "Qingxin"),
-        voice("zh_male_chunhou", "Chunhou"),
-        voice("zh_female_zhixing", "Zhixing"),
-      ],
-      languageNote:
-        "ByteDance TTS is wired on the async submit/query API. Voice inventories are larger and dynamic in the official docs, so the built-in voices here are only a starter set.",
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
     },
   },
   deepgram: {
@@ -932,9 +747,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     catalogProviderId: "google-vertex-ai-studio",
     label: "Google",
     shortLabel: "GOOGLE",
-    apiKeyPlaceholder: "AIza...|ya29...|project-id|us",
+    apiKeyPlaceholder: "AIza...",
     apiKeyHint:
-      "Enter a Gemini API key. To use Chirp and Telephony Cloud Speech models, append access token, project id, and optional location as primaryApiKey|accessToken|projectId|location.",
+      "Unlocks Gemini models and Gemini-hosted speech on the public AI Studio API with a single API key.",
     apiKeyUrl: "https://aistudio.google.com/app/apikey",
     llm: {
       support: "provider",
@@ -946,36 +761,15 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       realtimeTransport: "gemini-live",
       models: [
         model("gemini-live-2.5-flash-native-audio"),
-        model("gemini-3.1-pro-preview"),
-        model("gemini-3.1-flash-lite-preview"),
-        namedModel("gemini-3-flash-preview", "Gemini 3 Flash Preview"),
         model("gemini-2.5-pro"),
         model("gemini-2.5-flash"),
-        namedModel("gemini-2.5-flash-lite", "Gemini 2.5 Flash-Lite"),
-        model("gemini-2.0-flash"),
-        model("gemini-2.0-flash-lite"),
+        model("gemini-2.5-flash-lite"),
       ],
     },
     stt: {
-      support: "provider",
-      transport: "gemini",
-      endpointBase: "https://generativelanguage.googleapis.com/v1beta/models",
-      defaultModel: "gemini-2.5-flash",
-      models: [
-        namedModel("chirp_3", "Chirp 3: Transcription"),
-        namedModel("chirp_2", "Chirp 2: Transcription"),
-        namedModel("telephony", "Telephony"),
-        namedModel("gemini-3.1-pro-preview", "Gemini 3.1 Pro Preview"),
-        namedModel("gemini-3.1-flash-lite-preview", "Gemini 3.1 Flash-Lite Preview"),
-        namedModel("gemini-3-flash-preview", "Gemini 3 Flash Preview"),
-        namedModel("gemini-2.5-pro", "Gemini 2.5 Pro"),
-        namedModel("gemini-2.5-flash", "Gemini 2.5 Flash"),
-        namedModel("gemini-2.5-flash-lite", "Gemini 2.5 Flash-Lite"),
-        namedModel("gemini-2.0-flash", "Gemini 2.0 Flash"),
-        namedModel("gemini-2.0-flash-lite", "Gemini 2.0 Flash-Lite"),
-      ],
-      languageNote:
-        "Gemini audio understanding is multilingual, but Google does not publish a compact supported-language table for this transcription path. It is a broad general-purpose transcription route rather than a dedicated telephony STT API.",
+      support: "none",
+      transport: "none",
+      models: [],
     },
     tts: {
       support: "provider",
@@ -984,7 +778,10 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "gemini-2.5-flash-tts",
       defaultVoice: "Kore",
       voiceFallback: "alloy",
-      models: catalogModelSpecs("google-vertex-ai-studio", "tts"),
+      models: [
+        namedModel("gemini-2.5-flash-tts", "Gemini 2.5 Flash TTS"),
+        namedModel("gemini-2.5-pro-tts", "Gemini 2.5 Pro TTS"),
+      ],
       voiceOptions: [
         voice("Zephyr", "Zephyr · Bright", { de: "Zephyr · Klar" }),
         voice("Puck", "Puck · Upbeat", { de: "Puck · Schwungvoll" }),
@@ -1107,13 +904,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("xai", "llm"),
     },
     stt: {
-      support: "provider",
-      transport: "xai-voice-agent",
-      endpoint: "wss://api.x.ai/v1/realtime",
-      defaultModel: "voice-agent-api",
-      models: [namedModel("voice-agent-api", "Voice Agent API")],
-      languageNote:
-        "xAI speech input is wired through the realtime Voice Agent WebSocket. It behaves like live conversational speech input rather than a standalone batch transcription API.",
+      support: "none",
+      transport: "none",
+      models: [],
     },
     tts: {
       support: "provider",
@@ -1392,10 +1185,6 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       languageHintKey: "mistral-stt-language-code",
       models: [
         namedModel("voxtral-mini-latest", "Voxtral Mini Latest"),
-        namedModel(
-          "voxtral-mini-transcribe-realtime-2602",
-          "Voxtral Mini Transcribe Realtime",
-        ),
       ],
       languageNote:
         "The current Voxtral transcription route is documented for English, Spanish, French, Portuguese, Hindi, German, Dutch, and Italian.",
@@ -1405,84 +1194,6 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "none",
       models: [],
       voiceOptions: [],
-    },
-  },
-  "ibm-watsonx": {
-    appProvider: "ibm-watsonx",
-    catalogProviderId: "ibm-watsonx",
-    label: "IBM Watsonx",
-    shortLabel: "IBM",
-    apiKeyPlaceholder:
-      "https://watsonx-url|watsonx-api-key|project-id|https://stt-url|stt-api-key|https://tts-url|tts-api-key",
-    apiKeyHint:
-      "Enter watsonx URL, watsonx API key, project ID, Speech to Text URL, Speech to Text API key, Text to Speech URL, and Text to Speech API key separated by |.",
-    apiKeyUrl: "https://www.ibm.com/watsonx/developer/",
-    llm: {
-      support: "provider",
-      transport: "ibm-watsonx",
-      defaultModel: "ibm/granite-4-h-small",
-      models: catalogModelSpecs("ibm-watsonx", "llm"),
-    },
-    stt: {
-      support: "provider",
-      transport: "ibm-watsonx",
-      defaultModel: "en-US",
-      models: catalogModelSpecs("ibm-watsonx", "stt"),
-      languageNote:
-        "IBM Speech to Text is wired on the synchronous recognize route. Large speech and next-generation multimedia models share the same request shape, but IBM's live WebSocket session surface remains broader than this request-response integration.",
-    },
-    tts: {
-      support: "provider",
-      transport: "ibm-watsonx",
-      defaultModel: "en-US_VictoriaNatural",
-      defaultVoice: "en-US_VictoriaNatural",
-      voiceFallback: "en-US_VictoriaNatural",
-      models: catalogModelSpecs("ibm-watsonx", "tts"),
-      voiceOptions: [],
-      languageNote:
-        "IBM Text to Speech is voice-addressed rather than model-family-addressed. The app maps each catalog voice row directly onto IBM's /v1/synthesize voice parameter.",
-    },
-  },
-  "lepton-ai": {
-    appProvider: "lepton-ai",
-    catalogProviderId: "lepton-ai",
-    label: "Lepton",
-    shortLabel: "LEPTON",
-    apiKeyPlaceholder: "https://your-lepton-endpoint.example.com/v1|api-key",
-    apiKeyHint:
-      "Enter your Lepton endpoint base URL and API key separated by |. The app uses the deployed OpenAI-compatible chat surface and, if present, the deployed /audio/speech surface on that endpoint.",
-    apiKeyUrl: "https://docs.nvidia.com/dgx-cloud/lepton/features/endpoints/create-llm/",
-    llm: {
-      support: "provider",
-      transport: "aleph-alpha",
-      defaultModel: "nim/openai/gpt-oss-120b:latest",
-      models: [
-        namedModel(
-          "nim/openai/gpt-oss-120b:latest",
-          "GPT-OSS-120B NIM image on DGX Cloud Lepton",
-        ),
-        namedModel(
-          "meta-llama/Llama-3.1-8B-Instruct",
-          "Meta Llama 3.1 8B Instruct (deployment example via Hugging Face)",
-        ),
-      ],
-    },
-    stt: {
-      support: "none",
-      transport: "none",
-      models: [],
-    },
-    tts: {
-      support: "provider",
-      transport: "credential-endpoint-binary",
-      requestFormat: "openai-speech",
-      defaultModel: "nari-labs/Dia-1.6B-0626",
-      defaultVoice: "alloy",
-      voiceFallback: "alloy",
-      models: catalogModelSpecs("lepton-ai", "tts"),
-      voiceOptions: [voice("alloy", "Default")],
-      languageNote:
-        "Lepton TTS is deployment-specific. Configure a Lepton endpoint that exposes an OpenAI-style /audio/speech surface if you want this catalog row to be callable in-app.",
     },
   },
   minimax: {
@@ -1743,12 +1454,12 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "multipart",
       endpoint: "https://api.stepfun.com/v1/audio/transcriptions",
       defaultModel: "step-asr",
-      realtimeTransport: "stepfun-realtime",
-      realtimeEndpoint: "wss://api.stepfun.com/v1/realtime/asr/stream",
-      realtimeModelIds: ["step-asr-1.1-stream"],
-      models: catalogModelSpecs("stepfun", "stt"),
+      models: [
+        namedModel("step-asr", "Step ASR"),
+        namedModel("step-asr-1.1", "Step ASR 1.1"),
+      ],
       languageNote:
-        "StepFun has file transcription on /v1/audio/transcriptions for step-asr and step-asr-1.1, plus realtime STT on /v1/realtime/asr/stream for step-asr-1.1-stream.",
+        "StepFun is wired for the simple file transcription routes on /v1/audio/transcriptions. The separate realtime streaming STT surface stays catalog-only to keep the app on straightforward BYOK flows.",
     },
     tts: {
       support: "provider",
@@ -1795,7 +1506,10 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "hexgrad/Kokoro-82M",
       defaultVoice: "af_alloy",
       voiceFallback: "alloy",
-      models: catalogModelSpecs("together-ai", "tts"),
+      models: [
+        namedModel("canopylabs/orpheus-3b-0.1-ft", "Orpheus 3B"),
+        namedModel("hexgrad/Kokoro-82M", "Kokoro"),
+      ],
       voiceOptions: [
         voice("af_heart", "af_heart"),
         voice("af_alloy", "af_alloy"),
@@ -1867,7 +1581,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         voice("English_WiseWoman", "English_WiseWoman"),
       ],
       languageNote:
-        "Together TTS exposes a mixed catalog: Kokoro and Orpheus are broadly documented, while Cartesia, Deepgram, Rime, and MiniMax speech entries can require higher build tiers or dedicated access. Voice availability is strongly model-specific.",
+        "Together TTS is intentionally limited to the simple, broadly documented Kokoro and Orpheus routes. The more access-tiered or provider-routed speech rows stay catalog-only.",
     },
   },
   nvidia: {
@@ -1875,9 +1589,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     catalogProviderId: "nvidia-nim",
     label: "NVIDIA",
     shortLabel: "NVIDIA",
-    apiKeyPlaceholder: "nvapi-...|https://stt-endpoint.example.com/v1|https://tts-endpoint.example.com/v1",
+    apiKeyPlaceholder: "nvapi-...",
     apiKeyHint:
-      "Enter your NVIDIA API key. To use experimental custom speech routes, append STT and TTS endpoint URLs as primaryApiKey|sttEndpoint|ttsEndpoint.",
+      "Unlocks NVIDIA hosted language models on the public integrate API.",
     apiKeyUrl: "https://build.nvidia.com",
     llm: {
       support: "provider",
@@ -1887,24 +1601,15 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("nvidia-nim", "llm"),
     },
     stt: {
-      support: "provider",
-      transport: "credential-endpoint-multipart",
-      defaultModel: "parakeet-ctc-1_1b-asr",
-      models: catalogModelSpecs("nvidia-nim", "stt"),
-      languageNote:
-        "NVIDIA speech is deployment-specific in the app. Provide a custom STT endpoint URL in the credentials field to call Parakeet or Canary from the existing multipart upload flow.",
+      support: "none",
+      transport: "none",
+      models: [],
     },
     tts: {
-      support: "provider",
-      transport: "credential-endpoint-binary",
-      requestFormat: "openai-speech",
-      defaultModel: "magpie-tts-multilingual",
-      defaultVoice: "alloy",
-      voiceFallback: "alloy",
-      models: catalogModelSpecs("nvidia-nim", "tts"),
-      voiceOptions: [voice("alloy", "Default")],
-      languageNote:
-        "NVIDIA TTS is deployment-specific in the app. Provide a custom TTS endpoint URL in the credentials field to call Magpie-family deployments from the existing speech request flow.",
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
     },
   },
   "novita-ai": {
@@ -1939,7 +1644,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "glm-tts",
       defaultVoice: "tongtong",
       voiceFallback: "tongtong",
-      models: catalogModelSpecs("novita-ai", "tts"),
+      models: catalogModelSpecs("novita-ai", "tts", ["minimax-voice-cloning"]),
       voiceOptions: [
         voice("tongtong", "彤彤"),
         voice("chuichui", "锤锤"),
@@ -1961,7 +1666,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         voice("English_WiseWoman", "English wise woman"),
       ],
       languageNote:
-        "Novita speech is now wired for GLM-TTS, the legacy async txt2speech route, the documented MiniMax speech-02/2.6/2.8 model families, and the advanced MiniMax voice-cloning route. Voice-cloning still depends on provider-side custom voice assets.",
+        "Novita speech is wired for GLM-TTS, the legacy async txt2speech route, and the documented MiniMax speech-02/2.6/2.8 model families. Voice-cloning stays catalog-only because it depends on provider-side custom voice assets.",
     },
   },
   "z-ai-zhipu-ai": {
@@ -1997,7 +1702,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "glm-tts",
       defaultVoice: "tongtong",
       voiceFallback: "tongtong",
-      models: catalogModelSpecs("z-ai-zhipu-ai", "tts"),
+      models: [namedModel("glm-tts", "GLM-TTS")],
       voiceOptions: [
         voice("tongtong", "彤彤"),
         voice("chuichui", "锤锤"),
@@ -2008,7 +1713,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         voice("luodo", "luodo"),
       ],
       languageNote:
-        "Z.ai speech models are region-gated to the mainland BigModel stack today. The app maps GLM-TTS plus the advanced glm-4-voice / glm-realtime / glm-tts-clone rows onto the currently documented BigModel speech surfaces as an experimental integration.",
+        "Z.ai TTS is limited to the basic GLM-TTS route. Advanced clone, voice-agent, and realtime speech rows stay catalog-only because they are a different, more setup-heavy use case.",
     },
   },
 };

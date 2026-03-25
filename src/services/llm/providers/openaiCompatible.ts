@@ -3,10 +3,6 @@ import {
   buildProviderHttpError,
   normalizeProviderTransportError,
 } from "../../providerErrors";
-import {
-  buildAzureOpenAiUrl,
-  parseAzureOpenAiCredentials,
-} from "../../providerCredentials";
 import { AppLanguage, Provider } from "../../../types";
 
 import { readEventStream } from "../eventStream";
@@ -234,35 +230,6 @@ export async function requestOpenAICompatibleChat(params: {
   });
 }
 
-export async function requestAzureOpenAiChat(params: {
-  provider: Provider;
-  model: string;
-  messages: ChatMessage[];
-  apiKey: string;
-  language: AppLanguage;
-  systemPrompt: string;
-  abortSignal?: AbortSignal;
-}) {
-  const credentials = parseAzureOpenAiCredentials(
-    params.provider,
-    params.apiKey,
-    params.language,
-  );
-
-  return requestChatWithOpenAiCompatibleTransport({
-    endpoint: buildAzureOpenAiUrl(credentials.endpoint, "chat/completions"),
-    headers: {
-      "api-key": credentials.apiKey,
-    },
-    provider: params.provider,
-    model: params.model,
-    messages: params.messages,
-    language: params.language,
-    systemPrompt: params.systemPrompt,
-    abortSignal: params.abortSignal,
-  });
-}
-
 export async function requestOpenAICompatibleChatStream(params: {
   endpoint: string;
   provider: Provider;
@@ -282,37 +249,6 @@ export async function requestOpenAICompatibleChatStream(params: {
         params.apiKey,
         params.language,
       )}`,
-    },
-    provider: params.provider,
-    model: params.model,
-    messages: params.messages,
-    language: params.language,
-    systemPrompt: params.systemPrompt,
-    onChunk: params.onChunk,
-    abortSignal: params.abortSignal,
-  });
-}
-
-export async function requestAzureOpenAiChatStream(params: {
-  provider: Provider;
-  model: string;
-  messages: ChatMessage[];
-  apiKey: string;
-  language: AppLanguage;
-  systemPrompt: string;
-  onChunk: (text: string) => void;
-  abortSignal?: AbortSignal;
-}) {
-  const credentials = parseAzureOpenAiCredentials(
-    params.provider,
-    params.apiKey,
-    params.language,
-  );
-
-  return requestChatStreamWithOpenAiCompatibleTransport({
-    endpoint: buildAzureOpenAiUrl(credentials.endpoint, "chat/completions"),
-    headers: {
-      "api-key": credentials.apiKey,
     },
     provider: params.provider,
     model: params.model,

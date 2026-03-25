@@ -9,7 +9,6 @@
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "catalog:generate-index": "python3 scripts/provider_catalog/generate_provider_index.py",
-    "catalog:generate-status": "node scripts/provider_catalog/generate_integration_status.js",
     "catalog:import-research-provider": "python3 scripts/provider_catalog/import_research_provider.py",
     "catalog:test": "jest __tests__/catalog --runInBand --watchman=false"
   },
