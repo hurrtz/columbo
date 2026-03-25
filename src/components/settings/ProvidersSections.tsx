@@ -42,6 +42,7 @@ import {
 } from "./helpers";
 import { styles } from "./styles";
 import {
+  ProviderHealthState,
   ProviderValidationState,
   TextInputFocusHandler,
 } from "./types";
@@ -154,23 +155,27 @@ export function ResponseModesSection({
   );
 }
 
-export function ProviderSelectionGrid({
+export function ProviderSelectionGrid<TProvider extends Provider>({
   settings,
   selectedCatalogProviderId,
   onSelectCatalogProvider,
-  visibleProviders = PROVIDER_ORDER,
+  visibleProviders: visibleProvidersProp,
   includeCatalogOnly = true,
   isConfigured,
+  getProviderHealthState,
 }: {
   settings: Settings;
   selectedCatalogProviderId: CatalogProviderId;
   onSelectCatalogProvider: (catalogProviderId: CatalogProviderId) => void;
-  visibleProviders?: readonly Provider[];
+  visibleProviders?: readonly TProvider[];
   includeCatalogOnly?: boolean;
-  isConfigured?: (provider: Provider) => boolean;
+  isConfigured?: (provider: TProvider) => boolean;
+  getProviderHealthState?: (provider: TProvider) => ProviderHealthState;
 }) {
   const { colors } = useTheme();
   const { t } = useLocalization();
+  const visibleProviders = (visibleProvidersProp ??
+    PROVIDER_ORDER) as readonly TProvider[];
   const runtimeProviderIds = React.useMemo(
     () =>
       new Set(
@@ -220,6 +225,69 @@ export function ProviderSelectionGrid({
   const catalogOnlyProviderCount = catalogProviders.filter(
     (provider) => provider.catalogOnly,
   ).length;
+  const healthSummary = visibleProviders.reduce(
+    (summary, provider) => {
+      const healthState = getProviderHealthState?.(provider);
+
+      if (!healthState) {
+        return summary;
+      }
+
+      summary[healthState] += 1;
+      return summary;
+    },
+    {
+      healthy: 0,
+      configured: 0,
+      validating: 0,
+      failing: 0,
+      unconfigured: 0,
+    },
+  );
+
+  const getHealthBadge = (
+    healthState: ProviderHealthState,
+  ):
+    | {
+        icon: React.ComponentProps<typeof Feather>["name"];
+        backgroundColor: string;
+        borderColor: string;
+        iconColor: string;
+      }
+    | null => {
+    switch (healthState) {
+      case "healthy":
+        return {
+          icon: "check",
+          backgroundColor: colors.accent,
+          borderColor: colors.borderStrong,
+          iconColor: colors.surface,
+        };
+      case "validating":
+        return {
+          icon: "loader",
+          backgroundColor: colors.surface,
+          borderColor: colors.borderStrong,
+          iconColor: colors.accent,
+        };
+      case "failing":
+        return {
+          icon: "alert-triangle",
+          backgroundColor: colors.surface,
+          borderColor: colors.danger,
+          iconColor: colors.danger,
+        };
+      case "configured":
+        return {
+          icon: "minus",
+          backgroundColor: colors.surface,
+          borderColor: colors.borderStrong,
+          iconColor: colors.textSecondary,
+        };
+      default:
+        return null;
+    }
+  };
 
   return (
     <>
@@ -227,11 +295,23 @@ export function ProviderSelectionGrid({
         {catalogProviders.map((providerButton) => {
           const runtimeProvider = providerButton.runtimeProvider;
           const active = providerButton.providerId === selectedCatalogProviderId;
+          const healthState =
+            runtimeProvider !== null
+              ? getProviderHealthState?.(runtimeProvider) ??
+                (isConfigured
+                  ? isConfigured(runtimeProvider)
+                    ? "configured"
+                    : "unconfigured"
+                  : settings.apiKeys[runtimeProvider].trim().length > 0
+                    ? "configured"
+                    : "unconfigured")
+              : null;
           const configured =
-            runtimeProvider !== null &&
-            (isConfigured
-              ? isConfigured(runtimeProvider)
-              : settings.apiKeys[runtimeProvider].trim().length > 0);
+            runtimeProvider !== null && healthState !== "unconfigured";
+          const healthBadge =
+            healthState && runtimeProvider
+              ? getHealthBadge(healthState)
+              : null;
 
           return (
             <Pressable
@@ -275,20 +355,20 @@ export function ProviderSelectionGrid({
                 label={providerButton.providerName}
                 color={active || configured ? colors.text : colors.textSecondary}
               />
-              {configured ? (
+              {healthBadge ? (
                 <View
                   style={[
                     styles.providerButtonBadge,
                     {
-                      backgroundColor: active ? colors.surface : colors.accent,
-                      borderColor: colors.borderStrong,
+                      backgroundColor: healthBadge.backgroundColor,
+                      borderColor: healthBadge.borderColor,
                     },
                   ]}
                 >
                   <Feather
-                    name="check"
+                    name={healthBadge.icon}
                     size={10}
-                    color={active ? colors.accent : colors.surface}
+                    color={healthBadge.iconColor}
                   />
                 </View>
               ) : null}
@@ -296,6 +376,92 @@ export function ProviderSelectionGrid({
           );
         })}
       </View>
+
+      {getProviderHealthState ? (
+        <View style={styles.providerHealthSummary}>
+          <View
+            style={[
+              styles.providerHealthPill,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.borderStrong,
+              },
+            ]}
+          >
+            <Text style={[styles.providerHealthPillText, { color: colors.text }]}>
+              {t("providerHealthSummaryReady", { count: healthSummary.healthy })}
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.providerHealthPill,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.borderStrong,
+              },
+            ]}
+          >
+            <Text
+              style={[styles.providerHealthPillText, { color: colors.textSecondary }]}
+            >
+              {t("providerHealthSummaryConfigured", {
+                count: healthSummary.configured,
+              })}
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.providerHealthPill,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.borderStrong,
+              },
+            ]}
+          >
+            <Text
+              style={[styles.providerHealthPillText, { color: colors.textSecondary }]}
+            >
+              {t("providerHealthSummaryChecking", {
+                count: healthSummary.validating,
+              })}
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.providerHealthPill,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.borderStrong,
+              },
+            ]}
+          >
+            <Text
+              style={[styles.providerHealthPillText, { color: colors.danger }]}
+            >
+              {t("providerHealthSummaryFailing", {
+                count: healthSummary.failing,
+              })}
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.providerHealthPill,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Text
+              style={[styles.providerHealthPillText, { color: colors.textMuted }]}
+            >
+              {t("providerHealthSummaryMissing", {
+                count: healthSummary.unconfigured,
+              })}
+            </Text>
+          </View>
+        </View>
+      ) : null}
 
       {catalogOnlyProviderCount > 0 ? (
         <Text style={[styles.sectionHint, { color: colors.textMuted }]}>

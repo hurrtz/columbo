@@ -472,6 +472,11 @@ export const en: TranslationDictionary = {
         : `${provider} rejected the ${action} request.`,
     providerValidationSuccess: ({ provider }) => `${provider} is ready to use.`,
     providerValidationFailed: "Provider validation failed.",
+    providerHealthSummaryReady: ({ count }) => `Ready ${count}`,
+    providerHealthSummaryConfigured: ({ count }) => `Configured ${count}`,
+    providerHealthSummaryChecking: ({ count }) => `Checking ${count}`,
+    providerHealthSummaryFailing: ({ count }) => `Failing ${count}`,
+    providerHealthSummaryMissing: ({ count }) => `Missing ${count}`,
     webSearchFallback:
       "Web search was unavailable, so the reply continued without live web context.",
     noBase64EncoderAvailable: "No base64 encoder available.",

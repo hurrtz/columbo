@@ -14,7 +14,7 @@ import { useLocalization } from "../../i18n";
 import { Provider, Settings } from "../../types";
 import { getProviderValidationModel } from "../../utils/responseModes";
 
-import { ProviderValidationState } from "./types";
+import { ProviderHealthState, ProviderValidationState } from "./types";
 
 export function useProvidersTabState(params: {
   settings: Settings;
@@ -139,6 +139,41 @@ export function useProvidersTabState(params: {
     trimmedSelectedProviderApiKey,
   ]);
 
+  const getProviderHealthState = useCallback(
+    (provider: Provider): ProviderHealthState => {
+      const apiKey = settings.apiKeys[provider].trim();
+
+      if (!apiKey) {
+        return "unconfigured";
+      }
+
+      const validationStateForProvider = validationStateByProvider[provider];
+      const currentModel = getProviderValidationModel(settings, provider);
+      const stateMatchesCurrentConfig =
+        validationStateForProvider?.apiKey === apiKey &&
+        validationStateForProvider?.model === currentModel;
+
+      if (!stateMatchesCurrentConfig || !validationStateForProvider) {
+        return "configured";
+      }
+
+      if (validationStateForProvider.status === "validating") {
+        return "validating";
+      }
+
+      if (validationStateForProvider.status === "success") {
+        return "healthy";
+      }
+
+      if (validationStateForProvider.status === "error") {
+        return "failing";
+      }
+
+      return "configured";
+    },
+    [settings, validationStateByProvider],
+  );
+
   return {
     selectedCatalogProviderId,
     setSelectedCatalogProviderId,
@@ -149,6 +184,7 @@ export function useProvidersTabState(params: {
     validationState,
     shouldShowValidateAction,
     secureApiKey: hasApiKey && !apiKeyVisible,
+    getProviderHealthState,
     handleOpenProviderPortal,
     handleValidateProviderKey,
   };

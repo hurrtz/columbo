@@ -105,6 +105,42 @@ describe("ProviderSelectionGrid", () => {
       screen.queryByText(/Showing .* extra catalog-only providers here/),
     ).toBeNull();
   });
+
+  it("shows provider health summary chips when a health state mapper is provided", () => {
+    const screen = render(
+      <ThemeProvider mode="light">
+        <LocalizationProvider language="en">
+          <ProviderSelectionGrid
+            settings={DEFAULT_SETTINGS}
+            selectedCatalogProviderId="openai"
+            visibleProviders={["openai", "anthropic", "gemini", "groq", "mistral"]}
+            includeCatalogOnly={false}
+            getProviderHealthState={(provider) =>
+              ({
+                openai: "healthy",
+                anthropic: "configured",
+                gemini: "validating",
+                groq: "failing",
+                mistral: "unconfigured",
+              })[provider] as
+                | "healthy"
+                | "configured"
+                | "validating"
+                | "failing"
+                | "unconfigured"
+            }
+            onSelectCatalogProvider={jest.fn()}
+          />
+        </LocalizationProvider>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByText("Ready 1")).toBeTruthy();
+    expect(screen.getByText("Configured 1")).toBeTruthy();
+    expect(screen.getByText("Checking 1")).toBeTruthy();
+    expect(screen.getByText("Failing 1")).toBeTruthy();
+    expect(screen.getByText("Missing 1")).toBeTruthy();
+  });
 });
 
 describe("ProviderApiKeyCard", () => {

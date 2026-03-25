@@ -72,6 +72,7 @@ export function ProvidersTab({
     validationState,
     shouldShowValidateAction,
     secureApiKey,
+    getProviderHealthState,
     handleOpenProviderPortal,
     handleValidateProviderKey,
   } = useProvidersTabState({
@@ -106,6 +107,7 @@ export function ProvidersTab({
           settings={settings}
           selectedCatalogProviderId={selectedCatalogProviderId}
           visibleProviders={providerGridProviders}
+          getProviderHealthState={getProviderHealthState}
           onSelectCatalogProvider={setSelectedCatalogProviderId}
         />
 

@@ -191,6 +191,44 @@ export function WebSearchTab({
     },
     [onUpdate, selectedProvider, selectedProviderSettings, settings.webSearchProviderSettings],
   );
+  const getWebSearchProviderHealthState = React.useCallback(
+    (provider: WebSearchProvider) => {
+      const apiKey = settings.apiKeys[provider].trim();
+
+      if (!apiKey) {
+        return "unconfigured" as const;
+      }
+
+      const providerValidationState = validationStateByProvider[provider];
+      const providerModel = getWebSearchProviderModel(provider);
+      const providerSettingsKey = JSON.stringify(
+        settings.webSearchProviderSettings[provider],
+      );
+      const stateMatchesCurrentConfig =
+        providerValidationState?.apiKey === apiKey &&
+        providerValidationState?.model === providerModel &&
+        providerValidationState?.configKey === providerSettingsKey;
+
+      if (!stateMatchesCurrentConfig || !providerValidationState) {
+        return "configured" as const;
+      }
+
+      if (providerValidationState.status === "validating") {
+        return "validating" as const;
+      }
+
+      if (providerValidationState.status === "success") {
+        return "healthy" as const;
+      }
+
+      if (providerValidationState.status === "error") {
+        return "failing" as const;
+      }
+
+      return "configured" as const;
+    },
+    [settings.apiKeys, settings.webSearchProviderSettings, validationStateByProvider],
+  );
 
   return (
     <>
@@ -218,6 +256,7 @@ export function WebSearchTab({
           selectedCatalogProviderId={selectedCatalogProviderId}
           visibleProviders={WEB_SEARCH_PROVIDER_IDS}
           includeCatalogOnly={false}
+          getProviderHealthState={getWebSearchProviderHealthState}
           onSelectCatalogProvider={handleSelectProvider}
         />
         <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 0 }]}>

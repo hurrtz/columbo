@@ -278,6 +278,24 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  providerHealthSummary: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 12,
+  },
+  providerHealthPill: {
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+  },
+  providerHealthPillText: {
+    fontSize: 10,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    fontFamily: fonts.mono,
+  },
   apiKeyCard: {
     borderRadius: 18,
     borderWidth: 1,

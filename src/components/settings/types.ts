@@ -71,6 +71,13 @@ export type ProviderValidationState = {
   model?: string;
 };
 
+export type ProviderHealthState =
+  | "unconfigured"
+  | "configured"
+  | "validating"
+  | "healthy"
+  | "failing";
+
 export type PreviewButtonPhase = "idle" | "generating" | "playing";
 
 export type ProviderPreviewTexts = Record<
