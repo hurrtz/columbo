@@ -209,6 +209,47 @@ describe("transcribeAudio", () => {
     );
   });
 
+  it("uses Google Cloud Speech for Chirp models when extended credentials are provided", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        results: [
+          {
+            alternatives: [
+              {
+                transcript: "Hello from Google Cloud Speech",
+              },
+            ],
+          },
+        ],
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "gemini",
+      providerModel: "chirp_3",
+      apiKey: "AIza-test|ya29.access-token|project-123|eu",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from Google Cloud Speech");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://speech.googleapis.com/v2/projects/project-123/locations/eu/recognizers/_:recognize",
+    );
+    expect(options.headers.Authorization).toBe("Bearer ya29.access-token");
+    expect(JSON.parse(options.body)).toEqual({
+      config: {
+        autoDecodingConfig: {},
+        languageCodes: ["en-US"],
+        model: "chirp_3",
+      },
+      content: "ZmFrZQ==",
+    });
+  });
+
   it("uses the customer-provided Aleph Alpha transcription endpoint", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

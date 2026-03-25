@@ -21,6 +21,7 @@ import {
   transcribeWithFireworksPreRecordedProvider,
   transcribeWithFishAudioProvider,
   transcribeWithGeminiProvider,
+  transcribeWithGoogleCloudSpeechProvider,
   transcribeWithHuggingFaceJsonProvider,
   transcribeWithIbmWatsonxProvider,
   transcribeWithMultipartProvider,
@@ -177,6 +178,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "gemini") {
     return transcribeWithGeminiProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
+    });
+  }
+
+  if (config.kind === "google-cloud-speech") {
+    return transcribeWithGoogleCloudSpeechProvider({
       abortSignal,
       apiKey,
       config,

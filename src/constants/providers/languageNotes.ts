@@ -29,7 +29,7 @@ const GERMAN_PROVIDER_API_KEY_HINT_OVERRIDES: Partial<Record<Provider, string>> 
     "Schaltet OpenAI-Modelle und von OpenAI gehostete Sprachfunktionen frei, wenn du STT oder TTS ueber einen Anbieter nutzt.",
   anthropic: "Schaltet Anthropic-Modelle auf der Hauptbuehne frei.",
   gemini:
-    "Schaltet Gemini-Modelle plus von Google gehostete Sprachfunktionen ueber die Gemini-API frei.",
+    "Schaltet Gemini-Modelle frei. Fuer Chirp- und Telephony-Cloud-Speech-Modelle werden zusaetzlich Access-Token, Projekt-ID und optional eine Location im Format primaryApiKey|accessToken|projectId|location benoetigt.",
   xai: "Schaltet Grok-Modelle von xAI frei.",
   groq:
     "Groq bietet einen kostenlosen Tarif und schaltet schnelle gehostete Inferenzmodelle frei.",
@@ -45,7 +45,7 @@ const GERMAN_PROVIDER_API_KEY_PLACEHOLDER_OVERRIDES: Partial<
 > = {
   openai: "sk-...",
   anthropic: "sk-ant-...",
-  gemini: "AIza...",
+  gemini: "AIza...|ya29...|project-id|us",
   xai: "xai-...",
   groq: "gsk_...",
   deepseek: "sk-...",

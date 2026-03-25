@@ -13,9 +13,9 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 40
 - Catalog models: 455
-- Integrated models: 439
+- Integrated models: 443
 - LLM: 294/294 integrated
-- STT: 65/71 integrated
+- STT: 69/71 integrated
 - TTS: 80/90 integrated
 - Unresolved runtime manifest entries: 32
 
@@ -353,7 +353,7 @@ Catalog updated: 2026-03-23
 ## Google Vertex AI Studio `google-vertex-ai-studio`
 
 - Runtime provider: `gemini`
-- Model integration: 7/10 integrated
+- Model integration: 10/10 integrated
 - Verified support: LLM `native`, STT `partial`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -362,9 +362,9 @@ Catalog updated: 2026-03-23
 | LLM | `gemini-2.5-flash-lite` | Gemini 2.5 Flash-Lite | Integrated | `gemini-2.5-flash-lite` |
 | LLM | `gemini-2.5-pro` | Gemini 2.5 Pro | Integrated | `gemini-2.5-pro` |
 | LLM | `gemini-live-2.5-flash-native-audio` | Gemini Live 2.5 Flash Native Audio | Integrated | `gemini-live-2.5-flash-native-audio` |
-| STT | `chirp_2` | Chirp 2: Transcription | Not integrated | — |
-| STT | `chirp_3` | Chirp 3: Transcription | Not integrated | — |
-| STT | `telephony` | Telephony | Not integrated | — |
+| STT | `chirp_2` | Chirp 2: Transcription | Integrated | `chirp_2` |
+| STT | `chirp_3` | Chirp 3: Transcription | Integrated | `chirp_3` |
+| STT | `telephony` | Telephony | Integrated | `telephony` |
 | TTS | `gemini-2.5-flash-tts` | Gemini 2.5 Flash TTS | Integrated | `gemini-2.5-flash-tts` |
 | TTS | `gemini-2.5-flash-lite-preview-tts` | Gemini 2.5 Flash-Lite Preview TTS | Integrated | `gemini-2.5-flash-lite-preview-tts` |
 | TTS | `gemini-2.5-pro-tts` | Gemini 2.5 Pro TTS | Integrated | `gemini-2.5-pro-tts` |
@@ -525,7 +525,7 @@ Catalog updated: 2026-03-23
 ## Mistral AI `mistral-ai`
 
 - Runtime provider: `mistral`
-- Model integration: 18/19 integrated
+- Model integration: 19/19 integrated
 - Verified support: LLM `native`, STT `native`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -548,7 +548,7 @@ Catalog updated: 2026-03-23
 | LLM | `voxtral-mini-2507` | Voxtral Mini | Integrated | `voxtral-mini-2507` |
 | LLM | `voxtral-small-2507` | Voxtral Small | Integrated | `voxtral-small-2507` |
 | STT | `voxtral-mini-2602` | Voxtral Mini Transcribe 2 | Integrated | `voxtral-mini-latest` |
-| STT | `voxtral-mini-transcribe-realtime-2602` | Voxtral Mini Transcribe Realtime | Not integrated | — |
+| STT | `voxtral-mini-transcribe-realtime-2602` | Voxtral Mini Transcribe Realtime | Integrated | `voxtral-mini-transcribe-realtime-2602` |
 
 ## Moonshot AI (Kimi) `moonshot-ai-kimi`
 

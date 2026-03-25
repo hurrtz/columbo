@@ -12,6 +12,11 @@ export type MultipartTranscriptionConfig = {
   languageHint?: () => string | undefined;
 };
 
+export type GoogleCloudSpeechTranscriptionConfig = {
+  kind: "google-cloud-speech";
+  defaultModel: string;
+};
+
 export type AlephAlphaTranscriptionConfig = {
   kind: "aleph-alpha";
   defaultModel: string;
@@ -145,6 +150,7 @@ export type XaiVoiceAgentTranscriptionConfig = {
 
 export type ProviderSttConfig =
   | MultipartTranscriptionConfig
+  | GoogleCloudSpeechTranscriptionConfig
   | GeminiTranscriptionConfig
   | OpenAiAudioInputTranscriptionConfig
   | AzureOpenAiTranscriptionConfig
@@ -202,6 +208,11 @@ function buildConfigForTransport(params: {
               : {}),
           }
         : null;
+    case "google-cloud-speech":
+      return {
+        kind: "google-cloud-speech",
+        defaultModel: params.defaultModel,
+      };
     case "aleph-alpha":
       return {
         kind: "aleph-alpha",
@@ -374,6 +385,16 @@ export function getProviderSttConfig(
   provider: Provider,
   model: string,
 ): ProviderSttConfig | null {
+  if (
+    provider === "gemini" &&
+    ["chirp_3", "chirp_2", "telephony"].includes(model)
+  ) {
+    return {
+      kind: "google-cloud-speech",
+      defaultModel: model,
+    };
+  }
+
   const manifest = RUNTIME_PROVIDER_MANIFEST[provider];
 
   if (!manifest || manifest.stt.support !== "provider") {

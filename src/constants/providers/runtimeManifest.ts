@@ -59,6 +59,7 @@ export type RuntimeLlmTransport =
 export type RuntimeSttTransport =
   | "none"
   | "multipart"
+  | "google-cloud-speech"
   | "azure-openai"
   | "aleph-alpha"
   | "assemblyai-realtime"
@@ -929,9 +930,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     catalogProviderId: "google-vertex-ai-studio",
     label: "Google",
     shortLabel: "GOOGLE",
-    apiKeyPlaceholder: "AIza...",
+    apiKeyPlaceholder: "AIza...|ya29...|project-id|us",
     apiKeyHint:
-      "Unlocks Gemini models plus Google-hosted speech features through the Gemini API.",
+      "Enter a Gemini API key. To use Chirp and Telephony Cloud Speech models, append access token, project id, and optional location as primaryApiKey|accessToken|projectId|location.",
     apiKeyUrl: "https://aistudio.google.com/app/apikey",
     llm: {
       support: "provider",
@@ -959,6 +960,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       endpointBase: "https://generativelanguage.googleapis.com/v1beta/models",
       defaultModel: "gemini-2.5-flash",
       models: [
+        namedModel("chirp_3", "Chirp 3: Transcription"),
+        namedModel("chirp_2", "Chirp 2: Transcription"),
+        namedModel("telephony", "Telephony"),
         namedModel("gemini-3.1-pro-preview", "Gemini 3.1 Pro Preview"),
         namedModel("gemini-3.1-flash-lite-preview", "Gemini 3.1 Flash-Lite Preview"),
         namedModel("gemini-3-flash-preview", "Gemini 3 Flash Preview"),
@@ -1377,7 +1381,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       endpoint: "https://api.mistral.ai/v1/audio/transcriptions",
       defaultModel: "voxtral-mini-latest",
       languageHintKey: "mistral-stt-language-code",
-      models: [namedModel("voxtral-mini-latest", "Voxtral Mini Latest")],
+      models: [
+        namedModel("voxtral-mini-latest", "Voxtral Mini Latest"),
+        namedModel(
+          "voxtral-mini-transcribe-realtime-2602",
+          "Voxtral Mini Transcribe Realtime",
+        ),
+      ],
       languageNote:
         "The current Voxtral transcription route is documented for English, Spanish, French, Portuguese, Hindi, German, Dutch, and Italian.",
     },

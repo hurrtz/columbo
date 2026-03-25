@@ -15,6 +15,7 @@ import {
   runReplicatePrediction,
 } from "../replicate/runtime";
 import { parseVolcengineSpeechCredentials } from "../volcengineCredentials";
+import { parseGoogleSpeechCredentials } from "../googleSpeechCredentials";
 import { getDeviceLocale, getFileAudioMimeType } from "../../utils/speechLanguage";
 import { fetchWithTimeout } from "./abort";
 import { parseBaiduSpeechCredentials } from "./baiduCredentials";
@@ -30,6 +31,7 @@ import type {
   FishAudioTranscriptionConfig,
   FireworksPreRecordedTranscriptionConfig,
   GeminiTranscriptionConfig,
+  GoogleCloudSpeechTranscriptionConfig,
   HuggingFaceJsonTranscriptionConfig,
   IbmWatsonxTranscriptionConfig,
   NovitaJsonTranscriptionConfig,
@@ -157,6 +159,10 @@ function getVolcengineSpeechLanguage(language: AppLanguage) {
   return language === "de" ? "de-DE" : "en-US";
 }
 
+function getGoogleSpeechLanguage(language: AppLanguage) {
+  return language === "de" ? "de-DE" : "en-US";
+}
+
 export async function transcribeWithGeminiProvider(
   params: SharedProviderParams & {
     config: GeminiTranscriptionConfig;
@@ -226,6 +232,83 @@ export async function transcribeWithGeminiProvider(
 
   const data = await response.json();
   const text = extractTextFromGeminiResponse(data);
+  return text ? text : null;
+}
+
+export async function transcribeWithGoogleCloudSpeechProvider(
+  params: SharedProviderParams & {
+    config: GoogleCloudSpeechTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const credentials = parseGoogleSpeechCredentials(provider, apiKey, language);
+  const base64 = await FileSystem.readAsStringAsync(fileUri, {
+    encoding: "base64",
+  });
+  const selectedModel = providerModel || config.defaultModel;
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      `https://speech.googleapis.com/v2/projects/${encodeURIComponent(
+        credentials.projectId,
+      )}/locations/${encodeURIComponent(credentials.location)}/recognizers/_:recognize`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${credentials.accessToken}`,
+        },
+        body: JSON.stringify({
+          config: {
+            autoDecodingConfig: {},
+            languageCodes: [getGoogleSpeechLanguage(language)],
+            model: selectedModel,
+          },
+          content: base64,
+        }),
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const text = Array.isArray(data?.results)
+    ? data.results
+        .flatMap((result: any) =>
+          Array.isArray(result?.alternatives) ? result.alternatives.slice(0, 1) : [],
+        )
+        .map((alternative: any) =>
+          typeof alternative?.transcript === "string"
+            ? alternative.transcript.trim()
+            : "",
+        )
+        .filter(Boolean)
+        .join(" ")
+    : "";
+
   return text ? text : null;
 }
 

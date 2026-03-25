@@ -27,6 +27,25 @@ describe("speech provider constants", () => {
     ).toBe("Gemini 2.5 Flash");
   });
 
+  it("surfaces catalog-backed Google and Mistral STT rows from the runtime manifest", () => {
+    expect(getProviderSttModelOptions("gemini")).toEqual(
+      expect.arrayContaining([
+        { id: "chirp_3", name: "Chirp 3: Transcription" },
+        { id: "chirp_2", name: "Chirp 2: Transcription" },
+        { id: "telephony", name: "Telephony" },
+      ]),
+    );
+    expect(getProviderSttModelOptions("mistral")).toEqual(
+      expect.arrayContaining([
+        { id: "voxtral-mini-latest", name: "Voxtral Mini Transcribe 2" },
+        {
+          id: "voxtral-mini-transcribe-realtime-2602",
+          name: "Voxtral Mini Transcribe Realtime",
+        },
+      ]),
+    );
+  });
+
   it("surfaces newly wired catalog-backed STT providers through the runtime manifest", () => {
     expect(getProviderSttModelOptions("assemblyai")).toEqual([
       { id: "universal-3-pro", name: "Universal-3 Pro" },
