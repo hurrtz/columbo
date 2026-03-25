@@ -118,9 +118,9 @@ describe("speech provider constants", () => {
     ]);
     expect(
       getProviderTtsModelOptions("gemini").find(
-        (option) => option.id === "gemini-2.5-flash-tts",
+        (option) => option.id === "gemini-2.5-flash-preview-tts",
       )?.name,
-    ).toBe("Gemini 2.5 Flash TTS");
+    ).toBe("Gemini 2.5 Flash Preview TTS");
     expect(getProviderTtsModelOptions("deepgram")).toEqual([
       { id: "aura-2", name: "Aura-2 Voice Family" },
       { id: "aura-1", name: "Aura-1 Voice Family" },

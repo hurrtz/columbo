@@ -775,12 +775,18 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "provider",
       transport: "gemini",
       endpointBase: "https://generativelanguage.googleapis.com/v1beta/models",
-      defaultModel: "gemini-2.5-flash-tts",
+      defaultModel: "gemini-2.5-flash-preview-tts",
       defaultVoice: "Kore",
-      voiceFallback: "alloy",
+      voiceFallback: "Kore",
       models: [
-        namedModel("gemini-2.5-flash-tts", "Gemini 2.5 Flash TTS"),
-        namedModel("gemini-2.5-pro-tts", "Gemini 2.5 Pro TTS"),
+        namedModel(
+          "gemini-2.5-flash-preview-tts",
+          "Gemini 2.5 Flash Preview TTS",
+        ),
+        namedModel(
+          "gemini-2.5-pro-preview-tts",
+          "Gemini 2.5 Pro Preview TTS",
+        ),
       ],
       voiceOptions: [
         voice("Zephyr", "Zephyr · Bright", { de: "Zephyr · Klar" }),

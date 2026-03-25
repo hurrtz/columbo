@@ -23,11 +23,13 @@ import {
 import { synthesizeProviderSpeech } from "./tts/providerRoute";
 import {
   getProviderTtsTimeoutMs,
+  getSelectedProviderModel,
   LOCAL_TTS_MAX_INPUT_CHARS,
   PROVIDER_TTS_MAX_INPUT_CHARS,
   PROVIDER_TTS_MAX_TIMEOUT_MS,
   PROVIDER_TTS_TIMEOUT_MS,
   PROVIDER_TTS_TIMEOUT_MS_PER_CHAR,
+  TTS_PROVIDER_CONFIGS,
   TtsRequestError,
 } from "./tts/shared";
 
@@ -42,6 +44,27 @@ export {
   splitTextForTts,
   TtsRequestError,
 };
+
+function resolveProviderTtsModel(params: {
+  provider?: Provider | null;
+  providerModel?: string;
+}) {
+  if (!params.provider) {
+    return null;
+  }
+
+  const config = TTS_PROVIDER_CONFIGS[params.provider];
+
+  if (!config) {
+    return params.providerModel?.trim() || null;
+  }
+
+  return getSelectedProviderModel({
+    provider: params.provider,
+    providerModel: params.providerModel,
+    config,
+  });
+}
 
 export async function synthesizeSpeech(params: {
   text: string;
@@ -72,6 +95,10 @@ export async function synthesizeSpeech(params: {
     abortSignal,
   } = params;
   const requestId = diagnostics?.requestId ?? createSpeechRequestId("tts");
+  const resolvedProviderModel = resolveProviderTtsModel({
+    provider,
+    providerModel,
+  });
 
   recordSpeechDiagnostic({
     requestId,
@@ -80,6 +107,7 @@ export async function synthesizeSpeech(params: {
     requestedRoute: mode,
     mode,
     provider: provider ?? null,
+    providerModel: resolvedProviderModel,
     voice: voice || null,
     language: listenLanguages?.[0] ?? "app",
     textLength: text.trim().length,
@@ -134,6 +162,7 @@ export async function synthesizeSpeech(params: {
           requestedRoute: "local",
           actualRoute: "local",
           provider: provider ?? null,
+          providerModel: resolvedProviderModel,
           voice: voice || null,
           textLength: text.trim().length,
           message: error instanceof Error ? error.message : String(error),
@@ -148,6 +177,7 @@ export async function synthesizeSpeech(params: {
         requestedRoute: "local",
         actualRoute: "provider",
         provider,
+        providerModel: resolvedProviderModel,
         voice: voice || null,
         textLength: text.trim().length,
         fallbackReason:
@@ -172,6 +202,7 @@ export async function synthesizeSpeech(params: {
         requestedRoute: "local",
         actualRoute: "provider",
         provider,
+        providerModel: resolvedProviderModel,
         voice: voice || null,
         textLength: text.trim().length,
       });
@@ -252,6 +283,7 @@ export async function synthesizeSpeech(params: {
       requestedRoute: "provider",
       actualRoute: "provider",
       provider,
+      providerModel: resolvedProviderModel,
       voice: voice || null,
       textLength: text.trim().length,
     });
@@ -279,6 +311,7 @@ export async function synthesizeSpeech(params: {
           actualRoute: "local",
           language: localResult.resolvedLanguage,
           provider,
+          providerModel: resolvedProviderModel,
           voice: voice || null,
           textLength: text.trim().length,
           fallbackReason:
@@ -299,6 +332,7 @@ export async function synthesizeSpeech(params: {
       requestedRoute: "provider",
       actualRoute: "provider",
       provider,
+      providerModel: resolvedProviderModel,
       voice: voice || null,
       textLength: text.trim().length,
       message:

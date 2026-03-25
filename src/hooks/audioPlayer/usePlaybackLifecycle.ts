@@ -78,6 +78,8 @@ export function usePlaybackLifecycle(params: {
           requestId: currentAudioRef.current.diagnostics?.requestId,
           source: currentAudioRef.current.diagnostics?.source ?? "unknown",
           stage: "playback-started",
+          providerModel:
+            currentAudioRef.current.diagnostics?.providerModel ?? null,
           textLength: undefined,
           message: currentAudioRef.current.uri,
         });
@@ -95,6 +97,7 @@ export function usePlaybackLifecycle(params: {
         requestId: finishedAudio.diagnostics?.requestId,
         source: finishedAudio.diagnostics?.source ?? "unknown",
         stage: "playback-finished",
+        providerModel: finishedAudio.diagnostics?.providerModel ?? null,
         message: finishedAudio.uri,
       });
       updatePendingPlaybackState();

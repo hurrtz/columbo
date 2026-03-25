@@ -25,6 +25,7 @@ export type SpeechDiagnosticRoute = "local" | "provider" | "native";
 export interface SpeechDiagnosticsContext {
   requestId?: string;
   source?: SpeechDiagnosticSource;
+  providerModel?: string | null;
 }
 
 export interface SpeechDiagnosticEvent {
@@ -38,6 +39,7 @@ export interface SpeechDiagnosticEvent {
   language?: TtsListenLanguage | "app";
   mode?: TtsBackendMode;
   provider?: string | null;
+  providerModel?: string | null;
   voice?: string | null;
   message?: string;
   fallbackReason?: string;
@@ -54,6 +56,7 @@ export interface SpeechDiagnosticRequestSummary {
   actualRoute: SpeechDiagnosticRoute | null;
   language: TtsListenLanguage | "app" | null;
   provider: string | null;
+  providerModel: string | null;
   voice: string | null;
   fallbackReason: string | null;
   message: string | null;
@@ -104,6 +107,7 @@ export function recordSpeechDiagnostic(
       language: entry.language ?? null,
       message: entry.message ?? null,
       provider: entry.provider ?? null,
+      providerModel: entry.providerModel ?? null,
       requestId: entry.requestId ?? null,
       requestedRoute: entry.requestedRoute ?? null,
       source: entry.source,
@@ -156,6 +160,7 @@ export function getSpeechDiagnosticRequestSummaries(limit = 8) {
         actualRoute: event.actualRoute ?? null,
         language: event.language ?? null,
         provider: event.provider ?? null,
+        providerModel: event.providerModel ?? null,
         voice: event.voice ?? null,
         fallbackReason: event.fallbackReason ?? null,
         message: event.message ?? null,
@@ -171,6 +176,7 @@ export function getSpeechDiagnosticRequestSummaries(limit = 8) {
     existing.actualRoute = event.actualRoute ?? existing.actualRoute;
     existing.language = event.language ?? existing.language;
     existing.provider = event.provider ?? existing.provider;
+    existing.providerModel = event.providerModel ?? existing.providerModel;
     existing.voice = event.voice ?? existing.voice;
     existing.fallbackReason = event.fallbackReason ?? existing.fallbackReason;
     existing.message = event.message ?? existing.message;

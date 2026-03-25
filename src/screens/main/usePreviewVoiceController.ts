@@ -137,6 +137,14 @@ export function usePreviewVoiceController({
         if (request.mode === "provider") {
           const providerApiKey =
             settings.apiKeys[request.provider]?.trim() ?? "";
+          const providerModel =
+            settings.providerTtsModels[request.provider] ||
+            PROVIDER_DEFAULT_TTS_MODELS[request.provider] ||
+            "";
+          const providerSpeechDiagnostics = {
+            ...speechDiagnostics,
+            providerModel: providerModel || null,
+          };
 
           if (!providerApiKey) {
             showToast(t("chooseTtsToPreviewVoices"));
@@ -148,19 +156,16 @@ export function usePreviewVoiceController({
             voice: request.voice,
             mode: "provider",
             provider: request.provider,
-            providerModel:
-              settings.providerTtsModels[request.provider] ||
-              PROVIDER_DEFAULT_TTS_MODELS[request.provider] ||
-              "",
+            providerModel,
             apiKey: providerApiKey,
             language,
             listenLanguages: [request.previewLanguage],
-            diagnostics: speechDiagnostics,
+            diagnostics: providerSpeechDiagnostics,
             abortSignal: previewAbortController.signal,
           });
 
           ensurePreviewActive();
-          player.enqueueAudio(audioUri, speechDiagnostics);
+          player.enqueueAudio(audioUri, providerSpeechDiagnostics);
           callbacks?.onPlaybackStarted?.();
           await player.waitForDrain();
           recordDebugLogEvent({

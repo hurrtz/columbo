@@ -42,6 +42,7 @@ export function createVoicePipelineTtsQueue({
   const speechDiagnostics = {
     requestId: createSpeechRequestId("conversation"),
     source: "conversation" as const,
+    providerModel: ttsModel || null,
   };
 
   const enqueueTtsChunk = (text: string) => {

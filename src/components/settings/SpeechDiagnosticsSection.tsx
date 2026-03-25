@@ -159,6 +159,11 @@ export function SpeechDiagnosticsSection({
                 })}
               </Text>
             ) : null}
+            {summary.providerModel ? (
+              <Text style={[styles.previewHint, { color: colors.textMuted }]}>
+                {`${t("model")}: ${summary.providerModel}`}
+              </Text>
+            ) : null}
             {summary.voice ? (
               <Text style={[styles.previewHint, { color: colors.textMuted }]}>
                 {t("speechDiagnosticVoiceLine", {

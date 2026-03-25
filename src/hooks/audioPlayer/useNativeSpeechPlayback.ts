@@ -92,6 +92,7 @@ export function useNativeSpeechPlayback(params: {
         source: next.diagnostics?.source ?? "unknown",
         stage: "playback-started",
         actualRoute: "native",
+        providerModel: next.diagnostics?.providerModel ?? null,
         voice: next.voice ?? null,
         textLength: next.text.trim().length,
       });
@@ -107,6 +108,7 @@ export function useNativeSpeechPlayback(params: {
             source: next.diagnostics?.source ?? "unknown",
             stage: "playback-finished",
             actualRoute: "native",
+            providerModel: next.diagnostics?.providerModel ?? null,
             voice: next.voice ?? null,
             textLength: next.text.trim().length,
           });
@@ -130,6 +132,7 @@ export function useNativeSpeechPlayback(params: {
             source: next.diagnostics?.source ?? "unknown",
             stage: "playback-stopped",
             actualRoute: "native",
+            providerModel: next.diagnostics?.providerModel ?? null,
             voice: next.voice ?? null,
             textLength: next.text.trim().length,
           });
@@ -153,6 +156,7 @@ export function useNativeSpeechPlayback(params: {
             source: next.diagnostics?.source ?? "unknown",
             stage: "playback-stopped",
             actualRoute: "native",
+            providerModel: next.diagnostics?.providerModel ?? null,
             voice: next.voice ?? null,
             textLength: next.text.trim().length,
             message:
@@ -181,6 +185,7 @@ export function useNativeSpeechPlayback(params: {
         source: next.diagnostics?.source ?? "unknown",
         stage: "playback-stopped",
         actualRoute: "native",
+        providerModel: next.diagnostics?.providerModel ?? null,
         voice: next.voice ?? null,
         textLength: next.text.trim().length,
         message:

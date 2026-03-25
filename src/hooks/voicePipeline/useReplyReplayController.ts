@@ -73,6 +73,7 @@ export function useReplyReplayController({
         const speechDiagnostics = {
           requestId: createSpeechRequestId("repeat"),
           source: "repeat" as const,
+          providerModel: selectedTtsModel || null,
         };
 
         if (ttsMode === "native") {

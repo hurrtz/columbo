@@ -16,6 +16,7 @@ describe("speech diagnostics", () => {
       stage: "tts-requested",
       requestedRoute: "local",
       language: "en",
+      providerModel: "gemini-2.5-flash-preview-tts",
     });
     recordSpeechDiagnostic({
       requestId: "req-1",
@@ -48,6 +49,7 @@ describe("speech diagnostics", () => {
       actualRoute: "provider",
       language: "en",
       provider: "openai",
+      providerModel: "gemini-2.5-flash-preview-tts",
       voice: "alloy",
       fallbackReason: "Local synthesis failed.",
     });
