@@ -38,6 +38,7 @@ yarn-error.*
 
 # generated native folders
 /ios/*
+!/ios/Podfile
 !/ios/Podfile.lock
 !/ios/SchnackAI/
 /ios/SchnackAI/*
