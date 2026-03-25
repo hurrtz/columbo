@@ -9,7 +9,7 @@ import {
 } from "../replicate/runtime";
 import { getDeviceLocale, getFileAudioMimeType } from "../../utils/speechLanguage";
 import { fetchWithTimeout } from "./abort";
-import { STT_TIMEOUT_MS } from "./config";
+import { getProviderSttTimeoutMs } from "./config";
 import type {
   AssemblyAiPreRecordedTranscriptionConfig,
   DeepInfraInferenceTranscriptionConfig,
@@ -145,7 +145,7 @@ export async function transcribeWithMultipartProvider(
         },
         body: formData,
       },
-      STT_TIMEOUT_MS,
+      getProviderSttTimeoutMs(provider),
       () => createSttTimeoutError({ provider, language }),
       abortSignal,
     );
@@ -216,7 +216,7 @@ export async function transcribeWithOpenAiAudioInputProvider(
           stream: false,
         }),
       },
-      STT_TIMEOUT_MS,
+      getProviderSttTimeoutMs(provider),
       () => createSttTimeoutError({ provider, language }),
       abortSignal,
     );
@@ -358,7 +358,7 @@ export async function transcribeWithBaiduShortSpeechProvider(
           len: bytes.byteLength,
         }),
       },
-      STT_TIMEOUT_MS,
+      getProviderSttTimeoutMs(provider),
       () => createSttTimeoutError({ provider, language }),
       abortSignal,
     );
@@ -422,7 +422,7 @@ export async function transcribeWithFireworksPreRecordedProvider(
         },
         body: formData,
       },
-      STT_TIMEOUT_MS,
+      getProviderSttTimeoutMs(provider),
       () => createSttTimeoutError({ provider, language }),
       abortSignal,
     );
@@ -479,7 +479,7 @@ export async function transcribeWithHuggingFaceJsonProvider(
           inputs: base64,
         }),
       },
-      STT_TIMEOUT_MS,
+      getProviderSttTimeoutMs(provider),
       () => createSttTimeoutError({ provider, language }),
       abortSignal,
     );
@@ -541,7 +541,7 @@ export async function transcribeWithDeepInfraInferenceProvider(
         },
         body: formData,
       },
-      STT_TIMEOUT_MS,
+      getProviderSttTimeoutMs(provider),
       () => createSttTimeoutError({ provider, language }),
       abortSignal,
     );
@@ -595,7 +595,7 @@ export async function transcribeWithNovitaJsonProvider(
           file: base64,
         }),
       },
-      STT_TIMEOUT_MS,
+      getProviderSttTimeoutMs(provider),
       () => createSttTimeoutError({ provider, language }),
       abortSignal,
     );
@@ -653,7 +653,7 @@ export async function transcribeWithFishAudioProvider(
         },
         body: formData,
       },
-      STT_TIMEOUT_MS,
+      getProviderSttTimeoutMs(provider),
       () => createSttTimeoutError({ provider, language }),
       abortSignal,
     );
@@ -709,7 +709,7 @@ export async function transcribeWithAssemblyAiPreRecordedProvider(
         },
         body: fileBytes,
       },
-      STT_TIMEOUT_MS,
+      getProviderSttTimeoutMs(provider),
       () => createSttTimeoutError({ provider, language }),
       abortSignal,
     );
@@ -757,7 +757,7 @@ export async function transcribeWithAssemblyAiPreRecordedProvider(
           speech_models: [providerModel || config.defaultModel],
         }),
       },
-      STT_TIMEOUT_MS,
+      getProviderSttTimeoutMs(provider),
       () => createSttTimeoutError({ provider, language }),
       abortSignal,
     );
@@ -803,7 +803,7 @@ export async function transcribeWithAssemblyAiPreRecordedProvider(
             Authorization: apiKeyValue,
           },
         },
-        STT_TIMEOUT_MS,
+        getProviderSttTimeoutMs(provider),
         () => createSttTimeoutError({ provider, language }),
         abortSignal,
       );
@@ -885,7 +885,7 @@ export async function transcribeWithDeepgramPreRecordedProvider(
         },
         body: fileBytes,
       },
-      STT_TIMEOUT_MS,
+      getProviderSttTimeoutMs(provider),
       () => createSttTimeoutError({ provider, language }),
       abortSignal,
     );
@@ -945,7 +945,7 @@ export async function transcribeWithElevenLabsProvider(
         },
         body: formData,
       },
-      STT_TIMEOUT_MS,
+      getProviderSttTimeoutMs(provider),
       () => createSttTimeoutError({ provider, language }),
       abortSignal,
     );

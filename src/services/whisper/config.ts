@@ -111,6 +111,16 @@ export type ProviderSttConfig =
   | ElevenLabsRealtimeTranscriptionConfig;
 
 export const STT_TIMEOUT_MS = 60000;
+export const OPENAI_STT_TIMEOUT_MS = 45000;
+
+export function getProviderSttTimeoutMs(provider: Provider) {
+  switch (provider) {
+    case "openai":
+      return OPENAI_STT_TIMEOUT_MS;
+    default:
+      return STT_TIMEOUT_MS;
+  }
+}
 
 function getLanguageHint(
   key: string | undefined,

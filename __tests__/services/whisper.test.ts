@@ -1,5 +1,6 @@
 import * as FileSystem from "expo-file-system/legacy";
 import { transcribeAudio } from "../../src/services/whisper";
+import { getProviderSttTimeoutMs } from "../../src/services/whisper/config";
 
 global.fetch = jest.fn();
 
@@ -116,6 +117,11 @@ describe("transcribeAudio", () => {
       exists: true,
       size: 8192,
     });
+  });
+
+  it("uses a shorter STT timeout budget for OpenAI than the generic provider default", () => {
+    expect(getProviderSttTimeoutMs("openai")).toBe(45000);
+    expect(getProviderSttTimeoutMs("groq")).toBe(60000);
   });
 
   it("returns a human-readable rate limit error for provider STT", async () => {
