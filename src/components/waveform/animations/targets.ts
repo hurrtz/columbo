@@ -14,6 +14,17 @@ function lerp(value: number, start: number, end: number) {
   return start + (end - start) * value;
 }
 
+function getOrbitalMotion(spin: number, radiusX: number, radiusY: number) {
+  "worklet";
+
+  const angle = spin * Math.PI * 2;
+
+  return {
+    translateX: Math.cos(angle) * radiusX,
+    translateY: Math.sin(angle) * radiusY,
+  };
+}
+
 export function getPulseAnimationConfig(phase: VoiceVisualPhase) {
   "worklet";
 
@@ -140,29 +151,48 @@ export function getBackgroundGradientMetrics(
   "worklet";
 
   const rotationDeg =
-    context.phase !== "idle" && context.shouldAnimate ? spin * 360 : 0;
+    context.phase !== "idle" && context.shouldAnimate
+      ? Math.sin(spin * Math.PI * 2) * 18
+      : 0;
 
   if (context.phase === "idle" || !context.shouldAnimate) {
-    return { rotationDeg, scale: 1.08 };
+    return {
+      rotationDeg,
+      scale: 1.08,
+      translateX: 0,
+      translateY: 0,
+    };
   }
 
   if (context.isRecording) {
+    const motion = getOrbitalMotion(spin, 13 + energy * 7, 10 + energy * 6);
+
     return {
       rotationDeg,
       scale: 1.18 + pulse * 0.03 + energy * 0.03,
+      translateX: motion.translateX,
+      translateY: motion.translateY,
     };
   }
 
   if (context.isSpeaking) {
+    const motion = getOrbitalMotion(spin, 10 + energy * 5, 8 + energy * 4);
+
     return {
       rotationDeg,
       scale: 1.16 + pulse * 0.025 + energy * 0.025,
+      translateX: motion.translateX,
+      translateY: motion.translateY,
     };
   }
+
+  const motion = getOrbitalMotion(spin, 9, 7);
 
   return {
     rotationDeg,
     scale: 1.15 + pulse * 0.02,
+    translateX: motion.translateX,
+    translateY: motion.translateY,
   };
 }
 
@@ -177,31 +207,45 @@ export function getActivityGradientMetrics(
   if (context.phase === "idle" || !context.shouldAnimate) {
     return {
       opacity: 0,
-      rotationDeg: spin * 360,
+      rotationDeg: Math.sin(spin * Math.PI * 2) * 20,
       scale: 1,
+      translateX: 0,
+      translateY: 0,
     };
   }
 
   if (context.isRecording) {
+    const motion = getOrbitalMotion(spin, 11 + energy * 6, 11 + energy * 6);
+
     return {
       opacity: 0.24 + pulse * 0.08 + energy * 0.14,
-      rotationDeg: spin * 360,
+      rotationDeg: Math.sin(spin * Math.PI * 2) * 24,
       scale: 1.02 + pulse * 0.02 + energy * 0.03,
+      translateX: motion.translateX,
+      translateY: motion.translateY,
     };
   }
 
   if (context.isSpeaking) {
+    const motion = getOrbitalMotion(spin, 8 + energy * 4, 8 + energy * 4);
+
     return {
       opacity: 0.2 + pulse * 0.06 + energy * 0.08,
-      rotationDeg: spin * 360,
+      rotationDeg: Math.sin(spin * Math.PI * 2) * 18,
       scale: 1.015 + pulse * 0.018 + energy * 0.02,
+      translateX: motion.translateX,
+      translateY: motion.translateY,
     };
   }
 
+  const motion = getOrbitalMotion(spin, 8, 8);
+
   return {
     opacity: 0.18 + pulse * 0.06,
-    rotationDeg: spin * 360,
+    rotationDeg: Math.sin(spin * Math.PI * 2) * 20,
     scale: 1.014 + pulse * 0.016,
+    translateX: motion.translateX,
+    translateY: motion.translateY,
   };
 }
 

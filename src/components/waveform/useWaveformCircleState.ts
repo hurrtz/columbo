@@ -9,6 +9,11 @@ import {
   WaveformVisualizationVariant,
 } from "../../types";
 import { normalizeMetering } from "../../utils/audioVisualization";
+import {
+  getWaveformControlIconName,
+  getWaveformPhaseGradientColors,
+  isWaveformProcessingPhase,
+} from "./phaseAppearance";
 
 export function useWaveformCircleState(params: {
   inputMode: InputMode;
@@ -21,10 +26,7 @@ export function useWaveformCircleState(params: {
   const { colors, isDark } = useTheme();
   const intensity = normalizeMetering(metering);
   const isRecording = phase === "recording";
-  const isBlockingPhase =
-    phase === "transcribing" ||
-    phase === "thinking" ||
-    phase === "synthesizing";
+  const isBlockingPhase = isWaveformProcessingPhase(phase);
   const isSpeaking = phase === "speaking";
   const showsStaticControlState =
     phase === "idle" || isRecording || isBlockingPhase;
@@ -54,12 +56,6 @@ export function useWaveformCircleState(params: {
     };
   }, []);
 
-  const processingGradientColors: [string, string, string] = isDark
-    ? ["#FFD27D", "#F39A58", "#E06A5C"]
-    : ["#FFE4A6", "#F5AF70", "#E88A74"];
-  const speakingGradientColors: [string, string, string] = isDark
-    ? ["#9AF4B8", "#42C97B", "#247E5D"]
-    : ["#BDF7CB", "#63D88D", "#2D9B6F"];
   const activityOverlayColors: [string, string, string, string, string] =
     isRecording
       ? [
@@ -91,19 +87,11 @@ export function useWaveformCircleState(params: {
       : isBlockingPhase
         ? "#F1A457"
         : colors.accent;
-  const gradientColors: [string, string, string] = isRecording
-    ? isDark
-      ? ["#FF978C", colors.danger, "#D74C5A"]
-      : ["#F29186", colors.danger, "#C94756"]
-    : isSpeaking
-      ? speakingGradientColors
-    : isBlockingPhase
-      ? processingGradientColors
-      : [
-          colors.accentGradientStart,
-          colors.accentGradientEnd,
-          colors.accentGradientEnd,
-        ];
+  const gradientColors = getWaveformPhaseGradientColors({
+    colors,
+    isDark,
+    phase,
+  });
   const ringBorderColor = isRecording
     ? "rgba(255, 122, 112, 0.2)"
     : isSpeaking
@@ -151,25 +139,8 @@ export function useWaveformCircleState(params: {
         : "rgba(235, 153, 74, 0.26)"
       : colors.glowStrong;
   const controlIconName: React.ComponentProps<typeof Feather>["name"] =
-    phase === "idle"
-      ? "mic"
-      : phase === "recording"
-        ? "square"
-        : phase === "transcribing"
-          ? "type"
-          : phase === "thinking"
-            ? "cpu"
-            : "volume-2";
-  const controlIconSize =
-    phase === "idle"
-      ? 40
-      : phase === "thinking"
-        ? 24
-        : phase === "transcribing"
-          ? 26
-          : phase === "synthesizing"
-            ? 24
-            : 28;
+    getWaveformControlIconName(phase);
+  const controlIconSize = 40;
 
   return {
     activityOverlayColors,

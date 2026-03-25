@@ -62,11 +62,11 @@ export const styles = StyleSheet.create({
   },
   backgroundGradient: {
     position: "absolute",
-    inset: -18,
+    inset: -30,
   },
   backgroundGradientFill: {
     flex: 1,
-    borderRadius: 112,
+    borderRadius: 124,
   },
   recordingGradientOverlay: {
     position: "absolute",

@@ -51,9 +51,11 @@ describe("waveform animation targets", () => {
       0.25,
     );
 
-    expect(metrics.rotationDeg).toBe(90);
+    expect(metrics.rotationDeg).toBeCloseTo(24);
     expect(metrics.opacity).toBeCloseTo(0.315);
     expect(metrics.scale).toBeCloseTo(1.0375);
+    expect(metrics.translateX).toBeCloseTo(0);
+    expect(metrics.translateY).toBeCloseTo(12.5);
   });
 
   it("keeps aura motion disabled for precise waveform rendering", () => {

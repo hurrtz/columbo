@@ -205,6 +205,12 @@ export function useWaveformCircleAnimations(params: {
     return {
       transform: [
         {
+          translateX: metrics.translateX,
+        } as const,
+        {
+          translateY: metrics.translateY,
+        } as const,
+        {
           rotate: `${metrics.rotationDeg}deg`,
         } as const,
         {
@@ -235,6 +241,12 @@ export function useWaveformCircleAnimations(params: {
     return {
       opacity: metrics.opacity,
       transform: [
+        {
+          translateX: metrics.translateX,
+        } as const,
+        {
+          translateY: metrics.translateY,
+        } as const,
         { rotate: `${metrics.rotationDeg}deg` } as const,
         {
           scale: metrics.scale,
