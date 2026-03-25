@@ -13,11 +13,11 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 40
 - Catalog models: 455
-- Integrated models: 436
+- Integrated models: 439
 - LLM: 294/294 integrated
-- STT: 63/71 integrated
-- TTS: 79/90 integrated
-- Unresolved runtime manifest entries: 31
+- STT: 65/71 integrated
+- TTS: 80/90 integrated
+- Unresolved runtime manifest entries: 32
 
 ## 01.AI (Yi) `01-ai-yi`
 
@@ -205,7 +205,7 @@ Catalog updated: 2026-03-23
 ## ByteDance (Doubao/Seed) `bytedance-doubao-seed`
 
 - Runtime provider: `bytedance-doubao-seed`
-- Model integration: 5/7 integrated
+- Model integration: 7/7 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -215,8 +215,8 @@ Catalog updated: 2026-03-23
 | LLM | `doubao-seed-2-0-lite-260215` | Doubao Seed 2.0 Lite | Integrated | `doubao-seed-2-0-lite-260215` |
 | LLM | `doubao-seed-2-0-mini-260215` | Doubao Seed 2.0 Mini | Integrated | `doubao-seed-2-0-mini-260215` |
 | LLM | `doubao-seed-2-0-pro-260215` | Doubao Seed 2.0 Pro | Integrated | `doubao-seed-2-0-pro-260215` |
-| STT | `bigmodel` | Doubao Big-Model Streaming ASR | Not integrated | — |
-| TTS | `unknown` | Doubao Large-Model TTS | Not integrated | — |
+| STT | `bigmodel` | Doubao Big-Model Streaming ASR | Integrated | `bigmodel` |
+| TTS | `unknown` | Doubao Large-Model TTS | Integrated | `unknown` |
 
 ## Cerebras `cerebras`
 
@@ -776,7 +776,7 @@ Catalog updated: 2026-03-23
 ## xAI `xai`
 
 - Runtime provider: `xai`
-- Model integration: 8/9 integrated
+- Model integration: 9/9 integrated
 - Verified support: LLM `native`, STT `partial`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -788,7 +788,7 @@ Catalog updated: 2026-03-23
 | LLM | `grok-4.20-multi-agent-0309` | Grok 4.20 Multi-Agent | Integrated | `grok-4.20-multi-agent-0309` |
 | LLM | `grok-4.20-non-reasoning` | Grok 4.20 Non-Reasoning | Integrated | `grok-4.20-non-reasoning` |
 | LLM | `grok-4.20-reasoning` | Grok 4.20 Reasoning | Integrated | `grok-4.20-reasoning` |
-| STT | `voice-agent-api` | Voice Agent API (speech input inside realtime agent) | Not integrated | — |
+| STT | `voice-agent-api` | Voice Agent API (speech input inside realtime agent) | Integrated | `voice-agent-api` |
 | TTS | `text-to-speech` | Text to Speech API | Integrated | `text-to-speech` |
 
 ## Xiaomi Mimo `xiaomi-mimo`
@@ -840,6 +840,7 @@ These runtime manifest rows did not resolve to a canonical catalog model and sho
 
 | App Provider | Catalog Provider | Service | Runtime ID |
 | --- | --- | --- | --- |
+| `01-ai-yi` | `01-ai-yi` | `stt` | `voice-agent-api` |
 | `openai` | `openai` | `llm` | `gpt-5.2` |
 | `openai` | `openai` | `llm` | `gpt-5.1` |
 | `openai` | `openai` | `llm` | `gpt-5` |

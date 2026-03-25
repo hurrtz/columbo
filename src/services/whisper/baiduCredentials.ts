@@ -1,4 +1,5 @@
-import { requireProviderKey } from "./errors";
+import { PROVIDER_LABELS } from "../../constants/models";
+import { translate } from "../../i18n";
 import type { AppLanguage, Provider } from "../../types";
 
 export function parseBaiduSpeechCredentials(
@@ -6,7 +7,16 @@ export function parseBaiduSpeechCredentials(
   apiKey: string | undefined,
   language: AppLanguage,
 ) {
-  const raw = requireProviderKey(provider, apiKey, language);
+  const raw = apiKey?.trim();
+
+  if (!raw) {
+    throw new Error(
+      translate(language, "providerConfiguredInSettings", {
+        provider: PROVIDER_LABELS[provider],
+      }),
+    );
+  }
+
   const [serviceApiKey, appId, appKey] = raw.split("|").map((part) => part.trim());
 
   return {

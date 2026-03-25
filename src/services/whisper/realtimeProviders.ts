@@ -11,6 +11,7 @@ import {
   FireworksStreamingTranscriptionConfig,
   STT_TIMEOUT_MS,
   StepfunRealtimeTranscriptionConfig,
+  XaiVoiceAgentTranscriptionConfig,
 } from "./config";
 import { requireProviderKey } from "./errors";
 import { requireBaiduRealtimeCredentials } from "./baiduCredentials";
@@ -565,6 +566,90 @@ export async function transcribeWithElevenLabsRealtimeProvider(
             errorText:
               typeof payload?.detail === "string"
                 ? payload.detail
+                : typeof payload?.message === "string"
+                  ? payload.message
+                  : JSON.stringify(payload),
+            action: "transcription",
+          }),
+        );
+      }
+    },
+  });
+}
+
+export async function transcribeWithXaiVoiceAgentProvider(
+  params: SharedRealtimeProviderParams & {
+    config: XaiVoiceAgentTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider } = params;
+  const audio = await readRealtimePcmChunks(fileUri, 200);
+
+  return runRealtimeSocket({
+    provider,
+    language,
+    url: config.endpoint,
+    headers: {
+      Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+    },
+    abortSignal,
+    onOpen: (socket) => {
+      socket.send(
+        JSON.stringify({
+          type: "session.update",
+          session: {
+            turn_detection: null,
+            audio: {
+              input: {
+                format: {
+                  type: "audio/pcm",
+                  rate: 16000,
+                },
+              },
+              output: {
+                format: {
+                  type: "audio/pcm",
+                  rate: 16000,
+                },
+              },
+            },
+          },
+        }),
+      );
+      socket.send(
+        JSON.stringify({
+          type: "input_audio_buffer.append",
+          audio: audio.base64,
+        }),
+      );
+      socket.send(
+        JSON.stringify({
+          type: "conversation.item.commit",
+        }),
+      );
+    },
+    onMessage: (payload, controls) => {
+      if (
+        payload?.type === "conversation.item.input_audio_transcription.completed"
+      ) {
+        controls.finish(
+          typeof payload?.transcript === "string" ? payload.transcript : "",
+        );
+        return;
+      }
+
+      if (
+        payload?.type === "error" ||
+        payload?.error
+      ) {
+        controls.fail(
+          buildProviderHttpError({
+            provider,
+            language,
+            status: 400,
+            errorText:
+              typeof payload?.error?.message === "string"
+                ? payload.error.message
                 : typeof payload?.message === "string"
                   ? payload.message
                   : JSON.stringify(payload),

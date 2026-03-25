@@ -115,6 +115,11 @@ export type ElevenLabsRealtimeTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type VolcengineFileAsrTranscriptionConfig = {
+  kind: "volcengine-file-asr";
+  defaultModel: string;
+};
+
 export type GeminiTranscriptionConfig = {
   kind: "gemini";
   endpointBase: string;
@@ -128,6 +133,12 @@ export type ReplicateTranscriptionConfig = {
 
 export type StepfunRealtimeTranscriptionConfig = {
   kind: "stepfun-realtime";
+  endpoint: string;
+  defaultModel: string;
+};
+
+export type XaiVoiceAgentTranscriptionConfig = {
+  kind: "xai-voice-agent";
   endpoint: string;
   defaultModel: string;
 };
@@ -154,7 +165,9 @@ export type ProviderSttConfig =
   | ReplicateTranscriptionConfig
   | ElevenLabsTranscriptionConfig
   | ElevenLabsRealtimeTranscriptionConfig
-  | StepfunRealtimeTranscriptionConfig;
+  | StepfunRealtimeTranscriptionConfig
+  | VolcengineFileAsrTranscriptionConfig
+  | XaiVoiceAgentTranscriptionConfig;
 
 export const STT_TIMEOUT_MS = 30000;
 
@@ -335,6 +348,19 @@ function buildConfigForTransport(params: {
       return params.endpoint
         ? {
             kind: "stepfun-realtime",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "volcengine-file-asr":
+      return {
+        kind: "volcengine-file-asr",
+        defaultModel: params.defaultModel,
+      };
+    case "xai-voice-agent":
+      return params.endpoint
+        ? {
+            kind: "xai-voice-agent",
             endpoint: params.endpoint,
             defaultModel: params.defaultModel,
           }

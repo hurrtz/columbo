@@ -179,6 +179,71 @@ describe("synthesizeProviderSpeech", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it("uses the ByteDance async TTS submit/query flow for Doubao speech", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: {
+              task_id: "doubao-tts-task",
+            },
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: {
+              task_status: 2,
+              audio_url: "https://doubao.example/audio.mp3",
+            },
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        blob: () => Promise.resolve(new Blob(["fake-audio"])),
+      });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "bytedance-doubao-seed",
+      providerModel: "unknown",
+      apiKey: "ark-key|speech-app-id|speech-access-key",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [submitUrl, submitOptions] = (fetch as jest.Mock).mock.calls[0];
+    expect(submitUrl).toBe("https://openspeech.bytedance.com/api/v3/tts/submit");
+    expect(submitOptions.headers["X-Api-App-Id"]).toBe("speech-app-id");
+    expect(submitOptions.headers["X-Api-Access-Key"]).toBe("speech-access-key");
+    expect(submitOptions.headers["X-Api-Resource-Id"]).toBe("seed-tts-2.0");
+    expect(JSON.parse(submitOptions.body)).toMatchObject({
+      req_params: {
+        text: "Hello world",
+        speaker: "zh_female_qingxin",
+        audio_params: {
+          format: "mp3",
+          sample_rate: 24000,
+        },
+      },
+    });
+
+    const [queryUrl, queryOptions] = (fetch as jest.Mock).mock.calls[1];
+    expect(queryUrl).toBe("https://openspeech.bytedance.com/api/v3/tts/query");
+    expect(queryOptions.headers["X-Api-Resource-Id"]).toBe(
+      "volc.service_type.10029",
+    );
+    expect(JSON.parse(queryOptions.body)).toEqual({
+      task_id: "doubao-tts-task",
+    });
+    expect((fetch as jest.Mock).mock.calls[2][0]).toBe(
+      "https://doubao.example/audio.mp3",
+    );
+  });
+
   it("uses the Azure OpenAI v1 speech route with api-key auth", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

@@ -159,5 +159,5 @@ export function requireProviderKey(
     );
   }
 
-  return apiKey;
+  return apiKey.split("|")[0].trim();
 }

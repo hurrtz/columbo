@@ -78,6 +78,8 @@ export type RuntimeSttTransport =
   | "ibm-watsonx"
   | "novita-json"
   | "stepfun-realtime"
+  | "volcengine-file-asr"
+  | "xai-voice-agent"
   | "elevenlabs"
   | "replicate";
 export type RuntimeTtsTransport =
@@ -94,6 +96,7 @@ export type RuntimeTtsTransport =
   | "ibm-watsonx"
   | "minimax"
   | "novita"
+  | "volcengine-tts"
   | "elevenlabs"
   | "replicate";
 export type RuntimeTtsBinaryRequestFormat =
@@ -306,9 +309,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("01-ai-yi", "llm"),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "xai-voice-agent",
+      endpoint: "wss://api.x.ai/v1/realtime",
+      defaultModel: "voice-agent-api",
+      models: [namedModel("voice-agent-api", "Voice Agent API")],
+      languageNote:
+        "xAI speech input is wired through the realtime Voice Agent WebSocket. It behaves like live conversational speech input rather than a standalone batch transcription API.",
     },
     tts: {
       support: "none",
@@ -754,9 +761,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     catalogProviderId: "bytedance-doubao-seed",
     label: "ByteDance",
     shortLabel: "DOUBAO",
-    apiKeyPlaceholder: "Enter API key",
+    apiKeyPlaceholder: "ark-api-key|speech-app-id|speech-access-key",
     apiKeyHint:
-      "Unlocks Doubao / Seed hosted models through Volcano Engine Ark's OpenAI-compatible chat API.",
+      "Use ark-api-key for chat. Add speech-app-id and speech-access-key after | to unlock Doubao Speech file ASR and async TTS.",
     apiKeyUrl: "https://www.volcengine.com/docs/82379/1298459",
     llm: {
       support: "provider",
@@ -766,15 +773,28 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("bytedance-doubao-seed", "llm"),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "volcengine-file-asr",
+      defaultModel: "bigmodel",
+      models: [namedModel("bigmodel", "Doubao Big-Model ASR")],
+      languageNote:
+        "ByteDance speech uses Doubao Speech rather than Ark. The current app route is the async file-ASR submit/query flow and requires a public audio URL plus speech-app-id and speech-access-key in settings.",
     },
     tts: {
-      support: "none",
-      transport: "none",
-      models: [],
-      voiceOptions: [],
+      support: "provider",
+      transport: "volcengine-tts",
+      endpointBase: "https://openspeech.bytedance.com/api/v3/tts",
+      defaultModel: "unknown",
+      defaultVoice: "zh_female_qingxin",
+      voiceFallback: "zh_female_qingxin",
+      models: [namedModel("unknown", "Doubao Large-Model TTS")],
+      voiceOptions: [
+        voice("zh_female_qingxin", "Qingxin"),
+        voice("zh_male_chunhou", "Chunhou"),
+        voice("zh_female_zhixing", "Zhixing"),
+      ],
+      languageNote:
+        "ByteDance TTS is wired on the async submit/query API. Voice inventories are larger and dynamic in the official docs, so the built-in voices here are only a starter set.",
     },
   },
   deepgram: {
@@ -1081,9 +1101,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("xai", "llm"),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "xai-voice-agent",
+      endpoint: "wss://api.x.ai/v1/realtime",
+      defaultModel: "voice-agent-api",
+      models: [namedModel("voice-agent-api", "Voice Agent API")],
+      languageNote:
+        "xAI speech input is wired through the realtime Voice Agent WebSocket. It behaves like live conversational speech input rather than a standalone batch transcription API.",
     },
     tts: {
       support: "provider",

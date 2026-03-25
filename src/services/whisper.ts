@@ -27,6 +27,7 @@ import {
   transcribeWithNovitaJsonProvider,
   transcribeWithOpenAiAudioInputProvider,
   transcribeWithReplicateProvider,
+  transcribeWithVolcengineFileAsrProvider,
 } from "./whisper/providers";
 import {
   transcribeWithAssemblyAiRealtimeProvider,
@@ -35,6 +36,7 @@ import {
   transcribeWithElevenLabsRealtimeProvider,
   transcribeWithFireworksStreamingProvider,
   transcribeWithStepfunRealtimeProvider,
+  transcribeWithXaiVoiceAgentProvider,
 } from "./whisper/realtimeProviders";
 
 function isRemoteAudioSource(fileUri: string) {
@@ -269,6 +271,18 @@ export async function transcribeAudio(params: {
     });
   }
 
+  if (config.kind === "volcengine-file-asr") {
+    return transcribeWithVolcengineFileAsrProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
+    });
+  }
+
   if (config.kind === "assemblyai-pre-recorded") {
     return transcribeWithAssemblyAiPreRecordedProvider({
       abortSignal,
@@ -319,6 +333,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "fireworks-pre-recorded") {
     return transcribeWithFireworksPreRecordedProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
+    });
+  }
+
+  if (config.kind === "xai-voice-agent") {
+    return transcribeWithXaiVoiceAgentProvider({
       abortSignal,
       apiKey,
       config,

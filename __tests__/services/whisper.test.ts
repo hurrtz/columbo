@@ -1059,6 +1059,110 @@ describe("transcribeAudio", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it("uses the xAI voice-agent realtime socket for speech input transcription", async () => {
+    const promise = transcribeAudio({
+      fileUri: "/tmp/recording.wav",
+      mode: "provider",
+      provider: "xai",
+      providerModel: "voice-agent-api",
+      apiKey: "xai-test",
+      language: "en",
+    });
+
+    const socket = await waitForMockSocket();
+    expect(socket.url).toBe("wss://api.x.ai/v1/realtime");
+    expect(socket.options.headers.Authorization).toBe("Bearer xai-test");
+
+    socket.emitOpen();
+    expect(JSON.parse(socket.sent[0])).toMatchObject({
+      type: "session.update",
+      session: {
+        turn_detection: null,
+        audio: {
+          input: {
+            format: {
+              type: "audio/pcm",
+              rate: 16000,
+            },
+          },
+        },
+      },
+    });
+    expect(JSON.parse(socket.sent[1])).toMatchObject({
+      type: "input_audio_buffer.append",
+      audio: expect.any(String),
+    });
+    expect(JSON.parse(socket.sent[2])).toEqual({
+      type: "conversation.item.commit",
+    });
+
+    socket.emitMessage({
+      type: "conversation.item.input_audio_transcription.completed",
+      transcript: "Hello from xAI voice agent",
+    });
+
+    await expect(promise).resolves.toBe("Hello from xAI voice agent");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("uses the ByteDance Doubao async file ASR flow for bigmodel", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          code: 20000000,
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: {
+          get: (name: string) =>
+            name === "X-Api-Status-Code" ? "20000000" : null,
+        },
+        json: async () => ({
+          result: {
+            text: "Hello from Doubao file ASR",
+          },
+        }),
+      });
+
+    const result = await transcribeAudio({
+      fileUri: "https://example.com/recording.mp3",
+      mode: "provider",
+      provider: "bytedance-doubao-seed",
+      providerModel: "bigmodel",
+      apiKey: "ark-key|speech-app-id|speech-access-key",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from Doubao file ASR");
+    const [submitUrl, submitOptions] = (fetch as jest.Mock).mock.calls[0];
+    expect(submitUrl).toBe(
+      "https://openspeech.bytedance.com/api/v3/auc/bigmodel/submit",
+    );
+    expect(submitOptions.headers["X-Api-App-Key"]).toBe("speech-app-id");
+    expect(submitOptions.headers["X-Api-Access-Key"]).toBe("speech-access-key");
+    expect(submitOptions.headers["X-Api-Resource-Id"]).toBe("volc.seedasr.auc");
+    expect(JSON.parse(submitOptions.body)).toMatchObject({
+      audio: {
+        url: "https://example.com/recording.mp3",
+        format: "mp3",
+        language: "en-US",
+      },
+      request: {
+        model_name: "bigmodel",
+        enable_itn: true,
+      },
+    });
+
+    const [queryUrl, queryOptions] = (fetch as jest.Mock).mock.calls[1];
+    expect(queryUrl).toBe(
+      "https://openspeech.bytedance.com/api/v3/auc/bigmodel/query",
+    );
+    expect(queryOptions.headers["X-Api-App-Key"]).toBe("speech-app-id");
+    expect(queryOptions.headers["X-Api-Access-Key"]).toBe("speech-access-key");
+  });
+
   it("uses the Hugging Face native hf-inference JSON route for STT", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

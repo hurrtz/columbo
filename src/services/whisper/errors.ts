@@ -15,7 +15,7 @@ export function requireProviderKey(
     );
   }
 
-  return apiKey.trim();
+  return apiKey.split("|")[0].trim();
 }
 
 export function createSttTimeoutError(params: {

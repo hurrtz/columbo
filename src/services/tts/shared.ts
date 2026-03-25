@@ -130,6 +130,13 @@ type NovitaTtsConfig = {
   voiceFallback: string;
 };
 
+type VolcengineTtsConfig = {
+  kind: "volcengine-tts";
+  endpointBase: string;
+  defaultModel: string;
+  voiceFallback: string;
+};
+
 type ReplicateTtsConfig = {
   kind: "replicate";
   defaultModel: string;
@@ -156,6 +163,7 @@ export type ProviderTtsConfig =
   | IbmWatsonxTtsConfig
   | MinimaxTtsConfig
   | NovitaTtsConfig
+  | VolcengineTtsConfig
   | ReplicateTtsConfig
   | ElevenLabsTtsConfig;
 
@@ -348,6 +356,23 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
   }
 
   if (
+    manifest.tts.transport === "volcengine-tts" &&
+    manifest.tts.endpointBase &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "volcengine-tts",
+        endpointBase: manifest.tts.endpointBase,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
     manifest.tts.transport === "replicate" &&
     manifest.tts.defaultModel &&
     manifest.tts.voiceFallback
@@ -413,7 +438,7 @@ export function requireProviderKey(
     );
   }
 
-  return apiKey.trim();
+  return apiKey.split("|")[0].trim();
 }
 
 function blobToBase64(blob: Blob): Promise<string> {

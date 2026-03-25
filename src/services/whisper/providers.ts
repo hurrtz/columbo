@@ -14,6 +14,7 @@ import {
   getReplicateModelMetadata,
   runReplicatePrediction,
 } from "../replicate/runtime";
+import { parseVolcengineSpeechCredentials } from "../volcengineCredentials";
 import { getDeviceLocale, getFileAudioMimeType } from "../../utils/speechLanguage";
 import { fetchWithTimeout } from "./abort";
 import { parseBaiduSpeechCredentials } from "./baiduCredentials";
@@ -35,6 +36,7 @@ import type {
   OpenAiAudioInputTranscriptionConfig,
   MultipartTranscriptionConfig,
   ReplicateTranscriptionConfig,
+  VolcengineFileAsrTranscriptionConfig,
 } from "./config";
 import {
   createSttTimeoutError,
@@ -58,6 +60,8 @@ const DASHSCOPE_ASYNC_POLL_INTERVAL_MS = 1000;
 const DASHSCOPE_ASYNC_MAX_POLLS = 30;
 const BAIDU_ASYNC_POLL_INTERVAL_MS = 1000;
 const BAIDU_ASYNC_MAX_POLLS = 30;
+const VOLCENGINE_ASYNC_POLL_INTERVAL_MS = 1000;
+const VOLCENGINE_ASYNC_MAX_POLLS = 30;
 
 function base64ToBytes(base64: string) {
   const BufferCtor = (globalThis as any).Buffer;
@@ -134,6 +138,23 @@ function getBaiduAsyncSpeechPid(language: AppLanguage) {
 
 function isRemoteAudioSource(fileUri: string) {
   return /^(https?:\/\/|oss:\/\/)/i.test(fileUri);
+}
+
+function getVolcengineAudioFormat(fileUri: string) {
+  const extension = fileUri.split(".").pop()?.toLowerCase();
+
+  switch (extension) {
+    case "wav":
+    case "mp3":
+    case "ogg":
+      return extension;
+    default:
+      return "wav";
+  }
+}
+
+function getVolcengineSpeechLanguage(language: AppLanguage) {
+  return language === "de" ? "de-DE" : "en-US";
 }
 
 export async function transcribeWithGeminiProvider(
@@ -832,6 +853,158 @@ export async function transcribeWithBaiduFileTranscriptionProvider(
     }
 
     await wait(BAIDU_ASYNC_POLL_INTERVAL_MS);
+  }
+
+  throw createSttTimeoutError({ provider, language });
+}
+
+export async function transcribeWithVolcengineFileAsrProvider(
+  params: SharedProviderParams & {
+    config: VolcengineFileAsrTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+
+  if (!isRemoteAudioSource(fileUri)) {
+    throw new Error(
+      "ByteDance file ASR currently requires a publicly reachable audio URL.",
+    );
+  }
+
+  const { speechAppId, speechAccessKey } = parseVolcengineSpeechCredentials(
+    provider,
+    apiKey,
+    language,
+  );
+  const requestId = `schnackai-${Date.now()}`;
+  const selectedModel = providerModel || config.defaultModel;
+
+  let submitResponse: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    submitResponse = await fetchWithTimeout(
+      "https://openspeech.bytedance.com/api/v3/auc/bigmodel/submit",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Api-App-Key": speechAppId,
+          "X-Api-Access-Key": speechAccessKey,
+          "X-Api-Resource-Id": "volc.seedasr.auc",
+          "X-Api-Request-Id": requestId,
+          "X-Api-Sequence": "-1",
+        },
+        body: JSON.stringify({
+          user: {
+            uid: "schnackai",
+          },
+          audio: {
+            url: fileUri,
+            format: getVolcengineAudioFormat(fileUri),
+            language: getVolcengineSpeechLanguage(language),
+          },
+          request: {
+            model_name: selectedModel,
+            enable_itn: true,
+          },
+        }),
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!submitResponse.ok) {
+    const errorText = await submitResponse.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: submitResponse.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  for (let pollIndex = 0; pollIndex < VOLCENGINE_ASYNC_MAX_POLLS; pollIndex += 1) {
+    throwIfAborted(abortSignal);
+
+    let queryResponse: Awaited<ReturnType<typeof fetch>>;
+
+    try {
+      queryResponse = await fetchWithTimeout(
+        "https://openspeech.bytedance.com/api/v3/auc/bigmodel/query",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Api-App-Key": speechAppId,
+            "X-Api-Access-Key": speechAccessKey,
+            "X-Api-Resource-Id": "volc.seedasr.auc",
+            "X-Api-Request-Id": requestId,
+            "X-Api-Sequence": "-1",
+          },
+          body: JSON.stringify({}),
+        },
+        STT_TIMEOUT_MS,
+        () => createSttTimeoutError({ provider, language }),
+        abortSignal,
+      );
+    } catch (error) {
+      throw normalizeProviderTransportError({
+        provider,
+        language,
+        error,
+        action: "transcription",
+      });
+    }
+
+    if (!queryResponse.ok) {
+      const errorText = await queryResponse.text();
+      throw buildProviderHttpError({
+        provider,
+        language,
+        status: queryResponse.status,
+        errorText,
+        action: "transcription",
+      });
+    }
+
+    const statusCode = queryResponse.headers.get("X-Api-Status-Code");
+    const queryData = await queryResponse.json();
+
+    if (statusCode === "20000000") {
+      const text =
+        typeof queryData?.result?.text === "string"
+          ? queryData.result.text.trim()
+          : Array.isArray(queryData?.result?.utterances)
+            ? queryData.result.utterances
+                .map((item: any) =>
+                  typeof item?.text === "string" ? item.text.trim() : "",
+                )
+                .filter(Boolean)
+                .join(" ")
+                .trim()
+            : "";
+
+      return text || null;
+    }
+
+    if (statusCode && !["20000001", "20000002"].includes(statusCode)) {
+      const errorText =
+        queryData?.message || queryData?.error || queryData?.code || statusCode;
+      throw new Error(String(errorText));
+    }
+
+    await wait(VOLCENGINE_ASYNC_POLL_INTERVAL_MS);
   }
 
   throw createSttTimeoutError({ provider, language });

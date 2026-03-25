@@ -9,6 +9,7 @@ import {
   parseIbmWatsonxCredentials,
   parseAzureOpenAiCredentials,
 } from "../providerCredentials";
+import { parseVolcengineSpeechCredentials } from "../volcengineCredentials";
 import {
   getReplicateInputProperty,
   getReplicateModelMetadata,
@@ -41,6 +42,8 @@ const BAIDU_LONG_TTS_POLL_INTERVAL_MS = 1000;
 const BAIDU_LONG_TTS_MAX_POLLS = 30;
 const NOVITA_ASYNC_TTS_POLL_INTERVAL_MS = 1000;
 const NOVITA_ASYNC_TTS_MAX_POLLS = 30;
+const VOLCENGINE_ASYNC_TTS_POLL_INTERVAL_MS = 1000;
+const VOLCENGINE_ASYNC_TTS_MAX_POLLS = 30;
 const DASHSCOPE_REALTIME_TTS_MODEL_IDS = new Set([
   "qwen3-tts-flash-realtime",
   "qwen3-tts-instruct-flash-realtime",
@@ -50,6 +53,10 @@ function wait(ms: number) {
   return new Promise<void>((resolve) => {
     setTimeout(resolve, ms);
   });
+}
+
+function createTaskId(prefix: string) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 function isRetryableGeminiTransportError(error: unknown) {
@@ -1423,6 +1430,150 @@ export async function synthesizeProviderSpeech(params: {
     }
 
     return writeBase64AudioFile(hexToBase64(audioHex, language), "mp3");
+  }
+
+  if (config.kind === "volcengine-tts") {
+    const { speechAppId, speechAccessKey } = parseVolcengineSpeechCredentials(
+      provider,
+      apiKey,
+      language,
+    );
+    const requestId = createTaskId("doubao-tts");
+    const resolvedVoice = selectedVoice || config.voiceFallback;
+
+    const submitResponse = await fetchWithTimeout(
+      `${config.endpointBase}/submit`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Api-App-Id": speechAppId,
+          "X-Api-Access-Key": speechAccessKey,
+          "X-Api-Resource-Id": "seed-tts-2.0",
+          "X-Api-Request-Id": requestId,
+        },
+        body: JSON.stringify({
+          user: {
+            uid: "schnackai",
+          },
+          unique_id: requestId,
+          namespace: "BidirectionalTTS",
+          req_params: {
+            text,
+            speaker: resolvedVoice,
+            audio_params: {
+              format: "mp3",
+              sample_rate: 24000,
+            },
+          },
+        }),
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!submitResponse.ok) {
+      const errorText = await submitResponse.text();
+      throw buildTtsRequestError({
+        provider,
+        status: submitResponse.status,
+        errorText,
+        language,
+      });
+    }
+
+    const submitData = await submitResponse.json();
+    const taskId =
+      typeof submitData?.data?.task_id === "string"
+        ? submitData.data.task_id
+        : null;
+
+    if (!taskId) {
+      throw new Error(
+        translate(language, "ttsDidNotReturnAudio", {
+          provider: PROVIDER_LABELS[provider],
+        }),
+      );
+    }
+
+    for (
+      let pollIndex = 0;
+      pollIndex < VOLCENGINE_ASYNC_TTS_MAX_POLLS;
+      pollIndex += 1
+    ) {
+      const queryResponse = await fetchWithTimeout(
+        `${config.endpointBase}/query`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Api-App-Id": speechAppId,
+            "X-Api-Access-Key": speechAccessKey,
+            "X-Api-Resource-Id": "volc.service_type.10029",
+            "X-Api-Request-Id": requestId,
+          },
+          body: JSON.stringify({
+            task_id: taskId,
+          }),
+        },
+        timeoutMs,
+        () => createTtsTimeoutError({ provider, language }),
+        abortSignal,
+      );
+
+      if (!queryResponse.ok) {
+        const errorText = await queryResponse.text();
+        throw buildTtsRequestError({
+          provider,
+          status: queryResponse.status,
+          errorText,
+          language,
+        });
+      }
+
+      const queryData = await queryResponse.json();
+      const taskStatus =
+        typeof queryData?.data?.task_status === "number"
+          ? queryData.data.task_status
+          : null;
+      const audioUrl =
+        typeof queryData?.data?.audio_url === "string"
+          ? queryData.data.audio_url
+          : null;
+
+      if (taskStatus === 2 && audioUrl) {
+        const audioResponse = await fetchWithTimeout(
+          audioUrl,
+          {
+            method: "GET",
+          },
+          timeoutMs,
+          () => createTtsTimeoutError({ provider, language }),
+          abortSignal,
+        );
+
+        if (!audioResponse.ok) {
+          const errorText = await audioResponse.text();
+          throw buildTtsRequestError({
+            provider,
+            status: audioResponse.status,
+            errorText,
+            language,
+          });
+        }
+
+        return writeBlobAudioFile(await audioResponse.blob(), "mp3");
+      }
+
+      if (taskStatus && ![1].includes(taskStatus)) {
+        throw new Error(queryData?.message || String(taskStatus));
+      }
+
+      await wait(VOLCENGINE_ASYNC_TTS_POLL_INTERVAL_MS);
+    }
+
+    throw createTtsTimeoutError({ provider, language });
   }
 
   if (config.kind === "replicate") {

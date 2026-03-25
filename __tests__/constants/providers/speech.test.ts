@@ -45,6 +45,9 @@ describe("speech provider constants", () => {
     expect(getProviderSttModelOptions("z-ai-zhipu-ai")).toEqual([
       { id: "glm-asr-2512", name: "GLM-ASR-2512" },
     ]);
+    expect(getProviderSttModelOptions("bytedance-doubao-seed")).toEqual([
+      { id: "bigmodel", name: "Doubao Big-Model Streaming ASR" },
+    ]);
     expect(getProviderSttModelOptions("alibaba-qwen-dashscope")).toEqual([
       { id: "qwen3-asr-flash", name: "Qwen3-ASR-Flash" },
       {
@@ -92,6 +95,12 @@ describe("speech provider constants", () => {
     ]);
     expect(getProviderSttModelOptions("novita-ai")).toEqual([
       { id: "glm-asr", name: "GLM Audio to Text" },
+    ]);
+    expect(getProviderSttModelOptions("xai")).toEqual([
+      {
+        id: "voice-agent-api",
+        name: "Voice Agent API (speech input inside realtime agent)",
+      },
     ]);
     expect(getProviderSttModelOptions("hugging-face-inference-api")).toEqual([
       { id: "openai/whisper-large-v3", name: "Whisper large-v3" },
@@ -204,6 +213,9 @@ describe("speech provider constants", () => {
     ]);
     expect(getProviderTtsModelOptions("z-ai-zhipu-ai")).toEqual([
       { id: "glm-tts", name: "GLM-TTS" },
+    ]);
+    expect(getProviderTtsModelOptions("bytedance-doubao-seed")).toEqual([
+      { id: "unknown", name: "Doubao Large-Model TTS" },
     ]);
     expect(getProviderTtsModelOptions("together")).toEqual([
       { id: "canopylabs/orpheus-3b-0.1-ft", name: "Orpheus 3B" },
