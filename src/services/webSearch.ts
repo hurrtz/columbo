@@ -8,7 +8,7 @@ import {
 } from "../constants/webSearch";
 import { PROVIDER_LABELS } from "../constants/models";
 import { translate } from "../i18n";
-import type { AppLanguage } from "../types";
+import type { AppLanguage, WebSearchSource } from "../types";
 import { requireProviderKey } from "./llm/shared";
 import { recordDebugLogEvent } from "./debugLogCapture";
 import { networkFetch } from "./networkFetch";
@@ -16,11 +16,6 @@ import {
   buildProviderHttpError,
   normalizeProviderTransportError,
 } from "./providerErrors";
-
-export interface WebSearchSource {
-  title: string;
-  url: string;
-}
 
 export interface WebSearchResult {
   context: string;

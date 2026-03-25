@@ -353,6 +353,9 @@ export const de: TranslationDictionary = {
     estimatedCostPartial: ({ cost }) => `Kosten: ${cost} teilweise`,
     estimatedUsageInline: ({ prompt, completion, total }) =>
       `Geschätzt: ${prompt} rein · ${completion} raus · ${total} gesamt`,
+    usedWebSearch: "Mit Websuche",
+    sources: "Quellen",
+    openSourceLink: ({ source }) => `Quelle öffnen: ${source}`,
     estimatedRouteUsage: ({ tokens, cost }) => `${tokens} Token · ${cost}`,
     estimatedRouteUsagePartial: ({ tokens, cost }) =>
       `${tokens} Token · ${cost} teilweise`,

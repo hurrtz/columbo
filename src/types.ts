@@ -123,6 +123,23 @@ export interface UsageEstimate {
   totalCostUsd: number | null;
 }
 
+export interface WebSearchSource {
+  title: string;
+  url: string;
+}
+
+export interface MessageWebSearchMetadata {
+  provider: WebSearchProvider;
+  model: string;
+  query: string;
+  summary: string;
+  sources: WebSearchSource[];
+}
+
+export interface MessageMetadata {
+  webSearch?: MessageWebSearchMetadata;
+}
+
 export const DEFAULT_ASSISTANT_INSTRUCTIONS_BY_LANGUAGE: Record<
   AppLanguage,
   string
@@ -185,6 +202,7 @@ export interface Message {
   model: string | null;
   provider: Provider | null;
   usage?: UsageEstimate;
+  metadata?: MessageMetadata;
   timestamp: string;
 }
 

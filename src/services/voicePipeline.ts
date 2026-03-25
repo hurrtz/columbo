@@ -1,5 +1,5 @@
 import { streamChat } from "./llm";
-import type { Message } from "../types";
+import type { Message, MessageMetadata } from "../types";
 import { recordDebugLogEvent } from "./debugLogCapture";
 import { cleanupCapturedAudio } from "./voicePipeline/cleanup";
 import { resolveContextualMessages } from "./voicePipeline/context";
@@ -110,6 +110,7 @@ export async function runVoicePipeline(
     }
 
     let webSearchContext: string | undefined;
+    let responseMetadata: MessageMetadata | undefined;
     const normalizedWebSearchApiKey = webSearchApiKey?.trim();
 
     if (
@@ -134,6 +135,17 @@ export async function runVoicePipeline(
         }
 
         webSearchContext = webSearchResult?.context;
+        if (webSearchResult) {
+          responseMetadata = {
+            webSearch: {
+              provider: webSearchResult.provider,
+              model: webSearchResult.model,
+              query: transcription,
+              summary: webSearchResult.summary,
+              sources: webSearchResult.sources,
+            },
+          };
+        }
       } catch (error) {
         if (abortSignal?.aborted) {
           return transcription;
@@ -190,7 +202,7 @@ export async function runVoicePipeline(
       },
       onDone: async (fullText, usage) => {
         if (abortSignal?.aborted) return;
-        callbacks.onResponseDone(fullText, usage);
+        callbacks.onResponseDone(fullText, usage, responseMetadata);
         await ttsQueue.handleResponseDone(fullText);
       },
       onError: callbacks.onError,

@@ -728,6 +728,15 @@ describe("runVoicePipeline", () => {
       },
     );
 
+    const callbacks = {
+      onTranscription: jest.fn(),
+      onChunk: jest.fn(),
+      onResponseDone: jest.fn(),
+      onAudioReady: jest.fn(),
+      onSpeechTextReady: jest.fn(),
+      onError: jest.fn(),
+    };
+
     await runVoicePipeline({
       transcriptionOverride: "Explain wind.",
       messages: [],
@@ -745,14 +754,7 @@ describe("runVoicePipeline", () => {
       webSearchEnabled: true,
       webSearchProvider: "openai",
       webSearchApiKey: "sk-openai",
-      callbacks: {
-        onTranscription: jest.fn(),
-        onChunk: jest.fn(),
-        onResponseDone: jest.fn(),
-        onAudioReady: jest.fn(),
-        onSpeechTextReady: jest.fn(),
-        onError: jest.fn(),
-      },
+      callbacks,
     });
 
     expect(searchWeb).toHaveBeenCalledWith(
@@ -764,6 +766,19 @@ describe("runVoicePipeline", () => {
     );
     expect((streamChat as jest.Mock).mock.calls[0][0].webSearchContext).toContain(
       "Wind is moving air.",
+    );
+    expect(callbacks.onResponseDone).toHaveBeenCalledWith(
+      "Wind is moving air.",
+      undefined,
+      expect.objectContaining({
+        webSearch: expect.objectContaining({
+          provider: "openai",
+          model: "gpt-4.1-mini",
+          query: "Explain wind.",
+          summary: "Wind is moving air.",
+          sources: [{ title: "Britannica", url: "https://example.com/wind" }],
+        }),
+      }),
     );
   });
 

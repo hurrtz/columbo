@@ -2,7 +2,7 @@ import { useCallback, useRef } from "react";
 
 import { recordDebugLogEvent } from "../../services/debugLogCapture";
 import { runVoicePipeline } from "../../services/voicePipeline";
-import type { UsageEstimate } from "../../types";
+import type { MessageMetadata, UsageEstimate } from "../../types";
 import type { PipelinePhase, UseVoicePipelineParams } from "./types";
 
 type VoiceCaptureHandlerParams = Omit<UseVoicePipelineParams, "isRecording"> & {
@@ -185,7 +185,11 @@ export function useVoiceCaptureHandler({
               );
               setStreamingText((prev) => prev + text);
             },
-            onResponseDone: (fullText, usage?: UsageEstimate) => {
+            onResponseDone: (
+              fullText,
+              usage?: UsageEstimate,
+              metadata?: MessageMetadata,
+            ) => {
               recordDebugLogEvent({
                 event: "voice-pipeline-response-done",
                 payload: {
@@ -206,6 +210,7 @@ export function useVoiceCaptureHandler({
                 model,
                 provider,
                 usage,
+                metadata,
               });
             },
             onAudioReady: (audioData, diagnostics) => {

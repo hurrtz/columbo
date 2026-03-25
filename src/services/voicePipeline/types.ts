@@ -5,6 +5,7 @@ import type {
   AssistantResponseTone,
   LocalTtsVoiceSelections,
   Message,
+  MessageMetadata,
   Provider,
   ReplyPlayback,
   SttBackendMode,
@@ -25,7 +26,11 @@ export interface PipelineCallbacks {
   onWebSearchComplete?: () => void;
   onWebSearchFallback?: (error: Error) => void;
   onChunk: (text: string) => void;
-  onResponseDone: (fullText: string, usage?: UsageEstimate) => void;
+  onResponseDone: (
+    fullText: string,
+    usage?: UsageEstimate,
+    metadata?: MessageMetadata,
+  ) => void;
   onAudioReady: (
     audioUri: string,
     diagnostics?: SpeechDiagnosticsContext,

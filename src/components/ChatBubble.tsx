@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import {
   Animated,
+  Linking,
   View,
   Text,
   StyleSheet,
@@ -103,33 +104,120 @@ export function ChatBubble({
       ? getProviderModelName(message.provider, message.model)
       : message.model;
   const usage = !isUser && showUsageStats ? message.usage : undefined;
+  const webSearch = !isUser ? message.metadata?.webSearch : undefined;
+  const hasSources = !!webSearch?.sources.length;
 
   const bubbleContent = (
     <>
-      {!isUser && message.model && (
-        <View
-          style={[
-            styles.modelChip,
-            {
-              backgroundColor: colors.accentSoft,
-              borderColor: colors.borderStrong,
-            },
-          ]}
-        >
-          <Text style={[styles.providerLabel, { color: colors.accent }]}>
-            {providerLabel}
-          </Text>
-          <Text style={[styles.modelLabel, { color: colors.textSecondary }]}>
-            {modelLabel}
-          </Text>
+      {!isUser && (message.model || webSearch) ? (
+        <View style={styles.metaRow}>
+          {message.model ? (
+            <View
+              style={[
+                styles.modelChip,
+                {
+                  backgroundColor: colors.accentSoft,
+                  borderColor: colors.borderStrong,
+                },
+              ]}
+            >
+              <Text style={[styles.providerLabel, { color: colors.accent }]}>
+                {providerLabel}
+              </Text>
+              <Text
+                style={[styles.modelLabel, { color: colors.textSecondary }]}
+              >
+                {modelLabel}
+              </Text>
+            </View>
+          ) : null}
+          {webSearch ? (
+            <View
+              style={[
+                styles.statusChip,
+                {
+                  backgroundColor: colors.surfaceAlt,
+                  borderColor: colors.border,
+                },
+              ]}
+            >
+              <Feather name="globe" size={12} color={colors.textSecondary} />
+              <Text
+                style={[
+                  styles.statusChipLabel,
+                  { color: colors.textSecondary },
+                ]}
+              >
+                {t("usedWebSearch")}
+              </Text>
+            </View>
+          ) : null}
         </View>
-      )}
+      ) : null}
       <Text
         selectable={selectable}
         style={[styles.content, { color: isUser ? "#F5FBFF" : colors.text }]}
       >
         {message.content}
       </Text>
+      {webSearch ? (
+        <View
+          style={[
+            styles.referenceCard,
+            {
+              backgroundColor: colors.surfaceAlt,
+              borderColor: colors.border,
+            },
+          ]}
+        >
+          <Text style={[styles.referenceSummary, { color: colors.textSecondary }]}>
+            {webSearch.summary}
+          </Text>
+          {hasSources ? (
+            <>
+              <Text
+                style={[styles.referenceHeading, { color: colors.textMuted }]}
+              >
+                {t("sources")}
+              </Text>
+              <View style={styles.sourcesRow}>
+                {webSearch.sources.map((source) => (
+                  <TouchableOpacity
+                    key={source.url}
+                    style={[
+                      styles.sourceChip,
+                      {
+                        backgroundColor: colors.background,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                    onPress={() => {
+                      void Linking.openURL(source.url);
+                    }}
+                    activeOpacity={0.86}
+                    accessibilityRole="link"
+                    accessibilityLabel={t("openSourceLink", {
+                      source: source.title,
+                    })}
+                  >
+                    <Text
+                      numberOfLines={1}
+                      style={[styles.sourceLabel, { color: colors.text }]}
+                    >
+                      {source.title}
+                    </Text>
+                    <Feather
+                      name="arrow-up-right"
+                      size={12}
+                      color={colors.textSecondary}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </>
+          ) : null}
+        </View>
+      ) : null}
       {usage ? (
         <View
           style={[
@@ -323,6 +411,13 @@ const styles = StyleSheet.create({
   bubbleAssistant: {
     borderBottomLeftRadius: 8,
   },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 10,
+  },
   modelChip: {
     alignSelf: "flex-start",
     flexDirection: "row",
@@ -330,7 +425,16 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 10,
     paddingVertical: 6,
-    marginBottom: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  statusChip: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 999,
     borderWidth: 1,
   },
@@ -344,9 +448,55 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: fonts.mono,
   },
+  statusChipLabel: {
+    fontSize: 10,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    fontFamily: fonts.mono,
+  },
   content: {
     fontSize: 15,
     lineHeight: 22,
+    fontFamily: fonts.body,
+  },
+  referenceCard: {
+    alignSelf: "stretch",
+    marginTop: 10,
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 9,
+    gap: 8,
+  },
+  referenceSummary: {
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: fonts.body,
+  },
+  referenceHeading: {
+    fontSize: 10,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    fontFamily: fonts.mono,
+  },
+  sourcesRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  sourceChip: {
+    maxWidth: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+  },
+  sourceLabel: {
+    maxWidth: 180,
+    fontSize: 12,
     fontFamily: fonts.body,
   },
   usageCard: {
