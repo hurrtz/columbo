@@ -21,6 +21,7 @@ import { TtsTab } from "./settings/TtsTab";
 import { SettingsModalProps } from "./settings/types";
 import { UiTab } from "./settings/UiTab";
 import { useSettingsModalController } from "./settings/useSettingsModalController";
+import { WebSearchTab } from "./settings/WebSearchTab";
 
 export function SettingsModal(props: SettingsModalProps) {
   const {
@@ -28,6 +29,7 @@ export function SettingsModal(props: SettingsModalProps) {
     settings,
     focusProvider,
     focusCatalogProviderId,
+    focusTab,
     onUpdate,
     onUpdateResponseModeRoute,
     onUpdateProviderSttModel,
@@ -40,6 +42,7 @@ export function SettingsModal(props: SettingsModalProps) {
     onPreviewVoice,
     onStopPreviewVoice,
     onValidateProvider,
+    onValidateWebSearchProvider,
     onClose,
   } = props;
   const { colors } = useTheme();
@@ -83,6 +86,7 @@ export function SettingsModal(props: SettingsModalProps) {
     visible,
     focusProvider,
     focusCatalogProviderId,
+    focusTab,
     settings,
     onUpdate,
     onPreviewVoice,
@@ -227,6 +231,16 @@ export function SettingsModal(props: SettingsModalProps) {
                 sttLimitNote={sttLimitNote}
                 onUpdate={onUpdate}
                 onUpdateProviderSttModel={onUpdateProviderSttModel}
+              />
+            ) : null}
+
+            {activeTab === "web" ? (
+              <WebSearchTab
+                settings={settings}
+                onUpdate={onUpdate}
+                onUpdateApiKey={onUpdateApiKey}
+                onTextInputFocus={handleTextInputFocus}
+                onValidateWebSearchProvider={onValidateWebSearchProvider}
               />
             ) : null}
 

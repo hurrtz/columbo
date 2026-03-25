@@ -25,6 +25,8 @@ export function getTabLabel(
       return t("instructions");
     case "providers":
       return t("providers");
+    case "web":
+      return t("webSearch");
     case "stt":
       return t("stt");
     case "tts":
@@ -43,6 +45,8 @@ export function getTabDescription(
       return t("instructionsTabDescription");
     case "providers":
       return t("providersTabDescription");
+    case "web":
+      return t("webSearchTabDescription");
     case "stt":
       return t("sttTabDescription");
     case "tts":
@@ -182,7 +186,7 @@ export function normalizeNativeVoices(value: unknown): NativeSpeechVoice[] {
   });
 }
 
-export function renderProviderPickerOptions(providers: Provider[]) {
+export function renderProviderPickerOptions(providers: readonly Provider[]) {
   return providers.map((provider) => ({
     value: provider,
     label: PROVIDER_LABELS[provider],

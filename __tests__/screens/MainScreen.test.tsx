@@ -129,6 +129,10 @@ jest.mock("../../src/services/llm", () => ({
   validateProviderConnection: jest.fn(async () => undefined),
 }));
 
+jest.mock("../../src/services/webSearch", () => ({
+  validateWebSearchConnection: jest.fn(async () => undefined),
+}));
+
 jest.mock("../../src/screens/main/MainScreenTopBar", () => ({
   MainScreenTopBar: ({
     onOpenDrawer,

@@ -10,6 +10,10 @@ import {
   DEFAULT_RUNTIME_PROVIDER_ID,
   createRuntimeProviderStringRecord,
 } from "./constants/providers/runtimeState";
+import {
+  DEFAULT_WEB_SEARCH_PROVIDER,
+  type WebSearchProvider,
+} from "./constants/webSearch";
 import type { RuntimeAppProviderId } from "./constants/providers/runtimeManifest";
 
 export type Provider = RuntimeAppProviderId;
@@ -74,6 +78,7 @@ export type VoiceVisualPhase =
   | "idle"
   | "recording"
   | "transcribing"
+  | "searching"
   | "thinking"
   | "synthesizing"
   | "speaking";
@@ -102,6 +107,8 @@ export interface Settings {
   responseLength: AssistantResponseLength;
   responseTone: AssistantResponseTone;
   showUsageStats: boolean;
+  webSearchEnabled: boolean;
+  webSearchProvider: WebSearchProvider | null;
   apiKeys: ProviderApiKeys;
 }
 
@@ -166,6 +173,8 @@ export const DEFAULT_SETTINGS: Settings = {
   responseLength: "normal",
   responseTone: "professional",
   showUsageStats: false,
+  webSearchEnabled: false,
+  webSearchProvider: DEFAULT_WEB_SEARCH_PROVIDER,
   apiKeys: createRuntimeProviderStringRecord(),
 };
 

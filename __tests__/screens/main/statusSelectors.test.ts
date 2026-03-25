@@ -32,6 +32,7 @@ describe("statusSelectors", () => {
   it("maps active phases to stable indicator tones", () => {
     expect(getStatusIndicatorTone("recording", "idle")).toBe("danger");
     expect(getStatusIndicatorTone("speaking", "speaking")).toBe("accent");
+    expect(getStatusIndicatorTone("searching", "searching")).toBe("muted");
     expect(getStatusIndicatorTone("thinking", "thinking")).toBe("muted");
     expect(getStatusIndicatorTone("idle", "idle")).toBe("accentWarm");
   });

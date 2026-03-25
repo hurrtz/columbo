@@ -10,9 +10,12 @@ export type RuntimeAppProviderId =
   | "alibaba-qwen-dashscope"
   | "baichuan"
   | "baidu-ernie-qianfan"
+  | "brave"
   | "bytedance-doubao-seed"
   | "deepgram"
   | "elevenlabs"
+  | "exa"
+  | "firecrawl"
   | "fish-audio"
   | "gemini"
   | "cerebras"
@@ -31,8 +34,10 @@ export type RuntimeAppProviderId =
   | "perplexity"
   | "replicate"
   | "sambanova"
+  | "serpapi"
   | "siliconflow"
   | "stepfun"
+  | "tavily"
   | "together"
   | "xai"
   | "xiaomi-mimo"
@@ -184,6 +189,41 @@ function voice(
   return localizedLabels ? { id, label, localizedLabels } : { id, label };
 }
 
+function searchOnlyProviderEntry(params: {
+  appProvider: RuntimeAppProviderId;
+  label: string;
+  shortLabel: string;
+  apiKeyPlaceholder: string;
+  apiKeyHint: string;
+  apiKeyUrl: string;
+}): RuntimeProviderManifestEntry {
+  return {
+    appProvider: params.appProvider,
+    catalogProviderId: params.appProvider,
+    label: params.label,
+    shortLabel: params.shortLabel,
+    apiKeyPlaceholder: params.apiKeyPlaceholder,
+    apiKeyHint: params.apiKeyHint,
+    apiKeyUrl: params.apiKeyUrl,
+    llm: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    tts: {
+      support: "none",
+      transport: "none",
+      models: [],
+      voiceOptions: [],
+    },
+  };
+}
+
 function getCatalogProviderDocument(providerId: CatalogProviderId) {
   return PROVIDER_DOCUMENTS.find(
     (document) => document.provider.providerId === providerId,
@@ -231,9 +271,12 @@ export const RUNTIME_PROVIDER_ORDER = [
   "ai21-labs",
   "alibaba-qwen-dashscope",
   "baidu-ernie-qianfan",
+  "brave",
   "bytedance-doubao-seed",
   "deepgram",
   "elevenlabs",
+  "exa",
+  "firecrawl",
   "fish-audio",
   "gemini",
   "xai",
@@ -255,8 +298,10 @@ export const RUNTIME_PROVIDER_ORDER = [
   "perplexity",
   "replicate",
   "sambanova",
+  "serpapi",
   "siliconflow",
   "stepfun",
+  "tavily",
   "z-ai-zhipu-ai",
   "xiaomi-mimo",
 ] as const satisfies readonly RuntimeAppProviderId[];
@@ -300,7 +345,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     shortLabel: "OPENAI",
     apiKeyPlaceholder: "sk-...",
     apiKeyHint:
-      "Unlocks OpenAI models and OpenAI-hosted speech when you choose provider STT or TTS.",
+      "Unlocks OpenAI models, OpenAI-hosted speech, and OpenAI web search.",
     apiKeyUrl: "https://platform.openai.com/settings/organization/api-keys",
     llm: {
       support: "provider",
@@ -587,6 +632,15 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         "Baidu is wired for the simple short-text REST TTS route only. Long-text async jobs and streaming WebSocket TTS stay catalog-only because they add extra operational complexity beyond a basic BYOK flow.",
     },
   },
+  brave: searchOnlyProviderEntry({
+    appProvider: "brave",
+    label: "Brave",
+    shortLabel: "BRAVE",
+    apiKeyPlaceholder: "BSA...",
+    apiKeyHint:
+      "Unlocks Brave Search web results through Brave's independent search index API.",
+    apiKeyUrl: "https://api-dashboard.search.brave.com/app/keys",
+  }),
   "bytedance-doubao-seed": {
     appProvider: "bytedance-doubao-seed",
     catalogProviderId: "bytedance-doubao-seed",
@@ -707,6 +761,24 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         "ElevenLabs voices are live-discovered and dynamic. The current runtime uses a documented example voice as the default fallback; the TTS models themselves remain selectable and the voice catalog can be expanded later with live discovery.",
     },
   },
+  exa: searchOnlyProviderEntry({
+    appProvider: "exa",
+    label: "Exa",
+    shortLabel: "EXA",
+    apiKeyPlaceholder: "exa_...",
+    apiKeyHint:
+      "Unlocks Exa's search API for semantic web retrieval with extracted page text.",
+    apiKeyUrl: "https://dashboard.exa.ai/api-keys",
+  }),
+  firecrawl: searchOnlyProviderEntry({
+    appProvider: "firecrawl",
+    label: "Firecrawl",
+    shortLabel: "FIRECRAWL",
+    apiKeyPlaceholder: "fc-...",
+    apiKeyHint:
+      "Unlocks Firecrawl search for live web results with optional extracted page content.",
+    apiKeyUrl: "https://www.firecrawl.dev/app/api-keys",
+  }),
   "fish-audio": {
     appProvider: "fish-audio",
     catalogProviderId: "fish-audio",
@@ -1299,7 +1371,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     shortLabel: "PERPLEXITY",
     apiKeyPlaceholder: "pplx-...",
     apiKeyHint:
-      "Unlocks Perplexity Sonar models through the chat completions-compatible Sonar API.",
+      "Unlocks Perplexity Sonar models and Perplexity web-grounded search through the Sonar API.",
     apiKeyUrl: "https://docs.perplexity.ai/docs/sonar/quickstart",
     llm: {
       support: "provider",
@@ -1387,6 +1459,15 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       voiceOptions: [],
     },
   },
+  serpapi: searchOnlyProviderEntry({
+    appProvider: "serpapi",
+    label: "SerpApi",
+    shortLabel: "SERPAPI",
+    apiKeyPlaceholder: "Enter API key",
+    apiKeyHint:
+      "Unlocks SerpApi's structured Google search results API for fresh web retrieval.",
+    apiKeyUrl: "https://serpapi.com/manage-api-key",
+  }),
   siliconflow: {
     appProvider: "siliconflow",
     catalogProviderId: "siliconflow",
@@ -1481,6 +1562,15 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         "StepFun TTS uses /v1/audio/speech with model-specific voices. Public docs clearly support step-tts-2, step-tts-mini, and step-tts-vivid with a 1000-character input cap.",
     },
   },
+  tavily: searchOnlyProviderEntry({
+    appProvider: "tavily",
+    label: "Tavily",
+    shortLabel: "TAVILY",
+    apiKeyPlaceholder: "tvly-...",
+    apiKeyHint:
+      "Unlocks Tavily's search API for ranked results, snippets, and answer-oriented search.",
+    apiKeyUrl: "https://app.tavily.com/home",
+  }),
   together: {
     appProvider: "together",
     catalogProviderId: "together-ai",

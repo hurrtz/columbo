@@ -48,6 +48,9 @@ export function useVoiceCaptureHandler({
   ttsMode,
   ttsProvider,
   updateConversationContextSummary,
+  webSearchApiKey,
+  webSearchEnabled,
+  webSearchProvider,
 }: VoiceCaptureHandlerParams) {
   const ttsFallbackToastShownRef = useRef(false);
   const playbackStartedRef = useRef(false);
@@ -101,6 +104,9 @@ export function useVoiceCaptureHandler({
           responseLength,
           responseTone,
           language,
+          webSearchEnabled,
+          webSearchProvider,
+          webSearchApiKey,
           abortSignal: abortRef.current!.signal,
           callbacks: {
             onTranscription: (text) => {
@@ -139,6 +145,33 @@ export function useVoiceCaptureHandler({
                 model,
                 provider,
               );
+            },
+            onWebSearchStart: () => {
+              recordDebugLogEvent({
+                event: "voice-pipeline-web-search-start",
+              });
+              setPipelinePhase("searching");
+            },
+            onWebSearchComplete: () => {
+              recordDebugLogEvent({
+                event: "voice-pipeline-web-search-complete",
+              });
+              setPipelinePhase(
+                playbackStartedRef.current ? "speaking" : "thinking",
+              );
+            },
+            onWebSearchFallback: (error) => {
+              recordDebugLogEvent({
+                event: "voice-pipeline-web-search-fallback",
+                level: "warn",
+                payload: {
+                  message: error.message,
+                },
+              });
+              setPipelinePhase(
+                playbackStartedRef.current ? "speaking" : "thinking",
+              );
+              showToast(t("webSearchFallback"));
             },
             onChunk: (text) => {
               recordDebugLogEvent({

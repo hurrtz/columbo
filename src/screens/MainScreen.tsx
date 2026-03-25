@@ -11,6 +11,10 @@ import { ConversationDrawer } from "../components/ConversationDrawer";
 import { SettingsModal } from "../components/SettingsModal";
 import { SetupGuideModal } from "../components/SetupGuideModal";
 import { Toast } from "../components/Toast";
+import {
+  DEFAULT_WEB_SEARCH_PROVIDER,
+  type WebSearchProvider,
+} from "../constants/webSearch";
 import { getTtsListenLanguageLabel } from "../constants/localTts";
 import {
   PROVIDER_DEFAULT_STT_MODELS,
@@ -36,6 +40,7 @@ import {
   subscribeToDebugLogCapture,
 } from "../services/debugLogCapture";
 import { validateProviderConnection } from "../services/llm";
+import { validateWebSearchConnection } from "../services/webSearch";
 import { useTheme } from "../theme/ThemeContext";
 import {
   Provider,
@@ -118,6 +123,7 @@ export function MainScreen() {
   const {
     settingsVisible,
     settingsFocusCatalogProviderId,
+    settingsFocusTab,
     drawerVisible,
     statusDetailsVisible,
     transcriptVisible,
@@ -153,8 +159,14 @@ export function MainScreen() {
   const sttProvider =
     settings.sttMode === "provider" ? settings.sttProvider : null;
   const ttsProvider = settings.ttsProvider;
+  const webSearchProvider = settings.webSearchProvider;
   const sttApiKey = sttProvider ? settings.apiKeys[sttProvider].trim() : "";
   const ttsApiKey = ttsProvider ? settings.apiKeys[ttsProvider].trim() : "";
+  const webSearchApiKey = webSearchProvider
+    ? settings.apiKeys[webSearchProvider].trim()
+    : "";
+  const webSearchReady = !!webSearchProvider && !!webSearchApiKey;
+  const webSearchActive = settings.webSearchEnabled && webSearchReady;
   const selectedSttModel = sttProvider
     ? settings.providerSttModels[sttProvider] ||
       PROVIDER_DEFAULT_STT_MODELS[sttProvider] ||
@@ -236,6 +248,9 @@ export function MainScreen() {
     responseLength: settings.responseLength,
     responseTone: settings.responseTone,
     language,
+    webSearchEnabled: webSearchActive,
+    webSearchProvider,
+    webSearchApiKey,
     isRecording,
     showToast,
     t,
@@ -507,6 +522,44 @@ export function MainScreen() {
     [language, settings],
   );
 
+  const handleValidateWebSearchProvider = useCallback(
+    async (nextProvider: WebSearchProvider) => {
+      const apiKey = settings.apiKeys[nextProvider].trim();
+
+      recordDebugLogEvent({
+        event: "web-search-validation-requested",
+        payload: {
+          provider: nextProvider,
+        },
+      });
+
+      try {
+        await validateWebSearchConnection({
+          provider: nextProvider,
+          apiKey,
+          language,
+        });
+        recordDebugLogEvent({
+          event: "web-search-validation-succeeded",
+          payload: {
+            provider: nextProvider,
+          },
+        });
+      } catch (error) {
+        recordDebugLogEvent({
+          event: "web-search-validation-failed",
+          level: "error",
+          payload: {
+            message: error instanceof Error ? error.message : String(error),
+            provider: nextProvider,
+          },
+        });
+        throw error;
+      }
+    },
+    [language, settings.apiKeys],
+  );
+
   const {
     activeConversationTitle,
     fallbackTtsStatusLabel,
@@ -579,6 +632,10 @@ export function MainScreen() {
       transcriptVisible,
       ttsMode: settings.ttsMode,
       ttsProvider,
+      webSearchActive,
+      webSearchEnabled: settings.webSearchEnabled,
+      webSearchProvider,
+      webSearchReady,
       visualPhase,
     }),
     [
@@ -601,6 +658,10 @@ export function MainScreen() {
       settings.inputMode,
       settings.sttMode,
       settings.ttsMode,
+      settings.webSearchEnabled,
+      webSearchActive,
+      webSearchProvider,
+      webSearchReady,
       settingsVisible,
       setupGuideVisible,
       statusDetailsVisible,
@@ -955,9 +1016,21 @@ export function MainScreen() {
             availableResponseModes={loaded ? availableResponseModes : []}
             colors={colors}
             onOpenGroqSettings={() => openSettings("groq")}
+            onOpenWebSearchSettings={() =>
+              openSettings(
+                webSearchProvider ?? DEFAULT_WEB_SEARCH_PROVIDER,
+                "web",
+              )
+            }
             onSelectResponseMode={handleResponseModeChange}
+            onToggleWebSearch={() =>
+              updateSettings({ webSearchEnabled: !settings.webSearchEnabled })
+            }
             responseModes={settings.responseModes}
             t={t}
+            webSearchEnabled={webSearchActive}
+            webSearchProvider={webSearchProvider}
+            webSearchReady={webSearchReady}
           />
 
           <MainScreenVoiceStage
@@ -1062,6 +1135,7 @@ export function MainScreen() {
         visible={settingsVisible}
         settings={settings}
         focusCatalogProviderId={settingsFocusCatalogProviderId}
+        focusTab={settingsFocusTab}
         onUpdate={updateSettings}
         onUpdateResponseModeRoute={updateResponseModeRoute}
         onUpdateProviderSttModel={updateProviderSttModel}
@@ -1074,6 +1148,7 @@ export function MainScreen() {
         onPreviewVoice={handlePreviewVoice}
         onStopPreviewVoice={stopPreviewVoice}
         onValidateProvider={handleValidateProvider}
+        onValidateWebSearchProvider={handleValidateWebSearchProvider}
         onClose={closeSettings}
       />
       <SetupGuideModal

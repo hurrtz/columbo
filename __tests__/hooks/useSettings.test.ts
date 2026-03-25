@@ -165,6 +165,39 @@ describe("useSettings", () => {
     );
   });
 
+  it("persists web search settings", async () => {
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    await act(async () => {
+      result.current.updateSettings({
+        webSearchEnabled: true,
+        webSearchProvider: "openai",
+      });
+    });
+
+    expect(result.current.settings.webSearchEnabled).toBe(true);
+    expect(result.current.settings.webSearchProvider).toBe("openai");
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+      "@schnackai/settings",
+      expect.stringContaining('"webSearchEnabled":true'),
+    );
+  });
+
+  it("falls back to the default web search provider when stored data is unsupported", async () => {
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
+      JSON.stringify({
+        ...DEFAULT_SETTINGS,
+        webSearchProvider: "anthropic",
+      }),
+    );
+
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    expect(result.current.settings.webSearchProvider).toBe("openai");
+  });
+
   it("keeps the setup guide visible for brand-new installs without keys", async () => {
     const { result } = renderHook(() => useSettings());
     await flushSettingsLoad();

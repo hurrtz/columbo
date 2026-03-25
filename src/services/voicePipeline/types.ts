@@ -1,3 +1,4 @@
+import type { WebSearchProvider } from "../../constants/webSearch";
 import type {
   AppLanguage,
   AssistantResponseLength,
@@ -20,6 +21,9 @@ export interface PipelineCallbacks {
     summarizedMessageCount: number,
     usage?: UsageEstimate,
   ) => void;
+  onWebSearchStart?: () => void;
+  onWebSearchComplete?: () => void;
+  onWebSearchFallback?: (error: Error) => void;
   onChunk: (text: string) => void;
   onResponseDone: (fullText: string, usage?: UsageEstimate) => void;
   onAudioReady: (
@@ -60,6 +64,9 @@ export interface RunVoicePipelineParams {
   responseLength: AssistantResponseLength;
   responseTone: AssistantResponseTone;
   language: AppLanguage;
+  webSearchEnabled?: boolean;
+  webSearchProvider?: WebSearchProvider | null;
+  webSearchApiKey?: string;
   callbacks: PipelineCallbacks;
   abortSignal?: AbortSignal;
 }

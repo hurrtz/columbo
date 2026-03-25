@@ -9,6 +9,7 @@ export type WaveformControlIconName =
 export function isWaveformProcessingPhase(phase: VoiceVisualPhase) {
   return (
     phase === "transcribing" ||
+    phase === "searching" ||
     phase === "thinking" ||
     phase === "synthesizing"
   );
@@ -54,6 +55,8 @@ export function getWaveformControlIconName(
       return "square";
     case "transcribing":
       return "align-left";
+    case "searching":
+      return "globe";
     case "thinking":
       return "loader";
     case "synthesizing":

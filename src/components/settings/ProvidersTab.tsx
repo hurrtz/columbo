@@ -10,6 +10,12 @@ import {
   Settings,
 } from "../../types";
 import { useTheme } from "../../theme/ThemeContext";
+import {
+  PROVIDER_LLM_SUPPORT,
+  PROVIDER_ORDER,
+  PROVIDER_STT_SUPPORT,
+  PROVIDER_TTS_SUPPORT,
+} from "../../constants/models";
 import { getEnabledProviders } from "../../utils/providerCapabilities";
 
 import {
@@ -46,6 +52,16 @@ export function ProvidersTab({
   const { colors } = useTheme();
   const { t } = useLocalization();
   const enabledProviders = useMemo(() => getEnabledProviders(settings), [settings]);
+  const providerGridProviders = useMemo(
+    () =>
+      PROVIDER_ORDER.filter(
+        (provider) =>
+          PROVIDER_LLM_SUPPORT[provider] === "provider" ||
+          PROVIDER_STT_SUPPORT[provider] === "provider" ||
+          PROVIDER_TTS_SUPPORT[provider] === "provider",
+      ),
+    [],
+  );
   const {
     selectedCatalogProviderId,
     setSelectedCatalogProviderId,
@@ -89,6 +105,7 @@ export function ProvidersTab({
         <ProviderSelectionGrid
           settings={settings}
           selectedCatalogProviderId={selectedCatalogProviderId}
+          visibleProviders={providerGridProviders}
           onSelectCatalogProvider={setSelectedCatalogProviderId}
         />
 

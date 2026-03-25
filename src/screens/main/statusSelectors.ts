@@ -21,6 +21,8 @@ export function getVisualPhaseActionLabel(params: {
     ? t("listening")
     : visualPhase === "transcribing"
       ? t("parsing")
+      : visualPhase === "searching"
+        ? t("webSearch")
       : visualPhase === "synthesizing"
         ? t("voiceOutput")
         : visualPhase === "thinking"
@@ -61,6 +63,8 @@ export function getStatusDisplayData(params: {
   const statusTitle =
     visualPhase === "recording"
       ? t("listening")
+      : visualPhase === "searching"
+        ? t("webSearch")
       : visualPhase === "speaking"
         ? t("speaking")
         : pipelinePhase === "synthesizing"
@@ -73,6 +77,8 @@ export function getStatusDisplayData(params: {
   const statusDetail =
     visualPhase === "recording"
       ? t("listeningToYourVoice")
+      : visualPhase === "searching"
+        ? t("searchingTheWeb")
       : visualPhase === "speaking"
         ? t("speakingBackToYou")
         : pipelinePhase === "synthesizing"
@@ -107,8 +113,10 @@ export function getStatusIndicatorTone(
 
   if (
     pipelinePhase === "synthesizing" ||
+    pipelinePhase === "searching" ||
     visualPhase === "thinking" ||
-    visualPhase === "transcribing"
+    visualPhase === "transcribing" ||
+    visualPhase === "searching"
   ) {
     return "muted";
   }

@@ -158,23 +158,32 @@ export function ProviderSelectionGrid({
   settings,
   selectedCatalogProviderId,
   onSelectCatalogProvider,
+  visibleProviders = PROVIDER_ORDER,
+  includeCatalogOnly = true,
+  isConfigured,
 }: {
   settings: Settings;
   selectedCatalogProviderId: CatalogProviderId;
   onSelectCatalogProvider: (catalogProviderId: CatalogProviderId) => void;
+  visibleProviders?: readonly Provider[];
+  includeCatalogOnly?: boolean;
+  isConfigured?: (provider: Provider) => boolean;
 }) {
   const { colors } = useTheme();
   const { t } = useLocalization();
   const runtimeProviderIds = React.useMemo(
-    () => new Set(Object.values(APP_PROVIDER_CATALOG_IDS)),
-    [],
+    () =>
+      new Set(
+        visibleProviders.map((provider) => APP_PROVIDER_CATALOG_IDS[provider]),
+      ),
+    [visibleProviders],
   );
   const catalogProviders = React.useMemo(() => {
     const providersById = new Map(
       listCatalogProviders().map((provider) => [provider.providerId, provider]),
     );
 
-    const runtimeButtons = PROVIDER_ORDER.map((provider) => {
+    const runtimeButtons = visibleProviders.map((provider) => {
       const providerId = APP_PROVIDER_CATALOG_IDS[provider];
       const catalogProvider = providersById.get(providerId);
 
@@ -189,23 +198,25 @@ export function ProviderSelectionGrid({
       };
     });
 
-    const catalogOnlyButtons = listCatalogProviders()
-      .filter((provider) => !runtimeProviderIds.has(provider.providerId))
-      .sort((left, right) =>
-        left.providerName.localeCompare(right.providerName),
-      )
-      .map((provider) => ({
-        key: provider.providerId,
-        label: provider.providerName,
-        iconProvider: provider.providerId,
-        runtimeProvider: null,
-        providerId: provider.providerId,
-        providerName: provider.providerName,
-        catalogOnly: true,
-      }));
+    const catalogOnlyButtons = includeCatalogOnly
+      ? listCatalogProviders()
+          .filter((provider) => !runtimeProviderIds.has(provider.providerId))
+          .sort((left, right) =>
+            left.providerName.localeCompare(right.providerName),
+          )
+          .map((provider) => ({
+            key: provider.providerId,
+            label: provider.providerName,
+            iconProvider: provider.providerId,
+            runtimeProvider: null,
+            providerId: provider.providerId,
+            providerName: provider.providerName,
+            catalogOnly: true,
+          }))
+      : [];
 
     return [...runtimeButtons, ...catalogOnlyButtons];
-  }, [runtimeProviderIds]);
+  }, [includeCatalogOnly, runtimeProviderIds, visibleProviders]);
   const catalogOnlyProviderCount = catalogProviders.filter(
     (provider) => provider.catalogOnly,
   ).length;
@@ -218,7 +229,9 @@ export function ProviderSelectionGrid({
           const active = providerButton.providerId === selectedCatalogProviderId;
           const configured =
             runtimeProvider !== null &&
-            settings.apiKeys[runtimeProvider].trim().length > 0;
+            (isConfigured
+              ? isConfigured(runtimeProvider)
+              : settings.apiKeys[runtimeProvider].trim().length > 0);
 
           return (
             <Pressable
@@ -449,6 +462,7 @@ export function ProviderApiKeyCard({
   onTextInputFocus,
   onToggleApiKeyVisibility,
   onValidateProvider,
+  showCatalogSummary = true,
 }: {
   catalogProviderId: CatalogProviderId;
   runtimeProvider: Provider | null;
@@ -462,6 +476,7 @@ export function ProviderApiKeyCard({
   onTextInputFocus: TextInputFocusHandler;
   onToggleApiKeyVisibility: () => void;
   onValidateProvider: () => Promise<void>;
+  showCatalogSummary?: boolean;
 }) {
   const { colors } = useTheme();
   const { t, language } = useLocalization();
@@ -640,7 +655,7 @@ export function ProviderApiKeyCard({
           </Text>
         </View>
       ) : null}
-      {catalogEntry ? (
+      {catalogEntry && showCatalogSummary ? (
         <CatalogProviderSummary catalogEntry={catalogEntry} readOnly={false} />
       ) : null}
     </View>

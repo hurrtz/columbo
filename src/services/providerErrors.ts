@@ -2,7 +2,7 @@ import { PROVIDER_LABELS } from "../constants/models";
 import { translate } from "../i18n";
 import { AppLanguage, Provider } from "../types";
 
-type ProviderAction = "reply" | "transcription";
+type ProviderAction = "reply" | "transcription" | "web-search";
 
 function safeJsonParse(text: string) {
   try {
@@ -45,9 +45,15 @@ export function extractProviderErrorMessage(errorText: string) {
 }
 
 function getActionLabel(language: AppLanguage, action: ProviderAction) {
-  return action === "reply"
-    ? translate(language, "replyGenerationAction")
-    : translate(language, "speechTranscriptionAction");
+  if (action === "reply") {
+    return translate(language, "replyGenerationAction");
+  }
+
+  if (action === "transcription") {
+    return translate(language, "speechTranscriptionAction");
+  }
+
+  return translate(language, "webSearchAction");
 }
 
 function isNetworkFailure(error: Error) {

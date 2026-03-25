@@ -53,7 +53,7 @@ export const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 180,
+    bottom: 0,
   },
   providerEmptyState: {
     borderRadius: 22,
@@ -94,6 +94,39 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
     fontFamily: fonts.body,
+  },
+  webSearchToggle: {
+    marginTop: 10,
+    borderRadius: 22,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  webSearchToggleCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  webSearchToggleHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  webSearchToggleControl: {
+    justifyContent: "center",
+  },
+  webSearchToggleTitle: {
+    fontSize: 14,
+    fontFamily: fonts.display,
+  },
+  webSearchProviderIcon: {
+    alignSelf: "center",
+    minWidth: 28,
+    minHeight: 28,
+    alignItems: "center",
+    justifyContent: "center",
   },
   eyebrow: {
     fontSize: 11,

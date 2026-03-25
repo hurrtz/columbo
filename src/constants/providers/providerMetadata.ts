@@ -88,6 +88,14 @@ export const PROVIDER_STT_SUPPORT: Record<Provider, "none" | "provider"> =
     PROVIDER_ORDER.map((provider) => [provider, PROVIDER_CONFIGS[provider].sttSupport]),
   ) as Record<Provider, "none" | "provider">;
 
+export const PROVIDER_LLM_SUPPORT: Record<Provider, "none" | "provider"> =
+  Object.fromEntries(
+    PROVIDER_ORDER.map((provider) => [
+      provider,
+      PROVIDER_MODELS[provider].length > 0 ? "provider" : "none",
+    ]),
+  ) as Record<Provider, "none" | "provider">;
+
 export const PROVIDER_TTS_SUPPORT: Record<Provider, "none" | "provider"> =
   Object.fromEntries(
     PROVIDER_ORDER.map((provider) => [provider, PROVIDER_CONFIGS[provider].ttsSupport]),

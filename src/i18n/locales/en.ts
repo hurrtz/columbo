@@ -10,6 +10,7 @@ export const en: TranslationDictionary = {
     firstRun: "First Run",
     instructions: "Instructions",
     providers: "Providers",
+    webSearch: "Web Search",
     stt: "STT",
     tts: "TTS",
     ui: "UI",
@@ -30,6 +31,8 @@ export const en: TranslationDictionary = {
       "Shape the hidden guidance that steers the assistant before any provider sees the request.",
     providersTabDescription:
       "Connect providers, store keys on-device, and map each home-screen response mode to a provider and model.",
+    webSearchTabDescription:
+      "Choose the provider that fetches live web context before the main model answers.",
     catalogOnlyProvidersHint: ({ count }) =>
       `Showing ${count} extra catalog-only providers here for UI inspection. Only the wired providers can be configured and called right now.`,
     openProviderCatalogDetails: ({ provider }) =>
@@ -127,6 +130,18 @@ export const en: TranslationDictionary = {
     nativeSttDescription:
       "Use the system speech recognizer built into the device. No provider key is required.",
     provider: "Provider",
+    webSearchProvider: "Web Search Provider",
+    webSearchProviderHint:
+      "Choose the provider that performs live web lookups. Its API key is stored on-device like any other provider key.",
+    webSearchModelHint: ({ model }) =>
+      `Uses ${model} behind the scenes for live web grounding.`,
+    webSearchHomeHint:
+      "Use the home-screen checkbox when you want fresh web context added before the assistant reply.",
+    webSearchSetupNeeded: "Add the provider key to use live web search.",
+    webSearchEnabledDescription:
+      "Fresh web context is added before the model replies.",
+    webSearchDisabledDescription:
+      "Use live web context for this thread when current facts matter.",
     providerSttDescription:
       "Use a configured provider to transcribe your voice before it is sent to the model.",
     sttProvider: "STT Provider",
@@ -284,6 +299,7 @@ export const en: TranslationDictionary = {
     currentSetup: "Current Setup",
     listeningToYourVoice: "Listening to your voice",
     parsingYourVoiceInput: "Parsing your voice input",
+    searchingTheWeb: "Searching the web for fresh context",
     waitingForProvider: ({ provider }) => `Waiting for ${provider}`,
     preparingVoiceWithProvider: ({ provider }) =>
       `Preparing voice with ${provider}`,
@@ -403,6 +419,7 @@ export const en: TranslationDictionary = {
     stop: "Stop",
     listening: "Listening",
     parsing: "Parsing",
+    webSearchAction: "web search",
     thinking: "Thinking",
     speaking: "Speaking",
     holdToSpeak: "Hold to speak",
@@ -427,6 +444,8 @@ export const en: TranslationDictionary = {
         : `${provider} rejected the ${action} request.`,
     providerValidationSuccess: ({ provider }) => `${provider} is ready to use.`,
     providerValidationFailed: "Provider validation failed.",
+    webSearchFallback:
+      "Web search was unavailable, so the reply continued without live web context.",
     noBase64EncoderAvailable: "No base64 encoder available.",
     noBase64DecoderAvailable: "No base64 decoder available.",
     nativeTtsDoesNotSynthesizeAudioFiles:

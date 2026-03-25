@@ -1,6 +1,7 @@
 import { runVoicePipeline } from "../../src/services/voicePipeline";
 import { splitIntoSentences } from "../../src/services/tts";
 import { transcribeAudio } from "../../src/services/whisper";
+import { searchWeb } from "../../src/services/webSearch";
 import {
   streamChat,
   summarizeConversationContext,
@@ -11,6 +12,10 @@ jest.mock("expo-file-system/legacy", () => ({
   deleteAsync: jest.fn(() => Promise.resolve()),
 }));
 
+jest.mock("../../src/services/debugLogCapture", () => ({
+  recordDebugLogEvent: jest.fn(),
+}));
+
 jest.mock("../../src/services/whisper", () => ({
   transcribeAudio: jest.fn(),
 }));
@@ -18,6 +23,10 @@ jest.mock("../../src/services/whisper", () => ({
 jest.mock("../../src/services/llm", () => ({
   streamChat: jest.fn(),
   summarizeConversationContext: jest.fn(),
+}));
+
+jest.mock("../../src/services/webSearch", () => ({
+  searchWeb: jest.fn(),
 }));
 
 jest.mock("../../src/services/tts", () => ({
@@ -99,6 +108,7 @@ describe("runVoicePipeline", () => {
       summary: "",
       usage: undefined,
     });
+    (searchWeb as jest.Mock).mockResolvedValue(null);
   });
 
   it("uses a native transcript override and skips provider STT", async () => {
@@ -697,5 +707,118 @@ describe("runVoicePipeline", () => {
     );
     expect(callbacks.onAudioReady).not.toHaveBeenCalled();
     expect(callbacks.onError).not.toHaveBeenCalled();
+  });
+
+  it("injects fresh web search context before the reply request when enabled", async () => {
+    (searchWeb as jest.Mock).mockResolvedValueOnce({
+      context:
+        "Fresh web search context for the user's latest request.\n\nEvidence brief: Wind is moving air.",
+      model: "gpt-4.1-mini",
+      provider: "openai",
+      sources: [{ title: "Britannica", url: "https://example.com/wind" }],
+      summary: "Wind is moving air.",
+    });
+    (streamChat as jest.Mock).mockImplementation(
+      async ({
+        onDone,
+      }: {
+        onDone: (text: string) => Promise<void>;
+      }) => {
+        await onDone("Wind is moving air.");
+      },
+    );
+
+    await runVoicePipeline({
+      transcriptionOverride: "Explain wind.",
+      messages: [],
+      model: "claude-opus-4-6",
+      provider: "anthropic",
+      providerApiKey: "sk-ant-test",
+      sttMode: "native",
+      ttsMode: "native",
+      ttsVoice: "alloy",
+      replyPlayback: "wait",
+      assistantInstructions: "You are a voice assistant.",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      webSearchEnabled: true,
+      webSearchProvider: "openai",
+      webSearchApiKey: "sk-openai",
+      callbacks: {
+        onTranscription: jest.fn(),
+        onChunk: jest.fn(),
+        onResponseDone: jest.fn(),
+        onAudioReady: jest.fn(),
+        onSpeechTextReady: jest.fn(),
+        onError: jest.fn(),
+      },
+    });
+
+    expect(searchWeb).toHaveBeenCalledWith(
+      expect.objectContaining({
+        provider: "openai",
+        apiKey: "sk-openai",
+        query: "Explain wind.",
+      }),
+    );
+    expect((streamChat as jest.Mock).mock.calls[0][0].webSearchContext).toContain(
+      "Wind is moving air.",
+    );
+  });
+
+  it("continues without web search context when the search step fails", async () => {
+    (searchWeb as jest.Mock).mockRejectedValueOnce(new Error("Search unavailable."));
+    (streamChat as jest.Mock).mockImplementation(
+      async ({
+        onDone,
+      }: {
+        onDone: (text: string) => Promise<void>;
+      }) => {
+        await onDone("Wind is moving air.");
+      },
+    );
+
+    const callbacks = {
+      onTranscription: jest.fn(),
+      onWebSearchStart: jest.fn(),
+      onWebSearchComplete: jest.fn(),
+      onWebSearchFallback: jest.fn(),
+      onChunk: jest.fn(),
+      onResponseDone: jest.fn(),
+      onAudioReady: jest.fn(),
+      onSpeechTextReady: jest.fn(),
+      onError: jest.fn(),
+    };
+
+    await runVoicePipeline({
+      transcriptionOverride: "Explain wind.",
+      messages: [],
+      model: "claude-opus-4-6",
+      provider: "anthropic",
+      providerApiKey: "sk-ant-test",
+      sttMode: "native",
+      ttsMode: "native",
+      ttsVoice: "alloy",
+      replyPlayback: "wait",
+      assistantInstructions: "You are a voice assistant.",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      webSearchEnabled: true,
+      webSearchProvider: "openai",
+      webSearchApiKey: "sk-openai",
+      callbacks,
+    });
+
+    expect(callbacks.onWebSearchStart).toHaveBeenCalled();
+    expect(callbacks.onWebSearchComplete).toHaveBeenCalled();
+    expect(callbacks.onWebSearchFallback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Search unavailable.",
+      }),
+    );
+    expect(callbacks.onError).not.toHaveBeenCalled();
+    expect((streamChat as jest.Mock).mock.calls[0][0].webSearchContext).toBeUndefined();
   });
 });

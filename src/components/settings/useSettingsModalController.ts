@@ -34,6 +34,7 @@ export function useSettingsModalController({
   visible,
   focusProvider,
   focusCatalogProviderId,
+  focusTab,
   settings,
   onUpdate,
   onPreviewVoice,
@@ -43,6 +44,7 @@ export function useSettingsModalController({
   | "visible"
   | "focusProvider"
   | "focusCatalogProviderId"
+  | "focusTab"
   | "settings"
   | "onUpdate"
   | "onPreviewVoice"
@@ -94,10 +96,15 @@ export function useSettingsModalController({
       return;
     }
 
+    if (focusTab) {
+      setActiveTab(focusTab);
+      return;
+    }
+
     if (focusCatalogProviderId || focusProvider) {
       setActiveTab("providers");
     }
-  }, [focusCatalogProviderId, focusProvider, visible]);
+  }, [focusCatalogProviderId, focusProvider, focusTab, visible]);
 
   useEffect(() => {
     if (!visible) {

@@ -5,11 +5,13 @@ import {
   ProviderApiKeyCard,
   ProviderSelectionGrid,
 } from "../../src/components/settings/ProvidersSections";
+import { APP_PROVIDER_CATALOG_IDS } from "../../src/catalog/appProviders";
 import { listCatalogProviders } from "../../src/catalog";
+import { WEB_SEARCH_PROVIDER_IDS } from "../../src/constants/webSearch";
 import { LocalizationProvider } from "../../src/i18n";
 import { ThemeProvider } from "../../src/theme/ThemeContext";
 import { DEFAULT_SETTINGS } from "../../src/types";
-import { RUNTIME_PROVIDER_ORDER } from "../../src/constants/providers/runtimeManifest";
+import { PROVIDER_ORDER } from "../../src/constants/models";
 
 jest.mock("@expo/vector-icons", () => ({
   Feather: ({ name }: { name: string }) => {
@@ -36,8 +38,12 @@ jest.mock("../../src/components/ProviderIcon", () => ({
 describe("ProviderSelectionGrid", () => {
   it("shows the full catalog button grid while keeping a note about catalog-only providers", () => {
     const onSelectCatalogProvider = jest.fn();
-    const catalogProviderCount = listCatalogProviders().length;
-    const catalogOnlyCount = catalogProviderCount - RUNTIME_PROVIDER_ORDER.length;
+    const runtimeProviderIds = new Set(
+      PROVIDER_ORDER.map((provider) => APP_PROVIDER_CATALOG_IDS[provider]),
+    );
+    const catalogOnlyCount = listCatalogProviders().filter(
+      (provider) => !runtimeProviderIds.has(provider.providerId),
+    ).length;
     const screen = render(
       <ThemeProvider mode="light">
         <LocalizationProvider language="en">
@@ -50,15 +56,54 @@ describe("ProviderSelectionGrid", () => {
       </ThemeProvider>,
     );
 
-    expect(screen.getAllByRole("button")).toHaveLength(catalogProviderCount);
-    expect(
-      screen.getByText(
-        `Showing ${catalogOnlyCount} extra catalog-only providers here for UI inspection. Only the wired providers can be configured and called right now.`,
-      ),
-    ).toBeTruthy();
+    expect(screen.getAllByRole("button")).toHaveLength(
+      PROVIDER_ORDER.length + catalogOnlyCount,
+    );
+
+    if (catalogOnlyCount > 0) {
+      expect(
+        screen.getByText(
+          `Showing ${catalogOnlyCount} extra catalog-only providers here for UI inspection. Only the wired providers can be configured and called right now.`,
+        ),
+      ).toBeTruthy();
+    } else {
+      expect(
+        screen.queryByText(/Showing .* extra catalog-only providers here/),
+      ).toBeNull();
+    }
 
     fireEvent.press(screen.getByText("Z.ai / Zhipu AI"));
     expect(onSelectCatalogProvider).toHaveBeenCalledWith("z-ai-zhipu-ai");
+  });
+
+  it("can render the narrowed web-search provider matrix without catalog-only entries", () => {
+    const screen = render(
+      <ThemeProvider mode="light">
+        <LocalizationProvider language="en">
+          <ProviderSelectionGrid
+            settings={DEFAULT_SETTINGS}
+            selectedCatalogProviderId="openai"
+            visibleProviders={WEB_SEARCH_PROVIDER_IDS}
+            includeCatalogOnly={false}
+            onSelectCatalogProvider={jest.fn()}
+          />
+        </LocalizationProvider>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getAllByRole("button")).toHaveLength(
+      WEB_SEARCH_PROVIDER_IDS.length,
+    );
+    expect(screen.getByText("OpenAI")).toBeTruthy();
+    expect(screen.getByText("Perplexity")).toBeTruthy();
+    expect(screen.getByText("Tavily")).toBeTruthy();
+    expect(screen.getByText("Brave")).toBeTruthy();
+    expect(screen.getByText("Exa")).toBeTruthy();
+    expect(screen.getByText("Firecrawl")).toBeTruthy();
+    expect(screen.getByText("SerpApi")).toBeTruthy();
+    expect(
+      screen.queryByText(/Showing .* extra catalog-only providers here/),
+    ).toBeNull();
   });
 });
 

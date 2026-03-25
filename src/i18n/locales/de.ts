@@ -10,6 +10,7 @@ export const de: TranslationDictionary = {
     firstRun: "Erster Start",
     instructions: "Befehle",
     providers: "Anbieter",
+    webSearch: "Websuche",
     stt: "STT",
     tts: "TTS",
     ui: "UI",
@@ -30,6 +31,8 @@ export const de: TranslationDictionary = {
       "Definiere, was jeder Anfrage als Befehl an das Model vorangestellt wird.",
     providersTabDescription:
       "Verbinde dich mit Anbietern, indem du API-Keys hinterlegts und ordne jeder Gesprächskategorie ein Modell zu.",
+    webSearchTabDescription:
+      "Wähle den Anbieter, der vor der eigentlichen Antwort frischen Web-Kontext holt.",
     catalogOnlyProvidersHint: ({ count }) =>
       `Hier werden ${count} zusaetzliche Anbieter nur aus dem Katalog fuer die UI-Pruefung angezeigt. Konfigurierbar und wirklich aufrufbar sind aktuell nur die verdrahteten Anbieter.`,
     openProviderCatalogDetails: ({ provider }) =>
@@ -130,6 +133,19 @@ export const de: TranslationDictionary = {
     nativeSttDescription:
       "Verwende die eingebaute Spracherkennung deines Handys. Kein API-Key nötig.",
     provider: "Anbieter",
+    webSearchProvider: "Websuche-Anbieter",
+    webSearchProviderHint:
+      "Wähle den Anbieter für Live-Websuchen. Sein API-Key wird wie alle anderen Anbieter-Keys lokal auf dem Gerät gespeichert.",
+    webSearchModelHint: ({ model }) =>
+      `Verwendet im Hintergrund ${model} für die Live-Webrecherche.`,
+    webSearchHomeHint:
+      "Nutze das Kästchen auf dem Homescreen, wenn vor der Antwort frischer Web-Kontext eingesammelt werden soll.",
+    webSearchSetupNeeded:
+      "Hinterlege den Anbieter-Key, um die Live-Websuche zu nutzen.",
+    webSearchEnabledDescription:
+      "Vor der Modellantwort wird frischer Web-Kontext ergänzt.",
+    webSearchDisabledDescription:
+      "Nutze Live-Web-Kontext, wenn aktuelle Fakten wichtig sind.",
     providerSttDescription:
       "Verwende einen der Anbieter aus der Liste, um deine Sprache zu transkribieren, bevor sie an das Modell geht.",
     sttProvider: "STT-Anbieter",
@@ -289,6 +305,7 @@ export const de: TranslationDictionary = {
     currentSetup: "Aktuelles Setup",
     listeningToYourVoice: "Ich höre dir zu",
     parsingYourVoiceInput: "Dein Schnack wird verarbeitet",
+    searchingTheWeb: "Suche im Web nach frischem Kontext",
     waitingForProvider: ({ provider }) => `Warte auf ${provider}`,
     preparingVoiceWithProvider: ({ provider }) =>
       `Bereite Stimme mit ${provider} vor`,
@@ -413,6 +430,7 @@ export const de: TranslationDictionary = {
     stop: "Stopp",
     listening: "Hört zu",
     parsing: "Verarbeitet",
+    webSearchAction: "Websuche",
     thinking: "Denkt nach",
     speaking: "Spricht",
     holdToSpeak: "Zum Sprechen halten",
@@ -438,6 +456,8 @@ export const de: TranslationDictionary = {
     providerValidationSuccess: ({ provider }) =>
       `${provider} ist einsatzbereit.`,
     providerValidationFailed: "Anbieter-Prüfung fehlgeschlagen.",
+    webSearchFallback:
+      "Die Websuche war nicht verfügbar. Die Antwort lief ohne frischen Web-Kontext weiter.",
     noBase64EncoderAvailable: "Kein Base64-Encoder verfügbar.",
     noBase64DecoderAvailable: "Kein Base64-Decoder verfügbar.",
     nativeTtsDoesNotSynthesizeAudioFiles:

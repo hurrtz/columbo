@@ -3,6 +3,7 @@ import { SettingsTab } from "./types";
 export const TABS: SettingsTab[] = [
   "instructions",
   "providers",
+  "web",
   "stt",
   "tts",
   "ui",

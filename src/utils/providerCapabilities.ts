@@ -1,4 +1,5 @@
 import {
+  PROVIDER_LLM_SUPPORT,
   PROVIDER_ORDER,
   PROVIDER_STT_SUPPORT,
   PROVIDER_TTS_SUPPORT,
@@ -10,7 +11,11 @@ function hasApiKey(settings: Settings, provider: Provider) {
 }
 
 export function getEnabledProviders(settings: Settings) {
-  return PROVIDER_ORDER.filter((provider) => hasApiKey(settings, provider));
+  return PROVIDER_ORDER.filter(
+    (provider) =>
+      PROVIDER_LLM_SUPPORT[provider] === "provider" &&
+      hasApiKey(settings, provider),
+  );
 }
 
 export function getEnabledSttProviders(settings: Settings) {

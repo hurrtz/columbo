@@ -48,6 +48,7 @@ interface StreamChatParams {
   responseTone: AssistantResponseTone;
   language: AppLanguage;
   conversationSummary?: string;
+  webSearchContext?: string;
   onChunk: (text: string) => void;
   onDone: (fullText: string, usage?: UsageEstimate) => void | Promise<void>;
   onError: (error: Error) => void | Promise<void>;
@@ -334,6 +335,7 @@ export async function streamChat({
   responseTone,
   language,
   conversationSummary,
+  webSearchContext,
   onChunk,
   onDone,
   onError,
@@ -346,6 +348,7 @@ export async function streamChat({
       responseTone,
       language,
       conversationSummary,
+      webSearchContext,
     });
     const config = getLlmProviderConfigOrThrow(provider, model, language);
     let fullText = "";

@@ -2,12 +2,14 @@ import { useCallback, useRef, useState } from "react";
 
 import { getCatalogProviderIdForAppProvider } from "../../catalog/appProviders";
 import type { CatalogProviderId } from "../../catalog/types";
+import type { SettingsTab } from "../../components/settings/types";
 import { Conversation, Provider } from "../../types";
 
 export function useMainScreenUiState() {
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [settingsFocusCatalogProviderId, setSettingsFocusCatalogProviderId] =
     useState<CatalogProviderId | undefined>();
+  const [settingsFocusTab, setSettingsFocusTab] = useState<SettingsTab | undefined>();
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [statusDetailsVisible, setStatusDetailsVisible] = useState(false);
   const [transcriptVisible, setTranscriptVisible] = useState(false);
@@ -18,16 +20,21 @@ export function useMainScreenUiState() {
   const [memoryVisible, setMemoryVisible] = useState(false);
   const pendingDrawerDismissActionRef = useRef<null | (() => void)>(null);
 
-  const openSettings = useCallback((focusProvider?: Provider) => {
+  const openSettings = useCallback(
+    (focusProvider?: Provider, focusTab?: SettingsTab) => {
     setSettingsFocusCatalogProviderId(
       focusProvider ? getCatalogProviderIdForAppProvider(focusProvider) : undefined,
     );
+    setSettingsFocusTab(focusTab);
     setSettingsVisible(true);
-  }, []);
+    },
+    [],
+  );
 
   const openCatalogSettings = useCallback(
     (focusCatalogProviderId?: CatalogProviderId) => {
       setSettingsFocusCatalogProviderId(focusCatalogProviderId);
+      setSettingsFocusTab(undefined);
       setSettingsVisible(true);
     },
     [],
@@ -36,6 +43,7 @@ export function useMainScreenUiState() {
   const closeSettings = useCallback(() => {
     setSettingsVisible(false);
     setSettingsFocusCatalogProviderId(undefined);
+    setSettingsFocusTab(undefined);
   }, []);
 
   const openMemoryConversation = useCallback((conversation: Conversation) => {
@@ -96,6 +104,7 @@ export function useMainScreenUiState() {
   return {
     settingsVisible,
     settingsFocusCatalogProviderId,
+    settingsFocusTab,
     drawerVisible,
     statusDetailsVisible,
     transcriptVisible,

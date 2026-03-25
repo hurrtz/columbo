@@ -11,6 +11,10 @@ import {
   isRuntimeProviderId,
 } from "../../constants/providers/runtimeState";
 import {
+  DEFAULT_WEB_SEARCH_PROVIDER,
+  isWebSearchProvider,
+} from "../../constants/webSearch";
+import {
   type LocalTtsVoiceSelections,
   type Provider,
   type ProviderApiKeys,
@@ -302,6 +306,13 @@ export function mergeSettings(
         ? storedSettings.setupGuideDismissed
         : hasConfiguredKeys,
     assistantInstructions,
+    webSearchEnabled:
+      typeof storedSettings?.webSearchEnabled === "boolean"
+        ? storedSettings.webSearchEnabled
+        : DEFAULT_SETTINGS.webSearchEnabled,
+    webSearchProvider: isWebSearchProvider(storedSettings?.webSearchProvider)
+      ? storedSettings.webSearchProvider
+      : DEFAULT_WEB_SEARCH_PROVIDER,
     activeResponseMode: isResponseMode(storedSettings?.activeResponseMode)
       ? storedSettings.activeResponseMode
       : DEFAULT_SETTINGS.activeResponseMode,

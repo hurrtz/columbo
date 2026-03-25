@@ -90,6 +90,7 @@ function renderSettingsModal(overrideProps: Partial<React.ComponentProps<typeof 
           onPreviewVoice={jest.fn(async () => undefined)}
           onStopPreviewVoice={jest.fn(async () => undefined)}
           onValidateProvider={jest.fn(async () => undefined)}
+          onValidateWebSearchProvider={jest.fn(async () => undefined)}
           onClose={jest.fn()}
           {...overrideProps}
         />
@@ -105,6 +106,7 @@ describe("SettingsModal", () => {
     expect(screen.getByText("Settings")).toBeTruthy();
     expect(screen.getByText("Instructions")).toBeTruthy();
     expect(screen.getByText("Providers")).toBeTruthy();
+    expect(screen.getByText("Web Search")).toBeTruthy();
     expect(screen.getByText("STT")).toBeTruthy();
     expect(screen.getByText("TTS")).toBeTruthy();
     expect(screen.getByText("UI")).toBeTruthy();
@@ -120,7 +122,7 @@ describe("SettingsModal", () => {
 
   it("opens the providers tab when a catalog focus provider id is supplied", async () => {
     const screen = renderSettingsModal({
-      focusCatalogProviderId: "z-ai-zhipu-ai",
+      focusCatalogProviderId: "ibm-watsonx",
     });
 
     await waitFor(() => {

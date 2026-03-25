@@ -6,6 +6,7 @@ import { resolveContextualMessages } from "./voicePipeline/context";
 import { createVoicePipelineTtsQueue } from "./voicePipeline/ttsQueue";
 import { resolvePipelineTranscription } from "./voicePipeline/transcription";
 import type { RunVoicePipelineParams } from "./voicePipeline/types";
+import { searchWeb } from "./webSearch";
 
 export async function runVoicePipeline(
   params: RunVoicePipelineParams,
@@ -35,6 +36,9 @@ export async function runVoicePipeline(
     responseLength,
     responseTone,
     language,
+    webSearchEnabled,
+    webSearchProvider,
+    webSearchApiKey,
     callbacks,
     abortSignal,
   } = params;
@@ -105,6 +109,44 @@ export async function runVoicePipeline(
       return transcription;
     }
 
+    let webSearchContext: string | undefined;
+    const normalizedWebSearchApiKey = webSearchApiKey?.trim();
+
+    if (
+      webSearchEnabled &&
+      webSearchProvider &&
+      normalizedWebSearchApiKey
+    ) {
+      callbacks.onWebSearchStart?.();
+
+      try {
+        const webSearchResult = await searchWeb({
+          provider: webSearchProvider,
+          apiKey: normalizedWebSearchApiKey,
+          language,
+          query: transcription,
+          conversationSummary: contextResult.effectiveSummary || undefined,
+          abortSignal,
+        });
+
+        if (abortSignal?.aborted) {
+          return transcription;
+        }
+
+        webSearchContext = webSearchResult?.context;
+      } catch (error) {
+        if (abortSignal?.aborted) {
+          return transcription;
+        }
+
+        if (error instanceof Error) {
+          callbacks.onWebSearchFallback?.(error);
+        }
+      } finally {
+        callbacks.onWebSearchComplete?.();
+      }
+    }
+
     const allMessages: Message[] = [
       ...contextResult.contextualMessages,
       {
@@ -140,6 +182,7 @@ export async function runVoicePipeline(
       responseTone,
       language,
       conversationSummary: contextResult.effectiveSummary || undefined,
+      webSearchContext,
       abortSignal,
       onChunk: (text) => {
         if (abortSignal?.aborted) return;

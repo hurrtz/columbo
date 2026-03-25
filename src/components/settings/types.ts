@@ -3,6 +3,7 @@ import * as Speech from "expo-speech";
 import { TextInput } from "react-native";
 
 import type { CatalogProviderId } from "../../catalog/types";
+import type { WebSearchProvider } from "../../constants/webSearch";
 import {
   LocalTtsVoiceSelections,
   Provider,
@@ -18,6 +19,7 @@ export interface SettingsModalProps {
   settings: Settings;
   focusProvider?: Provider;
   focusCatalogProviderId?: CatalogProviderId;
+  focusTab?: SettingsTab;
   onUpdate: (
     partial: Partial<Omit<Settings, "apiKeys" | "providerModels">>,
   ) => void;
@@ -43,10 +45,19 @@ export interface SettingsModalProps {
   ) => Promise<void>;
   onStopPreviewVoice: () => Promise<void>;
   onValidateProvider: (provider: Provider) => Promise<void>;
+  onValidateWebSearchProvider: (
+    provider: WebSearchProvider,
+  ) => Promise<void>;
   onClose: () => void;
 }
 
-export type SettingsTab = "instructions" | "providers" | "stt" | "tts" | "ui";
+export type SettingsTab =
+  | "instructions"
+  | "providers"
+  | "web"
+  | "stt"
+  | "tts"
+  | "ui";
 
 export type TextInputFocusHandler = NonNullable<
   React.ComponentProps<typeof TextInput>["onFocus"]

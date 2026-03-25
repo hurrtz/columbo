@@ -17,6 +17,7 @@ const PROVIDER_ICON_ASSETS: Record<string, number> = {
   "baidu-ernie-qianfan": require(
     "../../assets/providers/baidu-ernie-qianfan.svg"
   ),
+  brave: require("../../assets/providers/brave.svg"),
   "bytedance-doubao-seed": require(
     "../../assets/providers/bytedance-doubao-seed.svg"
   ),
@@ -26,6 +27,8 @@ const PROVIDER_ICON_ASSETS: Record<string, number> = {
   deepinfra: require("../../assets/providers/deepinfra.svg"),
   deepseek: require("../../assets/providers/deepseek.svg"),
   elevenlabs: require("../../assets/providers/elevenlabs.svg"),
+  exa: require("../../assets/providers/exa.svg"),
+  firecrawl: require("../../assets/providers/firecrawl.svg"),
   "fireworks-ai": require("../../assets/providers/fireworks-ai.svg"),
   "fish-audio": require("../../assets/providers/fish-audio.svg"),
   gemini: require("../../assets/providers/google-vertex-ai-studio.svg"),
@@ -51,8 +54,10 @@ const PROVIDER_ICON_ASSETS: Record<string, number> = {
   perplexity: require("../../assets/providers/perplexity.svg"),
   replicate: require("../../assets/providers/replicate.svg"),
   sambanova: require("../../assets/providers/sambanova.svg"),
+  serpapi: require("../../assets/providers/serpapi.svg"),
   siliconflow: require("../../assets/providers/siliconflow.svg"),
   stepfun: require("../../assets/providers/stepfun.svg"),
+  tavily: require("../../assets/providers/tavily.svg"),
   together: require("../../assets/providers/together-ai.svg"),
   "together-ai": require("../../assets/providers/together-ai.svg"),
   xai: require("../../assets/providers/xai.svg"),
