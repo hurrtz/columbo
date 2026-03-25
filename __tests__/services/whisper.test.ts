@@ -825,6 +825,102 @@ describe("transcribeAudio", () => {
     expect(JSON.parse(options.body).dev_pid).toBe(80001);
   });
 
+  it("uses the Baidu async file transcription job API for 音频文件转写", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          task_id: "baidu-task-1",
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          tasks_info: [
+            {
+              task_status: "Success",
+              task_result: {
+                result: "Hello from Baidu async file transcription",
+              },
+            },
+          ],
+        }),
+      });
+
+    const result = await transcribeAudio({
+      fileUri: "https://example.com/recording.wav",
+      mode: "provider",
+      provider: "baidu-ernie-qianfan",
+      providerModel: "音频文件转写",
+      apiKey: "baidu-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from Baidu async file transcription");
+    const [createUrl, createOptions] = (fetch as jest.Mock).mock.calls[0];
+    expect(createUrl).toBe(
+      "https://aip.baidubce.com/rpc/2.0/aasr/v1/create?access_token=baidu-test",
+    );
+    expect(JSON.parse(createOptions.body)).toEqual({
+      speech_url: "https://example.com/recording.wav",
+      format: "wav",
+      pid: 1737,
+      rate: 16000,
+    });
+
+    const [queryUrl, queryOptions] = (fetch as jest.Mock).mock.calls[1];
+    expect(queryUrl).toBe(
+      "https://aip.baidubce.com/rpc/2.0/aasr/v1/query?access_token=baidu-test",
+    );
+    expect(JSON.parse(queryOptions.body)).toEqual({
+      task_ids: ["baidu-task-1"],
+    });
+  });
+
+  it("uses the Baidu realtime ASR websocket for 实时语音识别-websocket API", async () => {
+    const promise = transcribeAudio({
+      fileUri: "/tmp/recording.wav",
+      mode: "provider",
+      provider: "baidu-ernie-qianfan",
+      providerModel: "实时语音识别-websocket API",
+      apiKey: "baidu-token|123456|baidu-app-key",
+      language: "en",
+    });
+
+    const socket = await waitForMockSocket();
+    expect(socket.url.startsWith("wss://vop.baidu.com/realtime_asr?sn=baidu_")).toBe(
+      true,
+    );
+
+    socket.emitOpen();
+    expect(JSON.parse(socket.sent[0])).toMatchObject({
+      type: "START",
+      data: {
+        appid: 123456,
+        appkey: "baidu-app-key",
+        dev_pid: 17372,
+        cuid: "schnackai",
+        format: "pcm",
+        sample: 16000,
+      },
+    });
+    expect(JSON.parse(socket.sent.at(-1))).toEqual({ type: "FINISH" });
+
+    socket.emitMessage({
+      err_no: 0,
+      type: "MID_TEXT",
+      result: "Hello from Baidu",
+    });
+    socket.emitMessage({
+      err_no: 0,
+      type: "FIN_TEXT",
+      result: "Hello from Baidu realtime",
+    });
+
+    await expect(promise).resolves.toBe("Hello from Baidu realtime");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("uses the Deepgram pre-recorded upload endpoint for native speech models", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

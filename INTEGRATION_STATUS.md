@@ -13,9 +13,9 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 40
 - Catalog models: 455
-- Integrated models: 434
+- Integrated models: 436
 - LLM: 294/294 integrated
-- STT: 61/71 integrated
+- STT: 63/71 integrated
 - TTS: 79/90 integrated
 - Unresolved runtime manifest entries: 31
 
@@ -179,7 +179,7 @@ Catalog updated: 2026-03-23
 ## Baidu (ERNIE / Qianfan) `baidu-ernie-qianfan`
 
 - Runtime provider: `baidu-ernie-qianfan`
-- Model integration: 15/17 integrated
+- Model integration: 17/17 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -194,8 +194,8 @@ Catalog updated: 2026-03-23
 | LLM | `ernie-x1-turbo-32k` | ERNIE X1 Turbo 32K | Integrated | `ernie-x1-turbo-32k` |
 | LLM | `ernie-x1.1` | ERNIE X1.1 | Integrated | `ernie-x1.1` |
 | LLM | `ernie-x1.1-preview` | ERNIE X1.1 Preview | Integrated | `ernie-x1.1-preview` |
-| STT | `音频文件转写` | Audio File Transcription | Not integrated | — |
-| STT | `实时语音识别-websocket API` | Realtime Speech Recognition WebSocket API | Not integrated | — |
+| STT | `音频文件转写` | Audio File Transcription | Integrated | `音频文件转写` |
+| STT | `实时语音识别-websocket API` | Realtime Speech Recognition WebSocket API | Integrated | `实时语音识别-websocket API` |
 | STT | `短语音识别` | Short Speech Recognition | Integrated | `短语音识别` |
 | STT | `短语音识别极速版` | Short Speech Recognition Pro / 极速版 | Integrated | `短语音识别极速版` |
 | TTS | `长文本合成` | Long Text Speech Synthesis | Integrated | `长文本合成` |

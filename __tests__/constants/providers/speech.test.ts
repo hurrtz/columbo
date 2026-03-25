@@ -101,6 +101,11 @@ describe("speech provider constants", () => {
       },
     ]);
     expect(getProviderSttModelOptions("baidu-ernie-qianfan")).toEqual([
+      { id: "音频文件转写", name: "Audio File Transcription" },
+      {
+        id: "实时语音识别-websocket API",
+        name: "Realtime Speech Recognition WebSocket API",
+      },
       { id: "短语音识别", name: "Short Speech Recognition" },
       { id: "短语音识别极速版", name: "Short Speech Recognition Pro / 极速版" },
     ]);

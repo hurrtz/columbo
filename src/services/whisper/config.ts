@@ -33,6 +33,12 @@ export type BaiduShortSpeechTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type BaiduRealtimeTranscriptionConfig = {
+  kind: "baidu-realtime";
+  endpoint: string;
+  defaultModel: string;
+};
+
 export type AssemblyAiPreRecordedTranscriptionConfig = {
   kind: "assemblyai-pre-recorded";
   endpointBase: string;
@@ -133,6 +139,7 @@ export type ProviderSttConfig =
   | AzureOpenAiTranscriptionConfig
   | AlephAlphaTranscriptionConfig
   | BaiduShortSpeechTranscriptionConfig
+  | BaiduRealtimeTranscriptionConfig
   | AssemblyAiPreRecordedTranscriptionConfig
   | AssemblyAiRealtimeTranscriptionConfig
   | DashScopeRealtimeTranscriptionConfig
@@ -213,6 +220,14 @@ function buildConfigForTransport(params: {
         kind: "baidu-short-speech",
         defaultModel: params.defaultModel,
       };
+    case "baidu-realtime":
+      return params.endpoint
+        ? {
+            kind: "baidu-realtime",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+          }
+        : null;
     case "dashscope-realtime":
       return params.endpoint
         ? {

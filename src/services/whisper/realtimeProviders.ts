@@ -5,6 +5,7 @@ import {
 import type { AppLanguage, Provider } from "../../types";
 import {
   AssemblyAiRealtimeTranscriptionConfig,
+  BaiduRealtimeTranscriptionConfig,
   DashScopeRealtimeTranscriptionConfig,
   ElevenLabsRealtimeTranscriptionConfig,
   FireworksStreamingTranscriptionConfig,
@@ -12,6 +13,7 @@ import {
   StepfunRealtimeTranscriptionConfig,
 } from "./config";
 import { requireProviderKey } from "./errors";
+import { requireBaiduRealtimeCredentials } from "./baiduCredentials";
 import { chunkBytes, readMonoPcm16Audio } from "./realtimeAudio";
 
 interface SharedRealtimeProviderParams {
@@ -39,6 +41,10 @@ function normalizeRealtimeLanguage(language: AppLanguage) {
 
 function normalizeStepfunLanguage(language: AppLanguage) {
   return language === "de" ? "en" : language;
+}
+
+function getBaiduRealtimePid(language: AppLanguage) {
+  return language === "en" ? 17372 : 15372;
 }
 
 function createEventId(prefix: string) {
@@ -392,6 +398,100 @@ export async function transcribeWithDashScopeRealtimeProvider(
                 : typeof payload?.message === "string"
                   ? payload.message
                   : JSON.stringify(payload),
+            action: "transcription",
+          }),
+        );
+      }
+    },
+  });
+}
+
+export async function transcribeWithBaiduRealtimeProvider(
+  params: SharedRealtimeProviderParams & {
+    config: BaiduRealtimeTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider } = params;
+  const audio = await readRealtimePcmChunks(fileUri, 160);
+  const credentials = requireBaiduRealtimeCredentials(provider, apiKey, language);
+  const results: string[] = [];
+  let latestTranscript = "";
+
+  return runRealtimeSocket({
+    provider,
+    language,
+    url: `${config.endpoint}?sn=${encodeURIComponent(createEventId("baidu"))}`,
+    abortSignal,
+    idleTimeoutMs: 1500,
+    onIdle: (controls) => {
+      controls.finish(results.join(" ").trim() || latestTranscript.trim());
+    },
+    onOpen: (socket) => {
+      socket.send(
+        JSON.stringify({
+          type: "START",
+          data: {
+            appid: Number.parseInt(credentials.appId, 10),
+            appkey: credentials.appKey,
+            dev_pid: getBaiduRealtimePid(language),
+            cuid: "schnackai",
+            format: "pcm",
+            sample: 16000,
+          },
+        }),
+      );
+
+      for (const chunk of audio.chunks) {
+        socket.send(chunk.buffer.slice(chunk.byteOffset, chunk.byteOffset + chunk.byteLength));
+      }
+
+      socket.send(JSON.stringify({ type: "FINISH" }));
+    },
+    onMessage: (payload, controls) => {
+      if (payload?.type === "MID_TEXT" && typeof payload?.result === "string") {
+        latestTranscript = payload.result.trim();
+        return;
+      }
+
+      if (payload?.type === "FIN_TEXT") {
+        if (payload?.err_no && payload.err_no !== 0) {
+          controls.fail(
+            buildProviderHttpError({
+              provider,
+              language,
+              status: 400,
+              errorText:
+                typeof payload?.err_msg === "string"
+                  ? payload.err_msg
+                  : JSON.stringify(payload),
+              action: "transcription",
+            }),
+          );
+          return;
+        }
+
+        if (typeof payload?.result === "string" && payload.result.trim()) {
+          latestTranscript = payload.result.trim();
+          results.push(latestTranscript);
+        }
+
+        return;
+      }
+
+      if (payload?.type === "HEARTBEAT") {
+        return;
+      }
+
+      if (payload?.err_no && payload.err_no !== 0) {
+        controls.fail(
+          buildProviderHttpError({
+            provider,
+            language,
+            status: 400,
+            errorText:
+              typeof payload?.err_msg === "string"
+                ? payload.err_msg
+                : JSON.stringify(payload),
             action: "transcription",
           }),
         );

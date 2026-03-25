@@ -67,6 +67,7 @@ export type RuntimeSttTransport =
   | "gemini"
   | "openai-audio-input"
   | "baidu-short-speech"
+  | "baidu-realtime"
   | "assemblyai-pre-recorded"
   | "deepgram-pre-recorded"
   | "elevenlabs-realtime"
@@ -718,12 +719,17 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "provider",
       transport: "baidu-short-speech",
       defaultModel: "短语音识别",
+      realtimeTransport: "baidu-realtime",
+      realtimeEndpoint: "wss://vop.baidu.com/realtime_asr",
+      realtimeModelIds: ["实时语音识别-websocket API"],
       models: [
+        namedModel("音频文件转写", "Audio File Transcription"),
+        namedModel("实时语音识别-websocket API", "Realtime Speech Recognition WebSocket API"),
         namedModel("短语音识别", "Short Speech Recognition"),
         namedModel("短语音识别极速版", "Short Speech Recognition Pro / 极速版"),
       ],
       languageNote:
-        "Baidu is currently wired only for its short-form request/response ASR surfaces. The async file-transcription job API and realtime WebSocket transcription remain catalog-only until the app gains long-file URL handling and realtime transports.",
+        "Baidu is wired for short-form request/response STT, async file transcription via public audio URLs, and the realtime WebSocket STT surface. Realtime STT requires provider credentials in the format apiKey|appId|appKey.",
     },
     tts: {
       support: "provider",

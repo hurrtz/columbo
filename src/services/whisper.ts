@@ -12,6 +12,7 @@ import {
   transcribeWithAssemblyAiPreRecordedProvider,
   transcribeWithAlephAlphaProvider,
   transcribeWithAzureOpenAiProvider,
+  transcribeWithBaiduFileTranscriptionProvider,
   transcribeWithBaiduShortSpeechProvider,
   transcribeWithDashScopeFileTranscriptionProvider,
   transcribeWithDeepgramPreRecordedProvider,
@@ -29,6 +30,7 @@ import {
 } from "./whisper/providers";
 import {
   transcribeWithAssemblyAiRealtimeProvider,
+  transcribeWithBaiduRealtimeProvider,
   transcribeWithDashScopeRealtimeProvider,
   transcribeWithElevenLabsRealtimeProvider,
   transcribeWithFireworksStreamingProvider,
@@ -157,6 +159,20 @@ export async function transcribeAudio(params: {
     });
   }
 
+  if (
+    provider === "baidu-ernie-qianfan" &&
+    resolvedModel === "音频文件转写"
+  ) {
+    return transcribeWithBaiduFileTranscriptionProvider({
+      abortSignal,
+      apiKey,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
+    });
+  }
+
   if (config.kind === "gemini") {
     return transcribeWithGeminiProvider({
       abortSignal,
@@ -207,6 +223,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "dashscope-realtime") {
     return transcribeWithDashScopeRealtimeProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
+    });
+  }
+
+  if (config.kind === "baidu-realtime") {
+    return transcribeWithBaiduRealtimeProvider({
       abortSignal,
       apiKey,
       config,

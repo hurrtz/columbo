@@ -16,6 +16,7 @@ import {
 } from "../replicate/runtime";
 import { getDeviceLocale, getFileAudioMimeType } from "../../utils/speechLanguage";
 import { fetchWithTimeout } from "./abort";
+import { parseBaiduSpeechCredentials } from "./baiduCredentials";
 import { STT_TIMEOUT_MS } from "./config";
 import type {
   AlephAlphaTranscriptionConfig,
@@ -55,6 +56,8 @@ const ASSEMBLYAI_POLL_INTERVAL_MS = 1000;
 const ASSEMBLYAI_MAX_POLLS = 30;
 const DASHSCOPE_ASYNC_POLL_INTERVAL_MS = 1000;
 const DASHSCOPE_ASYNC_MAX_POLLS = 30;
+const BAIDU_ASYNC_POLL_INTERVAL_MS = 1000;
+const BAIDU_ASYNC_MAX_POLLS = 30;
 
 function base64ToBytes(base64: string) {
   const BufferCtor = (globalThis as any).Buffer;
@@ -123,6 +126,10 @@ function getBaiduSpeechPid(model: string, language: AppLanguage) {
   }
 
   return language === "en" ? 1737 : 1537;
+}
+
+function getBaiduAsyncSpeechPid(language: AppLanguage) {
+  return language === "en" ? 1737 : 80001;
 }
 
 function isRemoteAudioSource(fileUri: string) {
@@ -678,6 +685,156 @@ export async function transcribeWithBaiduShortSpeechProvider(
       : null) || (typeof data?.result === "string" ? data.result : null);
 
   return text?.trim() ? text.trim() : null;
+}
+
+export async function transcribeWithBaiduFileTranscriptionProvider(
+  params: SharedProviderParams,
+) {
+  const { abortSignal, apiKey, fileUri, language, provider } = params;
+
+  if (!isRemoteAudioSource(fileUri)) {
+    throw new Error(
+      "Baidu audio file transcription requires a publicly reachable audio URL.",
+    );
+  }
+
+  const { serviceApiKey } = parseBaiduSpeechCredentials(provider, apiKey, language);
+  const createUrl =
+    `https://aip.baidubce.com/rpc/2.0/aasr/v1/create?access_token=${encodeURIComponent(serviceApiKey)}`;
+
+  let createResponse: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    createResponse = await fetchWithTimeout(
+      createUrl,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          speech_url: fileUri,
+          format: getBaiduSpeechFormat(fileUri),
+          pid: getBaiduAsyncSpeechPid(language),
+          rate: 16000,
+        }),
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!createResponse.ok) {
+    const errorText = await createResponse.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: createResponse.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const createData = await createResponse.json();
+  const taskId =
+    typeof createData?.task_id === "string"
+      ? createData.task_id
+      : typeof createData?.tasks?.[0]?.task_id === "string"
+        ? createData.tasks[0].task_id
+        : null;
+
+  if (!taskId) {
+    throw new Error("Baidu audio file transcription did not return a task id.");
+  }
+
+  const queryUrl =
+    `https://aip.baidubce.com/rpc/2.0/aasr/v1/query?access_token=${encodeURIComponent(serviceApiKey)}`;
+
+  for (let pollIndex = 0; pollIndex < BAIDU_ASYNC_MAX_POLLS; pollIndex += 1) {
+    throwIfAborted(abortSignal);
+
+    let queryResponse: Awaited<ReturnType<typeof fetch>>;
+
+    try {
+      queryResponse = await fetchWithTimeout(
+        queryUrl,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            task_ids: [taskId],
+          }),
+        },
+        STT_TIMEOUT_MS,
+        () => createSttTimeoutError({ provider, language }),
+        abortSignal,
+      );
+    } catch (error) {
+      throw normalizeProviderTransportError({
+        provider,
+        language,
+        error,
+        action: "transcription",
+      });
+    }
+
+    if (!queryResponse.ok) {
+      const errorText = await queryResponse.text();
+      throw buildProviderHttpError({
+        provider,
+        language,
+        status: queryResponse.status,
+        errorText,
+        action: "transcription",
+      });
+    }
+
+    const queryData = await queryResponse.json();
+    const taskInfo = Array.isArray(queryData?.tasks_info)
+      ? queryData.tasks_info[0]
+      : null;
+    const taskStatus =
+      typeof taskInfo?.task_status === "string" ? taskInfo.task_status : null;
+
+    if (taskStatus === "Success") {
+      const text =
+        typeof taskInfo?.task_result?.result === "string"
+          ? taskInfo.task_result.result.trim()
+          : Array.isArray(taskInfo?.task_result?.detailed_result)
+            ? taskInfo.task_result.detailed_result
+                .map((item: any) =>
+                  typeof item?.res === "string" ? item.res.trim() : "",
+                )
+                .filter(Boolean)
+                .join(" ")
+                .trim()
+            : "";
+
+      return text || null;
+    }
+
+    if (taskStatus && !["Running", "Created", "Pending"].includes(taskStatus)) {
+      const errorText =
+        typeof taskInfo?.task_result?.err_msg === "string"
+          ? taskInfo.task_result.err_msg
+          : taskStatus;
+      throw new Error(errorText);
+    }
+
+    await wait(BAIDU_ASYNC_POLL_INTERVAL_MS);
+  }
+
+  throw createSttTimeoutError({ provider, language });
 }
 
 export async function transcribeWithFireworksPreRecordedProvider(
