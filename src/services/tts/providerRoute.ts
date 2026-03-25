@@ -31,12 +31,20 @@ import {
   writeBase64AudioFile,
   writeBlobAudioFile,
 } from "./shared";
+import {
+  synthesizeWithBaiduStreamingProvider,
+  synthesizeWithDashScopeRealtimeProvider,
+} from "./realtimeProviders";
 
 const GEMINI_TTS_RETRY_DELAYS_MS = [400, 1200];
 const BAIDU_LONG_TTS_POLL_INTERVAL_MS = 1000;
 const BAIDU_LONG_TTS_MAX_POLLS = 30;
 const NOVITA_ASYNC_TTS_POLL_INTERVAL_MS = 1000;
 const NOVITA_ASYNC_TTS_MAX_POLLS = 30;
+const DASHSCOPE_REALTIME_TTS_MODEL_IDS = new Set([
+  "qwen3-tts-flash-realtime",
+  "qwen3-tts-instruct-flash-realtime",
+]);
 
 function wait(ms: number) {
   return new Promise<void>((resolve) => {
@@ -655,6 +663,20 @@ export async function synthesizeProviderSpeech(params: {
   }
 
   if (config.kind === "dashscope") {
+    if (DASHSCOPE_REALTIME_TTS_MODEL_IDS.has(selectedModel)) {
+      return synthesizeWithDashScopeRealtimeProvider({
+        abortSignal,
+        apiKey,
+        endpoint: "wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime",
+        language,
+        model: selectedModel,
+        provider,
+        text,
+        timeoutMs,
+        voice: selectedVoice || config.voiceFallback,
+      });
+    }
+
     const response = await fetchWithTimeout(
       config.endpoint,
       {
@@ -721,6 +743,19 @@ export async function synthesizeProviderSpeech(params: {
   }
 
   if (config.kind === "baidu") {
+    if (selectedModel === "流式文本在线合成") {
+      return synthesizeWithBaiduStreamingProvider({
+        abortSignal,
+        apiKey,
+        endpoint: "wss://aip.baidubce.com/ws/2.0/speech/publiccloudspeech/v1/tts",
+        language,
+        provider,
+        text,
+        timeoutMs,
+        voice: selectedVoice || config.voiceFallback,
+      });
+    }
+
     const authToken = requireProviderKey(provider, apiKey, language);
 
     if (selectedModel === "长文本合成") {

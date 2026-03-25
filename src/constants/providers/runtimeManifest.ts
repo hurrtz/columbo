@@ -622,10 +622,11 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       realtimeModelIds: ["qwen3-asr-flash-realtime"],
       models: [
         model("qwen3-asr-flash"),
+        model("qwen3-asr-flash-filetrans"),
         model("qwen3-asr-flash-realtime"),
       ],
       languageNote:
-        "DashScope STT is wired for Qwen3-ASR-Flash short-file transcription through the OpenAI-compatible endpoint, plus Qwen3-ASR-Flash-Realtime through the realtime WebSocket. The long-file async filetrans model still needs a public-URL async workflow.",
+        "DashScope STT is wired for Qwen3-ASR-Flash short-file transcription, Qwen3-ASR-Flash-Filetrans long-file async transcription with a public audio URL, and Qwen3-ASR-Flash-Realtime through the realtime WebSocket.",
     },
     tts: {
       support: "provider",
@@ -635,13 +636,10 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "qwen3-tts-flash",
       defaultVoice: "Cherry",
       voiceFallback: "Cherry",
-      models: catalogModelSpecs("alibaba-qwen-dashscope", "tts", [
-        "qwen3-tts-flash-realtime",
-        "qwen3-tts-instruct-flash-realtime",
-      ]),
+      models: catalogModelSpecs("alibaba-qwen-dashscope", "tts"),
       voiceOptions: [voice("Cherry", "Cherry")],
       languageNote:
-        "DashScope TTS is currently wired for the non-realtime Qwen3-TTS-Flash and Qwen3-TTS-Instruct-Flash families with the default Cherry voice. The realtime Qwen TTS families still need dedicated transport and voice-surface support.",
+        "DashScope TTS is wired for both the standard Qwen3-TTS-Flash families and the realtime Qwen3-TTS-Flash-Realtime families with the default Cherry voice.",
     },
   },
   "amazon-aws": {
@@ -734,10 +732,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "短文本语音合成",
       defaultVoice: "0",
       voiceFallback: "0",
-      models: [
-        namedModel("短文本语音合成", "Short Text Speech Synthesis"),
-        namedModel("长文本合成", "Long Text Speech Synthesis"),
-      ],
+      models: catalogModelSpecs("baidu-ernie-qianfan", "tts"),
       voiceOptions: [
         voice("0", "Standard female"),
         voice("1", "Standard male"),
@@ -745,7 +740,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         voice("4", "Emotional child"),
       ],
       languageNote:
-        "Baidu is currently wired for both the short-text REST TTS API and the long-text async synthesis job API. Streaming WebSocket TTS remains catalog-only until the app grows realtime speech transports.",
+        "Baidu is wired for short-text REST TTS, long-text async synthesis jobs, and the streaming WebSocket TTS surface.",
     },
   },
   "bytedance-doubao-seed": {

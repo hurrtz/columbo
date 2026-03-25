@@ -2,10 +2,74 @@ import { synthesizeProviderSpeech } from "../../src/services/tts/providerRoute";
 
 global.fetch = jest.fn();
 
+const OriginalWebSocket = (globalThis as any).WebSocket;
+
 jest.mock("expo-file-system/legacy", () => ({
   cacheDirectory: "/tmp/",
   writeAsStringAsync: jest.fn(() => Promise.resolve()),
 }));
+
+class MockWebSocket {
+  static instances: MockWebSocket[] = [];
+
+  readonly url: string;
+  readonly protocols: any;
+  readonly options: any;
+  readonly sent: any[] = [];
+  binaryType?: string;
+  onopen: ((event: any) => void) | null = null;
+  onmessage: ((event: any) => void) | null = null;
+  onerror: ((event: any) => void) | null = null;
+  onclose: ((event: any) => void) | null = null;
+
+  constructor(url: string, protocols?: any, options?: any) {
+    this.url = url;
+    this.protocols = protocols;
+    this.options = options;
+    MockWebSocket.instances.push(this);
+  }
+
+  send(data: any) {
+    this.sent.push(data);
+  }
+
+  close() {
+    this.onclose?.({ code: 1000, reason: "closed" });
+  }
+
+  emitOpen() {
+    this.onopen?.({});
+  }
+
+  emitMessage(data: any) {
+    this.onmessage?.({
+      data: typeof data === "string" ? data : JSON.stringify(data),
+    });
+  }
+
+  emitBinary(bytes: Uint8Array) {
+    this.onmessage?.({
+      data: bytes.buffer.slice(
+        bytes.byteOffset,
+        bytes.byteOffset + bytes.byteLength,
+      ),
+    });
+  }
+}
+
+async function waitForMockSocket() {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const socket = MockWebSocket.instances[0];
+
+    if (socket) {
+      return socket;
+    }
+
+    await Promise.resolve();
+  }
+
+  throw new Error("Expected realtime TTS socket to be created.");
+}
 
 class MockFileReader {
   public result: string | ArrayBuffer | null = null;
@@ -24,8 +88,17 @@ Object.defineProperty(global, "FileReader", {
 });
 
 describe("synthesizeProviderSpeech", () => {
+  beforeAll(() => {
+    (globalThis as any).WebSocket = MockWebSocket;
+  });
+
+  afterAll(() => {
+    (globalThis as any).WebSocket = OriginalWebSocket;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
+    MockWebSocket.instances = [];
   });
 
   it("uses DashScope TTS and downloads the generated wav file", async () => {
@@ -66,6 +139,44 @@ describe("synthesizeProviderSpeech", () => {
     expect((fetch as jest.Mock).mock.calls[1][0]).toBe(
       "https://dashscope.example/audio.wav",
     );
+  });
+
+  it("uses DashScope realtime TTS for websocket speech models", async () => {
+    const promise = synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "alibaba-qwen-dashscope",
+      providerModel: "qwen3-tts-flash-realtime",
+      apiKey: "dashscope-test",
+      language: "en",
+    });
+
+    const socket = await waitForMockSocket();
+    expect(socket.url).toBe(
+      "wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime?model=qwen3-tts-flash-realtime",
+    );
+    expect(socket.options.headers.Authorization).toBe("Bearer dashscope-test");
+
+    socket.emitOpen();
+    expect(JSON.parse(socket.sent[0])).toMatchObject({
+      type: "session.update",
+      session: {
+        mode: "server_commit",
+        voice: "Cherry",
+        response_format: "pcm_24000hz_mono_16bit",
+      },
+    });
+
+    socket.emitMessage({
+      type: "response.audio.delta",
+      delta: Buffer.from([1, 2, 3, 4]).toString("base64"),
+    });
+    socket.emitMessage({
+      type: "response.done",
+    });
+
+    await expect(promise).resolves.toMatch(/^\/tmp\/tts-.*\.wav$/);
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it("uses the Azure OpenAI v1 speech route with api-key auth", async () => {
@@ -658,6 +769,45 @@ describe("synthesizeProviderSpeech", () => {
     expect((fetch as jest.Mock).mock.calls[2][0]).toBe(
       "https://baidu.example/audio.mp3",
     );
+  });
+
+  it("uses Baidu streaming TTS over WebSocket for the streaming speech model", async () => {
+    const promise = synthesizeProviderSpeech({
+      text: "你好，百度",
+      voice: "0",
+      provider: "baidu-ernie-qianfan",
+      providerModel: "流式文本在线合成",
+      apiKey: "baidu-test",
+      language: "en",
+    });
+
+    const socket = await waitForMockSocket();
+    expect(socket.url).toBe(
+      "wss://aip.baidubce.com/ws/2.0/speech/publiccloudspeech/v1/tts?access_token=baidu-test&per=0",
+    );
+
+    socket.emitOpen();
+    expect(JSON.parse(socket.sent[0])).toMatchObject({
+      type: "system.start",
+      payload: {
+        aue: 3,
+        spd: 5,
+        pit: 5,
+        vol: 5,
+      },
+    });
+    expect(JSON.parse(socket.sent[1])).toEqual({
+      type: "text",
+      payload: {
+        text: "你好，百度",
+      },
+    });
+
+    socket.emitBinary(new Uint8Array([1, 2, 3, 4]));
+    socket.close();
+
+    await expect(promise).resolves.toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it("uses Novita GLM-TTS with the documented voice and wav output", async () => {

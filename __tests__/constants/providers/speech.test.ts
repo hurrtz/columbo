@@ -48,6 +48,10 @@ describe("speech provider constants", () => {
     expect(getProviderSttModelOptions("alibaba-qwen-dashscope")).toEqual([
       { id: "qwen3-asr-flash", name: "Qwen3-ASR-Flash" },
       {
+        id: "qwen3-asr-flash-filetrans",
+        name: "Qwen3-ASR-Flash-Filetrans",
+      },
+      {
         id: "qwen3-asr-flash-realtime",
         name: "Qwen3-ASR-Flash-Realtime",
       },
@@ -111,6 +115,11 @@ describe("speech provider constants", () => {
     expect(getProviderTtsModelOptions("alibaba-qwen-dashscope")).toEqual([
       { id: "qwen3-tts-flash", name: "Qwen3-TTS-Flash" },
       { id: "qwen3-tts-instruct-flash", name: "Qwen3-TTS-Instruct-Flash" },
+      { id: "qwen3-tts-flash-realtime", name: "Qwen3-TTS-Flash-Realtime" },
+      {
+        id: "qwen3-tts-instruct-flash-realtime",
+        name: "Qwen3-TTS-Instruct-Flash-Realtime",
+      },
     ]);
     expect(
       getProviderTtsModelOptions("gemini").find(
@@ -186,6 +195,7 @@ describe("speech provider constants", () => {
     expect(getProviderTtsModelOptions("baidu-ernie-qianfan")).toEqual([
       { id: "短文本语音合成", name: "Short Text Speech Synthesis" },
       { id: "长文本合成", name: "Long Text Speech Synthesis" },
+      { id: "流式文本在线合成", name: "Streaming Text-to-Speech" },
     ]);
     expect(getProviderTtsModelOptions("z-ai-zhipu-ai")).toEqual([
       { id: "glm-tts", name: "GLM-TTS" },

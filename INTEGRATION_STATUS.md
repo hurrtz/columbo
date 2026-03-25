@@ -13,10 +13,10 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 40
 - Catalog models: 455
-- Integrated models: 430
+- Integrated models: 434
 - LLM: 294/294 integrated
-- STT: 60/71 integrated
-- TTS: 76/90 integrated
+- STT: 61/71 integrated
+- TTS: 79/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -65,7 +65,7 @@ Catalog updated: 2026-03-23
 ## Alibaba / Qwen (DashScope) `alibaba-qwen-dashscope`
 
 - Runtime provider: `alibaba-qwen-dashscope`
-- Model integration: 10/13 integrated
+- Model integration: 13/13 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -77,12 +77,12 @@ Catalog updated: 2026-03-23
 | LLM | `qwen3.5-flash` | Qwen3.5-Flash | Integrated | `qwen3.5-flash` |
 | LLM | `qwen3.5-plus` | Qwen3.5-Plus | Integrated | `qwen3.5-plus` |
 | STT | `qwen3-asr-flash` | Qwen3-ASR-Flash | Integrated | `qwen3-asr-flash` |
-| STT | `qwen3-asr-flash-filetrans` | Qwen3-ASR-Flash-Filetrans | Not integrated | — |
+| STT | `qwen3-asr-flash-filetrans` | Qwen3-ASR-Flash-Filetrans | Integrated | `qwen3-asr-flash-filetrans` |
 | STT | `qwen3-asr-flash-realtime` | Qwen3-ASR-Flash-Realtime | Integrated | `qwen3-asr-flash-realtime` |
 | TTS | `qwen3-tts-flash` | Qwen3-TTS-Flash | Integrated | `qwen3-tts-flash` |
-| TTS | `qwen3-tts-flash-realtime` | Qwen3-TTS-Flash-Realtime | Not integrated | — |
+| TTS | `qwen3-tts-flash-realtime` | Qwen3-TTS-Flash-Realtime | Integrated | `qwen3-tts-flash-realtime` |
 | TTS | `qwen3-tts-instruct-flash` | Qwen3-TTS-Instruct-Flash | Integrated | `qwen3-tts-instruct-flash` |
-| TTS | `qwen3-tts-instruct-flash-realtime` | Qwen3-TTS-Instruct-Flash-Realtime | Not integrated | — |
+| TTS | `qwen3-tts-instruct-flash-realtime` | Qwen3-TTS-Instruct-Flash-Realtime | Integrated | `qwen3-tts-instruct-flash-realtime` |
 
 ## Amazon AWS `amazon-aws`
 
@@ -179,7 +179,7 @@ Catalog updated: 2026-03-23
 ## Baidu (ERNIE / Qianfan) `baidu-ernie-qianfan`
 
 - Runtime provider: `baidu-ernie-qianfan`
-- Model integration: 14/17 integrated
+- Model integration: 15/17 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -200,7 +200,7 @@ Catalog updated: 2026-03-23
 | STT | `短语音识别极速版` | Short Speech Recognition Pro / 极速版 | Integrated | `短语音识别极速版` |
 | TTS | `长文本合成` | Long Text Speech Synthesis | Integrated | `长文本合成` |
 | TTS | `短文本语音合成` | Short Text Speech Synthesis | Integrated | `短文本语音合成` |
-| TTS | `流式文本在线合成` | Streaming Text-to-Speech | Not integrated | — |
+| TTS | `流式文本在线合成` | Streaming Text-to-Speech | Integrated | `流式文本在线合成` |
 
 ## ByteDance (Doubao/Seed) `bytedance-doubao-seed`
 

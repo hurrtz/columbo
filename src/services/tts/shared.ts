@@ -510,6 +510,17 @@ export async function writeBase64AudioFile(
   return path;
 }
 
+export async function writeBytesAudioFile(params: {
+  bytes: Uint8Array;
+  extension: "mp3" | "wav";
+  language: AppLanguage;
+}) {
+  return writeBase64AudioFile(
+    bytesToBase64(params.bytes, params.language),
+    params.extension,
+  );
+}
+
 export function getGeminiAudioPart(data: any) {
   const parts = data?.candidates?.[0]?.content?.parts;
 
