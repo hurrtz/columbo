@@ -13,6 +13,7 @@ export type PublicSettings = Omit<Settings, "apiKeys">;
 export type SettingsUpdate = Partial<Omit<Settings, "apiKeys" | "providerModels">>;
 
 export type LegacyStoredSettings = Partial<Settings> & {
+  webSearchEnabled?: boolean;
   ttsPlayback?: ReplyPlayback;
   ttsVoice?: string;
   openaiModel?: string;

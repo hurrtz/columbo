@@ -1,11 +1,12 @@
 import React from "react";
-import { Switch, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { ResponseModeToggle } from "../../components/ResponseModeToggle";
 import { ProviderIcon } from "../../components/ProviderIcon";
+import { type WebSearchMode } from "../../constants/webSearch";
 import { Colors } from "../../theme/colors";
 import { Provider, ResponseMode, ResponseModeRoute } from "../../types";
 
@@ -19,10 +20,10 @@ interface MainScreenRouteCardProps {
   onOpenGroqSettings: () => void;
   onOpenWebSearchSettings: () => void;
   onSelectResponseMode: (mode: ResponseMode) => void;
-  onToggleWebSearch: () => void;
+  onSelectWebSearchMode: (mode: WebSearchMode) => void;
   responseModes: Record<ResponseMode, ResponseModeRoute>;
   t: TranslateFn;
-  webSearchEnabled: boolean;
+  webSearchMode: WebSearchMode;
   webSearchProvider: Provider | null;
   webSearchReady: boolean;
 }
@@ -34,14 +35,16 @@ export function MainScreenRouteCard({
   onOpenGroqSettings,
   onOpenWebSearchSettings,
   onSelectResponseMode,
-  onToggleWebSearch,
+  onSelectWebSearchMode,
   responseModes,
   t,
-  webSearchEnabled,
+  webSearchMode,
   webSearchProvider,
   webSearchReady,
 }: MainScreenRouteCardProps) {
   const badgeProvider = webSearchProvider ?? "openai";
+  const modeOptions: WebSearchMode[] = ["off", "auto", "on"];
+  const isHighlighted = webSearchMode !== "off" && webSearchReady;
 
   return (
     <View
@@ -68,51 +71,90 @@ export function MainScreenRouteCard({
             routes={responseModes}
             readyModes={availableResponseModes}
           />
-          <TouchableOpacity
+          <View
             style={[
               styles.webSearchToggle,
               {
-                backgroundColor: webSearchEnabled
+                backgroundColor: isHighlighted
                   ? colors.accentSoft
                   : colors.surfaceElevated,
-                borderColor: webSearchEnabled ? colors.borderStrong : colors.border,
+                borderColor: isHighlighted ? colors.borderStrong : colors.border,
               },
             ]}
-            onPress={
-              webSearchReady ? onToggleWebSearch : onOpenWebSearchSettings
-            }
-            activeOpacity={0.88}
           >
             <View style={styles.webSearchToggleCopy}>
               <View style={styles.webSearchToggleHeader}>
-                <View style={styles.webSearchToggleControl} pointerEvents="none">
-                  <Switch
-                    value={webSearchEnabled}
-                    trackColor={{
-                      false: webSearchReady ? colors.borderStrong : colors.border,
-                      true: colors.accent,
-                    }}
-                    thumbColor={colors.surface}
-                    ios_backgroundColor={
-                      webSearchReady ? colors.borderStrong : colors.border
-                    }
-                  />
-                </View>
                 <Text
                   style={[styles.webSearchToggleTitle, { color: colors.text }]}
                 >
                   {t("webSearch")}
                 </Text>
               </View>
+              <View style={styles.webSearchModeRow}>
+                {modeOptions.map((mode) => {
+                  const active = webSearchMode === mode;
+
+                  return (
+                    <TouchableOpacity
+                      key={mode}
+                      style={[
+                        styles.webSearchModeButton,
+                        {
+                          backgroundColor: active
+                            ? colors.accentSoft
+                            : colors.surface,
+                          borderColor: active ? colors.accent : colors.border,
+                        },
+                      ]}
+                      onPress={() => onSelectWebSearchMode(mode)}
+                      activeOpacity={0.88}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: active }}
+                      accessibilityLabel={t("setWebSearchMode", {
+                        mode: t(
+                          mode === "off"
+                            ? "webSearchModeOff"
+                            : mode === "auto"
+                              ? "webSearchModeAuto"
+                              : "webSearchModeOn",
+                        ),
+                      })}
+                    >
+                      <Text
+                        style={[
+                          styles.webSearchModeButtonText,
+                          {
+                            color: active ? colors.accent : colors.textSecondary,
+                          },
+                        ]}
+                      >
+                        {t(
+                          mode === "off"
+                            ? "webSearchModeOff"
+                            : mode === "auto"
+                              ? "webSearchModeAuto"
+                              : "webSearchModeOn",
+                        )}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
-            <View style={styles.webSearchProviderIcon}>
+            <TouchableOpacity
+              style={styles.webSearchProviderIcon}
+              onPress={onOpenWebSearchSettings}
+              activeOpacity={0.88}
+              accessibilityRole="button"
+              accessibilityLabel={t("openWebSearchSettings")}
+            >
               <ProviderIcon
                 provider={badgeProvider}
                 color={webSearchReady ? colors.text : colors.textMuted}
                 label={badgeProvider}
               />
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
         </>
       ) : (
         <TouchableOpacity

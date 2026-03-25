@@ -12,7 +12,10 @@ import {
 } from "../../constants/providers/runtimeState";
 import {
   DEFAULT_WEB_SEARCH_PROVIDER,
+  createDefaultWebSearchProviderSettings,
+  isWebSearchMode,
   isWebSearchProvider,
+  normalizeWebSearchProviderSettings,
 } from "../../constants/webSearch";
 import {
   type LocalTtsVoiceSelections,
@@ -207,6 +210,47 @@ function extractStoredResponseModes(
   }, {} as Partial<ResponseModeSelections>);
 }
 
+function extractStoredWebSearchProviderSettings(
+  storedSettings?: LegacyStoredSettings,
+) {
+  const defaults = createDefaultWebSearchProviderSettings();
+
+  if (!storedSettings?.webSearchProviderSettings) {
+    return defaults;
+  }
+
+  return {
+    openai: normalizeWebSearchProviderSettings(
+      "openai",
+      storedSettings.webSearchProviderSettings.openai,
+    ),
+    perplexity: normalizeWebSearchProviderSettings(
+      "perplexity",
+      storedSettings.webSearchProviderSettings.perplexity,
+    ),
+    tavily: normalizeWebSearchProviderSettings(
+      "tavily",
+      storedSettings.webSearchProviderSettings.tavily,
+    ),
+    brave: normalizeWebSearchProviderSettings(
+      "brave",
+      storedSettings.webSearchProviderSettings.brave,
+    ),
+    exa: normalizeWebSearchProviderSettings(
+      "exa",
+      storedSettings.webSearchProviderSettings.exa,
+    ),
+    firecrawl: normalizeWebSearchProviderSettings(
+      "firecrawl",
+      storedSettings.webSearchProviderSettings.firecrawl,
+    ),
+    serpapi: normalizeWebSearchProviderSettings(
+      "serpapi",
+      storedSettings.webSearchProviderSettings.serpapi,
+    ),
+  };
+}
+
 export function mergeSettings(
   storedSettings?: LegacyStoredSettings,
   storedApiKeys?: Partial<ProviderApiKeys>,
@@ -285,6 +329,8 @@ export function mergeSettings(
     storedSettings,
     mergedProviderModels,
   );
+  const webSearchProviderSettings =
+    extractStoredWebSearchProviderSettings(storedSettings);
   const hasStoredResponseModes = RESPONSE_MODE_ORDER.some(
     (mode) => !!extractedResponseModes[mode],
   );
@@ -306,13 +352,17 @@ export function mergeSettings(
         ? storedSettings.setupGuideDismissed
         : hasConfiguredKeys,
     assistantInstructions,
-    webSearchEnabled:
-      typeof storedSettings?.webSearchEnabled === "boolean"
+    webSearchMode: isWebSearchMode(storedSettings?.webSearchMode)
+      ? storedSettings.webSearchMode
+      : typeof storedSettings?.webSearchEnabled === "boolean"
         ? storedSettings.webSearchEnabled
-        : DEFAULT_SETTINGS.webSearchEnabled,
+          ? "on"
+          : "off"
+        : DEFAULT_SETTINGS.webSearchMode,
     webSearchProvider: isWebSearchProvider(storedSettings?.webSearchProvider)
       ? storedSettings.webSearchProvider
       : DEFAULT_WEB_SEARCH_PROVIDER,
+    webSearchProviderSettings,
     activeResponseMode: isResponseMode(storedSettings?.activeResponseMode)
       ? storedSettings.activeResponseMode
       : DEFAULT_SETTINGS.activeResponseMode,

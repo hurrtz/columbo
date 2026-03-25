@@ -165,23 +165,47 @@ describe("useSettings", () => {
     );
   });
 
-  it("persists web search settings", async () => {
+  it("persists web search mode and provider settings", async () => {
     const { result } = renderHook(() => useSettings());
     await flushSettingsLoad();
 
     await act(async () => {
       result.current.updateSettings({
-        webSearchEnabled: true,
+        webSearchMode: "auto",
         webSearchProvider: "openai",
+        webSearchProviderSettings: {
+          ...result.current.settings.webSearchProviderSettings,
+          openai: {
+            ...result.current.settings.webSearchProviderSettings.openai,
+            searchMode: "deep",
+          },
+        },
       });
     });
 
-    expect(result.current.settings.webSearchEnabled).toBe(true);
+    expect(result.current.settings.webSearchMode).toBe("auto");
     expect(result.current.settings.webSearchProvider).toBe("openai");
+    expect(result.current.settings.webSearchProviderSettings.openai.searchMode).toBe(
+      "deep",
+    );
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
       "@schnackai/settings",
-      expect.stringContaining('"webSearchEnabled":true'),
+      expect.stringContaining('"webSearchMode":"auto"'),
     );
+  });
+
+  it("migrates legacy webSearchEnabled into webSearchMode", async () => {
+    const legacyStored: Record<string, unknown> = { ...DEFAULT_SETTINGS };
+    delete legacyStored.webSearchMode;
+    legacyStored.webSearchEnabled = true;
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
+      JSON.stringify(legacyStored),
+    );
+
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    expect(result.current.settings.webSearchMode).toBe("on");
   });
 
   it("falls back to the default web search provider when stored data is unsupported", async () => {

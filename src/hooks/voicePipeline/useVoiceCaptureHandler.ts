@@ -49,7 +49,8 @@ export function useVoiceCaptureHandler({
   ttsProvider,
   updateConversationContextSummary,
   webSearchApiKey,
-  webSearchEnabled,
+  webSearchMode,
+  webSearchOptions,
   webSearchProvider,
 }: VoiceCaptureHandlerParams) {
   const ttsFallbackToastShownRef = useRef(false);
@@ -104,9 +105,10 @@ export function useVoiceCaptureHandler({
           responseLength,
           responseTone,
           language,
-          webSearchEnabled,
+          webSearchMode,
           webSearchProvider,
           webSearchApiKey,
+          webSearchOptions,
           abortSignal: abortRef.current!.signal,
           callbacks: {
             onTranscription: (text) => {

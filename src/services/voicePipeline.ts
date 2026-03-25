@@ -7,6 +7,7 @@ import { createVoicePipelineTtsQueue } from "./voicePipeline/ttsQueue";
 import { resolvePipelineTranscription } from "./voicePipeline/transcription";
 import type { RunVoicePipelineParams } from "./voicePipeline/types";
 import { searchWeb } from "./webSearch";
+import { getWebSearchDecision } from "./webSearchHeuristics";
 
 export async function runVoicePipeline(
   params: RunVoicePipelineParams,
@@ -36,9 +37,10 @@ export async function runVoicePipeline(
     responseLength,
     responseTone,
     language,
-    webSearchEnabled,
+    webSearchMode,
     webSearchProvider,
     webSearchApiKey,
+    webSearchOptions,
     callbacks,
     abortSignal,
   } = params;
@@ -112,9 +114,30 @@ export async function runVoicePipeline(
     let webSearchContext: string | undefined;
     let responseMetadata: MessageMetadata | undefined;
     const normalizedWebSearchApiKey = webSearchApiKey?.trim();
+    const effectiveWebSearchMode = webSearchMode ?? "off";
+    const webSearchDecision = getWebSearchDecision({
+      enabled: effectiveWebSearchMode !== "off",
+      mode: effectiveWebSearchMode,
+      ready: Boolean(webSearchProvider && normalizedWebSearchApiKey),
+      language,
+      query: transcription,
+      messages,
+    });
+
+    recordDebugLogEvent({
+      event: "web-search-decision",
+      payload: {
+        mode: effectiveWebSearchMode,
+        provider: webSearchProvider ?? null,
+        ready: Boolean(webSearchProvider && normalizedWebSearchApiKey),
+        reason: webSearchDecision.reason,
+        shouldSearch: webSearchDecision.shouldSearch,
+        signals: webSearchDecision.matchedSignals,
+      },
+    });
 
     if (
-      webSearchEnabled &&
+      webSearchDecision.shouldSearch &&
       webSearchProvider &&
       normalizedWebSearchApiKey
     ) {
@@ -127,6 +150,7 @@ export async function runVoicePipeline(
           language,
           query: transcription,
           conversationSummary: contextResult.effectiveSummary || undefined,
+          options: webSearchOptions,
           abortSignal,
         });
 

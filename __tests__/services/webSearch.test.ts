@@ -41,12 +41,18 @@ describe("webSearch", () => {
       apiKey: "sk-test",
       language: "en",
       query: "Does Mars have water ice?",
+      options: {
+        resultLimit: 5,
+        depth: "standard",
+        searchMode: "deep",
+      },
     });
 
     expect(fetch).toHaveBeenCalledWith(
       "https://api.openai.com/v1/responses",
       expect.objectContaining({
         method: "POST",
+        body: expect.stringContaining('"search_context_size":"high"'),
       }),
     );
     expect(result).toEqual(
@@ -140,6 +146,11 @@ describe("webSearch", () => {
       apiKey: "tvly-test",
       language: "en",
       query: "What is the capital of Germany?",
+      options: {
+        resultLimit: 8,
+        depth: "standard",
+        searchMode: "balanced",
+      },
     });
 
     expect(fetch).toHaveBeenCalledWith(
@@ -149,6 +160,13 @@ describe("webSearch", () => {
         headers: expect.objectContaining({
           Authorization: "Bearer tvly-test",
         }),
+        body: expect.stringContaining('"max_results":8'),
+      }),
+    );
+    expect(fetch).toHaveBeenCalledWith(
+      "https://api.tavily.com/search",
+      expect.objectContaining({
+        body: expect.stringContaining('"search_depth":"basic"'),
       }),
     );
     expect(result).toEqual(
@@ -188,11 +206,16 @@ describe("webSearch", () => {
       apiKey: "brave-test",
       language: "en",
       query: "Latest ESA Jupiter mission update",
+      options: {
+        resultLimit: 3,
+        depth: "standard",
+        searchMode: "balanced",
+      },
     });
 
     expect(fetch).toHaveBeenCalledWith(
       expect.stringContaining(
-        "https://api.search.brave.com/res/v1/web/search?",
+        "count=3",
       ),
       expect.objectContaining({
         method: "GET",

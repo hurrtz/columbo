@@ -1,4 +1,8 @@
-import type { WebSearchProvider } from "../../constants/webSearch";
+import type {
+  WebSearchMode,
+  WebSearchProvider,
+  WebSearchProviderSettings,
+} from "../../constants/webSearch";
 import type { TranslationKey } from "../../i18n";
 import type {
   AppLanguage,
@@ -63,9 +67,10 @@ export interface UseVoicePipelineParams {
   responseLength: AssistantResponseLength;
   responseTone: AssistantResponseTone;
   language: AppLanguage;
-  webSearchEnabled?: boolean;
+  webSearchMode?: WebSearchMode;
   webSearchProvider?: WebSearchProvider | null;
   webSearchApiKey?: string;
+  webSearchOptions?: WebSearchProviderSettings;
   isRecording: boolean;
   showToast: (message: string, onRetry?: () => void) => void;
   t: (

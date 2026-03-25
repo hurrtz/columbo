@@ -67,6 +67,7 @@ export type ProviderValidationState = {
   status: "idle" | "validating" | "success" | "error";
   message?: string;
   apiKey?: string;
+  configKey?: string;
   model?: string;
 };
 

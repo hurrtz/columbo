@@ -133,15 +133,40 @@ export const en: TranslationDictionary = {
     webSearchProvider: "Web Search Provider",
     webSearchProviderHint:
       "Choose the provider that performs live web lookups. Its API key is stored on-device like any other provider key.",
+    webSearchMode: "Web Search Mode",
+    webSearchModeOff: "Off",
+    webSearchModeAuto: "Auto",
+    webSearchModeOn: "On",
+    webSearchModeOffDescription:
+      "Never run a web lookup before the assistant reply.",
+    webSearchModeAutoDescription:
+      "Only search when the request looks freshness-sensitive or follows a grounded answer.",
+    webSearchModeOnDescription:
+      "Always search the web before the assistant reply when the provider is configured.",
     webSearchModelHint: ({ model }) =>
       `Uses ${model} behind the scenes for live web grounding.`,
     webSearchHomeHint:
-      "Use the home-screen checkbox when you want fresh web context added before the assistant reply.",
+      "Use the home-screen control to switch web grounding off, auto, or always on for this thread.",
     webSearchSetupNeeded: "Add the provider key to use live web search.",
     webSearchEnabledDescription:
       "Fresh web context is added before the model replies.",
     webSearchDisabledDescription:
       "Use live web context for this thread when current facts matter.",
+    webSearchQualityControls: "Search Quality",
+    webSearchSearchMode: "Search Mode",
+    webSearchSearchModeQuick: "Quick",
+    webSearchSearchModeBalanced: "Balanced",
+    webSearchSearchModeDeep: "Deep",
+    webSearchDepth: "Search Depth",
+    webSearchDepthStandard: "Standard",
+    webSearchDepthDeep: "Deep",
+    webSearchResultCount: "Result Count",
+    webSearchQualityHint: ({ provider }) =>
+      `These controls tune how ${provider} gathers fresh context before the reply.`,
+    webSearchNoExtraControls: ({ provider }) =>
+      `${provider} does not expose extra search-quality controls in this app yet.`,
+    setWebSearchMode: ({ mode }) => `Set web search mode to ${mode}`,
+    openWebSearchSettings: "Open web search settings",
     providerSttDescription:
       "Use a configured provider to transcribe your voice before it is sent to the model.",
     sttProvider: "STT Provider",

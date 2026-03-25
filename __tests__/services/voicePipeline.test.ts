@@ -751,7 +751,7 @@ describe("runVoicePipeline", () => {
       responseLength: "normal",
       responseTone: "professional",
       language: "en",
-      webSearchEnabled: true,
+      webSearchMode: "on",
       webSearchProvider: "openai",
       webSearchApiKey: "sk-openai",
       callbacks,
@@ -820,7 +820,7 @@ describe("runVoicePipeline", () => {
       responseLength: "normal",
       responseTone: "professional",
       language: "en",
-      webSearchEnabled: true,
+      webSearchMode: "on",
       webSearchProvider: "openai",
       webSearchApiKey: "sk-openai",
       callbacks,
@@ -835,5 +835,86 @@ describe("runVoicePipeline", () => {
     );
     expect(callbacks.onError).not.toHaveBeenCalled();
     expect((streamChat as jest.Mock).mock.calls[0][0].webSearchContext).toBeUndefined();
+  });
+
+  it("runs web search automatically when the query looks freshness-sensitive", async () => {
+    (searchWeb as jest.Mock).mockResolvedValueOnce({
+      context: "Fresh web context",
+      model: "gpt-4.1-mini",
+      provider: "openai",
+      sources: [],
+      summary: "Fresh answer",
+    });
+    (streamChat as jest.Mock).mockImplementation(
+      async ({ onDone }: { onDone: (text: string) => Promise<void> }) => {
+        await onDone("Here is the current update.");
+      },
+    );
+
+    await runVoicePipeline({
+      transcriptionOverride: "What is the latest Claude release?",
+      messages: [],
+      model: "claude-opus-4-6",
+      provider: "anthropic",
+      providerApiKey: "sk-ant-test",
+      sttMode: "native",
+      ttsMode: "native",
+      ttsVoice: "alloy",
+      replyPlayback: "wait",
+      assistantInstructions: "You are a voice assistant.",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      webSearchMode: "auto",
+      webSearchProvider: "openai",
+      webSearchApiKey: "sk-openai",
+      callbacks: {
+        onTranscription: jest.fn(),
+        onChunk: jest.fn(),
+        onResponseDone: jest.fn(),
+        onAudioReady: jest.fn(),
+        onSpeechTextReady: jest.fn(),
+        onError: jest.fn(),
+      },
+    });
+
+    expect(searchWeb).toHaveBeenCalledTimes(1);
+  });
+
+  it("skips web search in auto mode for stable prompts", async () => {
+    (streamChat as jest.Mock).mockImplementation(
+      async ({ onDone }: { onDone: (text: string) => Promise<void> }) => {
+        await onDone("Photosynthesis turns light into energy.");
+      },
+    );
+
+    await runVoicePipeline({
+      transcriptionOverride: "Explain photosynthesis.",
+      messages: [],
+      model: "claude-opus-4-6",
+      provider: "anthropic",
+      providerApiKey: "sk-ant-test",
+      sttMode: "native",
+      ttsMode: "native",
+      ttsVoice: "alloy",
+      replyPlayback: "wait",
+      assistantInstructions: "You are a voice assistant.",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      webSearchMode: "auto",
+      webSearchProvider: "openai",
+      webSearchApiKey: "sk-openai",
+      callbacks: {
+        onTranscription: jest.fn(),
+        onChunk: jest.fn(),
+        onResponseDone: jest.fn(),
+        onAudioReady: jest.fn(),
+        onSpeechTextReady: jest.fn(),
+        onError: jest.fn(),
+      },
+    });
+
+    expect(searchWeb).not.toHaveBeenCalled();
   });
 });

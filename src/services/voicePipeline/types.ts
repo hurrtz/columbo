@@ -1,4 +1,8 @@
-import type { WebSearchProvider } from "../../constants/webSearch";
+import type {
+  WebSearchMode,
+  WebSearchProvider,
+  WebSearchProviderSettings,
+} from "../../constants/webSearch";
 import type {
   AppLanguage,
   AssistantResponseLength,
@@ -69,9 +73,10 @@ export interface RunVoicePipelineParams {
   responseLength: AssistantResponseLength;
   responseTone: AssistantResponseTone;
   language: AppLanguage;
-  webSearchEnabled?: boolean;
+  webSearchMode?: WebSearchMode;
   webSearchProvider?: WebSearchProvider | null;
   webSearchApiKey?: string;
+  webSearchOptions?: WebSearchProviderSettings;
   callbacks: PipelineCallbacks;
   abortSignal?: AbortSignal;
 }

@@ -136,16 +136,41 @@ export const de: TranslationDictionary = {
     webSearchProvider: "Websuche-Anbieter",
     webSearchProviderHint:
       "Wähle den Anbieter für Live-Websuchen. Sein API-Key wird wie alle anderen Anbieter-Keys lokal auf dem Gerät gespeichert.",
+    webSearchMode: "Websuche-Modus",
+    webSearchModeOff: "Aus",
+    webSearchModeAuto: "Auto",
+    webSearchModeOn: "An",
+    webSearchModeOffDescription:
+      "Vor der Antwort wird niemals eine Websuche ausgeführt.",
+    webSearchModeAutoDescription:
+      "Nur suchen, wenn die Anfrage nach aktuellem Wissen aussieht oder an eine bereits geerdete Antwort anknüpft.",
+    webSearchModeOnDescription:
+      "Vor jeder Antwort suchen, sobald der Anbieter korrekt konfiguriert ist.",
     webSearchModelHint: ({ model }) =>
       `Verwendet im Hintergrund ${model} für die Live-Webrecherche.`,
     webSearchHomeHint:
-      "Nutze das Kästchen auf dem Homescreen, wenn vor der Antwort frischer Web-Kontext eingesammelt werden soll.",
+      "Nutze den Homescreen-Schalter, um Web-Grundierung für diesen Schnack auszuschalten, automatisch zu steuern oder immer zu erzwingen.",
     webSearchSetupNeeded:
       "Hinterlege den Anbieter-Key, um die Live-Websuche zu nutzen.",
     webSearchEnabledDescription:
       "Vor der Modellantwort wird frischer Web-Kontext ergänzt.",
     webSearchDisabledDescription:
       "Nutze Live-Web-Kontext, wenn aktuelle Fakten wichtig sind.",
+    webSearchQualityControls: "Suchqualität",
+    webSearchSearchMode: "Suchmodus",
+    webSearchSearchModeQuick: "Schnell",
+    webSearchSearchModeBalanced: "Ausgewogen",
+    webSearchSearchModeDeep: "Tief",
+    webSearchDepth: "Suchtiefe",
+    webSearchDepthStandard: "Standard",
+    webSearchDepthDeep: "Tief",
+    webSearchResultCount: "Trefferanzahl",
+    webSearchQualityHint: ({ provider }) =>
+      `Diese Regler steuern, wie ${provider} frischen Kontext vor der Antwort einsammelt.`,
+    webSearchNoExtraControls: ({ provider }) =>
+      `${provider} bietet in dieser App derzeit keine zusätzlichen Suchregler an.`,
+    setWebSearchMode: ({ mode }) => `Websuche auf ${mode} setzen`,
+    openWebSearchSettings: "Websuche-Einstellungen öffnen",
     providerSttDescription:
       "Verwende einen der Anbieter aus der Liste, um deine Sprache zu transkribieren, bevor sie an das Modell geht.",
     sttProvider: "STT-Anbieter",

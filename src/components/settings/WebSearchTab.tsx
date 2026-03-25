@@ -11,18 +11,24 @@ import {
 } from "../../constants/models";
 import {
   DEFAULT_WEB_SEARCH_PROVIDER,
+  getWebSearchProviderControlSupport,
   getWebSearchProviderModel,
+  type WebSearchDepth,
+  type WebSearchMode,
   type WebSearchProvider,
+  type WebSearchSearchMode,
   WEB_SEARCH_PROVIDER_IDS,
 } from "../../constants/webSearch";
 import { useLocalization } from "../../i18n";
 import type { Settings } from "../../types";
 import { useTheme } from "../../theme/ThemeContext";
+import { Picker } from "../Picker";
 
 import {
   ProviderApiKeyCard,
   ProviderSelectionGrid,
 } from "./ProvidersSections";
+import { PickerSection, RadioGroup } from "./SettingsSectionPrimitives";
 import { styles } from "./styles";
 import { ProviderValidationState, TextInputFocusHandler } from "./types";
 
@@ -45,6 +51,27 @@ export function WebSearchTab({
 }: WebSearchTabProps) {
   const { colors } = useTheme();
   const { t } = useLocalization();
+  const webSearchModeOptions: {
+    value: WebSearchMode;
+    label: string;
+    description: string;
+  }[] = [
+    {
+      value: "off",
+      label: t("webSearchModeOff"),
+      description: t("webSearchModeOffDescription"),
+    },
+    {
+      value: "auto",
+      label: t("webSearchModeAuto"),
+      description: t("webSearchModeAutoDescription"),
+    },
+    {
+      value: "on",
+      label: t("webSearchModeOn"),
+      description: t("webSearchModeOnDescription"),
+    },
+  ];
   const [selectedCatalogProviderId, setSelectedCatalogProviderId] = React.useState(
     getCatalogProviderIdForAppProvider(
       settings.webSearchProvider ?? DEFAULT_WEB_SEARCH_PROVIDER,
@@ -68,13 +95,18 @@ export function WebSearchTab({
     (getAppProviderForCatalogProviderId(
       selectedCatalogProviderId,
     ) as WebSearchProvider | null) ?? DEFAULT_WEB_SEARCH_PROVIDER;
+  const selectedProviderSettings = settings.webSearchProviderSettings[selectedProvider];
+  const selectedProviderControlSupport =
+    getWebSearchProviderControlSupport(selectedProvider);
   const selectedModel = getWebSearchProviderModel(selectedProvider);
   const selectedApiKey = settings.apiKeys[selectedProvider] ?? "";
   const trimmedApiKey = selectedApiKey.trim();
+  const selectedSettingsKey = JSON.stringify(selectedProviderSettings);
   const storedValidationState = validationStateByProvider[selectedProvider];
   const validationState =
     storedValidationState?.apiKey === trimmedApiKey &&
-    storedValidationState?.model === selectedModel
+    storedValidationState?.model === selectedModel &&
+    storedValidationState?.configKey === selectedSettingsKey
       ? storedValidationState
       : { status: "idle" as const };
 
@@ -102,6 +134,7 @@ export function WebSearchTab({
       [selectedProvider]: {
         status: "validating",
         apiKey: trimmedApiKey,
+        configKey: selectedSettingsKey,
         model: selectedModel,
       },
     }));
@@ -116,6 +149,7 @@ export function WebSearchTab({
             provider: PROVIDER_LABELS[selectedProvider],
           }),
           apiKey: trimmedApiKey,
+          configKey: selectedSettingsKey,
           model: selectedModel,
         },
       }));
@@ -127,6 +161,7 @@ export function WebSearchTab({
           message:
             error instanceof Error ? error.message : t("providerValidationFailed"),
           apiKey: trimmedApiKey,
+          configKey: selectedSettingsKey,
           model: selectedModel,
         },
       }));
@@ -135,12 +170,37 @@ export function WebSearchTab({
     onValidateWebSearchProvider,
     selectedModel,
     selectedProvider,
+    selectedSettingsKey,
     t,
     trimmedApiKey,
   ]);
 
+  const updateSelectedProviderSettings = React.useCallback(
+    (
+      partial: Partial<Settings["webSearchProviderSettings"][WebSearchProvider]>,
+    ) => {
+      onUpdate({
+        webSearchProviderSettings: {
+          ...settings.webSearchProviderSettings,
+          [selectedProvider]: {
+            ...selectedProviderSettings,
+            ...partial,
+          },
+        },
+      });
+    },
+    [onUpdate, selectedProvider, selectedProviderSettings, settings.webSearchProviderSettings],
+  );
+
   return (
     <>
+      <RadioGroup
+        label={t("webSearchMode")}
+        options={webSearchModeOptions}
+        value={settings.webSearchMode}
+        onChange={(value) => onUpdate({ webSearchMode: value })}
+      />
+
       <View
         style={[
           styles.sectionCard,
@@ -191,6 +251,101 @@ export function WebSearchTab({
         onValidateProvider={handleValidateProvider}
         showCatalogSummary={false}
       />
+
+      {selectedProviderControlSupport.resultLimit ||
+      selectedProviderControlSupport.depth ||
+      selectedProviderControlSupport.searchMode ? (
+        <PickerSection>
+          <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
+            {t("webSearchQualityControls")}
+          </Text>
+          {selectedProviderControlSupport.searchMode ? (
+            <Picker
+              label={t("webSearchSearchMode")}
+              value={selectedProviderSettings.searchMode}
+              options={[
+                {
+                  value: "quick",
+                  label: t("webSearchSearchModeQuick"),
+                },
+                {
+                  value: "balanced",
+                  label: t("webSearchSearchModeBalanced"),
+                },
+                {
+                  value: "deep",
+                  label: t("webSearchSearchModeDeep"),
+                },
+              ]}
+              onChange={(value) =>
+                updateSelectedProviderSettings({
+                  searchMode: value as WebSearchSearchMode,
+                })
+              }
+            />
+          ) : null}
+          {selectedProviderControlSupport.depth ? (
+            <Picker
+              label={t("webSearchDepth")}
+              value={selectedProviderSettings.depth}
+              options={[
+                {
+                  value: "standard",
+                  label: t("webSearchDepthStandard"),
+                },
+                {
+                  value: "deep",
+                  label: t("webSearchDepthDeep"),
+                },
+              ]}
+              onChange={(value) =>
+                updateSelectedProviderSettings({
+                  depth: value as WebSearchDepth,
+                })
+              }
+            />
+          ) : null}
+          {selectedProviderControlSupport.resultLimit ? (
+            <Picker
+              label={t("webSearchResultCount")}
+              value={String(selectedProviderSettings.resultLimit)}
+              options={["3", "5", "8"].map((value) => ({
+                value,
+                label: value,
+              }))}
+              onChange={(value) =>
+                updateSelectedProviderSettings({
+                  resultLimit: Number(value) as 3 | 5 | 8,
+                })
+              }
+            />
+          ) : null}
+          <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 0 }]}>
+            {t("webSearchQualityHint", {
+              provider: PROVIDER_LABELS[selectedProvider],
+            })}
+          </Text>
+        </PickerSection>
+      ) : (
+        <View
+          style={[
+            styles.sectionCard,
+            {
+              backgroundColor: colors.surfaceElevated,
+              borderColor: colors.border,
+            },
+          ]}
+        >
+          <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
+            {t("webSearchQualityControls")}
+          </Text>
+          <Text style={[styles.sectionHint, { color: colors.textMuted, marginTop: 0 }]}>
+            {t("webSearchNoExtraControls", {
+              provider: PROVIDER_LABELS[selectedProvider],
+            })}
+          </Text>
+        </View>
+      )}
 
       <View
         style={[

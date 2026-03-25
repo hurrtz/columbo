@@ -1,9 +1,10 @@
 import {
   getWebSearchProviderModel,
+  normalizeWebSearchProviderSettings,
   type WebSearchProvider,
+  type WebSearchProviderSettings,
   WEB_SEARCH_MAX_SOURCES,
   WEB_SEARCH_PROVIDER_KIND,
-  WEB_SEARCH_RESULT_LIMIT,
   WEB_SEARCH_TIMEOUT_MS_BY_PROVIDER,
 } from "../constants/webSearch";
 import { PROVIDER_LABELS } from "../constants/models";
@@ -31,6 +32,7 @@ interface WebSearchRequestParams {
   language: AppLanguage;
   query: string;
   conversationSummary?: string;
+  options?: WebSearchProviderSettings;
   maxOutputTokens?: number;
   abortSignal?: AbortSignal;
 }
@@ -149,6 +151,14 @@ function buildSummaryFromHits(hits: SearchHit[]) {
     })
     .filter(Boolean)
     .join(" ");
+}
+
+function getResultLimit(
+  provider: WebSearchProvider,
+  options?: WebSearchProviderSettings,
+) {
+  const normalized = normalizeWebSearchProviderSettings(provider, options);
+  return normalized.resultLimit;
 }
 
 function buildContextFindings(hits: SearchHit[]) {
@@ -365,7 +375,7 @@ function extractPerplexitySources(data: unknown) {
   return dedupeSources(sources);
 }
 
-function extractTavilyHits(data: unknown): SearchHit[] {
+function extractTavilyHits(data: unknown, resultLimit: number): SearchHit[] {
   if (!data || typeof data !== "object") {
     return [];
   }
@@ -401,10 +411,10 @@ function extractTavilyHits(data: unknown): SearchHit[] {
         },
       ];
     })
-    .slice(0, WEB_SEARCH_RESULT_LIMIT);
+    .slice(0, resultLimit);
 }
 
-function extractBraveHits(data: unknown): SearchHit[] {
+function extractBraveHits(data: unknown, resultLimit: number): SearchHit[] {
   if (!data || typeof data !== "object") {
     return [];
   }
@@ -454,10 +464,10 @@ function extractBraveHits(data: unknown): SearchHit[] {
         },
       ];
     })
-    .slice(0, WEB_SEARCH_RESULT_LIMIT);
+    .slice(0, resultLimit);
 }
 
-function extractExaHits(data: unknown): SearchHit[] {
+function extractExaHits(data: unknown, resultLimit: number): SearchHit[] {
   if (!data || typeof data !== "object") {
     return [];
   }
@@ -492,10 +502,10 @@ function extractExaHits(data: unknown): SearchHit[] {
         },
       ];
     })
-    .slice(0, WEB_SEARCH_RESULT_LIMIT);
+    .slice(0, resultLimit);
 }
 
-function extractFirecrawlHits(data: unknown): SearchHit[] {
+function extractFirecrawlHits(data: unknown, resultLimit: number): SearchHit[] {
   if (!data || typeof data !== "object") {
     return [];
   }
@@ -535,10 +545,10 @@ function extractFirecrawlHits(data: unknown): SearchHit[] {
         },
       ];
     })
-    .slice(0, WEB_SEARCH_RESULT_LIMIT);
+    .slice(0, resultLimit);
 }
 
-function extractSerpApiHits(data: unknown): SearchHit[] {
+function extractSerpApiHits(data: unknown, resultLimit: number): SearchHit[] {
   if (!data || typeof data !== "object") {
     return [];
   }
@@ -575,7 +585,7 @@ function extractSerpApiHits(data: unknown): SearchHit[] {
         },
       ];
     })
-    .slice(0, WEB_SEARCH_RESULT_LIMIT);
+    .slice(0, resultLimit);
 }
 
 function buildSourceListFromHits(hits: SearchHit[]) {
@@ -666,6 +676,16 @@ function buildWebSearchTimeoutError(
 async function searchWithOpenAi(params: WebSearchRequestParams) {
   const model = getWebSearchProviderModel(params.provider);
   const maxOutputTokens = params.maxOutputTokens ?? 420;
+  const normalizedOptions = normalizeWebSearchProviderSettings(
+    params.provider,
+    params.options,
+  );
+  const searchContextSize =
+    normalizedOptions.searchMode === "quick"
+      ? "low"
+      : normalizedOptions.searchMode === "deep"
+        ? "high"
+        : "medium";
   const response = await fetchWithTimeout(
     "https://api.openai.com/v1/responses",
     {
@@ -687,7 +707,7 @@ async function searchWithOpenAi(params: WebSearchRequestParams) {
         tools: [
           {
             type: "web_search",
-            search_context_size: "medium",
+            search_context_size: searchContextSize,
           },
         ],
         include: ["web_search_call.action.sources"],
@@ -771,6 +791,10 @@ async function searchWithPerplexity(params: WebSearchRequestParams) {
 
 async function searchWithTavily(params: WebSearchRequestParams) {
   const model = getWebSearchProviderModel(params.provider);
+  const normalizedOptions = normalizeWebSearchProviderSettings(
+    params.provider,
+    params.options,
+  );
   const response = await fetchWithTimeout(
     "https://api.tavily.com/search",
     {
@@ -788,8 +812,9 @@ async function searchWithTavily(params: WebSearchRequestParams) {
           query: params.query,
           conversationSummary: params.conversationSummary,
         }),
-        max_results: WEB_SEARCH_RESULT_LIMIT,
-        search_depth: "advanced",
+        max_results: normalizedOptions.resultLimit,
+        search_depth:
+          normalizedOptions.depth === "deep" ? "advanced" : "basic",
         include_answer: true,
       }),
     },
@@ -818,12 +843,13 @@ async function searchWithTavily(params: WebSearchRequestParams) {
 
 async function searchWithBrave(params: WebSearchRequestParams) {
   const model = getWebSearchProviderModel(params.provider);
+  const resultLimit = getResultLimit(params.provider, params.options);
   const searchParams = new URLSearchParams({
     q: buildRetrievalQuery({
       query: params.query,
       conversationSummary: params.conversationSummary,
     }),
-    count: String(WEB_SEARCH_RESULT_LIMIT),
+    count: String(resultLimit),
   });
   const response = await fetchWithTimeout(
     `https://api.search.brave.com/res/v1/web/search?${searchParams.toString()}`,
@@ -862,6 +888,7 @@ async function searchWithBrave(params: WebSearchRequestParams) {
 
 async function searchWithExa(params: WebSearchRequestParams) {
   const model = getWebSearchProviderModel(params.provider);
+  const resultLimit = getResultLimit(params.provider, params.options);
   const response = await fetchWithTimeout(
     "https://api.exa.ai/search",
     {
@@ -880,7 +907,7 @@ async function searchWithExa(params: WebSearchRequestParams) {
           conversationSummary: params.conversationSummary,
         }),
         text: true,
-        numResults: WEB_SEARCH_RESULT_LIMIT,
+        numResults: resultLimit,
       }),
     },
     WEB_SEARCH_TIMEOUT_MS_BY_PROVIDER[params.provider],
@@ -908,6 +935,7 @@ async function searchWithExa(params: WebSearchRequestParams) {
 
 async function searchWithFirecrawl(params: WebSearchRequestParams) {
   const model = getWebSearchProviderModel(params.provider);
+  const resultLimit = getResultLimit(params.provider, params.options);
   const response = await fetchWithTimeout(
     "https://api.firecrawl.dev/v1/search",
     {
@@ -925,7 +953,7 @@ async function searchWithFirecrawl(params: WebSearchRequestParams) {
           query: params.query,
           conversationSummary: params.conversationSummary,
         }),
-        limit: WEB_SEARCH_RESULT_LIMIT,
+        limit: resultLimit,
       }),
     },
     WEB_SEARCH_TIMEOUT_MS_BY_PROVIDER[params.provider],
@@ -953,6 +981,7 @@ async function searchWithFirecrawl(params: WebSearchRequestParams) {
 
 async function searchWithSerpApi(params: WebSearchRequestParams) {
   const model = getWebSearchProviderModel(params.provider);
+  const resultLimit = getResultLimit(params.provider, params.options);
   const searchParams = new URLSearchParams({
     engine: "google",
     q: buildRetrievalQuery({
@@ -960,7 +989,7 @@ async function searchWithSerpApi(params: WebSearchRequestParams) {
       conversationSummary: params.conversationSummary,
     }),
     api_key: requireProviderKey(params.provider, params.apiKey, params.language),
-    num: String(WEB_SEARCH_RESULT_LIMIT),
+    num: String(resultLimit),
     output: "json",
     hl: params.language,
   });
@@ -1018,6 +1047,7 @@ function normalizeGroundedAnswerResult(params: {
   model: string;
   query: string;
   data: unknown;
+  options?: WebSearchProviderSettings;
 }) {
   const summary =
     params.provider === "openai"
@@ -1051,17 +1081,19 @@ function normalizeSearchResultsResult(params: {
   model: string;
   query: string;
   data: unknown;
+  options?: WebSearchProviderSettings;
 }) {
+  const resultLimit = getResultLimit(params.provider, params.options);
   const hits =
     params.provider === "tavily"
-      ? extractTavilyHits(params.data)
+      ? extractTavilyHits(params.data, resultLimit)
       : params.provider === "brave"
-        ? extractBraveHits(params.data)
+        ? extractBraveHits(params.data, resultLimit)
         : params.provider === "exa"
-          ? extractExaHits(params.data)
+          ? extractExaHits(params.data, resultLimit)
           : params.provider === "firecrawl"
-            ? extractFirecrawlHits(params.data)
-            : extractSerpApiHits(params.data);
+            ? extractFirecrawlHits(params.data, resultLimit)
+            : extractSerpApiHits(params.data, resultLimit);
 
   const sources = buildSourceListFromHits(hits);
   const answer =
@@ -1098,6 +1130,7 @@ function normalizeWebSearchResult(params: {
   model: string;
   query: string;
   data: unknown;
+  options?: WebSearchProviderSettings;
 }) {
   return WEB_SEARCH_PROVIDER_KIND[params.provider] === "grounded-answer"
     ? normalizeGroundedAnswerResult(params)
@@ -1108,6 +1141,7 @@ export async function validateWebSearchConnection(params: {
   provider: WebSearchProvider;
   apiKey: string;
   language: AppLanguage;
+  options?: WebSearchProviderSettings;
   abortSignal?: AbortSignal;
 }) {
   await requestWebSearch({
@@ -1115,6 +1149,7 @@ export async function validateWebSearchConnection(params: {
     apiKey: params.apiKey,
     language: params.language,
     query: getValidationQuery(params.language),
+    options: params.options,
     maxOutputTokens: 120,
     abortSignal: params.abortSignal,
   });
@@ -1133,6 +1168,7 @@ export async function searchWeb(
     event: "web-search-requested",
     payload: {
       model: getWebSearchProviderModel(params.provider),
+      options: normalizeWebSearchProviderSettings(params.provider, params.options),
       provider: params.provider,
       queryLength: query.length,
     },
@@ -1169,6 +1205,7 @@ export async function searchWeb(
     model: response.model,
     query,
     data: response.data,
+    options: params.options,
   });
 
   if (!result) {
@@ -1187,6 +1224,7 @@ export async function searchWeb(
     event: "web-search-complete",
     payload: {
       model: result.model,
+      options: normalizeWebSearchProviderSettings(params.provider, params.options),
       provider: result.provider,
       sourceCount: result.sources.length,
       summaryLength: result.summary.length,

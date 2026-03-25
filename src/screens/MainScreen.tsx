@@ -14,6 +14,7 @@ import { Toast } from "../components/Toast";
 import {
   DEFAULT_WEB_SEARCH_PROVIDER,
   type WebSearchProvider,
+  type WebSearchMode,
 } from "../constants/webSearch";
 import { getTtsListenLanguageLabel } from "../constants/localTts";
 import {
@@ -160,13 +161,17 @@ export function MainScreen() {
     settings.sttMode === "provider" ? settings.sttProvider : null;
   const ttsProvider = settings.ttsProvider;
   const webSearchProvider = settings.webSearchProvider;
+  const webSearchMode = settings.webSearchMode;
   const sttApiKey = sttProvider ? settings.apiKeys[sttProvider].trim() : "";
   const ttsApiKey = ttsProvider ? settings.apiKeys[ttsProvider].trim() : "";
   const webSearchApiKey = webSearchProvider
     ? settings.apiKeys[webSearchProvider].trim()
     : "";
+  const webSearchOptions = webSearchProvider
+    ? settings.webSearchProviderSettings[webSearchProvider]
+    : undefined;
   const webSearchReady = !!webSearchProvider && !!webSearchApiKey;
-  const webSearchActive = settings.webSearchEnabled && webSearchReady;
+  const webSearchActive = webSearchMode !== "off" && webSearchReady;
   const selectedSttModel = sttProvider
     ? settings.providerSttModels[sttProvider] ||
       PROVIDER_DEFAULT_STT_MODELS[sttProvider] ||
@@ -248,9 +253,10 @@ export function MainScreen() {
     responseLength: settings.responseLength,
     responseTone: settings.responseTone,
     language,
-    webSearchEnabled: webSearchActive,
+    webSearchMode,
     webSearchProvider,
     webSearchApiKey,
+    webSearchOptions,
     isRecording,
     showToast,
     t,
@@ -538,6 +544,7 @@ export function MainScreen() {
           provider: nextProvider,
           apiKey,
           language,
+          options: settings.webSearchProviderSettings[nextProvider],
         });
         recordDebugLogEvent({
           event: "web-search-validation-succeeded",
@@ -633,7 +640,7 @@ export function MainScreen() {
       ttsMode: settings.ttsMode,
       ttsProvider,
       webSearchActive,
-      webSearchEnabled: settings.webSearchEnabled,
+      webSearchMode,
       webSearchProvider,
       webSearchReady,
       visualPhase,
@@ -658,7 +665,7 @@ export function MainScreen() {
       settings.inputMode,
       settings.sttMode,
       settings.ttsMode,
-      settings.webSearchEnabled,
+      webSearchMode,
       webSearchActive,
       webSearchProvider,
       webSearchReady,
@@ -1023,12 +1030,20 @@ export function MainScreen() {
               )
             }
             onSelectResponseMode={handleResponseModeChange}
-            onToggleWebSearch={() =>
-              updateSettings({ webSearchEnabled: !settings.webSearchEnabled })
-            }
+            onSelectWebSearchMode={(nextMode: WebSearchMode) => {
+              if (nextMode !== "off" && !webSearchReady) {
+                openSettings(
+                  webSearchProvider ?? DEFAULT_WEB_SEARCH_PROVIDER,
+                  "web",
+                );
+                return;
+              }
+
+              updateSettings({ webSearchMode: nextMode });
+            }}
             responseModes={settings.responseModes}
             t={t}
-            webSearchEnabled={webSearchActive}
+            webSearchMode={webSearchMode}
             webSearchProvider={webSearchProvider}
             webSearchReady={webSearchReady}
           />

@@ -12,7 +12,11 @@ import {
 } from "./constants/providers/runtimeState";
 import {
   DEFAULT_WEB_SEARCH_PROVIDER,
+  DEFAULT_WEB_SEARCH_MODE,
+  createDefaultWebSearchProviderSettings,
   type WebSearchProvider,
+  type WebSearchMode,
+  type WebSearchProviderSettings,
 } from "./constants/webSearch";
 import type { RuntimeAppProviderId } from "./constants/providers/runtimeManifest";
 
@@ -107,8 +111,9 @@ export interface Settings {
   responseLength: AssistantResponseLength;
   responseTone: AssistantResponseTone;
   showUsageStats: boolean;
-  webSearchEnabled: boolean;
+  webSearchMode: WebSearchMode;
   webSearchProvider: WebSearchProvider | null;
+  webSearchProviderSettings: Record<WebSearchProvider, WebSearchProviderSettings>;
   apiKeys: ProviderApiKeys;
 }
 
@@ -190,8 +195,9 @@ export const DEFAULT_SETTINGS: Settings = {
   responseLength: "normal",
   responseTone: "professional",
   showUsageStats: false,
-  webSearchEnabled: false,
+  webSearchMode: DEFAULT_WEB_SEARCH_MODE,
   webSearchProvider: DEFAULT_WEB_SEARCH_PROVIDER,
+  webSearchProviderSettings: createDefaultWebSearchProviderSettings(),
   apiKeys: createRuntimeProviderStringRecord(),
 };
 
