@@ -6,7 +6,7 @@ import {
 import { PROVIDER_LABELS, getSttModelLabel } from "../constants/models";
 import { translate } from "../i18n";
 import { AppLanguage, Provider, SttBackendMode } from "../types";
-import { STT_PROVIDER_CONFIGS } from "./whisper/config";
+import { getProviderSttConfig } from "./whisper/config";
 import { waitForRecordedFileReady } from "./whisper/recordedFileReady";
 import {
   transcribeWithAssemblyAiPreRecordedProvider,
@@ -16,8 +16,8 @@ import {
   transcribeWithDeepgramPreRecordedProvider,
   transcribeWithDeepInfraInferenceProvider,
   transcribeWithElevenLabsProvider,
-  transcribeWithFishAudioProvider,
   transcribeWithFireworksPreRecordedProvider,
+  transcribeWithFishAudioProvider,
   transcribeWithGeminiProvider,
   transcribeWithHuggingFaceJsonProvider,
   transcribeWithIbmWatsonxProvider,
@@ -26,6 +26,13 @@ import {
   transcribeWithOpenAiAudioInputProvider,
   transcribeWithReplicateProvider,
 } from "./whisper/providers";
+import {
+  transcribeWithAssemblyAiRealtimeProvider,
+  transcribeWithDashScopeRealtimeProvider,
+  transcribeWithElevenLabsRealtimeProvider,
+  transcribeWithFireworksStreamingProvider,
+  transcribeWithStepfunRealtimeProvider,
+} from "./whisper/realtimeProviders";
 
 function formatByteLimit(bytes: number) {
   if (bytes >= 1_000_000) {
@@ -105,7 +112,8 @@ export async function transcribeAudio(params: {
 
   await waitForRecordedFileReady(fileUri, language, abortSignal);
 
-  const config = STT_PROVIDER_CONFIGS[provider];
+  const selectedModel = providerModel || "";
+  const config = getProviderSttConfig(provider, selectedModel);
 
   if (!config) {
     throw new Error(
@@ -115,12 +123,12 @@ export async function transcribeAudio(params: {
     );
   }
 
-  const selectedModel = providerModel || config.defaultModel;
+  const resolvedModel = providerModel || config.defaultModel;
 
   await assertSttUploadFitsCatalogLimits({
     fileUri,
     provider,
-    modelId: selectedModel,
+    modelId: resolvedModel,
     language,
   });
 
@@ -132,7 +140,7 @@ export async function transcribeAudio(params: {
       fileUri,
       language,
       provider,
-      providerModel: selectedModel,
+      providerModel: resolvedModel,
     });
   }
 
@@ -144,7 +152,19 @@ export async function transcribeAudio(params: {
       fileUri,
       language,
       provider,
-      providerModel: selectedModel,
+      providerModel: resolvedModel,
+    });
+  }
+
+  if (config.kind === "assemblyai-realtime") {
+    return transcribeWithAssemblyAiRealtimeProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
     });
   }
 
@@ -156,7 +176,19 @@ export async function transcribeAudio(params: {
       fileUri,
       language,
       provider,
-      providerModel: selectedModel,
+      providerModel: resolvedModel,
+    });
+  }
+
+  if (config.kind === "dashscope-realtime") {
+    return transcribeWithDashScopeRealtimeProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
     });
   }
 
@@ -168,7 +200,7 @@ export async function transcribeAudio(params: {
       fileUri,
       language,
       provider,
-      providerModel: selectedModel,
+      providerModel: resolvedModel,
     });
   }
 
@@ -216,7 +248,19 @@ export async function transcribeAudio(params: {
       fileUri,
       language,
       provider,
-      providerModel: selectedModel,
+      providerModel: resolvedModel,
+    });
+  }
+
+  if (config.kind === "elevenlabs-realtime") {
+    return transcribeWithElevenLabsRealtimeProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
     });
   }
 
@@ -228,7 +272,19 @@ export async function transcribeAudio(params: {
       fileUri,
       language,
       provider,
-      providerModel: selectedModel,
+      providerModel: resolvedModel,
+    });
+  }
+
+  if (config.kind === "fireworks-streaming") {
+    return transcribeWithFireworksStreamingProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
     });
   }
 
@@ -240,7 +296,7 @@ export async function transcribeAudio(params: {
       fileUri,
       language,
       provider,
-      providerModel: selectedModel,
+      providerModel: resolvedModel,
     });
   }
 
@@ -252,7 +308,7 @@ export async function transcribeAudio(params: {
       fileUri,
       language,
       provider,
-      providerModel: selectedModel,
+      providerModel: resolvedModel,
     });
   }
 
@@ -264,7 +320,7 @@ export async function transcribeAudio(params: {
       fileUri,
       language,
       provider,
-      providerModel: selectedModel,
+      providerModel: resolvedModel,
     });
   }
 
@@ -276,7 +332,7 @@ export async function transcribeAudio(params: {
       fileUri,
       language,
       provider,
-      providerModel: selectedModel,
+      providerModel: resolvedModel,
     });
   }
 
@@ -288,7 +344,7 @@ export async function transcribeAudio(params: {
       fileUri,
       language,
       provider,
-      providerModel: selectedModel,
+      providerModel: resolvedModel,
     });
   }
 
@@ -300,7 +356,19 @@ export async function transcribeAudio(params: {
       fileUri,
       language,
       provider,
-      providerModel: selectedModel,
+      providerModel: resolvedModel,
+    });
+  }
+
+  if (config.kind === "stepfun-realtime") {
+    return transcribeWithStepfunRealtimeProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
     });
   }
 
@@ -311,6 +379,6 @@ export async function transcribeAudio(params: {
     fileUri,
     language,
     provider,
-    providerModel: selectedModel,
+    providerModel: resolvedModel,
   });
 }

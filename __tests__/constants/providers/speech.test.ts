@@ -31,16 +31,31 @@ describe("speech provider constants", () => {
     expect(getProviderSttModelOptions("assemblyai")).toEqual([
       { id: "universal-3-pro", name: "Universal-3 Pro" },
       { id: "universal-2", name: "Universal-2" },
+      { id: "u3-rt-pro", name: "Universal-3 Pro Streaming" },
+      {
+        id: "universal-streaming-english",
+        name: "Universal-Streaming English",
+      },
+      {
+        id: "universal-streaming-multilingual",
+        name: "Universal-Streaming Multilingual",
+      },
+      { id: "whisper-rt", name: "Whisper Streaming" },
     ]);
     expect(getProviderSttModelOptions("z-ai-zhipu-ai")).toEqual([
       { id: "glm-asr-2512", name: "GLM-ASR-2512" },
     ]);
     expect(getProviderSttModelOptions("alibaba-qwen-dashscope")).toEqual([
       { id: "qwen3-asr-flash", name: "Qwen3-ASR-Flash" },
+      {
+        id: "qwen3-asr-flash-realtime",
+        name: "Qwen3-ASR-Flash-Realtime",
+      },
     ]);
     expect(getProviderSttModelOptions("stepfun")).toEqual([
       { id: "step-asr", name: "Step ASR" },
       { id: "step-asr-1.1", name: "Step ASR 1.1" },
+      { id: "step-asr-1.1-stream", name: "Step ASR 1.1 Stream" },
     ]);
     expect(getProviderSttModelOptions("siliconflow")).toEqual([
       { id: "FunAudioLLM/SenseVoiceSmall", name: "SenseVoiceSmall" },
@@ -49,6 +64,8 @@ describe("speech provider constants", () => {
     expect(getProviderSttModelOptions("fireworks-ai")).toEqual([
       { id: "whisper-v3", name: "Whisper V3 Large" },
       { id: "whisper-v3-turbo", name: "Whisper V3 Turbo" },
+      { id: "fireworks-asr-large", name: "Streaming ASR v1" },
+      { id: "fireworks-asr-v2", name: "Streaming ASR v2" },
     ]);
     expect(getProviderSttModelOptions("deepgram")).toEqual([
       { id: "flux-general-en", name: "Flux General English" },
@@ -64,6 +81,7 @@ describe("speech provider constants", () => {
     expect(getProviderSttModelOptions("elevenlabs")).toEqual([
       { id: "scribe_v2", name: "Scribe v2" },
       { id: "scribe_v1", name: "Scribe v1" },
+      { id: "scribe_v2_realtime", name: "Scribe v2 Realtime" },
     ]);
     expect(getProviderSttModelOptions("sambanova")).toEqual([
       { id: "Whisper-Large-v3", name: "Whisper Large v3" },

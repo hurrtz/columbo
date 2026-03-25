@@ -3,8 +3,95 @@ import { transcribeAudio } from "../../src/services/whisper";
 
 global.fetch = jest.fn();
 
+jest.mock("../../src/services/whisper/recordedFileReady", () => ({
+  waitForRecordedFileReady: jest.fn(() => Promise.resolve()),
+}));
+
+const OriginalWebSocket = (globalThis as any).WebSocket;
+
+class MockWebSocket {
+  static instances: MockWebSocket[] = [];
+
+  readonly url: string;
+  readonly protocols: any;
+  readonly options: any;
+  readonly sent: any[] = [];
+  onopen: ((event: any) => void) | null = null;
+  onmessage: ((event: any) => void) | null = null;
+  onerror: ((event: any) => void) | null = null;
+  onclose: ((event: any) => void) | null = null;
+
+  constructor(url: string, protocols?: any, options?: any) {
+    this.url = url;
+    this.protocols = protocols;
+    this.options = options;
+    MockWebSocket.instances.push(this);
+  }
+
+  send(data: any) {
+    this.sent.push(data);
+  }
+
+  close() {
+    this.onclose?.({ code: 1000, reason: "closed" });
+  }
+
+  emitOpen() {
+    this.onopen?.({});
+  }
+
+  emitMessage(data: any) {
+    this.onmessage?.({
+      data: typeof data === "string" ? data : JSON.stringify(data),
+    });
+  }
+}
+
+function mockBuildTestWavBase64() {
+  const header = new ArrayBuffer(44);
+  const view = new DataView(header);
+  const dataLength = 6400;
+
+  view.setUint32(0, 0x52494646, false);
+  view.setUint32(4, 36 + dataLength, true);
+  view.setUint32(8, 0x57415645, false);
+  view.setUint32(12, 0x666d7420, false);
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 3, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, 16000, true);
+  view.setUint32(28, 64000, true);
+  view.setUint16(32, 4, true);
+  view.setUint16(34, 32, true);
+  view.setUint32(36, 0x64617461, false);
+  view.setUint32(40, dataLength, true);
+
+  const wav = new Uint8Array(44 + dataLength);
+  wav.set(new Uint8Array(header), 0);
+
+  return Buffer.from(wav).toString("base64");
+}
+
+async function waitForMockSocket() {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const socket = MockWebSocket.instances[0];
+
+    if (socket) {
+      return socket;
+    }
+
+    await Promise.resolve();
+  }
+
+  throw new Error("Expected realtime STT socket to be created.");
+}
+
 jest.mock("expo-file-system/legacy", () => ({
-  readAsStringAsync: jest.fn(() => Promise.resolve("ZmFrZQ==")),
+  readAsStringAsync: jest.fn((fileUri: string) =>
+    Promise.resolve(
+      fileUri.endsWith(".wav") ? mockBuildTestWavBase64() : "ZmFrZQ==",
+    )
+  ),
   getInfoAsync: jest.fn(() =>
     Promise.resolve({
       exists: true,
@@ -14,8 +101,17 @@ jest.mock("expo-file-system/legacy", () => ({
 }));
 
 describe("transcribeAudio", () => {
+  beforeAll(() => {
+    (globalThis as any).WebSocket = MockWebSocket;
+  });
+
+  afterAll(() => {
+    (globalThis as any).WebSocket = OriginalWebSocket;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
+    MockWebSocket.instances = [];
     (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({
       exists: true,
       size: 8192,
@@ -222,6 +318,38 @@ describe("transcribeAudio", () => {
     );
   });
 
+  it("uses the AssemblyAI realtime socket for streaming STT models", async () => {
+    const promise = transcribeAudio({
+      fileUri: "/tmp/recording.wav",
+      mode: "provider",
+      provider: "assemblyai",
+      providerModel: "u3-rt-pro",
+      apiKey: "assemblyai-test",
+      language: "en",
+    });
+
+    const socket = await waitForMockSocket();
+    expect(socket.url).toBe(
+      "wss://streaming.assemblyai.com/v3/ws?sample_rate=16000&speech_model=u3-rt-pro",
+    );
+    expect(socket.options.headers.Authorization).toBe("assemblyai-test");
+
+    socket.emitOpen();
+    expect(socket.sent.at(-1)).toBe(JSON.stringify({ type: "Terminate" }));
+
+    socket.emitMessage({
+      type: "Turn",
+      transcript: "Hello from AssemblyAI realtime",
+      end_of_turn: true,
+    });
+    socket.emitMessage({
+      type: "Termination",
+    });
+
+    await expect(promise).resolves.toBe("Hello from AssemblyAI realtime");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("uses Replicate predictions for official transcription models", async () => {
     (fetch as jest.Mock)
       .mockResolvedValueOnce({
@@ -297,6 +425,48 @@ describe("transcribeAudio", () => {
     expect((options.body as FormData).get("model")).toBe("step-asr");
   });
 
+  it("uses the StepFun realtime ASR socket for step-asr-1.1-stream", async () => {
+    const promise = transcribeAudio({
+      fileUri: "/tmp/recording.wav",
+      mode: "provider",
+      provider: "stepfun",
+      providerModel: "step-asr-1.1-stream",
+      apiKey: "stepfun-test",
+      language: "en",
+    });
+
+    const socket = await waitForMockSocket();
+    expect(socket.url).toBe("wss://api.stepfun.com/v1/realtime/asr/stream");
+    expect(socket.options.headers.Authorization).toBe("Bearer stepfun-test");
+
+    socket.emitOpen();
+    expect(JSON.parse(socket.sent[0])).toMatchObject({
+      type: "session.update",
+      session: {
+        audio: {
+          input: {
+            format: {
+              codec: "pcm_s16le",
+              rate: 16000,
+              channel: 1,
+            },
+          },
+        },
+      },
+    });
+    expect(JSON.parse(socket.sent[2])).toMatchObject({
+      type: "input_audio_buffer.commit",
+    });
+
+    socket.emitMessage({
+      type: "conversation.item.input_audio_transcription.completed",
+      transcript: "Hello from StepFun realtime",
+    });
+
+    await expect(promise).resolves.toBe("Hello from StepFun realtime");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("uses the configured multipart endpoint for SiliconFlow STT", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
@@ -368,6 +538,42 @@ describe("transcribeAudio", () => {
     );
     expect(options.headers.Authorization).toBe("fireworks-test");
     expect((options.body as FormData).get("model")).toBe("whisper-v3");
+  });
+
+  it("uses the Fireworks streaming socket for realtime ASR models", async () => {
+    jest.useFakeTimers();
+
+    try {
+      const promise = transcribeAudio({
+        fileUri: "/tmp/recording.wav",
+        mode: "provider",
+        provider: "fireworks-ai",
+        providerModel: "fireworks-asr-v2",
+        apiKey: "fireworks-test",
+        language: "en",
+      });
+
+      const socket = await waitForMockSocket();
+      expect(socket.url).toBe(
+        "wss://audio-streaming-v2.api.fireworks.ai/v1/audio/transcriptions/streaming?response_format=verbose_json",
+      );
+      expect(socket.options.headers.Authorization).toBe("fireworks-test");
+
+      socket.emitOpen();
+      socket.emitMessage({
+        segments: [
+          { id: "0", text: "Hello from" },
+          { id: "1", text: "Fireworks realtime" },
+        ],
+      });
+
+      await jest.advanceTimersByTimeAsync(1300);
+
+      await expect(promise).resolves.toBe("Hello from Fireworks realtime");
+      expect(fetch).not.toHaveBeenCalled();
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it("uses the DeepInfra native inference route for ASR models", async () => {
@@ -453,6 +659,46 @@ describe("transcribeAudio", () => {
     expect(body.messages[0].content[0].input_audio.data).toMatch(
       /^data:audio\/m4a;base64,/,
     );
+  });
+
+  it("uses the DashScope realtime socket for qwen3-asr-flash-realtime", async () => {
+    const promise = transcribeAudio({
+      fileUri: "/tmp/recording.wav",
+      mode: "provider",
+      provider: "alibaba-qwen-dashscope",
+      providerModel: "qwen3-asr-flash-realtime",
+      apiKey: "dashscope-test",
+      language: "en",
+    });
+
+    const socket = await waitForMockSocket();
+    expect(socket.url).toBe(
+      "wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime?model=qwen3-asr-flash-realtime",
+    );
+    expect(socket.options.headers.Authorization).toBe("Bearer dashscope-test");
+
+    socket.emitOpen();
+    expect(JSON.parse(socket.sent[0])).toMatchObject({
+      type: "session.update",
+      session: {
+        audio: {
+          input: {
+            format: {
+              codec: "pcm_s16le",
+              rate: 16000,
+            },
+          },
+        },
+      },
+    });
+
+    socket.emitMessage({
+      type: "conversation.item.input_audio_transcription.completed",
+      transcript: "Hello from DashScope realtime",
+    });
+
+    await expect(promise).resolves.toBe("Hello from DashScope realtime");
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it("uses Baidu short-speech recognition with a bearer token and base64 audio", async () => {
@@ -614,6 +860,38 @@ describe("transcribeAudio", () => {
     expect(url).toBe("https://api.elevenlabs.io/v1/speech-to-text");
     expect(options.headers["xi-api-key"]).toBe("elevenlabs-test");
     expect((options.body as FormData).get("model_id")).toBe("scribe_v2");
+  });
+
+  it("uses the ElevenLabs realtime socket for scribe_v2_realtime", async () => {
+    const promise = transcribeAudio({
+      fileUri: "/tmp/recording.wav",
+      mode: "provider",
+      provider: "elevenlabs",
+      providerModel: "scribe_v2_realtime",
+      apiKey: "elevenlabs-test",
+      language: "en",
+    });
+
+    const socket = await waitForMockSocket();
+    expect(socket.url).toBe(
+      "wss://api.elevenlabs.io/v1/speech-to-text/realtime?model_id=scribe_v2_realtime&audio_format=pcm_16000&commit_strategy=manual&include_timestamps=true&language_code=en",
+    );
+    expect(socket.options.headers["xi-api-key"]).toBe("elevenlabs-test");
+
+    socket.emitOpen();
+    expect(JSON.parse(socket.sent[0])).toMatchObject({
+      message_type: "input_audio_chunk",
+      commit: true,
+      sample_rate: 16000,
+    });
+
+    socket.emitMessage({
+      message_type: "committed_transcript",
+      text: "Hello from ElevenLabs realtime",
+    });
+
+    await expect(promise).resolves.toBe("Hello from ElevenLabs realtime");
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it("uses the Hugging Face native hf-inference JSON route for STT", async () => {

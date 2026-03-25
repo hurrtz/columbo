@@ -61,17 +61,22 @@ export type RuntimeSttTransport =
   | "multipart"
   | "azure-openai"
   | "aleph-alpha"
+  | "assemblyai-realtime"
+  | "dashscope-realtime"
   | "deepinfra-inference"
   | "gemini"
   | "openai-audio-input"
   | "baidu-short-speech"
   | "assemblyai-pre-recorded"
   | "deepgram-pre-recorded"
+  | "elevenlabs-realtime"
+  | "fireworks-streaming"
   | "fireworks-pre-recorded"
   | "fish-audio"
   | "huggingface-json"
   | "ibm-watsonx"
   | "novita-json"
+  | "stepfun-realtime"
   | "elevenlabs"
   | "replicate";
 export type RuntimeTtsTransport =
@@ -138,6 +143,11 @@ interface RuntimeSttManifest {
   endpointBase?: string;
   defaultModel?: string;
   models: RuntimeModelSpec[];
+  realtimeTransport?: Exclude<RuntimeSttTransport, "none">;
+  realtimeEndpoint?: string;
+  realtimeEndpointBase?: string;
+  realtimeEndpointByModel?: Partial<Record<string, string>>;
+  realtimeModelIds?: string[];
   languageHintKey?: RuntimeLanguageHintKey;
   languageNote?: string;
 }
@@ -520,12 +530,27 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "assemblyai-pre-recorded",
       endpointBase: "https://api.assemblyai.com/v2",
       defaultModel: "universal-3-pro",
+      realtimeTransport: "assemblyai-realtime",
+      realtimeEndpoint: "wss://streaming.assemblyai.com/v3/ws",
+      realtimeModelIds: [
+        "u3-rt-pro",
+        "universal-streaming-english",
+        "universal-streaming-multilingual",
+        "whisper-rt",
+      ],
       models: [
         namedModel("universal-3-pro", "Universal-3 Pro"),
         namedModel("universal-2", "Universal-2"),
+        namedModel("u3-rt-pro", "Universal-3 Pro Streaming"),
+        namedModel("universal-streaming-english", "Universal-Streaming English"),
+        namedModel(
+          "universal-streaming-multilingual",
+          "Universal-Streaming Multilingual",
+        ),
+        namedModel("whisper-rt", "Whisper Streaming"),
       ],
       languageNote:
-        "AssemblyAI is currently wired for its pre-recorded STT models universal-3-pro and universal-2. Streaming-only models like u3-rt-pro, universal-streaming-english, universal-streaming-multilingual, and whisper-rt still need a realtime transport path.",
+        "AssemblyAI is wired for both pre-recorded and streaming STT. The pre-recorded path uses /v2/upload and /v2/transcript, while the streaming models use the realtime WebSocket with 16 kHz mono PCM input.",
     },
     tts: {
       support: "none",
@@ -592,9 +617,15 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       endpoint:
         "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
       defaultModel: "qwen3-asr-flash",
-      models: [model("qwen3-asr-flash")],
+      realtimeTransport: "dashscope-realtime",
+      realtimeEndpoint: "wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime",
+      realtimeModelIds: ["qwen3-asr-flash-realtime"],
+      models: [
+        model("qwen3-asr-flash"),
+        model("qwen3-asr-flash-realtime"),
+      ],
       languageNote:
-        "DashScope STT is currently wired only for Qwen3-ASR-Flash short-file transcription through the OpenAI-compatible endpoint. Catalog-only models like qwen3-asr-flash-filetrans and qwen3-asr-flash-realtime still need dedicated async or realtime transport support.",
+        "DashScope STT is wired for Qwen3-ASR-Flash short-file transcription through the OpenAI-compatible endpoint, plus Qwen3-ASR-Flash-Realtime through the realtime WebSocket. The long-file async filetrans model still needs a public-URL async workflow.",
     },
     tts: {
       support: "provider",
@@ -811,12 +842,16 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "elevenlabs",
       endpoint: "https://api.elevenlabs.io/v1/speech-to-text",
       defaultModel: "scribe_v2",
+      realtimeTransport: "elevenlabs-realtime",
+      realtimeEndpoint: "wss://api.elevenlabs.io/v1/speech-to-text/realtime",
+      realtimeModelIds: ["scribe_v2_realtime"],
       models: [
         namedModel("scribe_v2", "Scribe v2"),
         namedModel("scribe_v1", "Scribe v1"),
+        namedModel("scribe_v2_realtime", "Scribe v2 Realtime"),
       ],
       languageNote:
-        "ElevenLabs STT supports 90+ languages. The current upload endpoint accepts scribe_v2 and scribe_v1; the realtime scribe_v2_realtime model remains catalog-only until the app gains a WebSocket transcription transport.",
+        "ElevenLabs STT supports 90+ languages. The upload endpoint accepts scribe_v2 and scribe_v1, while scribe_v2_realtime is wired on ElevenLabs' realtime WebSocket with PCM 16 kHz audio.",
     },
     tts: {
       support: "provider",
@@ -1196,12 +1231,22 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "provider",
       transport: "fireworks-pre-recorded",
       defaultModel: "whisper-v3",
+      realtimeTransport: "fireworks-streaming",
+      realtimeEndpointByModel: {
+        "fireworks-asr-large":
+          "wss://audio-streaming.api.fireworks.ai/v1/audio/transcriptions/streaming",
+        "fireworks-asr-v2":
+          "wss://audio-streaming-v2.api.fireworks.ai/v1/audio/transcriptions/streaming",
+      },
+      realtimeModelIds: ["fireworks-asr-large", "fireworks-asr-v2"],
       models: [
         namedModel("whisper-v3", "Whisper V3 Large"),
         namedModel("whisper-v3-turbo", "Whisper V3 Turbo"),
+        namedModel("fireworks-asr-large", "Streaming ASR v1"),
+        namedModel("fireworks-asr-v2", "Streaming ASR v2"),
       ],
       languageNote:
-        "Fireworks currently exposes offline transcription on /v1/audio/transcriptions for whisper-v3 and whisper-v3-turbo, with a 1 GB upload cap and no documented duration limit. Streaming-only ASR models remain catalog-only until the app grows a realtime STT transport.",
+        "Fireworks exposes offline transcription on /v1/audio/transcriptions for whisper-v3 and whisper-v3-turbo, plus streaming STT over its dedicated WebSocket endpoints for fireworks-asr-large and fireworks-asr-v2 using 16 kHz mono PCM audio.",
     },
     tts: {
       support: "none",
@@ -1648,9 +1693,12 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "multipart",
       endpoint: "https://api.stepfun.com/v1/audio/transcriptions",
       defaultModel: "step-asr",
-      models: catalogModelSpecs("stepfun", "stt", ["step-asr-1.1-stream"]),
+      realtimeTransport: "stepfun-realtime",
+      realtimeEndpoint: "wss://api.stepfun.com/v1/realtime/asr/stream",
+      realtimeModelIds: ["step-asr-1.1-stream"],
+      models: catalogModelSpecs("stepfun", "stt"),
       languageNote:
-        "StepFun currently has the clearest file-transcription contract for step-asr and step-asr-1.1 on /v1/audio/transcriptions. The streaming-only step-asr-1.1-stream model remains catalog-only until the app grows a realtime STT transport.",
+        "StepFun has file transcription on /v1/audio/transcriptions for step-asr and step-asr-1.1, plus realtime STT on /v1/realtime/asr/stream for step-asr-1.1-stream.",
     },
     tts: {
       support: "provider",

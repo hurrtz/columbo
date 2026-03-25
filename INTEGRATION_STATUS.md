@@ -13,9 +13,9 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 40
 - Catalog models: 455
-- Integrated models: 421
+- Integrated models: 430
 - LLM: 294/294 integrated
-- STT: 51/71 integrated
+- STT: 60/71 integrated
 - TTS: 76/90 integrated
 - Unresolved runtime manifest entries: 31
 
@@ -65,7 +65,7 @@ Catalog updated: 2026-03-23
 ## Alibaba / Qwen (DashScope) `alibaba-qwen-dashscope`
 
 - Runtime provider: `alibaba-qwen-dashscope`
-- Model integration: 9/13 integrated
+- Model integration: 10/13 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -78,7 +78,7 @@ Catalog updated: 2026-03-23
 | LLM | `qwen3.5-plus` | Qwen3.5-Plus | Integrated | `qwen3.5-plus` |
 | STT | `qwen3-asr-flash` | Qwen3-ASR-Flash | Integrated | `qwen3-asr-flash` |
 | STT | `qwen3-asr-flash-filetrans` | Qwen3-ASR-Flash-Filetrans | Not integrated | — |
-| STT | `qwen3-asr-flash-realtime` | Qwen3-ASR-Flash-Realtime | Not integrated | — |
+| STT | `qwen3-asr-flash-realtime` | Qwen3-ASR-Flash-Realtime | Integrated | `qwen3-asr-flash-realtime` |
 | TTS | `qwen3-tts-flash` | Qwen3-TTS-Flash | Integrated | `qwen3-tts-flash` |
 | TTS | `qwen3-tts-flash-realtime` | Qwen3-TTS-Flash-Realtime | Not integrated | — |
 | TTS | `qwen3-tts-instruct-flash` | Qwen3-TTS-Instruct-Flash | Integrated | `qwen3-tts-instruct-flash` |
@@ -121,7 +121,7 @@ Catalog updated: 2026-03-23
 ## AssemblyAI `assemblyai`
 
 - Runtime provider: `assemblyai`
-- Model integration: 24/28 integrated
+- Model integration: 28/28 integrated
 - Verified support: LLM `routed`, STT `native`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -150,10 +150,10 @@ Catalog updated: 2026-03-23
 | LLM | `gpt-oss-20b` | gpt-oss-20b | Integrated | `gpt-oss-20b` |
 | STT | `universal-2` | Universal-2 | Integrated | `universal-2` |
 | STT | `universal-3-pro` | Universal-3 Pro | Integrated | `universal-3-pro` |
-| STT | `u3-rt-pro` | Universal-3 Pro Streaming | Not integrated | — |
-| STT | `universal-streaming-english` | Universal-Streaming English | Not integrated | — |
-| STT | `universal-streaming-multilingual` | Universal-Streaming Multilingual | Not integrated | — |
-| STT | `whisper-rt` | Whisper Streaming | Not integrated | — |
+| STT | `u3-rt-pro` | Universal-3 Pro Streaming | Integrated | `u3-rt-pro` |
+| STT | `universal-streaming-english` | Universal-Streaming English | Integrated | `universal-streaming-english` |
+| STT | `universal-streaming-multilingual` | Universal-Streaming Multilingual | Integrated | `universal-streaming-multilingual` |
+| STT | `whisper-rt` | Whisper Streaming | Integrated | `whisper-rt` |
 
 ## Baichuan `baichuan`
 
@@ -302,14 +302,14 @@ Catalog updated: 2026-03-23
 ## Elevenlabs `elevenlabs`
 
 - Runtime provider: `elevenlabs`
-- Model integration: 9/10 integrated
+- Model integration: 10/10 integrated
 - Verified support: LLM `partial`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
 | --- | --- | --- | --- | --- |
 | STT | `scribe_v1` | Scribe v1 | Integrated | `scribe_v1` |
 | STT | `scribe_v2` | Scribe v2 | Integrated | `scribe_v2` |
-| STT | `scribe_v2_realtime` | Scribe v2 Realtime | Not integrated | — |
+| STT | `scribe_v2_realtime` | Scribe v2 Realtime | Integrated | `scribe_v2_realtime` |
 | TTS | `eleven_flash_v2_5` | Eleven Flash v2.5 | Integrated | `eleven_flash_v2_5` |
 | TTS | `eleven_monolingual_v1` | Eleven Monolingual v1 | Integrated | `eleven_monolingual_v1` |
 | TTS | `eleven_multilingual_v1` | Eleven Multilingual v1 | Integrated | `eleven_multilingual_v1` |
@@ -321,7 +321,7 @@ Catalog updated: 2026-03-23
 ## Fireworks AI `fireworks-ai`
 
 - Runtime provider: `fireworks-ai`
-- Model integration: 8/10 integrated
+- Model integration: 10/10 integrated
 - Verified support: LLM `native`, STT `native`, TTS `unsupported`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -332,8 +332,8 @@ Catalog updated: 2026-03-23
 | LLM | `accounts/fireworks/models/kimi-k2p5` | Kimi K2.5 | Integrated | `accounts/fireworks/models/kimi-k2p5` |
 | LLM | `accounts/fireworks/models/gpt-oss-120b` | OpenAI gpt-oss-120b | Integrated | `accounts/fireworks/models/gpt-oss-120b` |
 | LLM | `accounts/fireworks/models/gpt-oss-20b` | OpenAI gpt-oss-20b | Integrated | `accounts/fireworks/models/gpt-oss-20b` |
-| STT | `fireworks-asr-large` | Streaming ASR v1 | Not integrated | — |
-| STT | `fireworks-asr-v2` | Streaming ASR v2 | Not integrated | — |
+| STT | `fireworks-asr-large` | Streaming ASR v1 | Integrated | `fireworks-asr-large` |
+| STT | `fireworks-asr-v2` | Streaming ASR v2 | Integrated | `fireworks-asr-v2` |
 | STT | `whisper-v3` | Whisper V3 Large | Integrated | `whisper-v3` |
 | STT | `whisper-v3-turbo` | Whisper V3 Turbo | Integrated | `whisper-v3-turbo` |
 
@@ -725,7 +725,7 @@ Catalog updated: 2026-03-23
 ## Stepfun `stepfun`
 
 - Runtime provider: `stepfun`
-- Model integration: 12/13 integrated
+- Model integration: 13/13 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -739,7 +739,7 @@ Catalog updated: 2026-03-23
 | LLM | `step-audio-r1.1` | Step Audio R1.1 | Integrated | `step-audio-r1.1` |
 | STT | `step-asr` | Step ASR | Integrated | `step-asr` |
 | STT | `step-asr-1.1` | Step ASR 1.1 | Integrated | `step-asr-1.1` |
-| STT | `step-asr-1.1-stream` | Step ASR 1.1 Stream | Not integrated | — |
+| STT | `step-asr-1.1-stream` | Step ASR 1.1 Stream | Integrated | `step-asr-1.1-stream` |
 | TTS | `step-tts-2` | Step TTS 2 | Integrated | `step-tts-2` |
 | TTS | `step-tts-mini` | Step TTS Mini | Integrated | `step-tts-mini` |
 | TTS | `step-tts-vivid` | Step TTS Vivid | Integrated | `step-tts-vivid` |

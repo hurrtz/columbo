@@ -1,5 +1,8 @@
 import type { Provider } from "../../types";
-import { RUNTIME_PROVIDER_MANIFEST } from "../../constants/providers/runtimeManifest";
+import {
+  RUNTIME_PROVIDER_MANIFEST,
+  RuntimeSttTransport,
+} from "../../constants/providers/runtimeManifest";
 import { getMistralSttLanguageCode } from "../../utils/speechLanguage";
 
 export type MultipartTranscriptionConfig = {
@@ -36,6 +39,18 @@ export type AssemblyAiPreRecordedTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type AssemblyAiRealtimeTranscriptionConfig = {
+  kind: "assemblyai-realtime";
+  endpoint: string;
+  defaultModel: string;
+};
+
+export type DashScopeRealtimeTranscriptionConfig = {
+  kind: "dashscope-realtime";
+  endpoint: string;
+  defaultModel: string;
+};
+
 export type DeepgramPreRecordedTranscriptionConfig = {
   kind: "deepgram-pre-recorded";
   endpointBase: string;
@@ -50,6 +65,12 @@ export type DeepInfraInferenceTranscriptionConfig = {
 
 export type FireworksPreRecordedTranscriptionConfig = {
   kind: "fireworks-pre-recorded";
+  defaultModel: string;
+};
+
+export type FireworksStreamingTranscriptionConfig = {
+  kind: "fireworks-streaming";
+  endpoint: string;
   defaultModel: string;
 };
 
@@ -82,6 +103,12 @@ export type ElevenLabsTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type ElevenLabsRealtimeTranscriptionConfig = {
+  kind: "elevenlabs-realtime";
+  endpoint: string;
+  defaultModel: string;
+};
+
 export type GeminiTranscriptionConfig = {
   kind: "gemini";
   endpointBase: string;
@@ -92,6 +119,35 @@ export type ReplicateTranscriptionConfig = {
   kind: "replicate";
   defaultModel: string;
 };
+
+export type StepfunRealtimeTranscriptionConfig = {
+  kind: "stepfun-realtime";
+  endpoint: string;
+  defaultModel: string;
+};
+
+export type ProviderSttConfig =
+  | MultipartTranscriptionConfig
+  | GeminiTranscriptionConfig
+  | OpenAiAudioInputTranscriptionConfig
+  | AzureOpenAiTranscriptionConfig
+  | AlephAlphaTranscriptionConfig
+  | BaiduShortSpeechTranscriptionConfig
+  | AssemblyAiPreRecordedTranscriptionConfig
+  | AssemblyAiRealtimeTranscriptionConfig
+  | DashScopeRealtimeTranscriptionConfig
+  | DeepgramPreRecordedTranscriptionConfig
+  | DeepInfraInferenceTranscriptionConfig
+  | FireworksPreRecordedTranscriptionConfig
+  | FireworksStreamingTranscriptionConfig
+  | FishAudioTranscriptionConfig
+  | HuggingFaceJsonTranscriptionConfig
+  | IbmWatsonxTranscriptionConfig
+  | NovitaJsonTranscriptionConfig
+  | ReplicateTranscriptionConfig
+  | ElevenLabsTranscriptionConfig
+  | ElevenLabsRealtimeTranscriptionConfig
+  | StepfunRealtimeTranscriptionConfig;
 
 export const STT_TIMEOUT_MS = 30000;
 
@@ -106,278 +162,209 @@ function getLanguageHint(
   }
 }
 
-const sttProviderConfigEntries: Array<
-  [
-    Provider,
-    | MultipartTranscriptionConfig
-    | GeminiTranscriptionConfig
-    | OpenAiAudioInputTranscriptionConfig
-    | AzureOpenAiTranscriptionConfig
-    | AlephAlphaTranscriptionConfig
-    | BaiduShortSpeechTranscriptionConfig
-    | AssemblyAiPreRecordedTranscriptionConfig
-    | DeepgramPreRecordedTranscriptionConfig
-    | DeepInfraInferenceTranscriptionConfig
-    | FireworksPreRecordedTranscriptionConfig
-    | FishAudioTranscriptionConfig
-    | HuggingFaceJsonTranscriptionConfig
-    | IbmWatsonxTranscriptionConfig
-    | NovitaJsonTranscriptionConfig
-    | ReplicateTranscriptionConfig
-    | ElevenLabsTranscriptionConfig,
-  ]
-> = [];
-
-for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
-  const manifest = RUNTIME_PROVIDER_MANIFEST[provider];
-
-  if (
-    manifest.stt.transport === "multipart" &&
-    manifest.stt.endpoint &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
-        kind: "multipart",
-        endpoint: manifest.stt.endpoint,
-        defaultModel: manifest.stt.defaultModel,
-        ...(manifest.stt.languageHintKey
-          ? { languageHint: getLanguageHint(manifest.stt.languageHintKey) }
-          : {}),
-      },
-    ]);
-  }
-
-  if (
-    manifest.stt.transport === "aleph-alpha" &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
+function buildConfigForTransport(params: {
+  provider: Provider;
+  transport: RuntimeSttTransport;
+  endpoint?: string;
+  endpointBase?: string;
+  defaultModel: string;
+  languageHintKey?: string;
+}): ProviderSttConfig | null {
+  switch (params.transport) {
+    case "multipart":
+      return params.endpoint
+        ? {
+            kind: "multipart",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+            ...(params.languageHintKey
+              ? { languageHint: getLanguageHint(params.languageHintKey) }
+              : {}),
+          }
+        : null;
+    case "aleph-alpha":
+      return {
         kind: "aleph-alpha",
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
-  }
-
-  if (
-    manifest.stt.transport === "azure-openai" &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
+        defaultModel: params.defaultModel,
+      };
+    case "assemblyai-pre-recorded":
+      return params.endpointBase
+        ? {
+            kind: "assemblyai-pre-recorded",
+            endpointBase: params.endpointBase,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "assemblyai-realtime":
+      return params.endpoint
+        ? {
+            kind: "assemblyai-realtime",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "azure-openai":
+      return {
         kind: "azure-openai",
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
-  }
-
-  if (
-    manifest.stt.transport === "openai-audio-input" &&
-    manifest.stt.endpoint &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
-        kind: "openai-audio-input",
-        endpoint: manifest.stt.endpoint,
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
-  }
-
-  if (
-    manifest.stt.transport === "baidu-short-speech" &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
+        defaultModel: params.defaultModel,
+      };
+    case "baidu-short-speech":
+      return {
         kind: "baidu-short-speech",
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
-  }
-
-  if (
-    manifest.stt.transport === "gemini" &&
-    manifest.stt.endpointBase &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
-        kind: "gemini",
-        endpointBase: manifest.stt.endpointBase,
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
-  }
-
-  if (
-    manifest.stt.transport === "assemblyai-pre-recorded" &&
-    manifest.stt.endpointBase &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
-        kind: "assemblyai-pre-recorded",
-        endpointBase: manifest.stt.endpointBase,
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
-  }
-
-  if (
-    manifest.stt.transport === "deepinfra-inference" &&
-    manifest.stt.endpointBase &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
-        kind: "deepinfra-inference",
-        endpointBase: manifest.stt.endpointBase,
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
-  }
-
-  if (
-    manifest.stt.transport === "deepgram-pre-recorded" &&
-    manifest.stt.endpointBase &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
-        kind: "deepgram-pre-recorded",
-        endpointBase: manifest.stt.endpointBase,
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
-  }
-
-  if (
-    manifest.stt.transport === "fireworks-pre-recorded" &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
+        defaultModel: params.defaultModel,
+      };
+    case "dashscope-realtime":
+      return params.endpoint
+        ? {
+            kind: "dashscope-realtime",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "deepgram-pre-recorded":
+      return params.endpointBase
+        ? {
+            kind: "deepgram-pre-recorded",
+            endpointBase: params.endpointBase,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "deepinfra-inference":
+      return params.endpointBase
+        ? {
+            kind: "deepinfra-inference",
+            endpointBase: params.endpointBase,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "elevenlabs":
+      return params.endpoint
+        ? {
+            kind: "elevenlabs",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "elevenlabs-realtime":
+      return params.endpoint
+        ? {
+            kind: "elevenlabs-realtime",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "fireworks-pre-recorded":
+      return {
         kind: "fireworks-pre-recorded",
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
-  }
-
-  if (
-    manifest.stt.transport === "fish-audio" &&
-    manifest.stt.endpoint &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
-        kind: "fish-audio",
-        endpoint: manifest.stt.endpoint,
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
-  }
-
-  if (
-    manifest.stt.transport === "huggingface-json" &&
-    manifest.stt.endpointBase &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
-        kind: "huggingface-json",
-        endpointBase: manifest.stt.endpointBase,
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
-  }
-
-  if (
-    manifest.stt.transport === "ibm-watsonx" &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
+        defaultModel: params.defaultModel,
+      };
+    case "fireworks-streaming":
+      return params.endpoint
+        ? {
+            kind: "fireworks-streaming",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "fish-audio":
+      return params.endpoint
+        ? {
+            kind: "fish-audio",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "gemini":
+      return params.endpointBase
+        ? {
+            kind: "gemini",
+            endpointBase: params.endpointBase,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "huggingface-json":
+      return params.endpointBase
+        ? {
+            kind: "huggingface-json",
+            endpointBase: params.endpointBase,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "ibm-watsonx":
+      return {
         kind: "ibm-watsonx",
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
-  }
-
-  if (
-    manifest.stt.transport === "novita-json" &&
-    manifest.stt.endpoint &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
-        kind: "novita-json",
-        endpoint: manifest.stt.endpoint,
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
-  }
-
-  if (
-    manifest.stt.transport === "elevenlabs" &&
-    manifest.stt.endpoint &&
-    manifest.stt.defaultModel
-  ) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
-        kind: "elevenlabs",
-        endpoint: manifest.stt.endpoint,
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
-  }
-
-  if (manifest.stt.transport === "replicate" && manifest.stt.defaultModel) {
-    sttProviderConfigEntries.push([
-      provider,
-      {
+        defaultModel: params.defaultModel,
+      };
+    case "novita-json":
+      return params.endpoint
+        ? {
+            kind: "novita-json",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "openai-audio-input":
+      return params.endpoint
+        ? {
+            kind: "openai-audio-input",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "replicate":
+      return {
         kind: "replicate",
-        defaultModel: manifest.stt.defaultModel,
-      },
-    ]);
+        defaultModel: params.defaultModel,
+      };
+    case "stepfun-realtime":
+      return params.endpoint
+        ? {
+            kind: "stepfun-realtime",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    default:
+      return null;
   }
 }
 
-export const STT_PROVIDER_CONFIGS: Partial<
-  Record<
-    Provider,
-    | MultipartTranscriptionConfig
-    | GeminiTranscriptionConfig
-    | OpenAiAudioInputTranscriptionConfig
-    | AzureOpenAiTranscriptionConfig
-    | AlephAlphaTranscriptionConfig
-    | BaiduShortSpeechTranscriptionConfig
-    | AssemblyAiPreRecordedTranscriptionConfig
-    | DeepgramPreRecordedTranscriptionConfig
-    | DeepInfraInferenceTranscriptionConfig
-    | FireworksPreRecordedTranscriptionConfig
-    | FishAudioTranscriptionConfig
-    | HuggingFaceJsonTranscriptionConfig
-    | IbmWatsonxTranscriptionConfig
-    | NovitaJsonTranscriptionConfig
-    | ReplicateTranscriptionConfig
-    | ElevenLabsTranscriptionConfig
-  >
-> = Object.fromEntries(sttProviderConfigEntries);
+export function getProviderSttConfig(
+  provider: Provider,
+  model: string,
+): ProviderSttConfig | null {
+  const manifest = RUNTIME_PROVIDER_MANIFEST[provider];
+
+  if (!manifest || manifest.stt.support !== "provider") {
+    return null;
+  }
+
+  const isRealtimeModel = manifest.stt.realtimeModelIds?.includes(model) ?? false;
+  const transport = isRealtimeModel
+    ? manifest.stt.realtimeTransport ?? manifest.stt.transport
+    : manifest.stt.transport;
+  const defaultModel = isRealtimeModel
+    ? model
+    : manifest.stt.defaultModel ?? model;
+  const endpoint = isRealtimeModel
+    ? manifest.stt.realtimeEndpointByModel?.[model] ??
+      manifest.stt.realtimeEndpoint ??
+      manifest.stt.endpoint
+    : manifest.stt.endpoint;
+  const endpointBase = isRealtimeModel
+    ? manifest.stt.realtimeEndpointBase ?? manifest.stt.endpointBase
+    : manifest.stt.endpointBase;
+
+  if (!defaultModel) {
+    return null;
+  }
+
+  return buildConfigForTransport({
+    provider,
+    transport,
+    endpoint,
+    endpointBase,
+    defaultModel,
+    languageHintKey: manifest.stt.languageHintKey,
+  });
+}
