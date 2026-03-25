@@ -2,11 +2,65 @@ import { streamChat, validateProviderConnection } from "../../src/services/llm";
 import { Message } from "../../src/types";
 global.fetch = jest.fn();
 
+const OriginalWebSocket = (globalThis as any).WebSocket;
+
+class MockWebSocket {
+  static instances: MockWebSocket[] = [];
+
+  readonly url: string;
+  readonly protocols: any;
+  readonly options: any;
+  readonly sent: string[] = [];
+  onopen: ((event: any) => void) | null = null;
+  onmessage: ((event: any) => void) | null = null;
+  onerror: ((event: any) => void) | null = null;
+  onclose: ((event: any) => void) | null = null;
+
+  constructor(url: string, protocols?: any, options?: any) {
+    this.url = url;
+    this.protocols = protocols;
+    this.options = options;
+    MockWebSocket.instances.push(this);
+  }
+
+  send(data: string) {
+    this.sent.push(data);
+  }
+
+  close() {
+    this.onclose?.({ code: 1000, reason: "closed" });
+  }
+
+  emitOpen() {
+    this.onopen?.({});
+  }
+
+  emitMessage(data: any) {
+    this.onmessage?.({
+      data: typeof data === "string" ? data : JSON.stringify(data),
+    });
+  }
+
+  emitClose(code = 1000, reason = "closed") {
+    this.onclose?.({ code, reason });
+  }
+}
 
 const mockMessages: Message[] = [{ id: "1", role: "user", content: "Hello", model: null, provider: null, timestamp: "2026-01-01T00:00:00Z" }];
 
 describe("streamChat", () => {
-  beforeEach(() => { jest.clearAllMocks(); });
+  beforeAll(() => {
+    (globalThis as any).WebSocket = MockWebSocket;
+  });
+
+  afterAll(() => {
+    (globalThis as any).WebSocket = OriginalWebSocket;
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    MockWebSocket.instances = [];
+  });
 
   it("calls OpenAI chat completions for openai provider", async () => {
     const encoder = new TextEncoder();
@@ -110,6 +164,77 @@ describe("streamChat", () => {
     expect(options.headers["api-key"]).toBe("azure-test-key");
     expect(options.headers.Authorization).toBeUndefined();
     expect(JSON.parse(options.body).model).toBe("gpt-4.1-mini");
+  });
+
+  it("uses the OpenAI realtime socket for realtime models", async () => {
+    const chunks: string[] = [];
+    const promise = streamChat({
+      messages: mockMessages,
+      model: "gpt-realtime-1.5",
+      provider: "openai",
+      apiKey: "sk-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    const socket = MockWebSocket.instances[0];
+    expect(socket.url).toBe(
+      "wss://api.openai.com/v1/realtime?model=gpt-realtime-1.5",
+    );
+    expect(socket.options.headers.Authorization).toBe("Bearer sk-test-key");
+    expect(socket.options.headers["OpenAI-Beta"]).toBe("realtime=v1");
+
+    socket.emitOpen();
+    expect(JSON.parse(socket.sent[0])).toMatchObject({
+      type: "conversation.item.create",
+    });
+    expect(JSON.parse(socket.sent[1])).toMatchObject({
+      type: "response.create",
+      response: { modalities: ["text"] },
+    });
+
+    socket.emitMessage({ type: "response.text.delta", delta: "Hi" });
+    socket.emitMessage({ type: "response.done" });
+
+    await promise;
+    expect(chunks).toEqual(["Hi"]);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("uses the Azure OpenAI realtime socket for realtime deployments", async () => {
+    const chunks: string[] = [];
+    const promise = streamChat({
+      messages: mockMessages,
+      model: "gpt-realtime-mini",
+      provider: "microsoft-azure",
+      apiKey: "https://example-resource.openai.azure.com|azure-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    const socket = MockWebSocket.instances[0];
+    expect(socket.url).toBe(
+      "wss://example-resource.openai.azure.com/openai/realtime?api-version=2025-04-01-preview&deployment=gpt-realtime-mini",
+    );
+    expect(socket.options.headers["api-key"]).toBe("azure-test-key");
+
+    socket.emitOpen();
+    socket.emitMessage({ type: "response.text.delta", delta: "Hi" });
+    socket.emitMessage({ type: "response.done" });
+
+    await promise;
+    expect(chunks).toEqual(["Hi"]);
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it("uses the customer-provided Aleph Alpha chat endpoint", async () => {

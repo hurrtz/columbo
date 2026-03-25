@@ -44,7 +44,9 @@ export type RuntimeAppProviderId =
 export type RuntimeLlmTransport =
   | "none"
   | "openai-compatible"
+  | "openai-realtime"
   | "azure-openai"
+  | "azure-openai-realtime"
   | "aleph-alpha"
   | "anthropic"
   | "cohere"
@@ -111,6 +113,7 @@ interface RuntimeLlmProviderManifest {
   endpoint?: string;
   defaultModel: string;
   models: RuntimeModelSpec[];
+  realtimeModelIds?: string[];
 }
 
 interface RuntimeLlmDisabledManifest {
@@ -309,6 +312,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.openai.com/v1/chat/completions",
       defaultModel: "gpt-5.4",
+      realtimeModelIds: ["gpt-realtime-1.5", "gpt-realtime-mini"],
       models: [
         model("gpt-5.4", "2026-03-01"),
         model("gpt-5.4-mini"),
@@ -330,6 +334,8 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         model("gpt-4.1", "2025-04-14"),
         model("gpt-4.1-mini", "2025-04-14"),
         model("gpt-4.1-nano", "2025-04-14"),
+        namedModel("gpt-realtime-1.5", "GPT-Realtime-1.5"),
+        namedModel("gpt-realtime-mini", "GPT-Realtime-mini"),
         namedModel("gpt-audio-1.5", "GPT-Audio-1.5"),
         namedModel("gpt-audio-mini", "GPT-Audio-mini"),
         namedModel("gpt-4o", "GPT-4o"),
@@ -392,11 +398,8 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "provider",
       transport: "azure-openai",
       defaultModel: "gpt-4.1-mini",
-      models: catalogModelSpecs("microsoft-azure", "llm", [
-        "gpt-realtime",
-        "gpt-realtime-1.5",
-        "gpt-realtime-mini",
-      ]),
+      realtimeModelIds: ["gpt-realtime", "gpt-realtime-1.5", "gpt-realtime-mini"],
+      models: catalogModelSpecs("microsoft-azure", "llm"),
     },
     stt: {
       support: "provider",

@@ -13,8 +13,8 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 38
 - Catalog models: 455
-- Integrated models: 401
-- LLM: 278/294 integrated
+- Integrated models: 406
+- LLM: 283/294 integrated
 - STT: 51/71 integrated
 - TTS: 72/90 integrated
 - Unresolved runtime manifest entries: 31
@@ -476,7 +476,7 @@ Catalog updated: 2026-03-23
 ## Microsoft Azure `microsoft-azure`
 
 - Runtime provider: `microsoft-azure`
-- Model integration: 12/15 integrated
+- Model integration: 15/15 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -486,9 +486,9 @@ Catalog updated: 2026-03-23
 | LLM | `gpt-4.1-nano` | GPT-4.1 nano | Integrated | `gpt-4.1-nano` |
 | LLM | `gpt-4o` | GPT-4o | Integrated | `gpt-4o` |
 | LLM | `gpt-4o-mini` | GPT-4o mini | Integrated | `gpt-4o-mini` |
-| LLM | `gpt-realtime` | GPT-Realtime | Not integrated | — |
-| LLM | `gpt-realtime-1.5` | GPT-Realtime 1.5 | Not integrated | — |
-| LLM | `gpt-realtime-mini` | GPT-Realtime mini | Not integrated | — |
+| LLM | `gpt-realtime` | GPT-Realtime | Integrated | `gpt-realtime` |
+| LLM | `gpt-realtime-1.5` | GPT-Realtime 1.5 | Integrated | `gpt-realtime-1.5` |
+| LLM | `gpt-realtime-mini` | GPT-Realtime mini | Integrated | `gpt-realtime-mini` |
 | STT | `gpt-4o-mini-transcribe` | GPT-4o mini Transcribe | Integrated | `gpt-4o-mini-transcribe` |
 | STT | `gpt-4o-transcribe` | GPT-4o Transcribe | Integrated | `gpt-4o-transcribe` |
 | STT | `gpt-4o-transcribe-diarize` | GPT-4o Transcribe Diarize | Integrated | `gpt-4o-transcribe-diarize` |
@@ -618,7 +618,7 @@ Catalog updated: 2026-03-23
 ## OpenAI `openai`
 
 - Runtime provider: `openai`
-- Model integration: 16/18 integrated
+- Model integration: 18/18 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -632,8 +632,8 @@ Catalog updated: 2026-03-23
 | LLM | `gpt-5.4-pro` | GPT-5.4 pro | Integrated | `gpt-5.4-pro` |
 | LLM | `gpt-audio-1.5` | GPT-Audio-1.5 | Integrated | `gpt-audio-1.5` |
 | LLM | `gpt-audio-mini` | GPT-Audio-mini | Integrated | `gpt-audio-mini` |
-| LLM | `gpt-realtime-1.5` | GPT-Realtime-1.5 | Not integrated | — |
-| LLM | `gpt-realtime-mini` | GPT-Realtime-mini | Not integrated | — |
+| LLM | `gpt-realtime-1.5` | GPT-Realtime-1.5 | Integrated | `gpt-realtime-1.5` |
+| LLM | `gpt-realtime-mini` | GPT-Realtime-mini | Integrated | `gpt-realtime-mini` |
 | STT | `gpt-4o-mini-transcribe` | GPT-4o mini Transcribe | Integrated | `gpt-4o-mini-transcribe` |
 | STT | `gpt-4o-transcribe` | GPT-4o Transcribe | Integrated | `gpt-4o-transcribe` |
 | STT | `gpt-4o-transcribe-diarize` | GPT-4o Transcribe Diarize | Integrated | `gpt-4o-transcribe-diarize` |

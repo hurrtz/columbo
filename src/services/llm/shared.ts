@@ -16,8 +16,16 @@ type OpenAiCompatibleLlmConfig = {
   endpoint: string;
 };
 
+type OpenAiRealtimeLlmConfig = {
+  transport: "openai-realtime";
+};
+
 type AzureOpenAiLlmConfig = {
   transport: "azure-openai";
+};
+
+type AzureOpenAiRealtimeLlmConfig = {
+  transport: "azure-openai-realtime";
 };
 
 type AlephAlphaLlmConfig = {
@@ -36,7 +44,9 @@ type TransportOnlyLlmConfig = {
   transport: Exclude<
     RuntimeLlmTransport,
     | "openai-compatible"
+    | "openai-realtime"
     | "azure-openai"
+    | "azure-openai-realtime"
     | "aleph-alpha"
     | "ibm-watsonx"
     | "replicate"
@@ -45,83 +55,67 @@ type TransportOnlyLlmConfig = {
 
 export type ProviderLlmConfig =
   | OpenAiCompatibleLlmConfig
+  | OpenAiRealtimeLlmConfig
   | AzureOpenAiLlmConfig
+  | AzureOpenAiRealtimeLlmConfig
   | AlephAlphaLlmConfig
   | IbmWatsonxLlmConfig
   | ReplicateLlmConfig
   | TransportOnlyLlmConfig;
 
-const llmProviderConfigEntries: Array<[Provider, ProviderLlmConfig]> = [];
-
-for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
+export function getProviderLlmConfig(
+  provider: Provider,
+  model: string,
+): ProviderLlmConfig | null {
   const manifest = RUNTIME_PROVIDER_MANIFEST[provider];
 
-  if (manifest.llm.support !== "provider") {
-    continue;
+  if (!manifest || manifest.llm.support !== "provider") {
+    return null;
   }
+
+  const isRealtimeModel = manifest.llm.realtimeModelIds?.includes(model) ?? false;
 
   switch (manifest.llm.transport) {
     case "openai-compatible":
-      if (!manifest.llm.endpoint) {
-        break;
+      if (isRealtimeModel) {
+        return {
+          transport: "openai-realtime",
+        };
       }
 
-      llmProviderConfigEntries.push([
-        provider,
-        {
-          transport: "openai-compatible",
-          endpoint: manifest.llm.endpoint,
-        },
-      ]);
-      break;
+      if (!manifest.llm.endpoint) {
+        return null;
+      }
+
+      return {
+        transport: "openai-compatible",
+        endpoint: manifest.llm.endpoint,
+      };
     case "azure-openai":
-      llmProviderConfigEntries.push([
-        provider,
-        {
-          transport: "azure-openai",
-        },
-      ]);
-      break;
+      return {
+        transport: isRealtimeModel ? "azure-openai-realtime" : "azure-openai",
+      };
     case "aleph-alpha":
-      llmProviderConfigEntries.push([
-        provider,
-        {
-          transport: "aleph-alpha",
-        },
-      ]);
-      break;
+      return {
+        transport: "aleph-alpha",
+      };
     case "ibm-watsonx":
-      llmProviderConfigEntries.push([
-        provider,
-        {
-          transport: "ibm-watsonx",
-        },
-      ]);
-      break;
+      return {
+        transport: "ibm-watsonx",
+      };
     case "replicate":
-      llmProviderConfigEntries.push([
-        provider,
-        {
-          transport: "replicate",
-        },
-      ]);
-      break;
+      return {
+        transport: "replicate",
+      };
     case "anthropic":
     case "cohere":
-      llmProviderConfigEntries.push([
-        provider,
-        {
-          transport: manifest.llm.transport,
-        },
-      ]);
-      break;
+      return {
+        transport: manifest.llm.transport,
+      };
+    default:
+      return null;
   }
 }
-
-export const LLM_PROVIDER_CONFIGS: Partial<Record<Provider, ProviderLlmConfig>> =
-  Object.fromEntries(llmProviderConfigEntries) as Partial<
-    Record<Provider, ProviderLlmConfig>
-  >;
 
 export function toAPIMessages(messages: ChatMessage[]) {
   return messages.map((message) => ({
