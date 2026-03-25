@@ -13,8 +13,8 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 40
 - Catalog models: 455
-- Integrated models: 419
-- LLM: 292/294 integrated
+- Integrated models: 421
+- LLM: 294/294 integrated
 - STT: 51/71 integrated
 - TTS: 76/90 integrated
 - Unresolved runtime manifest entries: 31
@@ -65,7 +65,7 @@ Catalog updated: 2026-03-23
 ## Alibaba / Qwen (DashScope) `alibaba-qwen-dashscope`
 
 - Runtime provider: `alibaba-qwen-dashscope`
-- Model integration: 8/13 integrated
+- Model integration: 9/13 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -73,7 +73,7 @@ Catalog updated: 2026-03-23
 | LLM | `qwen-flash` | Qwen-Flash | Integrated | `qwen-flash` |
 | LLM | `qwen-plus` | Qwen-Plus | Integrated | `qwen-plus` |
 | LLM | `qwen3-max` | Qwen3-Max | Integrated | `qwen3-max` |
-| LLM | `qwen3-omni-flash-realtime` | Qwen3-Omni-Flash-Realtime | Not integrated | — |
+| LLM | `qwen3-omni-flash-realtime` | Qwen3-Omni-Flash-Realtime | Integrated | `qwen3-omni-flash-realtime` |
 | LLM | `qwen3.5-flash` | Qwen3.5-Flash | Integrated | `qwen3.5-flash` |
 | LLM | `qwen3.5-plus` | Qwen3.5-Plus | Integrated | `qwen3.5-plus` |
 | STT | `qwen3-asr-flash` | Qwen3-ASR-Flash | Integrated | `qwen3-asr-flash` |
@@ -353,7 +353,7 @@ Catalog updated: 2026-03-23
 ## Google Vertex AI Studio `google-vertex-ai-studio`
 
 - Runtime provider: `gemini`
-- Model integration: 6/10 integrated
+- Model integration: 7/10 integrated
 - Verified support: LLM `native`, STT `partial`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -361,7 +361,7 @@ Catalog updated: 2026-03-23
 | LLM | `gemini-2.5-flash` | Gemini 2.5 Flash | Integrated | `gemini-2.5-flash` |
 | LLM | `gemini-2.5-flash-lite` | Gemini 2.5 Flash-Lite | Integrated | `gemini-2.5-flash-lite` |
 | LLM | `gemini-2.5-pro` | Gemini 2.5 Pro | Integrated | `gemini-2.5-pro` |
-| LLM | `gemini-live-2.5-flash-native-audio` | Gemini Live 2.5 Flash Native Audio | Not integrated | — |
+| LLM | `gemini-live-2.5-flash-native-audio` | Gemini Live 2.5 Flash Native Audio | Integrated | `gemini-live-2.5-flash-native-audio` |
 | STT | `chirp_2` | Chirp 2: Transcription | Not integrated | — |
 | STT | `chirp_3` | Chirp 3: Transcription | Not integrated | — |
 | STT | `telephony` | Telephony | Not integrated | — |

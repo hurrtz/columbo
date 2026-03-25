@@ -50,6 +50,7 @@ export type RuntimeLlmTransport =
   | "azure-openai"
   | "azure-openai-realtime"
   | "amazon-bedrock"
+  | "gemini-live"
   | "aleph-alpha"
   | "anthropic"
   | "cohere"
@@ -118,6 +119,7 @@ interface RuntimeLlmProviderManifest {
   defaultModel: string;
   models: RuntimeModelSpec[];
   realtimeModelIds?: string[];
+  realtimeTransport?: Exclude<RuntimeLlmTransport, "none">;
 }
 
 interface RuntimeLlmDisabledManifest {
@@ -581,6 +583,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         model("qwen3.5-flash"),
         model("qwen-flash"),
         model("qwen3-max"),
+        model("qwen3-omni-flash-realtime"),
       ],
     },
     stt: {
@@ -880,7 +883,10 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       endpoint:
         "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
       defaultModel: "gemini-2.5-flash",
+      realtimeModelIds: ["gemini-live-2.5-flash-native-audio"],
+      realtimeTransport: "gemini-live",
       models: [
+        model("gemini-live-2.5-flash-native-audio"),
         model("gemini-3.1-pro-preview"),
         model("gemini-3.1-flash-lite-preview"),
         namedModel("gemini-3-flash-preview", "Gemini 3 Flash Preview"),

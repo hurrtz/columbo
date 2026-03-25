@@ -20,6 +20,10 @@ type OpenAiRealtimeLlmConfig = {
   transport: "openai-realtime";
 };
 
+type GeminiLiveLlmConfig = {
+  transport: "gemini-live";
+};
+
 type AzureOpenAiLlmConfig = {
   transport: "azure-openai";
 };
@@ -61,6 +65,7 @@ type TransportOnlyLlmConfig = {
 export type ProviderLlmConfig =
   | OpenAiCompatibleLlmConfig
   | OpenAiRealtimeLlmConfig
+  | GeminiLiveLlmConfig
   | AzureOpenAiLlmConfig
   | AzureOpenAiRealtimeLlmConfig
   | AmazonBedrockLlmConfig
@@ -80,10 +85,17 @@ export function getProviderLlmConfig(
   }
 
   const isRealtimeModel = manifest.llm.realtimeModelIds?.includes(model) ?? false;
+  const realtimeTransport = manifest.llm.realtimeTransport;
 
   switch (manifest.llm.transport) {
     case "openai-compatible":
       if (isRealtimeModel) {
+        if (realtimeTransport === "gemini-live") {
+          return {
+            transport: "gemini-live",
+          };
+        }
+
         return {
           transport: "openai-realtime",
         };

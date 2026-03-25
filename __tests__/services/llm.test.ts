@@ -284,6 +284,59 @@ describe("streamChat", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it("uses the Gemini Live socket for native-audio realtime models", async () => {
+    const chunks: string[] = [];
+    const promise = streamChat({
+      messages: mockMessages,
+      model: "gemini-live-2.5-flash-native-audio",
+      provider: "gemini",
+      apiKey: "gemini-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    const socket = MockWebSocket.instances[0];
+    expect(socket.url).toBe(
+      "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=gemini-test-key",
+    );
+    expect(socket.options).toBeUndefined();
+
+    socket.emitOpen();
+    expect(JSON.parse(socket.sent[0])).toMatchObject({
+      config: {
+        model: "models/gemini-live-2.5-flash-native-audio",
+        responseModalities: ["TEXT"],
+      },
+    });
+    expect(JSON.parse(socket.sent[1])).toMatchObject({
+      realtimeInput: {
+        text: expect.stringContaining("User: Hello"),
+      },
+    });
+
+    socket.emitMessage({
+      serverContent: {
+        modelTurn: {
+          parts: [{ text: "Hi from Gemini Live" }],
+        },
+      },
+    });
+    socket.emitMessage({
+      serverContent: {
+        turnComplete: true,
+      },
+    });
+
+    await promise;
+    expect(chunks).toEqual(["Hi from Gemini Live"]);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("uses the customer-provided Aleph Alpha chat endpoint", async () => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({

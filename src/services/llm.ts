@@ -29,6 +29,10 @@ import {
   requestOpenAiRealtimeChat,
   requestOpenAiRealtimeChatStream,
 } from "./llm/providers/openaiRealtime";
+import {
+  requestGeminiLiveChat,
+  requestGeminiLiveChatStream,
+} from "./llm/providers/geminiLive";
 import { requestAmazonBedrockChat } from "./llm/providers/amazonBedrock";
 import { requestIbmWatsonxChat } from "./llm/providers/ibmWatsonx";
 import { requestReplicateChat } from "./llm/providers/replicate";
@@ -123,6 +127,16 @@ const LLM_TEXT_REQUESTERS = {
     }),
   "openai-realtime": async (params: LlmRequestParams) =>
     requestOpenAiRealtimeChat({
+      provider: params.provider,
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      abortSignal: params.abortSignal,
+    }),
+  "gemini-live": async (params: LlmRequestParams) =>
+    requestGeminiLiveChat({
       provider: params.provider,
       model: params.model,
       messages: params.messages,
@@ -239,6 +253,17 @@ const LLM_STREAM_REQUESTERS = {
       onChunk: params.onChunk,
       abortSignal: params.abortSignal,
     }),
+  "gemini-live": async (params: StreamingLlmRequestParams) =>
+    requestGeminiLiveChatStream({
+      provider: params.provider,
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      onChunk: params.onChunk,
+      abortSignal: params.abortSignal,
+    }),
   "azure-openai-realtime": async (params: StreamingLlmRequestParams) =>
     requestAzureOpenAiRealtimeChatStream({
       provider: params.provider,
@@ -293,6 +318,8 @@ async function requestChatText(params: {
       return LLM_TEXT_REQUESTERS["openai-compatible"](params, config);
     case "openai-realtime":
       return LLM_TEXT_REQUESTERS["openai-realtime"](params);
+    case "gemini-live":
+      return LLM_TEXT_REQUESTERS["gemini-live"](params);
     case "azure-openai":
       return LLM_TEXT_REQUESTERS["azure-openai"](params);
     case "azure-openai-realtime":
@@ -444,6 +471,18 @@ export async function streamChat({
         break;
       case "openai-realtime":
         fullText = await LLM_STREAM_REQUESTERS["openai-realtime"]({
+          messages,
+          model,
+          provider,
+          apiKey,
+          language,
+          systemPrompt,
+          onChunk,
+          abortSignal,
+        });
+        break;
+      case "gemini-live":
+        fullText = await LLM_STREAM_REQUESTERS["gemini-live"]({
           messages,
           model,
           provider,
