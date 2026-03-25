@@ -110,7 +110,7 @@ export type ProviderSttConfig =
   | ElevenLabsTranscriptionConfig
   | ElevenLabsRealtimeTranscriptionConfig;
 
-export const STT_TIMEOUT_MS = 30000;
+export const STT_TIMEOUT_MS = 60000;
 
 function getLanguageHint(
   key: string | undefined,

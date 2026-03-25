@@ -681,4 +681,12 @@ describe("synthesizeSpeech", () => {
       PROVIDER_TTS_MAX_TIMEOUT_MS,
     );
   });
+
+  it("gives Gemini TTS a larger timeout budget for longer synthesis jobs", () => {
+    const text = "x".repeat(1597);
+
+    expect(getProviderTtsTimeoutMs(text, "gemini")).toBeGreaterThan(
+      getProviderTtsTimeoutMs(text, "openai"),
+    );
+  });
 });

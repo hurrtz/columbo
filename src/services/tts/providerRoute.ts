@@ -46,7 +46,7 @@ function isRetryableGeminiTransportError(error: unknown) {
   }
 
   if (error instanceof TtsTimeoutError) {
-    return true;
+    return false;
   }
 
   if (error instanceof TtsRequestError) {
@@ -504,7 +504,7 @@ export async function synthesizeProviderSpeech(params: {
     abortSignal,
   } = params;
   const config = TTS_PROVIDER_CONFIGS[provider];
-  const timeoutMs = getProviderTtsTimeoutMs(text);
+  const timeoutMs = getProviderTtsTimeoutMs(text, provider);
 
   if (!config) {
     throw new Error(

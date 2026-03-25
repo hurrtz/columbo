@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 
 import { createSpeechRequestId } from "../../services/speech/diagnostics";
-import { synthesizeSpeechSequence } from "../../services/tts";
+import { createVoicePipelineTtsQueue } from "../../services/voicePipeline/ttsQueue";
 import type {
   AudioPlayer,
   ReplayPhase,
@@ -20,6 +20,7 @@ type ReplayControllerParams = Pick<
   | "ttsApiKey"
   | "ttsListenLanguages"
   | "ttsMode"
+  | "replyPlayback"
   | "ttsProvider"
 > & {
   isBusy: boolean;
@@ -41,10 +42,12 @@ export function useReplyReplayController({
   ttsApiKey,
   ttsListenLanguages,
   ttsMode,
+  replyPlayback,
   ttsProvider,
 }: ReplayControllerParams) {
   const replayingRef = useRef(false);
   const replaySessionRef = useRef(0);
+  const replayAbortRef = useRef<AbortController | null>(null);
   const [replayPhase, setReplayPhase] = useState<ReplayPhase>("idle");
   const [activeReplayMessageId, setActiveReplayMessageId] = useState<string | null>(
     null,
@@ -61,6 +64,8 @@ export function useReplyReplayController({
       replayingRef.current = true;
       const replaySession = replaySessionRef.current + 1;
       replaySessionRef.current = replaySession;
+      replayAbortRef.current?.abort();
+      replayAbortRef.current = new AbortController();
       setActiveReplayMessageId(messageId ?? null);
       setReplayPhase("preparing");
 
@@ -94,54 +99,84 @@ export function useReplyReplayController({
           return;
         }
 
-        const audioUris = await synthesizeSpeechSequence({
-          text: trimmed,
-          voice: selectedTtsVoice,
-          mode: ttsMode,
-          provider: ttsProvider,
-          providerModel: selectedTtsModel,
-          apiKey: ttsApiKey,
-          language,
-          listenLanguages: ttsListenLanguages,
-          localVoices: localTtsVoices,
-          diagnostics: speechDiagnostics,
-        }).catch(async () => {
-          if (replaySessionRef.current !== replaySession) {
-            return null;
-          }
+        let fallbackToastShown = false;
+        const replayQueue = createVoicePipelineTtsQueue({
+          abortSignal: replayAbortRef.current.signal,
+          callbacks: {
+            onTranscription: () => undefined,
+            onChunk: () => undefined,
+            onResponseDone: () => undefined,
+            onAudioReady: (audioUri, diagnostics) => {
+              if (replaySessionRef.current !== replaySession) {
+                return;
+              }
 
-          setReplayPhase("speaking");
-          player.speakText(trimmed, {
-            diagnostics: speechDiagnostics,
-          });
-          showToast(
-            ttsMode === "local"
-              ? t("localVoiceFallback")
-              : t("providerVoiceFallback"),
-          );
-          return null;
+              setReplayPhase("speaking");
+              player.enqueueAudio(audioUri, diagnostics);
+            },
+            onSpeechTextReady: (segmentText, _voice, diagnostics) => {
+              if (replaySessionRef.current !== replaySession) {
+                return;
+              }
+
+              setReplayPhase("speaking");
+              player.speakText(segmentText, {
+                diagnostics,
+              });
+            },
+            onTtsFallback: () => {
+              if (
+                replaySessionRef.current !== replaySession ||
+                fallbackToastShown
+              ) {
+                return;
+              }
+
+              fallbackToastShown = true;
+              showToast(
+                ttsMode === "local"
+                  ? t("localVoiceFallback")
+                  : t("providerVoiceFallback"),
+              );
+            },
+            onError: (error) => {
+              if (
+                replaySessionRef.current !== replaySession ||
+                error.name === "AbortError"
+              ) {
+                return;
+              }
+
+              showToast(error.message);
+            },
+          },
+          diagnosticsSource: "repeat",
+          language,
+          localTtsVoices,
+          replyPlayback,
+          ttsApiKey,
+          ttsListenLanguages,
+          ttsMode,
+          ttsModel: selectedTtsModel,
+          ttsProvider,
+          ttsVoice: selectedTtsVoice,
         });
 
-        if (!audioUris) {
-          if (player.isPlaying && replaySessionRef.current === replaySession) {
-            setReplayPhase("speaking");
-            await player.waitForDrain();
-          }
-          return;
-        }
+        replayQueue.handleStreamChunk(trimmed);
+        await replayQueue.handleResponseDone(trimmed);
 
         if (replaySessionRef.current !== replaySession) {
           return;
         }
 
-        setReplayPhase("speaking");
-        audioUris.forEach((audioUri) => {
-          player.enqueueAudio(audioUri, speechDiagnostics);
-        });
+        if (player.hasPendingPlaybackNow() || player.isPlaying) {
+          setReplayPhase("speaking");
+        }
         await player.waitForDrain();
       } finally {
         if (replaySessionRef.current === replaySession) {
           replayingRef.current = false;
+          replayAbortRef.current = null;
           setReplayPhase("idle");
           setActiveReplayMessageId(null);
         }
@@ -158,6 +193,7 @@ export function useReplyReplayController({
       ttsApiKey,
       ttsListenLanguages,
       ttsMode,
+      replyPlayback,
       ttsProvider,
     ],
   );
@@ -165,6 +201,8 @@ export function useReplyReplayController({
   const stopReplay = useCallback(async () => {
     replaySessionRef.current += 1;
     replayingRef.current = false;
+    replayAbortRef.current?.abort();
+    replayAbortRef.current = null;
     setReplayPhase("idle");
     setActiveReplayMessageId(null);
     player.resetCancellation();

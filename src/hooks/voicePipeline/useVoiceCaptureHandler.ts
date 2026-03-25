@@ -50,6 +50,7 @@ export function useVoiceCaptureHandler({
   updateConversationContextSummary,
 }: VoiceCaptureHandlerParams) {
   const ttsFallbackToastShownRef = useRef(false);
+  const playbackStartedRef = useRef(false);
 
   const handleVoiceCaptureDone = useCallback(
     async ({
@@ -70,6 +71,7 @@ export function useVoiceCaptureHandler({
       setPipelinePhase(transcriptionOverride ? "thinking" : "transcribing");
       setStreamingText("");
       ttsFallbackToastShownRef.current = false;
+      playbackStartedRef.current = false;
       abortRef.current = new AbortController();
       player.resetCancellation();
 
@@ -145,7 +147,9 @@ export function useVoiceCaptureHandler({
                   chunkLength: text.length,
                 },
               });
-              setPipelinePhase("thinking");
+              setPipelinePhase(
+                playbackStartedRef.current ? "speaking" : "thinking",
+              );
               setStreamingText((prev) => prev + text);
             },
             onResponseDone: (fullText, usage?: UsageEstimate) => {
@@ -157,7 +161,11 @@ export function useVoiceCaptureHandler({
                 },
               });
               setStreamingText("");
-              setPipelinePhase(ttsMode === "native" ? "speaking" : "synthesizing");
+              setPipelinePhase(
+                ttsMode === "native" || playbackStartedRef.current
+                  ? "speaking"
+                  : "synthesizing",
+              );
               lastCompletedReplyRef.current = fullText;
               addMessage({
                 role: "assistant",
@@ -175,6 +183,7 @@ export function useVoiceCaptureHandler({
                   uri: audioData,
                 },
               });
+              playbackStartedRef.current = true;
               setPipelinePhase("speaking");
               player.enqueueAudio(audioData, diagnostics);
             },
@@ -186,6 +195,7 @@ export function useVoiceCaptureHandler({
                   textLength: text.trim().length,
                 },
               });
+              playbackStartedRef.current = true;
               setPipelinePhase("speaking");
               player.speakText(text, {
                 diagnostics,

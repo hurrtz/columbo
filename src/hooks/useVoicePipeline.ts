@@ -40,6 +40,7 @@ export function useVoicePipeline(
     ttsApiKey: params.ttsApiKey,
     ttsListenLanguages: params.ttsListenLanguages,
     ttsMode: params.ttsMode,
+    replyPlayback: params.replyPlayback,
     ttsProvider: params.ttsProvider,
   });
 

@@ -1,4 +1,5 @@
 import { createSpeechRequestId } from "../speech/diagnostics";
+import type { SpeechDiagnosticSource } from "../speech/diagnostics";
 import {
   LOCAL_TTS_MAX_INPUT_CHARS,
   PROVIDER_TTS_MAX_INPUT_CHARS,
@@ -11,6 +12,7 @@ import type { RunVoicePipelineParams } from "./types";
 interface CreateVoicePipelineTtsQueueParams {
   abortSignal?: AbortSignal;
   callbacks: RunVoicePipelineParams["callbacks"];
+  diagnosticsSource?: SpeechDiagnosticSource;
   language: RunVoicePipelineParams["language"];
   localTtsVoices?: RunVoicePipelineParams["localTtsVoices"];
   replyPlayback: RunVoicePipelineParams["replyPlayback"];
@@ -25,6 +27,7 @@ interface CreateVoicePipelineTtsQueueParams {
 export function createVoicePipelineTtsQueue({
   abortSignal,
   callbacks,
+  diagnosticsSource = "conversation",
   language,
   localTtsVoices,
   replyPlayback,
@@ -40,8 +43,8 @@ export function createVoicePipelineTtsQueue({
   const ttsQueue: Promise<void>[] = [];
   const effectiveReplyPlayback = ttsMode === "local" ? "wait" : replyPlayback;
   const speechDiagnostics = {
-    requestId: createSpeechRequestId("conversation"),
-    source: "conversation" as const,
+    requestId: createSpeechRequestId(diagnosticsSource),
+    source: diagnosticsSource,
     providerModel: ttsModel || null,
   };
 

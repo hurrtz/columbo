@@ -3,12 +3,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   GestureResponderEvent,
+  Text,
   View,
   Platform,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../theme/ThemeContext";
+import { fonts } from "../theme/typography";
 import { Waveform } from "./Waveform";
 import { NativeWaveformView } from "./NativeWaveformView";
 import { supportsNativeOutputWaveformPlayback } from "../services/nativeWaveform";
@@ -28,6 +30,7 @@ interface WaveformBarProps {
   levels?: number[];
   isActive: boolean;
   phase: VoiceVisualPhase;
+  statusLabel?: string;
   waveformVariant?: WaveformVisualizationVariant;
   inputMode: InputMode;
   onPressIn?: (e: GestureResponderEvent) => void;
@@ -40,6 +43,7 @@ export function WaveformBar({
   levels,
   isActive,
   phase,
+  statusLabel,
   waveformVariant = "bars",
   inputMode,
   onPressIn,
@@ -121,7 +125,25 @@ export function WaveformBar({
             />
           )
         ) : (
-          <View style={styles.idleFill} />
+          <View style={styles.statusLabelWrap}>
+            {statusLabel ? (
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.statusLabel,
+                  {
+                    color: isActive
+                      ? "rgba(255, 255, 255, 0.96)"
+                      : colors.textSecondary,
+                  },
+                ]}
+              >
+                {statusLabel}
+              </Text>
+            ) : (
+              <View style={styles.idleFill} />
+            )}
+          </View>
         )}
       </View>
     </View>
@@ -212,6 +234,15 @@ const styles = StyleSheet.create({
   },
   idleFill: {
     flex: 1,
+  },
+  statusLabelWrap: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  statusLabel: {
+    fontSize: 14,
+    lineHeight: 18,
+    fontFamily: fonts.display,
   },
   micButton: {
     width: 44,

@@ -10,6 +10,28 @@ export interface StatusDisplayData {
   messageCountLabel: string | null;
 }
 
+export function getVisualPhaseActionLabel(params: {
+  inputMode: InputMode;
+  t: TranslateFn;
+  visualPhase: VoiceVisualPhase;
+}) {
+  const { inputMode, t, visualPhase } = params;
+
+  return visualPhase === "recording"
+    ? t("listening")
+    : visualPhase === "transcribing"
+      ? t("parsing")
+      : visualPhase === "synthesizing"
+        ? t("voiceOutput")
+        : visualPhase === "thinking"
+          ? t("thinking")
+          : visualPhase === "speaking"
+            ? t("speaking")
+            : inputMode === "push-to-talk"
+              ? t("holdToSpeak")
+              : t("tapToSpeak");
+}
+
 export function getStatusDisplayData(params: {
   inputMode: InputMode;
   messageCount: number;
@@ -31,20 +53,11 @@ export function getStatusDisplayData(params: {
 
   const messageCountLabel =
     messageCount > 0 ? t("messageCount", { count: messageCount }) : null;
-  const actionLabel =
-    visualPhase === "recording"
-      ? t("listening")
-      : visualPhase === "transcribing"
-        ? t("parsing")
-        : visualPhase === "synthesizing"
-          ? t("voiceOutput")
-          : visualPhase === "thinking"
-            ? t("thinking")
-            : visualPhase === "speaking"
-              ? t("speaking")
-              : inputMode === "push-to-talk"
-                ? t("holdToSpeak")
-                : t("tapToSpeak");
+  const actionLabel = getVisualPhaseActionLabel({
+    inputMode,
+    t,
+    visualPhase,
+  });
   const statusTitle =
     visualPhase === "recording"
       ? t("listening")

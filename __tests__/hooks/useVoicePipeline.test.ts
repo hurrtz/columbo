@@ -9,6 +9,60 @@ jest.mock("../../src/services/voicePipeline", () => ({
 }));
 
 jest.mock("../../src/services/tts", () => ({
+  LOCAL_TTS_MAX_INPUT_CHARS: 420,
+  PROVIDER_TTS_MAX_INPUT_CHARS: 3500,
+  splitIntoSentences: (text: string): string[] => {
+    const result: string[] = [];
+    let current = "";
+
+    for (const char of text) {
+      current += char;
+
+      if (char === "." || char === "!" || char === "?" || char === "\n") {
+        result.push(current);
+        current = "";
+      }
+    }
+
+    if (current) {
+      result.push(current);
+    }
+
+    return result;
+  },
+  splitTextForTts: (text: string, maxChars = 3500) => {
+    const normalized = text.trim();
+
+    if (!normalized) {
+      return [];
+    }
+
+    const words = normalized.split(/\s+/);
+    const chunks: string[] = [];
+    let current = "";
+
+    for (const word of words) {
+      const next = current ? `${current} ${word}` : word;
+
+      if (next.length <= maxChars) {
+        current = next;
+        continue;
+      }
+
+      if (current) {
+        chunks.push(current);
+      }
+
+      current = word;
+    }
+
+    if (current) {
+      chunks.push(current);
+    }
+
+    return chunks;
+  },
+  synthesizeSpeech: jest.fn(),
   synthesizeSpeechSequence: jest.fn(),
 }));
 
@@ -17,7 +71,7 @@ jest.mock("../../src/services/speech/diagnostics", () => ({
 }));
 
 import { runVoicePipeline } from "../../src/services/voicePipeline";
-import { synthesizeSpeechSequence } from "../../src/services/tts";
+import { synthesizeSpeech, synthesizeSpeechSequence } from "../../src/services/tts";
 
 function createPlayer(overrides: Partial<ReturnType<typeof createPlayerBase>> = {}) {
   return {
@@ -106,7 +160,7 @@ describe("useVoicePipeline", () => {
       ttsMode: "local",
       player: createPlayer(),
     });
-    (synthesizeSpeechSequence as jest.Mock).mockRejectedValue(
+    (synthesizeSpeech as jest.Mock).mockRejectedValue(
       new Error("Local TTS unavailable"),
     );
 
@@ -130,6 +184,73 @@ describe("useVoicePipeline", () => {
     );
     expect(result.current.replayPhase).toBe("idle");
     expect(result.current.activeReplayMessageId).toBeNull();
+  });
+
+  it("streams replay provider TTS sentence by sentence in stream mode", async () => {
+    const params = createParams({
+      replyPlayback: "stream",
+      player: createPlayer(),
+    });
+    (synthesizeSpeech as jest.Mock)
+      .mockResolvedValueOnce("file://reply-1.wav")
+      .mockResolvedValueOnce("file://reply-2.wav");
+
+    const { result } = renderHook(() => useVoicePipeline(params));
+
+    await act(async () => {
+      await result.current.playReplyText(
+        "Sentence one. Sentence two.",
+        "message-1",
+      );
+    });
+
+    expect(synthesizeSpeech).toHaveBeenNthCalledWith(1, {
+      text: "Sentence one.",
+      voice: "alloy",
+      mode: "provider",
+      provider: "openai",
+      providerModel: "gpt-4o-mini-tts",
+      apiKey: "sk-tts",
+      language: "en",
+      listenLanguages: DEFAULT_SETTINGS.ttsListenLanguages,
+      localVoices: DEFAULT_SETTINGS.localTtsVoices,
+      diagnostics: expect.objectContaining({
+        requestId: "speech-request-1",
+        source: "repeat",
+      }),
+    });
+    expect(synthesizeSpeech).toHaveBeenNthCalledWith(2, {
+      text: "Sentence two.",
+      voice: "alloy",
+      mode: "provider",
+      provider: "openai",
+      providerModel: "gpt-4o-mini-tts",
+      apiKey: "sk-tts",
+      language: "en",
+      listenLanguages: DEFAULT_SETTINGS.ttsListenLanguages,
+      localVoices: DEFAULT_SETTINGS.localTtsVoices,
+      diagnostics: expect.objectContaining({
+        requestId: "speech-request-1",
+        source: "repeat",
+      }),
+    });
+    expect(params.player.enqueueAudio).toHaveBeenNthCalledWith(
+      1,
+      "file://reply-1.wav",
+      expect.objectContaining({
+        requestId: "speech-request-1",
+        source: "repeat",
+      }),
+    );
+    expect(params.player.enqueueAudio).toHaveBeenNthCalledWith(
+      2,
+      "file://reply-2.wav",
+      expect.objectContaining({
+        requestId: "speech-request-1",
+        source: "repeat",
+      }),
+    );
+    expect(synthesizeSpeechSequence).not.toHaveBeenCalled();
   });
 
   it("runs the full voice pipeline and updates conversation state", async () => {
@@ -232,5 +353,89 @@ describe("useVoicePipeline", () => {
       translate("en", "couldntCatchThatTryAgain"),
     );
     expect(result.current.pipelinePhase).toBe("idle");
+  });
+
+  it("keeps the phase at speaking once streamed playback has already started", async () => {
+    const params = createParams({
+      player: createPlayer({
+        hasPendingPlaybackNow: jest.fn(() => false),
+      }),
+    });
+    let resolveRun: (() => void) | null = null;
+
+    (runVoicePipeline as jest.Mock).mockImplementation(
+      async ({ callbacks }: any) => {
+        callbacks.onAudioReady("file://reply.wav", {
+          requestId: "speech-request-1",
+          source: "conversation",
+        });
+        callbacks.onResponseDone("Completed reply");
+
+        await new Promise<void>((resolve) => {
+          resolveRun = resolve;
+        });
+
+        return "Hello from the microphone";
+      },
+    );
+
+    const { result } = renderHook(() => useVoicePipeline(params));
+
+    let pending: Promise<void> | null = null;
+    await act(async () => {
+      pending = result.current.handleVoiceCaptureDone({
+        transcriptionOverride: "Hello from the microphone",
+      });
+      await Promise.resolve();
+    });
+
+    expect(result.current.pipelinePhase).toBe("speaking");
+
+    await act(async () => {
+      resolveRun?.();
+      await pending;
+    });
+  });
+
+  it("does not regress from speaking back to thinking when later stream chunks arrive", async () => {
+    const params = createParams({
+      player: createPlayer({
+        hasPendingPlaybackNow: jest.fn(() => false),
+      }),
+    });
+    let resolveRun: (() => void) | null = null;
+
+    (runVoicePipeline as jest.Mock).mockImplementation(
+      async ({ callbacks }: any) => {
+        callbacks.onAudioReady("file://reply.wav", {
+          requestId: "speech-request-1",
+          source: "conversation",
+        });
+        callbacks.onChunk(" more reply");
+
+        await new Promise<void>((resolve) => {
+          resolveRun = resolve;
+        });
+
+        return "Hello from the microphone";
+      },
+    );
+
+    const { result } = renderHook(() => useVoicePipeline(params));
+
+    let pending: Promise<void> | null = null;
+    await act(async () => {
+      pending = result.current.handleVoiceCaptureDone({
+        transcriptionOverride: "Hello from the microphone",
+      });
+      await Promise.resolve();
+    });
+
+    expect(result.current.pipelinePhase).toBe("speaking");
+
+    await act(async () => {
+      resolveRun?.();
+      await pending;
+    });
   });
 });

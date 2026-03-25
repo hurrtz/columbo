@@ -18,6 +18,9 @@ export const LOCAL_TTS_MAX_INPUT_CHARS = 420;
 export const PROVIDER_TTS_TIMEOUT_MS = 15000;
 export const PROVIDER_TTS_TIMEOUT_MS_PER_CHAR = 10;
 export const PROVIDER_TTS_MAX_TIMEOUT_MS = 60000;
+const GEMINI_PROVIDER_TTS_TIMEOUT_MS = 25000;
+const GEMINI_PROVIDER_TTS_TIMEOUT_MS_PER_CHAR = 20;
+const GEMINI_PROVIDER_TTS_MAX_TIMEOUT_MS = 90000;
 
 export class TtsRequestError extends Error {
   readonly provider: Provider;
@@ -537,8 +540,19 @@ export function createTtsTimeoutError(params: {
   });
 }
 
-export function getProviderTtsTimeoutMs(text: string) {
+export function getProviderTtsTimeoutMs(
+  text: string,
+  provider?: Provider | null,
+) {
   const normalizedLength = text.trim().length;
+
+  if (provider === "gemini") {
+    return Math.min(
+      GEMINI_PROVIDER_TTS_MAX_TIMEOUT_MS,
+      GEMINI_PROVIDER_TTS_TIMEOUT_MS +
+        normalizedLength * GEMINI_PROVIDER_TTS_TIMEOUT_MS_PER_CHAR,
+    );
+  }
 
   return Math.min(
     PROVIDER_TTS_MAX_TIMEOUT_MS,

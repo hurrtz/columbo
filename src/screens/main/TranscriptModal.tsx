@@ -20,6 +20,7 @@ import { ReplayPhase } from "../../hooks/useVoicePipeline";
 
 import { ConversationMenu } from "./ConversationMenu";
 import { TranslateFn } from "./shared";
+import { getVisualPhaseActionLabel } from "./statusSelectors";
 import { styles } from "./styles";
 import { ConversationUsageDisplayData } from "./usageSelectors";
 
@@ -58,6 +59,21 @@ interface TranscriptModalProps {
   waveformInputMode: InputMode;
 }
 
+function getTranscriptWaveformVisualPhase(
+  visualPhase: VoiceVisualPhase,
+  replayPhase: ReplayPhase,
+): VoiceVisualPhase {
+  if (replayPhase === "preparing") {
+    return "synthesizing";
+  }
+
+  if (replayPhase === "speaking") {
+    return "speaking";
+  }
+
+  return visualPhase;
+}
+
 export function TranscriptModal({
   activeConversationTitle,
   activeReplayMessageId,
@@ -92,6 +108,17 @@ export function TranscriptModal({
   visible,
   waveformInputMode,
 }: TranscriptModalProps) {
+  const waveformPhase = getTranscriptWaveformVisualPhase(
+    visualPhase,
+    replayPhase,
+  );
+  const waveformIsActive = isActive || replayPhase !== "idle";
+  const waveformStatusLabel = getVisualPhaseActionLabel({
+    inputMode: waveformInputMode,
+    t,
+    visualPhase: waveformPhase,
+  });
+
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <SafeAreaView
@@ -171,8 +198,9 @@ export function TranscriptModal({
             <WaveformBar
               metering={metering}
               levels={signalLevels}
-              isActive={isActive}
-              phase={visualPhase}
+              isActive={waveformIsActive}
+              phase={waveformPhase}
+              statusLabel={waveformStatusLabel}
               waveformVariant={signalWaveformVariant}
               inputMode={waveformInputMode}
               onPressIn={onPressIn}
