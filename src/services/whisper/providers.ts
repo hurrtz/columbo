@@ -53,6 +53,8 @@ interface SharedProviderParams {
 
 const ASSEMBLYAI_POLL_INTERVAL_MS = 1000;
 const ASSEMBLYAI_MAX_POLLS = 30;
+const DASHSCOPE_ASYNC_POLL_INTERVAL_MS = 1000;
+const DASHSCOPE_ASYNC_MAX_POLLS = 30;
 
 function base64ToBytes(base64: string) {
   const BufferCtor = (globalThis as any).Buffer;
@@ -121,6 +123,10 @@ function getBaiduSpeechPid(model: string, language: AppLanguage) {
   }
 
   return language === "en" ? 1737 : 1537;
+}
+
+function isRemoteAudioSource(fileUri: string) {
+  return /^(https?:\/\/|oss:\/\/)/i.test(fileUri);
 }
 
 export async function transcribeWithGeminiProvider(
@@ -1135,6 +1141,179 @@ export async function transcribeWithAssemblyAiPreRecordedProvider(
     if (attempt < ASSEMBLYAI_MAX_POLLS - 1) {
       await wait(ASSEMBLYAI_POLL_INTERVAL_MS);
     }
+  }
+
+  throw createSttTimeoutError({ provider, language });
+}
+
+export async function transcribeWithDashScopeFileTranscriptionProvider(
+  params: SharedProviderParams & {
+    providerModel?: string;
+  },
+) {
+  const { abortSignal, apiKey, fileUri, language, provider, providerModel } =
+    params;
+
+  if (!isRemoteAudioSource(fileUri)) {
+    throw new Error(
+      "DashScope long-file transcription requires a public audio URL.",
+    );
+  }
+
+  let createResponse: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    createResponse = await fetchWithTimeout(
+      "https://dashscope-intl.aliyuncs.com/api/v1/services/audio/asr/transcription",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+          "Content-Type": "application/json",
+          "X-DashScope-Async": "enable",
+        },
+        body: JSON.stringify({
+          model: providerModel || "qwen3-asr-flash-filetrans",
+          input: {
+            file_url: fileUri,
+          },
+          parameters: {
+            channel_id: [0],
+            enable_itn: false,
+          },
+        }),
+      },
+      STT_TIMEOUT_MS,
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!createResponse.ok) {
+    const errorText = await createResponse.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: createResponse.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const createData = await createResponse.json();
+  const taskId =
+    typeof createData?.output?.task_id === "string"
+      ? createData.output.task_id
+      : null;
+
+  if (!taskId) {
+    throw new Error("DashScope did not return an async transcription task ID.");
+  }
+
+  for (let pollIndex = 0; pollIndex < DASHSCOPE_ASYNC_MAX_POLLS; pollIndex += 1) {
+    let pollResponse: Awaited<ReturnType<typeof fetch>>;
+
+    try {
+      pollResponse = await fetchWithTimeout(
+        `https://dashscope-intl.aliyuncs.com/api/v1/tasks/${encodeURIComponent(taskId)}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${requireProviderKey(
+              provider,
+              apiKey,
+              language,
+            )}`,
+            "X-DashScope-Async": "enable",
+            "Content-Type": "application/json",
+          },
+        },
+        STT_TIMEOUT_MS,
+        () => createSttTimeoutError({ provider, language }),
+        abortSignal,
+      );
+    } catch (error) {
+      throw normalizeProviderTransportError({
+        provider,
+        language,
+        error,
+        action: "transcription",
+      });
+    }
+
+    if (!pollResponse.ok) {
+      const errorText = await pollResponse.text();
+      throw buildProviderHttpError({
+        provider,
+        language,
+        status: pollResponse.status,
+        errorText,
+        action: "transcription",
+      });
+    }
+
+    const pollData = await pollResponse.json();
+    const taskStatus =
+      typeof pollData?.output?.task_status === "string"
+        ? pollData.output.task_status
+        : null;
+    const transcriptionUrl =
+      typeof pollData?.output?.result?.transcription_url === "string"
+        ? pollData.output.result.transcription_url
+        : null;
+
+    if (taskStatus === "SUCCEEDED" && transcriptionUrl) {
+      const transcriptionResponse = await fetchWithTimeout(
+        transcriptionUrl,
+        {
+          method: "GET",
+        },
+        STT_TIMEOUT_MS,
+        () => createSttTimeoutError({ provider, language }),
+        abortSignal,
+      );
+
+      if (!transcriptionResponse.ok) {
+        const errorText = await transcriptionResponse.text();
+        throw buildProviderHttpError({
+          provider,
+          language,
+          status: transcriptionResponse.status,
+          errorText,
+          action: "transcription",
+        });
+      }
+
+      const transcriptionData = await transcriptionResponse.json();
+      const transcript = Array.isArray(transcriptionData?.transcripts)
+        ? transcriptionData.transcripts
+            .map((item: any) =>
+              typeof item?.text === "string" ? item.text.trim() : "",
+            )
+            .filter(Boolean)
+            .join("\n")
+        : "";
+
+      return transcript || null;
+    }
+
+    if (taskStatus === "FAILED") {
+      throw new Error(
+        typeof pollData?.output?.message === "string"
+          ? pollData.output.message
+          : "DashScope async transcription failed.",
+      );
+    }
+
+    throwIfAborted(abortSignal);
+    await wait(DASHSCOPE_ASYNC_POLL_INTERVAL_MS);
   }
 
   throw createSttTimeoutError({ provider, language });

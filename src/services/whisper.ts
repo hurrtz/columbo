@@ -13,6 +13,7 @@ import {
   transcribeWithAlephAlphaProvider,
   transcribeWithAzureOpenAiProvider,
   transcribeWithBaiduShortSpeechProvider,
+  transcribeWithDashScopeFileTranscriptionProvider,
   transcribeWithDeepgramPreRecordedProvider,
   transcribeWithDeepInfraInferenceProvider,
   transcribeWithElevenLabsProvider,
@@ -33,6 +34,10 @@ import {
   transcribeWithFireworksStreamingProvider,
   transcribeWithStepfunRealtimeProvider,
 } from "./whisper/realtimeProviders";
+
+function isRemoteAudioSource(fileUri: string) {
+  return /^(https?:\/\/|oss:\/\/)/i.test(fileUri);
+}
 
 function formatByteLimit(bytes: number) {
   if (bytes >= 1_000_000) {
@@ -110,7 +115,11 @@ export async function transcribeAudio(params: {
     throw new Error(translate(language, "chooseSpeechToTextProviderInSettings"));
   }
 
-  await waitForRecordedFileReady(fileUri, language, abortSignal);
+  const remoteAudioSource = isRemoteAudioSource(fileUri);
+
+  if (!remoteAudioSource) {
+    await waitForRecordedFileReady(fileUri, language, abortSignal);
+  }
 
   const selectedModel = providerModel || "";
   const config = getProviderSttConfig(provider, selectedModel);
@@ -125,12 +134,28 @@ export async function transcribeAudio(params: {
 
   const resolvedModel = providerModel || config.defaultModel;
 
-  await assertSttUploadFitsCatalogLimits({
-    fileUri,
-    provider,
-    modelId: resolvedModel,
-    language,
-  });
+  if (!remoteAudioSource) {
+    await assertSttUploadFitsCatalogLimits({
+      fileUri,
+      provider,
+      modelId: resolvedModel,
+      language,
+    });
+  }
+
+  if (
+    provider === "alibaba-qwen-dashscope" &&
+    resolvedModel === "qwen3-asr-flash-filetrans"
+  ) {
+    return transcribeWithDashScopeFileTranscriptionProvider({
+      abortSignal,
+      apiKey,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
+    });
+  }
 
   if (config.kind === "gemini") {
     return transcribeWithGeminiProvider({

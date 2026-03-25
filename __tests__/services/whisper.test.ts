@@ -661,6 +661,75 @@ describe("transcribeAudio", () => {
     );
   });
 
+  it("uses the DashScope async file-transcription flow for long-file ASR models", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          output: {
+            task_id: "dashscope-task-1",
+            task_status: "PENDING",
+          },
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          output: {
+            task_id: "dashscope-task-1",
+            task_status: "SUCCEEDED",
+            result: {
+              transcription_url: "https://dashscope.example/transcription.json",
+            },
+          },
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          transcripts: [
+            {
+              text: "Hello from DashScope filetrans",
+            },
+          ],
+        }),
+      });
+
+    const result = await transcribeAudio({
+      fileUri: "https://example.com/audio.mp3",
+      mode: "provider",
+      provider: "alibaba-qwen-dashscope",
+      providerModel: "qwen3-asr-flash-filetrans",
+      apiKey: "dashscope-test",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from DashScope filetrans");
+    const [createUrl, createOptions] = (fetch as jest.Mock).mock.calls[0];
+    expect(createUrl).toBe(
+      "https://dashscope-intl.aliyuncs.com/api/v1/services/audio/asr/transcription",
+    );
+    expect(createOptions.headers.Authorization).toBe("Bearer dashscope-test");
+    expect(createOptions.headers["X-DashScope-Async"]).toBe("enable");
+    expect(JSON.parse(createOptions.body)).toEqual({
+      model: "qwen3-asr-flash-filetrans",
+      input: {
+        file_url: "https://example.com/audio.mp3",
+      },
+      parameters: {
+        channel_id: [0],
+        enable_itn: false,
+      },
+    });
+
+    expect((fetch as jest.Mock).mock.calls[1][0]).toBe(
+      "https://dashscope-intl.aliyuncs.com/api/v1/tasks/dashscope-task-1",
+    );
+    expect((fetch as jest.Mock).mock.calls[2][0]).toBe(
+      "https://dashscope.example/transcription.json",
+    );
+  });
+
   it("uses the DashScope realtime socket for qwen3-asr-flash-realtime", async () => {
     const promise = transcribeAudio({
       fileUri: "/tmp/recording.wav",
