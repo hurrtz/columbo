@@ -13,10 +13,10 @@ Catalog updated: 2026-03-23
 - Catalog providers: 40
 - Providers with any runtime integration: 39
 - Catalog models: 455
-- Integrated models: 413
+- Integrated models: 414
 - LLM: 290/294 integrated
 - STT: 51/71 integrated
-- TTS: 72/90 integrated
+- TTS: 73/90 integrated
 - Unresolved runtime manifest entries: 31
 
 ## 01.AI (Yi) `01-ai-yi`
@@ -706,7 +706,7 @@ Catalog updated: 2026-03-23
 ## Siliconflow `siliconflow`
 
 - Runtime provider: `siliconflow`
-- Model integration: 9/10 integrated
+- Model integration: 10/10 integrated
 - Verified support: LLM `native`, STT `native`, TTS `native`
 
 | Service | Model ID | Public Name | App Status | Runtime ID |
@@ -720,7 +720,7 @@ Catalog updated: 2026-03-23
 | STT | `TeleAI/TeleSpeechASR` | TeleSpeechASR | Integrated | `TeleAI/TeleSpeechASR` |
 | TTS | `FunAudioLLM/CosyVoice2-0.5B` | CosyVoice2-0.5B | Integrated | `FunAudioLLM/CosyVoice2-0.5B` |
 | TTS | `fishaudio/fish-speech-1.5` | Fish-Speech-1.5 | Integrated | `fishaudio/fish-speech-1.5` |
-| TTS | `IndexTeam/IndexTTS-2` | IndexTTS-2 | Not integrated | — |
+| TTS | `IndexTeam/IndexTTS-2` | IndexTTS-2 | Integrated | `IndexTeam/IndexTTS-2` |
 
 ## Stepfun `stepfun`
 

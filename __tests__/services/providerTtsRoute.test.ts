@@ -261,6 +261,33 @@ describe("synthesizeProviderSpeech", () => {
     });
   });
 
+  it("omits the preset voice field for SiliconFlow IndexTTS-2", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello world",
+      voice: "",
+      provider: "siliconflow",
+      providerModel: "IndexTeam/IndexTTS-2",
+      apiKey: "siliconflow-test",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.siliconflow.com/v1/audio/speech");
+    expect(JSON.parse(options.body)).toEqual({
+      model: "IndexTeam/IndexTTS-2",
+      input: "Hello world",
+      response_format: "mp3",
+      stream: false,
+      sample_rate: 44100,
+    });
+  });
+
   it("supports the CosyVoice2 SiliconFlow model on the same speech route", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,

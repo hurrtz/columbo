@@ -131,6 +131,7 @@ describe("speech provider constants", () => {
     expect(getProviderTtsModelOptions("siliconflow")).toEqual([
       { id: "fishaudio/fish-speech-1.5", name: "Fish-Speech-1.5" },
       { id: "FunAudioLLM/CosyVoice2-0.5B", name: "CosyVoice2-0.5B" },
+      { id: "IndexTeam/IndexTTS-2", name: "IndexTTS-2" },
     ]);
     expect(getProviderTtsModelOptions("stepfun")).toEqual([
       { id: "step-tts-2", name: "Step TTS 2" },

@@ -1556,6 +1556,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: [
         namedModel("fishaudio/fish-speech-1.5", "Fish-Speech-1.5"),
         namedModel("FunAudioLLM/CosyVoice2-0.5B", "CosyVoice2-0.5B"),
+        namedModel("IndexTeam/IndexTTS-2", "IndexTTS-2"),
       ],
       voiceOptions: [
         voice("fishaudio/fish-speech-1.5:alex", "Alex"),
@@ -1568,7 +1569,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         voice("fishaudio/fish-speech-1.5:diana", "Diana"),
       ],
       languageNote:
-        "SiliconFlow TTS is dynamic overall, but Fish-Speech-1.5 and CosyVoice2-0.5B both have public /v1/audio/speech documentation. Fish-Speech is the better-documented default; CosyVoice2 is also exposed for multilingual and dialect-heavy synthesis.",
+        "SiliconFlow TTS is dynamic overall, but Fish-Speech-1.5, CosyVoice2-0.5B, and IndexTTS-2 all have some public /v1/audio/speech evidence. Fish-Speech remains the better-documented default; CosyVoice2 and IndexTTS-2 should be treated as lower-confidence advanced options.",
     },
   },
   stepfun: {

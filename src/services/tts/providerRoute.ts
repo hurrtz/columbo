@@ -107,7 +107,11 @@ function buildBinaryTtsRequestBody(params: {
     case "siliconflow-speech":
       return {
         model: params.selectedModel,
-        voice: params.selectedVoice,
+        ...(!params.selectedModel.startsWith("IndexTeam/")
+          ? {
+              voice: params.selectedVoice,
+            }
+          : {}),
         input: params.text,
         response_format: "mp3",
         stream: false,
