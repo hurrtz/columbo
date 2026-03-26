@@ -53,6 +53,18 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingBottom: 12,
   },
+  expandedBody: {
+    flex: 1,
+    minHeight: 0,
+  },
+  expandedBodyLandscape: {
+    flexDirection: "row",
+    alignItems: "stretch",
+    gap: 16,
+  },
+  expandedStageColumn: {
+    width: "100%",
+  },
   heroCard: {
     borderRadius: 28,
     borderWidth: 1,
@@ -266,6 +278,9 @@ export const styles = StyleSheet.create({
     shadowRadius: 30,
     elevation: 8,
   },
+  expandedTranscriptDrawerLandscape: {
+    minWidth: 0,
+  },
   transcriptHeader: {
     paddingHorizontal: 16,
     paddingBottom: 8,
@@ -311,6 +326,9 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
     zIndex: 1,
   },
+  expandedStageBarLandscape: {
+    marginBottom: 0,
+  },
   transcriptModal: {
     flex: 1,
   },
@@ -321,6 +339,8 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.16)",
   },
   statusDetailsCard: {
+    width: "100%",
+    alignSelf: "center",
     borderRadius: 30,
     borderWidth: 1,
     padding: 20,
@@ -439,6 +459,10 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 12,
     gap: 8,
+  },
+  usageSummaryCardLandscape: {
+    marginTop: 12,
+    marginBottom: 0,
   },
   usageSummaryHeader: {
     gap: 4,

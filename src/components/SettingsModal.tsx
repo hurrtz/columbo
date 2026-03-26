@@ -1,5 +1,12 @@
 import React from "react";
-import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -46,6 +53,9 @@ export function SettingsModal(props: SettingsModalProps) {
   const { colors } = useTheme();
   const { t } = useLocalization();
   const insets = useSafeAreaInsets();
+  const { height, width } = useWindowDimensions();
+  const isLandscape = width > height;
+  const modalMaxWidth = isLandscape ? Math.min(width - 32, 760) : 460;
   const {
     activeTab,
     setActiveTab,
@@ -227,6 +237,7 @@ export function SettingsModal(props: SettingsModalProps) {
             {
               backgroundColor: colors.surface,
               borderColor: colors.border,
+              maxWidth: modalMaxWidth,
               shadowColor: colors.glow,
             },
             modalAnimStyle,

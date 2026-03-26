@@ -1,5 +1,12 @@
 import React from "react";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -108,6 +115,9 @@ export function TranscriptModal({
   visible,
   waveformInputMode,
 }: TranscriptModalProps) {
+  const { height, width } = useWindowDimensions();
+  const isLandscape = width > height;
+  const landscapeSidebarWidth = Math.max(272, Math.min(340, width * 0.31));
   const waveformPhase = getTranscriptWaveformVisualPhase(
     visualPhase,
     replayPhase,
@@ -118,6 +128,102 @@ export function TranscriptModal({
     t,
     visualPhase: waveformPhase,
   });
+  const usageSummary = usageDisplay ? (
+    <View
+      style={[
+        styles.usageSummaryCard,
+        isLandscape ? styles.usageSummaryCardLandscape : null,
+        {
+          backgroundColor: colors.surfaceElevated,
+          borderColor: colors.border,
+        },
+      ]}
+    >
+      <View style={styles.usageSummaryHeader}>
+        <Text style={[styles.usageSummaryTitle, { color: colors.text }]}>
+          {t("estimatedUsageTitle")}
+        </Text>
+        <Text
+          style={[
+            styles.usageSummaryMeta,
+            { color: colors.textSecondary },
+          ]}
+        >
+          {usageDisplay.countsLabel}
+        </Text>
+        <Text
+          style={[
+            styles.usageSummaryNote,
+            { color: colors.textMuted },
+          ]}
+        >
+          {usageDisplay.noteLabel}
+        </Text>
+      </View>
+      <View style={styles.usageSummaryRow}>
+        <Text
+          style={[
+            styles.usageSummaryMetric,
+            { color: colors.textSecondary },
+          ]}
+        >
+          {usageDisplay.promptTokensLabel}
+        </Text>
+        <Text
+          style={[
+            styles.usageSummaryMetric,
+            { color: colors.textSecondary },
+          ]}
+        >
+          {usageDisplay.replyTokensLabel}
+        </Text>
+      </View>
+      <View style={styles.usageSummaryRow}>
+        <Text
+          style={[
+            styles.usageSummaryMetricStrong,
+            { color: colors.text },
+          ]}
+        >
+          {usageDisplay.totalTokensLabel}
+        </Text>
+        {usageDisplay.totalCostLabel ? (
+          <Text
+            style={[
+              styles.usageSummaryMetricStrong,
+              { color: colors.text },
+            ]}
+          >
+            {usageDisplay.totalCostLabel}
+          </Text>
+        ) : null}
+      </View>
+      {usageDisplay.routes.length > 0 ? (
+        <View style={styles.usageRouteList}>
+          {usageDisplay.routes.map((route) => (
+            <View key={route.key} style={styles.usageRouteRow}>
+              <Text
+                style={[
+                  styles.usageRouteLabel,
+                  { color: colors.textSecondary },
+                ]}
+              >
+                {route.label}
+              </Text>
+              <Text
+                style={[
+                  styles.usageRouteValue,
+                  { color: colors.textSecondary },
+                ]}
+              >
+                {route.value}
+              </Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+    </View>
+  ) : null;
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
@@ -194,184 +300,113 @@ export function TranscriptModal({
             </View>
           </View>
 
-          <View style={styles.expandedStageBar}>
-            <WaveformBar
-              metering={metering}
-              levels={signalLevels}
-              isActive={waveformIsActive}
-              phase={waveformPhase}
-              statusLabel={waveformStatusLabel}
-              waveformVariant={signalWaveformVariant}
-              inputMode={waveformInputMode}
-              onPressIn={onPressIn}
-              onPressOut={onPressOut}
-              onPress={onPress}
-            />
-          </View>
-
           <View
             style={[
-              styles.expandedTranscriptDrawer,
-              {
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
-                shadowColor: colors.glow,
-              },
+              styles.expandedBody,
+              isLandscape ? styles.expandedBodyLandscape : null,
             ]}
           >
-            <View style={styles.expandedTranscriptHeader}>
-              <Text
-                numberOfLines={1}
-                style={[styles.expandedTranscriptTitle, { color: colors.text }]}
-              >
-                {activeConversationTitle}
-              </Text>
-              <TouchableOpacity
-                style={[
-                  styles.menuIconButton,
-                  {
-                    backgroundColor: colors.surfaceElevated,
-                    borderColor: colors.border,
-                  },
-                ]}
-                onPress={toggleConversationMenu}
-                activeOpacity={0.85}
-              >
-                <Feather
-                  name="more-horizontal"
-                  size={18}
-                  color={colors.textSecondary}
-                />
-              </TouchableOpacity>
-            </View>
-            <ConversationMenu
-              visible={conversationMenuVisible}
-              colors={colors}
-              t={t}
-              onClose={onCloseConversationMenu}
-              onManageMemory={onManageMemory}
-              onCopyThread={onCopyThread}
-              onShareThread={onShareThread}
-            />
-
-            <Text
+            <View
               style={[
-                styles.expandedTranscriptHint,
-                { color: colors.textSecondary },
+                styles.expandedStageColumn,
+                isLandscape
+                  ? { width: landscapeSidebarWidth }
+                  : null,
               ]}
             >
-              {t("transcriptSelectionHint")}
-            </Text>
-
-            {usageDisplay ? (
               <View
                 style={[
-                  styles.usageSummaryCard,
-                  {
-                    backgroundColor: colors.surfaceElevated,
-                    borderColor: colors.border,
-                  },
+                  styles.expandedStageBar,
+                  isLandscape ? styles.expandedStageBarLandscape : null,
                 ]}
               >
-                <View style={styles.usageSummaryHeader}>
-                  <Text style={[styles.usageSummaryTitle, { color: colors.text }]}>
-                    {t("estimatedUsageTitle")}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.usageSummaryMeta,
-                      { color: colors.textSecondary },
-                    ]}
-                  >
-                    {usageDisplay.countsLabel}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.usageSummaryNote,
-                      { color: colors.textMuted },
-                    ]}
-                  >
-                    {usageDisplay.noteLabel}
-                  </Text>
-                </View>
-                <View style={styles.usageSummaryRow}>
-                  <Text
-                    style={[
-                      styles.usageSummaryMetric,
-                      { color: colors.textSecondary },
-                    ]}
-                  >
-                    {usageDisplay.promptTokensLabel}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.usageSummaryMetric,
-                      { color: colors.textSecondary },
-                    ]}
-                  >
-                    {usageDisplay.replyTokensLabel}
-                  </Text>
-                </View>
-                <View style={styles.usageSummaryRow}>
-                  <Text
-                    style={[
-                      styles.usageSummaryMetricStrong,
-                      { color: colors.text },
-                    ]}
-                  >
-                    {usageDisplay.totalTokensLabel}
-                  </Text>
-                  {usageDisplay.totalCostLabel ? (
-                    <Text
-                      style={[
-                        styles.usageSummaryMetricStrong,
-                        { color: colors.text },
-                      ]}
-                    >
-                      {usageDisplay.totalCostLabel}
-                    </Text>
-                  ) : null}
-                </View>
-                {usageDisplay.routes.length > 0 ? (
-                  <View style={styles.usageRouteList}>
-                    {usageDisplay.routes.map((route) => (
-                      <View key={route.key} style={styles.usageRouteRow}>
-                        <Text
-                          style={[
-                            styles.usageRouteLabel,
-                            { color: colors.textSecondary },
-                          ]}
-                        >
-                          {route.label}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.usageRouteValue,
-                            { color: colors.textSecondary },
-                          ]}
-                        >
-                          {route.value}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                ) : null}
+                <WaveformBar
+                  metering={metering}
+                  levels={signalLevels}
+                  isActive={waveformIsActive}
+                  phase={waveformPhase}
+                  statusLabel={waveformStatusLabel}
+                  waveformVariant={signalWaveformVariant}
+                  inputMode={waveformInputMode}
+                  onPressIn={onPressIn}
+                  onPressOut={onPressOut}
+                  onPress={onPress}
+                />
               </View>
-            ) : null}
+              {isLandscape ? usageSummary : null}
+            </View>
 
-            <ChatTranscript
-              messages={messages}
-              emptyTitle={t("noConversationYet")}
-              emptyDescription={t("expandedTranscriptEmptyDescription")}
-              contentContainerStyle={styles.expandedTranscriptContent}
-              showUsageStats={settingsShowUsageStats}
-              activeRepeatMessageId={activeReplayMessageId}
-              repeatPlaybackStatus={replayPhase}
-              onCopyMessage={onCopyMessage}
-              onShareMessage={onShareMessage}
-              onRepeatMessage={onRepeatMessage}
-              messageSelectionEnabled
-            />
+            <View
+              style={[
+                styles.expandedTranscriptDrawer,
+                isLandscape ? styles.expandedTranscriptDrawerLandscape : null,
+                {
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                  shadowColor: colors.glow,
+                },
+              ]}
+            >
+              <View style={styles.expandedTranscriptHeader}>
+                <Text
+                  numberOfLines={1}
+                  style={[styles.expandedTranscriptTitle, { color: colors.text }]}
+                >
+                  {activeConversationTitle}
+                </Text>
+                <TouchableOpacity
+                  style={[
+                    styles.menuIconButton,
+                    {
+                      backgroundColor: colors.surfaceElevated,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                  onPress={toggleConversationMenu}
+                  activeOpacity={0.85}
+                >
+                  <Feather
+                    name="more-horizontal"
+                    size={18}
+                    color={colors.textSecondary}
+                  />
+                </TouchableOpacity>
+              </View>
+              <ConversationMenu
+                visible={conversationMenuVisible}
+                colors={colors}
+                t={t}
+                onClose={onCloseConversationMenu}
+                onManageMemory={onManageMemory}
+                onCopyThread={onCopyThread}
+                onShareThread={onShareThread}
+              />
+
+              <Text
+                style={[
+                  styles.expandedTranscriptHint,
+                  { color: colors.textSecondary },
+                ]}
+              >
+                {t("transcriptSelectionHint")}
+              </Text>
+
+              {!isLandscape ? usageSummary : null}
+
+              <ChatTranscript
+                messages={messages}
+                emptyTitle={t("noConversationYet")}
+                emptyDescription={t("expandedTranscriptEmptyDescription")}
+                contentContainerStyle={styles.expandedTranscriptContent}
+                showUsageStats={settingsShowUsageStats}
+                activeRepeatMessageId={activeReplayMessageId}
+                repeatPlaybackStatus={replayPhase}
+                onCopyMessage={onCopyMessage}
+                onShareMessage={onShareMessage}
+                onRepeatMessage={onRepeatMessage}
+                messageSelectionEnabled
+              />
+            </View>
           </View>
         </View>
       </SafeAreaView>

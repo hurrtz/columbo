@@ -1,5 +1,12 @@
 import React from "react";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -37,6 +44,10 @@ export function StatusDetailsModal({
   ttsStatusLabel,
   visible,
 }: StatusDetailsModalProps) {
+  const { height, width } = useWindowDimensions();
+  const isLandscape = width > height;
+  const cardMaxWidth = isLandscape ? Math.min(width - 40, 760) : 520;
+
   return (
     <Modal
       visible={visible}
@@ -53,6 +64,7 @@ export function StatusDetailsModal({
         <View
           style={[
             styles.statusDetailsCard,
+            { maxWidth: cardMaxWidth },
             {
               backgroundColor: colors.surface,
               borderColor: colors.border,
