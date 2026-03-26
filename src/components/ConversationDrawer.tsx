@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, TouchableOpacity, View } from "react-native";
+import { Modal, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../theme/ThemeContext";
 import { ConversationActionSheet } from "./conversationDrawer/ConversationActionSheet";
@@ -27,6 +27,9 @@ export function ConversationDrawer({
   onDismiss,
 }: ConversationDrawerProps) {
   const { colors } = useTheme();
+  const { height, width } = useWindowDimensions();
+  const isLandscape = width > height;
+  const drawerMaxWidth = isLandscape ? Math.min(width * 0.44, 520) : 380;
   const controller = useConversationDrawerController({
     visible,
     conversations,
@@ -43,6 +46,7 @@ export function ConversationDrawer({
         <View
           style={[
             styles.drawer,
+            { maxWidth: drawerMaxWidth },
             {
               backgroundColor: colors.surface,
               borderRightColor: colors.border,

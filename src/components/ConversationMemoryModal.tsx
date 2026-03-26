@@ -5,6 +5,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -34,6 +35,9 @@ export function ConversationMemoryModal({
   const { colors } = useTheme();
   const { t } = useLocalization();
   const insets = useSafeAreaInsets();
+  const { height, width } = useWindowDimensions();
+  const isLandscape = width > height;
+  const cardMaxWidth = isLandscape ? Math.min(width - 40, 720) : 440;
   const trimmedSummary = summary?.trim() ?? "";
   const hasSummary = trimmedSummary.length > 0;
 
@@ -56,6 +60,7 @@ export function ConversationMemoryModal({
         <View
           style={[
             styles.card,
+            { maxWidth: cardMaxWidth },
             {
               backgroundColor: colors.surface,
               borderColor: colors.border,

@@ -5,6 +5,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -29,6 +30,9 @@ export function SetupGuideModal({
   const { colors } = useTheme();
   const { t } = useLocalization();
   const insets = useSafeAreaInsets();
+  const { height, width } = useWindowDimensions();
+  const isLandscape = width > height;
+  const cardMaxWidth = isLandscape ? Math.min(width - 40, 760) : 440;
 
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -49,6 +53,7 @@ export function SetupGuideModal({
         <View
           style={[
             styles.card,
+            { maxWidth: cardMaxWidth },
             {
               backgroundColor: colors.surface,
               borderColor: colors.border,
@@ -90,10 +95,16 @@ export function SetupGuideModal({
             </TouchableOpacity>
           </View>
 
-          <View style={styles.optionList}>
+          <View
+            style={[
+              styles.optionList,
+              isLandscape ? styles.optionListLandscape : null,
+            ]}
+          >
             <View
               style={[
                 styles.optionCard,
+                isLandscape ? styles.optionCardLandscape : null,
                 {
                   backgroundColor: colors.surfaceElevated,
                   borderColor: colors.border,
@@ -129,6 +140,7 @@ export function SetupGuideModal({
             <View
               style={[
                 styles.optionCard,
+                isLandscape ? styles.optionCardLandscape : null,
                 {
                   backgroundColor: colors.surfaceElevated,
                   borderColor: colors.border,
@@ -252,10 +264,17 @@ const styles = StyleSheet.create({
     marginTop: 20,
     gap: 14,
   },
+  optionListLandscape: {
+    flexDirection: "row",
+    alignItems: "stretch",
+  },
   optionCard: {
     borderRadius: 22,
     borderWidth: 1,
     padding: 16,
+  },
+  optionCardLandscape: {
+    flex: 1,
   },
   optionTitle: {
     fontSize: 18,
