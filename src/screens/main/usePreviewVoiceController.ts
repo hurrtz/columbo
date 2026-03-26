@@ -143,6 +143,7 @@ export function usePreviewVoiceController({
             "";
           const providerSpeechDiagnostics = {
             ...speechDiagnostics,
+            provider: request.provider,
             providerModel: providerModel || null,
           };
 

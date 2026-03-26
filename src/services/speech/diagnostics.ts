@@ -25,6 +25,7 @@ export type SpeechDiagnosticRoute = "local" | "provider" | "native";
 export interface SpeechDiagnosticsContext {
   requestId?: string;
   source?: SpeechDiagnosticSource;
+  provider?: string | null;
   providerModel?: string | null;
 }
 

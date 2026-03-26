@@ -1,3 +1,18 @@
+jest.mock("expo-clipboard", () => ({
+  setStringAsync: jest.fn(async () => undefined),
+}));
+
+jest.mock("expo-file-system/legacy", () => ({
+  cacheDirectory: "file:///tmp/",
+  documentDirectory: "file:///tmp/",
+  deleteAsync: jest.fn(async () => undefined),
+  getInfoAsync: jest.fn(async () => ({ exists: false, isDirectory: false })),
+  makeDirectoryAsync: jest.fn(async () => undefined),
+  moveAsync: jest.fn(async () => undefined),
+  readAsStringAsync: jest.fn(async () => ""),
+  writeAsStringAsync: jest.fn(async () => undefined),
+}));
+
 import {
   getProviderTtsTimeoutMs,
   PROVIDER_TTS_MAX_TIMEOUT_MS,
@@ -546,6 +561,7 @@ describe("synthesizeSpeech", () => {
     mockInstalledLocalVoice("de", "thorsten-medium");
     (fetch as jest.Mock).mockRejectedValueOnce(new Error("provider failure"));
     synthesizeLocalSpeech.mockResolvedValueOnce("/tmp/local-de.wav");
+    const onProviderFallback = jest.fn();
 
     const result = await synthesizeSpeech({
       text: "Ich glaube, das ist die richtige Antwort.",
@@ -556,9 +572,15 @@ describe("synthesizeSpeech", () => {
       language: "en",
       listenLanguages: ["de"],
       localVoices,
+      onProviderFallback,
     });
 
     expect(result).toBe("/tmp/local-de.wav");
+    expect(onProviderFallback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "provider failure",
+      }),
+    );
     expect(synthesizeLocalSpeech).toHaveBeenCalledWith({
       text: "Ich glaube, das ist die richtige Antwort.",
       language: "de",

@@ -5,8 +5,13 @@ import {
   getNormalizedResponseModes,
   getNormalizedSttProvider,
 } from "../../src/components/settings/settingsRules";
+import { clearProviderTtsVoiceCatalogCache } from "../../src/services/tts/voiceCatalog";
 
 describe("settingsRules", () => {
+  beforeEach(() => {
+    clearProviderTtsVoiceCatalogCache();
+  });
+
   it("repairs an invalid provider STT selection", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
@@ -63,5 +68,23 @@ describe("settingsRules", () => {
 
     expect(nextProviderVoices?.openai).toBe("alloy");
     expect(nextLocalVoices?.en).not.toBe("not-a-real-local-voice");
+  });
+
+  it("preserves a custom ElevenLabs voice id before the dynamic catalog is loaded", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      providerTtsVoices: {
+        ...DEFAULT_SETTINGS.providerTtsVoices,
+        elevenlabs: "21m00Tcm4TlvDq8ikWAM",
+      },
+    };
+
+    const nextProviderVoices = getNormalizedProviderTtsVoices(
+      settings,
+      ["elevenlabs"],
+      "en",
+    );
+
+    expect(nextProviderVoices).toBeNull();
   });
 });

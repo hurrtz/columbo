@@ -195,14 +195,12 @@ describe("useVoicePipeline", () => {
     expect(result.current.activeReplayMessageId).toBeNull();
   });
 
-  it("streams replay provider TTS sentence by sentence in stream mode", async () => {
+  it("keeps replay stream text together when the full reply is already available", async () => {
     const params = createParams({
       replyPlayback: "stream",
       player: createPlayer(),
     });
-    (synthesizeSpeech as jest.Mock)
-      .mockResolvedValueOnce("file://reply-1.wav")
-      .mockResolvedValueOnce("file://reply-2.wav");
+    (synthesizeSpeech as jest.Mock).mockResolvedValueOnce("file://reply-1.wav");
 
     const { result } = renderHook(() => useVoicePipeline(params));
 
@@ -213,47 +211,29 @@ describe("useVoicePipeline", () => {
       );
     });
 
-    expect(synthesizeSpeech).toHaveBeenNthCalledWith(1, {
-      text: "Sentence one.",
-      voice: "alloy",
-      mode: "provider",
-      provider: "openai",
-      providerModel: "gpt-4o-mini-tts",
-      apiKey: "sk-tts",
-      language: "en",
-      listenLanguages: DEFAULT_SETTINGS.ttsListenLanguages,
-      localVoices: DEFAULT_SETTINGS.localTtsVoices,
-      diagnostics: expect.objectContaining({
-        requestId: "speech-request-1",
-        source: "repeat",
+    expect(synthesizeSpeech).toHaveBeenCalledTimes(1);
+    expect(synthesizeSpeech).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        text: "Sentence one. Sentence two.",
+        voice: "alloy",
+        mode: "provider",
+        provider: "openai",
+        providerModel: "gpt-4o-mini-tts",
+        apiKey: "sk-tts",
+        language: "en",
+        listenLanguages: DEFAULT_SETTINGS.ttsListenLanguages,
+        localVoices: DEFAULT_SETTINGS.localTtsVoices,
+        diagnostics: expect.objectContaining({
+          requestId: "speech-request-1",
+          source: "repeat",
+        }),
       }),
-    });
-    expect(synthesizeSpeech).toHaveBeenNthCalledWith(2, {
-      text: "Sentence two.",
-      voice: "alloy",
-      mode: "provider",
-      provider: "openai",
-      providerModel: "gpt-4o-mini-tts",
-      apiKey: "sk-tts",
-      language: "en",
-      listenLanguages: DEFAULT_SETTINGS.ttsListenLanguages,
-      localVoices: DEFAULT_SETTINGS.localTtsVoices,
-      diagnostics: expect.objectContaining({
-        requestId: "speech-request-1",
-        source: "repeat",
-      }),
-    });
+    );
+    expect(params.player.enqueueAudio).toHaveBeenCalledTimes(1);
     expect(params.player.enqueueAudio).toHaveBeenNthCalledWith(
       1,
       "file://reply-1.wav",
-      expect.objectContaining({
-        requestId: "speech-request-1",
-        source: "repeat",
-      }),
-    );
-    expect(params.player.enqueueAudio).toHaveBeenNthCalledWith(
-      2,
-      "file://reply-2.wav",
       expect.objectContaining({
         requestId: "speech-request-1",
         source: "repeat",

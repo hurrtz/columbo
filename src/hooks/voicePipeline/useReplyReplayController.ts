@@ -78,6 +78,7 @@ export function useReplyReplayController({
         const speechDiagnostics = {
           requestId: createSpeechRequestId("repeat"),
           source: "repeat" as const,
+          provider: ttsProvider ?? null,
           providerModel: selectedTtsModel || null,
         };
 

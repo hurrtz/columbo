@@ -4,6 +4,21 @@ import {
   getSpeechDiagnostics,
 } from "../../src/services/speech/diagnostics";
 
+jest.mock("expo-clipboard", () => ({
+  setStringAsync: jest.fn(async () => undefined),
+}));
+
+jest.mock("expo-file-system/legacy", () => ({
+  cacheDirectory: "file:///tmp/",
+  documentDirectory: "file:///tmp/",
+  deleteAsync: jest.fn(async () => undefined),
+  getInfoAsync: jest.fn(async () => ({ exists: false, isDirectory: false })),
+  makeDirectoryAsync: jest.fn(async () => undefined),
+  moveAsync: jest.fn(async () => undefined),
+  readAsStringAsync: jest.fn(async () => ""),
+  writeAsStringAsync: jest.fn(async () => undefined),
+}));
+
 const mockPlayer = {
   id: "player-1",
   currentTime: 0,
@@ -19,6 +34,12 @@ let mockStatus: any;
 jest.mock("expo-speech", () => ({
   speak: jest.fn(),
   stop: jest.fn(() => Promise.resolve()),
+}));
+
+jest.mock("expo-speech-recognition", () => ({
+  ExpoSpeechRecognitionModule: {
+    setCategoryIOS: jest.fn(),
+  },
 }));
 
 jest.mock("expo-audio", () => ({

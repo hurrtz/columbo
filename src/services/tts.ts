@@ -79,6 +79,7 @@ export async function synthesizeSpeech(params: {
   diagnostics?: SpeechDiagnosticsContext;
   strictLocalVoice?: boolean;
   abortSignal?: AbortSignal;
+  onProviderFallback?: (error: Error) => void;
 }): Promise<string> {
   const {
     text,
@@ -93,6 +94,7 @@ export async function synthesizeSpeech(params: {
     diagnostics,
     strictLocalVoice,
     abortSignal,
+    onProviderFallback,
   } = params;
   const requestId = diagnostics?.requestId ?? createSpeechRequestId("tts");
   const resolvedProviderModel = resolveProviderTtsModel({
@@ -289,6 +291,11 @@ export async function synthesizeSpeech(params: {
     });
     return audioPath;
   } catch (providerError) {
+    const normalizedProviderError =
+      providerError instanceof Error
+        ? providerError
+        : new Error(String(providerError));
+
     try {
       const localResult = await trySynthesizeResolvedLocalSpeech({
         text,
@@ -303,6 +310,7 @@ export async function synthesizeSpeech(params: {
       });
 
       if (localResult) {
+        onProviderFallback?.(normalizedProviderError);
         recordSpeechDiagnostic({
           requestId,
           source: diagnostics?.source ?? "unknown",
@@ -314,10 +322,7 @@ export async function synthesizeSpeech(params: {
           providerModel: resolvedProviderModel,
           voice: voice || null,
           textLength: text.trim().length,
-          fallbackReason:
-            providerError instanceof Error
-              ? providerError.message
-              : "Provider synthesis failed.",
+          fallbackReason: normalizedProviderError.message,
         });
         return localResult.audioPath;
       }
@@ -335,13 +340,10 @@ export async function synthesizeSpeech(params: {
       providerModel: resolvedProviderModel,
       voice: voice || null,
       textLength: text.trim().length,
-      message:
-        providerError instanceof Error
-          ? providerError.message
-          : String(providerError),
+      message: normalizedProviderError.message,
     });
 
-    throw providerError;
+    throw normalizedProviderError;
   }
 }
 

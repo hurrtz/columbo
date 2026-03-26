@@ -349,7 +349,7 @@ describe("runVoicePipeline", () => {
     expect(events).toEqual(["speak:Wind is moving air.", "response-done"]);
   });
 
-  it("queues provider TTS sentence by sentence in stream mode", async () => {
+  it("keeps complete stream text together when multiple sentences arrive in one chunk", async () => {
     (streamChat as jest.Mock).mockImplementation(
       async ({
         onChunk,
@@ -363,9 +363,7 @@ describe("runVoicePipeline", () => {
       },
     );
 
-    (synthesizeSpeech as jest.Mock)
-      .mockResolvedValueOnce("/tmp/tts-1.mp3")
-      .mockResolvedValueOnce("/tmp/tts-2.mp3");
+    (synthesizeSpeech as jest.Mock).mockResolvedValueOnce("/tmp/tts-1.mp3");
 
     const callbacks = {
       onTranscription: jest.fn(),
@@ -395,30 +393,105 @@ describe("runVoicePipeline", () => {
       callbacks,
     });
 
-    expect(synthesizeSpeech).toHaveBeenNthCalledWith(1, {
-      text: "Sentence one.",
-      voice: "alloy",
-      mode: "provider",
-      provider: "openai",
-      apiKey: "sk-test",
-      language: "en",
-      diagnostics: expect.objectContaining({
-        source: "conversation",
-        requestId: expect.any(String),
+    expect(synthesizeSpeech).toHaveBeenCalledTimes(1);
+    expect(synthesizeSpeech).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        text: "Sentence one. Sentence two.",
+        voice: "alloy",
+        mode: "provider",
+        provider: "openai",
+        apiKey: "sk-test",
+        language: "en",
+        diagnostics: expect.objectContaining({
+          source: "conversation",
+          requestId: expect.any(String),
+        }),
       }),
-    });
-    expect(synthesizeSpeech).toHaveBeenNthCalledWith(2, {
-      text: "Sentence two.",
-      voice: "alloy",
-      mode: "provider",
+    );
+    expect(callbacks.onAudioReady).toHaveBeenCalledTimes(1);
+    expect(callbacks.onSpeechTextReady).not.toHaveBeenCalled();
+  });
+
+  it("sticks to local fallback after the first provider TTS failure in stream mode", async () => {
+    (streamChat as jest.Mock).mockImplementation(
+      async ({
+        onChunk,
+        onDone,
+      }: {
+        onChunk: (text: string) => void;
+        onDone: (text: string) => Promise<void>;
+      }) => {
+        onChunk("Sentence one.");
+        onChunk(" Sentence two.");
+        await onDone("Sentence one. Sentence two.");
+      },
+    );
+
+    (synthesizeSpeech as jest.Mock)
+      .mockImplementationOnce(
+        async ({
+          onProviderFallback,
+        }: {
+          onProviderFallback?: (error: Error) => void;
+        }) => {
+          onProviderFallback?.(new Error("Google quota exceeded"));
+          return "/tmp/local-fallback-1.wav";
+        },
+      )
+      .mockResolvedValueOnce("/tmp/local-fallback-2.wav");
+
+    const callbacks = {
+      onTranscription: jest.fn(),
+      onChunk: jest.fn(),
+      onResponseDone: jest.fn(),
+      onAudioReady: jest.fn(),
+      onSpeechTextReady: jest.fn(),
+      onTtsFallback: jest.fn(),
+      onError: jest.fn(),
+    };
+
+    await runVoicePipeline({
+      transcriptionOverride: "Explain glass.",
+      messages: [],
+      model: "gpt-5.4",
       provider: "openai",
-      apiKey: "sk-test",
+      providerApiKey: "sk-test",
+      sttMode: "native",
+      ttsMode: "provider",
+      ttsProvider: "gemini",
+      ttsApiKey: "gemini-test",
+      ttsModel: "gemini-2.5-flash-preview-tts",
+      ttsVoice: "Algenib",
+      replyPlayback: "stream",
+      assistantInstructions: "You are a voice assistant.",
+      responseLength: "normal",
+      responseTone: "professional",
       language: "en",
-      diagnostics: expect.objectContaining({
-        source: "conversation",
-        requestId: expect.any(String),
-      }),
+      callbacks,
     });
+
+    expect(synthesizeSpeech).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        text: "Sentence one.",
+        mode: "provider",
+        provider: "gemini",
+        providerModel: "gemini-2.5-flash-preview-tts",
+        apiKey: "gemini-test",
+      }),
+    );
+    expect(synthesizeSpeech).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        text: "Sentence two.",
+        mode: "local",
+        provider: undefined,
+        providerModel: undefined,
+        apiKey: undefined,
+      }),
+    );
+    expect(callbacks.onTtsFallback).toHaveBeenCalledTimes(1);
     expect(callbacks.onAudioReady).toHaveBeenCalledTimes(2);
     expect(callbacks.onSpeechTextReady).not.toHaveBeenCalled();
   });
@@ -482,30 +555,32 @@ describe("runVoicePipeline", () => {
     });
 
     expect(synthesizeSpeech).toHaveBeenCalledTimes(1);
-    expect(synthesizeSpeech).toHaveBeenCalledWith({
-      text: "Sentence one. Sentence two.",
-      voice: "alloy",
-      mode: "local",
-      provider: undefined,
-      apiKey: undefined,
-      language: "en",
-      listenLanguages: ["en"],
-      localVoices: {
-        en: "af_bella",
-        de: "thorsten-medium",
-        zh: "zf_xiaobei",
-        es: "vits-piper-es_ES-davefx-medium",
-        pt: "vits-piper-pt_BR-faber-medium",
-        hi: "vits-piper-hi_IN-priyamvada-medium",
-        fr: "vits-piper-fr_FR-siwis-medium",
-        it: "vits-piper-it_IT-paola-medium",
-        ja: "",
-      },
-      diagnostics: expect.objectContaining({
-        source: "conversation",
-        requestId: expect.any(String),
+    expect(synthesizeSpeech).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: "Sentence one. Sentence two.",
+        voice: "alloy",
+        mode: "local",
+        provider: undefined,
+        apiKey: undefined,
+        language: "en",
+        listenLanguages: ["en"],
+        localVoices: {
+          en: "af_bella",
+          de: "thorsten-medium",
+          zh: "zf_xiaobei",
+          es: "vits-piper-es_ES-davefx-medium",
+          pt: "vits-piper-pt_BR-faber-medium",
+          hi: "vits-piper-hi_IN-priyamvada-medium",
+          fr: "vits-piper-fr_FR-siwis-medium",
+          it: "vits-piper-it_IT-paola-medium",
+          ja: "",
+        },
+        diagnostics: expect.objectContaining({
+          source: "conversation",
+          requestId: expect.any(String),
+        }),
       }),
-    });
+    );
     expect(callbacks.onAudioReady).toHaveBeenCalledTimes(1);
     expect(callbacks.onSpeechTextReady).not.toHaveBeenCalled();
   });
@@ -556,30 +631,36 @@ describe("runVoicePipeline", () => {
       callbacks,
     });
 
-    expect(synthesizeSpeech).toHaveBeenNthCalledWith(1, {
-      text: "One.",
-      voice: "alloy",
-      mode: "provider",
-      provider: "openai",
-      apiKey: "sk-test",
-      language: "en",
-      diagnostics: expect.objectContaining({
-        source: "conversation",
-        requestId: expect.any(String),
+    expect(synthesizeSpeech).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        text: "One.",
+        voice: "alloy",
+        mode: "provider",
+        provider: "openai",
+        apiKey: "sk-test",
+        language: "en",
+        diagnostics: expect.objectContaining({
+          source: "conversation",
+          requestId: expect.any(String),
+        }),
       }),
-    });
-    expect(synthesizeSpeech).toHaveBeenNthCalledWith(2, {
-      text: "Two",
-      voice: "alloy",
-      mode: "provider",
-      provider: "openai",
-      apiKey: "sk-test",
-      language: "en",
-      diagnostics: expect.objectContaining({
-        source: "conversation",
-        requestId: expect.any(String),
+    );
+    expect(synthesizeSpeech).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        text: "Two",
+        voice: "alloy",
+        mode: "provider",
+        provider: "openai",
+        apiKey: "sk-test",
+        language: "en",
+        diagnostics: expect.objectContaining({
+          source: "conversation",
+          requestId: expect.any(String),
+        }),
       }),
-    });
+    );
     expect(callbacks.onAudioReady).toHaveBeenCalledTimes(2);
   });
 

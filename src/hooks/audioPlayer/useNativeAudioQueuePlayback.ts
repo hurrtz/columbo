@@ -66,6 +66,7 @@ export function useNativeAudioQueuePlayback(params: {
           requestId: diagnostics?.requestId,
           source: diagnostics?.source ?? "unknown",
           stage: "playback-stopped",
+          provider: diagnostics?.provider ?? null,
           providerModel: diagnostics?.providerModel ?? null,
           message:
             error instanceof Error

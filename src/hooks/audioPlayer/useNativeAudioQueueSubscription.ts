@@ -113,6 +113,7 @@ export function useNativeAudioQueueSubscription(params: {
               (event.source as SpeechDiagnosticsContext["source"] | null) ??
               "unknown",
             stage: "playback-started",
+            provider: context?.diagnostics?.provider ?? null,
             providerModel: context?.diagnostics?.providerModel ?? null,
             message: context?.uri ?? event.uri,
           });
@@ -159,6 +160,7 @@ export function useNativeAudioQueueSubscription(params: {
                 event.type === "finished"
                   ? "playback-finished"
                   : "playback-stopped",
+              provider: context.diagnostics?.provider ?? null,
               providerModel: context.diagnostics?.providerModel ?? null,
               message:
                 event.type === "finished"

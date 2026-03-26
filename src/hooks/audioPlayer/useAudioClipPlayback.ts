@@ -151,6 +151,7 @@ export function useAudioClipPlayback(params: {
           requestId: diagnostics?.requestId,
           source: diagnostics?.source ?? "unknown",
           stage: "playback-enqueued",
+          provider: diagnostics?.provider ?? null,
           providerModel: diagnostics?.providerModel ?? null,
           message: audioUri,
         });
@@ -174,6 +175,7 @@ export function useAudioClipPlayback(params: {
         requestId: diagnostics?.requestId,
         source: diagnostics?.source ?? "unknown",
         stage: "playback-enqueued",
+        provider: diagnostics?.provider ?? null,
         providerModel: diagnostics?.providerModel ?? null,
         message: audioUri,
       });
