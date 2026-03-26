@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import {
@@ -75,6 +75,7 @@ export function MainScreen() {
   const { colors, isDark } = useTheme();
   const { t, language } = useLocalization();
   const insets = useSafeAreaInsets();
+  const { height, width } = useWindowDimensions();
   const {
     settings,
     updateSettings,
@@ -172,6 +173,11 @@ export function MainScreen() {
     : undefined;
   const webSearchReady = !!webSearchProvider && !!webSearchApiKey;
   const webSearchActive = webSearchMode !== "off" && webSearchReady;
+  const isLandscape = width > height;
+  const stageCircleSize = isLandscape
+    ? Math.max(188, Math.min(224, Math.round(Math.min(height * 0.5, width * 0.28))))
+    : 260;
+  const landscapeTranscriptHeight = Math.max(stageCircleSize + 118, 320);
   const selectedSttModel = sttProvider
     ? settings.providerSttModels[sttProvider] ||
       PROVIDER_DEFAULT_STT_MODELS[sttProvider] ||
@@ -1016,7 +1022,10 @@ export function MainScreen() {
 
         <ScrollView
           style={styles.defaultScroll}
-          contentContainerStyle={styles.defaultLayoutContent}
+          contentContainerStyle={[
+            styles.defaultLayoutContent,
+            isLandscape ? styles.defaultLayoutContentLandscape : null,
+          ]}
           showsVerticalScrollIndicator={false}
         >
           <MainScreenRouteCard
@@ -1046,34 +1055,80 @@ export function MainScreen() {
             webSearchReady={webSearchReady}
           />
 
-          <MainScreenVoiceStage
-            colors={colors}
-            inputMode={settings.inputMode}
-            isActive={isActive}
-            metering={metering}
-            onOpenStatusDetails={openStatusDetails}
-            onPress={handleTogglePress}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-            providerLabel={providerLabel}
-            signalLevels={signalLevels}
-            signalWaveformVariant={signalWaveformVariant}
-            statusDetail={statusDisplay.statusDetail}
-            statusIndicatorTone={statusIndicatorTone}
-            statusTitle={statusDisplay.actionLabel}
-            visualPhase={visualPhase}
-          />
+          {isLandscape ? (
+            <View style={styles.landscapeMainRow}>
+              <View style={styles.landscapePrimaryColumn}>
+                <MainScreenVoiceStage
+                  circleSize={stageCircleSize}
+                  colors={colors}
+                  inputMode={settings.inputMode}
+                  isActive={isActive}
+                  layout="landscape"
+                  metering={metering}
+                  onOpenStatusDetails={openStatusDetails}
+                  onPress={handleTogglePress}
+                  onPressIn={handlePressIn}
+                  onPressOut={handlePressOut}
+                  providerLabel={providerLabel}
+                  signalLevels={signalLevels}
+                  signalWaveformVariant={signalWaveformVariant}
+                  statusDetail={statusDisplay.statusDetail}
+                  statusIndicatorTone={statusIndicatorTone}
+                  statusTitle={statusDisplay.actionLabel}
+                  visualPhase={visualPhase}
+                />
+              </View>
 
-          <TranscriptPreviewCard
-            colors={colors}
-            messages={messages}
-            onCopyMessage={(message) => {
-              void handleCopyMessage(message.content);
-            }}
-            onOpenTranscript={openTranscript}
-            showUsageStats={settings.showUsageStats}
-            t={t}
-          />
+              {messages.length > 0 ? (
+                <View style={styles.landscapeSecondaryColumn}>
+                  <TranscriptPreviewCard
+                    colors={colors}
+                    layout="landscape"
+                    messages={messages}
+                    onCopyMessage={(message) => {
+                      void handleCopyMessage(message.content);
+                    }}
+                    onOpenTranscript={openTranscript}
+                    preferredHeight={landscapeTranscriptHeight}
+                    showUsageStats={settings.showUsageStats}
+                    t={t}
+                  />
+                </View>
+              ) : null}
+            </View>
+          ) : (
+            <>
+              <MainScreenVoiceStage
+                circleSize={stageCircleSize}
+                colors={colors}
+                inputMode={settings.inputMode}
+                isActive={isActive}
+                metering={metering}
+                onOpenStatusDetails={openStatusDetails}
+                onPress={handleTogglePress}
+                onPressIn={handlePressIn}
+                onPressOut={handlePressOut}
+                providerLabel={providerLabel}
+                signalLevels={signalLevels}
+                signalWaveformVariant={signalWaveformVariant}
+                statusDetail={statusDisplay.statusDetail}
+                statusIndicatorTone={statusIndicatorTone}
+                statusTitle={statusDisplay.actionLabel}
+                visualPhase={visualPhase}
+              />
+
+              <TranscriptPreviewCard
+                colors={colors}
+                messages={messages}
+                onCopyMessage={(message) => {
+                  void handleCopyMessage(message.content);
+                }}
+                onOpenTranscript={openTranscript}
+                showUsageStats={settings.showUsageStats}
+                t={t}
+              />
+            </>
+          )}
         </ScrollView>
       </View>
 

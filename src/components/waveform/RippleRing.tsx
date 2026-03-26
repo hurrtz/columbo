@@ -16,11 +16,13 @@ export function RippleRing({
   color,
   isActive,
   intensity,
+  scale = 1,
 }: {
   delay: number;
   color: string;
   isActive: boolean;
   intensity: number;
+  scale?: number;
 }) {
   const isActiveSV = useSharedValue(isActive);
   const intensitySV = useSharedValue(intensity);
@@ -80,7 +82,17 @@ export function RippleRing({
 
   return (
     <Animated.View
-      style={[styles.rippleRing, { borderColor: color }, animatedStyle]}
+      style={[
+        styles.rippleRing,
+        {
+          width: 190 * scale,
+          height: 190 * scale,
+          borderRadius: 95 * scale,
+          borderWidth: 1.5 * scale,
+          borderColor: color,
+        },
+        animatedStyle,
+      ]}
     />
   );
 }

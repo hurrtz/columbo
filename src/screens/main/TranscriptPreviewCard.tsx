@@ -10,18 +10,22 @@ import { styles } from "./styles";
 
 interface TranscriptPreviewCardProps {
   colors: Colors;
+  layout?: "portrait" | "landscape";
   messages: Message[];
   onCopyMessage: (message: Message) => void;
   onOpenTranscript: () => void;
+  preferredHeight?: number;
   showUsageStats: boolean;
   t: TranslateFn;
 }
 
 export function TranscriptPreviewCard({
   colors,
+  layout = "portrait",
   messages,
   onCopyMessage,
   onOpenTranscript,
+  preferredHeight,
   showUsageStats,
   t,
 }: TranscriptPreviewCardProps) {
@@ -33,6 +37,8 @@ export function TranscriptPreviewCard({
     <View
       style={[
         styles.transcriptShell,
+        layout === "landscape" ? styles.transcriptShellLandscape : null,
+        preferredHeight ? { height: preferredHeight } : null,
         {
           backgroundColor: colors.surface,
           borderColor: colors.border,

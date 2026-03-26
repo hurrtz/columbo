@@ -25,11 +25,18 @@ interface WaveformCircleProps {
   isActive: boolean;
   phase: VoiceVisualPhase;
   providerLabel: string;
+  size?: number;
   waveformVariant?: WaveformVisualizationVariant;
   inputMode: InputMode;
   onPressIn?: (e: GestureResponderEvent) => void;
   onPressOut?: (e: GestureResponderEvent) => void;
   onPress?: () => void;
+}
+
+const BASE_SIZE = 260;
+
+function scaleBy(size: number, value: number) {
+  return (size / BASE_SIZE) * value;
 }
 
 export function WaveformCircle({
@@ -38,6 +45,7 @@ export function WaveformCircle({
   isActive,
   phase,
   providerLabel: _providerLabel,
+  size = BASE_SIZE,
   waveformVariant = "bars",
   inputMode,
   onPressIn,
@@ -60,13 +68,34 @@ export function WaveformCircle({
     shouldAnimate: state.shouldAnimate,
     usesPreciseWaveform: state.usesPreciseWaveform,
   });
+  const scale = size / BASE_SIZE;
+  const outerRingSize = scaleBy(size, 244);
+  const innerRingSize = scaleBy(size, 208);
+  const circleSize = scaleBy(size, 188);
+  const innerFrameInset = scaleBy(size, 14);
+  const waveformMarginTop = scaleBy(size, 18);
+  const nativeWaveformWidth = scaleBy(size, 164);
+  const nativeWaveformHeight = scaleBy(size, 84);
+  const backgroundInset = scaleBy(size, -30);
+  const backgroundRadius = scaleBy(size, 124);
+  const recordingRadius = scaleBy(size, 94);
+  const coreAuraSize = scaleBy(size, 144);
+  const coreAuraRadius = scaleBy(size, 72);
+  const sheenWidth = scaleBy(size, 210);
+  const sheenHeight = scaleBy(size, 72);
+  const controlIconSize = Math.max(20, Math.round(state.controlIconSize * scale));
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { width: size, height: size }]}>
       <Animated.View
         style={[
           styles.staticRing,
           styles.staticRingOuter,
+          {
+            width: outerRingSize,
+            height: outerRingSize,
+            borderRadius: outerRingSize / 2,
+          },
           { borderColor: state.ringBorderColor },
           animations.outerRingStyle,
         ]}
@@ -75,6 +104,11 @@ export function WaveformCircle({
         style={[
           styles.staticRing,
           styles.staticRingInner,
+          {
+            width: innerRingSize,
+            height: innerRingSize,
+            borderRadius: innerRingSize / 2,
+          },
           { borderColor: state.innerRingBorderColor },
           animations.innerRingStyle,
         ]}
@@ -84,18 +118,21 @@ export function WaveformCircle({
         color={state.ringColor}
         isActive={state.shouldAnimate && state.isRecording}
         intensity={state.intensity}
+        scale={scale}
       />
       <RippleRing
         delay={500}
         color={state.ringColor}
         isActive={state.shouldAnimate && state.isRecording}
         intensity={state.intensity}
+        scale={scale}
       />
       <RippleRing
         delay={1000}
         color={state.ringColor}
         isActive={state.shouldAnimate && state.isRecording}
         intensity={state.intensity}
+        scale={scale}
       />
       <Animated.View style={animations.circleShellStyle}>
         <TouchableOpacity
@@ -108,24 +145,46 @@ export function WaveformCircle({
             style={[
               styles.circle,
               {
+                width: circleSize,
+                height: circleSize,
+                borderRadius: circleSize / 2,
+              },
+              {
                 shadowColor: state.shellShadowColor,
                 shadowOffset: { width: 0, height: 0 },
                 shadowOpacity: isActive ? 1 : 0.55,
-                shadowRadius: isActive ? 28 : 18,
-                elevation: isActive ? 14 : 8,
+                shadowRadius: isActive
+                  ? scaleBy(size, 28)
+                  : scaleBy(size, 18),
+                elevation: Math.max(
+                  6,
+                  Math.round(isActive ? scaleBy(size, 14) : scaleBy(size, 8)),
+                ),
               },
             ]}
           >
             <Animated.View
               pointerEvents="none"
-              style={[styles.backgroundGradient, animations.backgroundGradientStyle]}
+              style={[
+                styles.backgroundGradient,
+                {
+                  top: backgroundInset,
+                  right: backgroundInset,
+                  bottom: backgroundInset,
+                  left: backgroundInset,
+                },
+                animations.backgroundGradientStyle,
+              ]}
             >
               <LinearGradient
                 colors={state.gradientColors}
                 locations={[0, 0.58, 1]}
                 start={{ x: 0.12, y: 0 }}
                 end={{ x: 0.88, y: 1 }}
-                style={styles.backgroundGradientFill}
+                style={[
+                  styles.backgroundGradientFill,
+                  { borderRadius: backgroundRadius },
+                ]}
               />
             </Animated.View>
             {animations.previousGradientColors ? (
@@ -133,6 +192,12 @@ export function WaveformCircle({
                 pointerEvents="none"
                 style={[
                   styles.backgroundGradient,
+                  {
+                    top: backgroundInset,
+                    right: backgroundInset,
+                    bottom: backgroundInset,
+                    left: backgroundInset,
+                  },
                   animations.backgroundGradientStyle,
                   animations.previousBackgroundGradientStyle,
                 ]}
@@ -142,12 +207,26 @@ export function WaveformCircle({
                   locations={[0, 0.58, 1]}
                   start={{ x: 0.12, y: 0 }}
                   end={{ x: 0.88, y: 1 }}
-                  style={styles.backgroundGradientFill}
+                  style={[
+                    styles.backgroundGradientFill,
+                    { borderRadius: backgroundRadius },
+                  ]}
                 />
               </Animated.View>
             ) : null}
             <Animated.View
-              style={[styles.coreAura, styles.coreAuraTop, animations.topAuraStyle]}
+              style={[
+                styles.coreAura,
+                styles.coreAuraTop,
+                {
+                  width: coreAuraSize,
+                  height: coreAuraSize,
+                  borderRadius: coreAuraRadius,
+                  top: scaleBy(size, 12),
+                  left: scaleBy(size, 18),
+                },
+                animations.topAuraStyle,
+              ]}
             >
               <LinearGradient
                 colors={["rgba(255,255,255,0.34)", "rgba(255,255,255,0)"]}
@@ -160,6 +239,13 @@ export function WaveformCircle({
               style={[
                 styles.coreAura,
                 styles.coreAuraBottom,
+                {
+                  width: coreAuraSize,
+                  height: coreAuraSize,
+                  borderRadius: coreAuraRadius,
+                  bottom: scaleBy(size, 10),
+                  right: scaleBy(size, 12),
+                },
                 animations.bottomAuraStyle,
               ]}
             >
@@ -170,7 +256,19 @@ export function WaveformCircle({
                 style={styles.auraFill}
               />
             </Animated.View>
-            <Animated.View style={[styles.sheen, animations.sheenStyle]}>
+            <Animated.View
+              style={[
+                styles.sheen,
+                {
+                  width: sheenWidth,
+                  height: sheenHeight,
+                  borderRadius: sheenHeight / 2,
+                  top: scaleBy(size, 24),
+                  left: scaleBy(size, -4),
+                },
+                animations.sheenStyle,
+              ]}
+            >
               <LinearGradient
                 colors={[
                   "rgba(255,255,255,0)",
@@ -194,13 +292,23 @@ export function WaveformCircle({
                   colors={state.activityOverlayColors}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
-                  style={styles.recordingGradientOverlayFill}
+                  style={[
+                    styles.recordingGradientOverlayFill,
+                    { borderRadius: recordingRadius },
+                  ]}
                 />
               </Animated.View>
             ) : null}
             <View
               style={[
                 styles.innerFrame,
+                {
+                  top: innerFrameInset,
+                  right: innerFrameInset,
+                  bottom: innerFrameInset,
+                  left: innerFrameInset,
+                  borderRadius: scaleBy(size, 80),
+                },
                 { borderColor: state.innerFrameBorderColor },
               ]}
             />
@@ -208,7 +316,7 @@ export function WaveformCircle({
               <Animated.View style={[styles.micIconWrap, animations.controlIconStyle]}>
                 <Feather
                   name={state.controlIconName}
-                  size={state.controlIconSize}
+                  size={controlIconSize}
                   color="rgba(255, 255, 255, 0.96)"
                 />
               </Animated.View>
@@ -216,6 +324,7 @@ export function WaveformCircle({
               <Animated.View
                 style={[
                   styles.waveformWrap,
+                  { marginTop: waveformMarginTop },
                   waveformVariant === "oscilloscope"
                     ? styles.waveformWrapOscilloscope
                     : null,
@@ -239,6 +348,10 @@ export function WaveformCircle({
                       state.nativeWaveformChannel === "output"
                         ? styles.nativeWaveformOutput
                         : styles.nativeWaveformInput,
+                      {
+                        width: nativeWaveformWidth,
+                        height: nativeWaveformHeight,
+                      },
                     ]}
                   />
                 ) : (
@@ -246,13 +359,14 @@ export function WaveformCircle({
                     metering={metering}
                     levels={levels}
                     maxHeight={
-                      state.showsOutputBars
+                      scale *
+                      (state.showsOutputBars
                         ? 62
                         : waveformVariant === "oscilloscope"
                           ? 86
                           : state.isSpeaking
                             ? 60
-                            : 66
+                            : 66)
                     }
                     barCount={
                       state.showsOutputBars
@@ -262,18 +376,20 @@ export function WaveformCircle({
                           : 19
                     }
                     barWidth={
-                      state.showsOutputBars
+                      scale *
+                      (state.showsOutputBars
                         ? 4.5
                         : waveformVariant === "oscilloscope"
                           ? 1.75
-                          : 4
+                          : 4)
                     }
                     barGap={
-                      state.showsOutputBars
+                      scale *
+                      (state.showsOutputBars
                         ? 2.2
                         : waveformVariant === "oscilloscope"
                           ? 0.45
-                          : 2
+                          : 2)
                     }
                     barColor="rgba(255, 255, 255, 0.96)"
                     barColorInactive="rgba(255, 255, 255, 0.46)"

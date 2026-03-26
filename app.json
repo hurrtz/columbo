@@ -3,7 +3,7 @@
     "name": "SchnackAI",
     "slug": "schnackai",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": false,

@@ -14,9 +14,11 @@ import {
 import { styles } from "./styles";
 
 interface MainScreenVoiceStageProps {
+  circleSize?: number;
   colors: Colors;
   inputMode: InputMode;
   isActive: boolean;
+  layout?: "portrait" | "landscape";
   metering: number;
   onOpenStatusDetails: () => void;
   onPress: () => void;
@@ -47,9 +49,11 @@ function getStatusIndicatorColor(statusIndicatorTone: string, colors: Colors) {
 }
 
 export function MainScreenVoiceStage({
+  circleSize = 260,
   colors,
   inputMode,
   isActive,
+  layout = "portrait",
   metering,
   onOpenStatusDetails,
   onPress,
@@ -63,10 +67,29 @@ export function MainScreenVoiceStage({
   statusTitle,
   visualPhase,
 }: MainScreenVoiceStageProps) {
+  const haloSize = Math.round(circleSize * 1.08);
+  const statusStripMaxWidth = Math.min(
+    Math.max(circleSize + (layout === "landscape" ? 96 : 112), 280),
+    360,
+  );
+
   return (
-    <View style={styles.stageBlock}>
+    <View
+      style={[
+        styles.stageBlock,
+        layout === "landscape" ? styles.stageBlockLandscape : null,
+      ]}
+    >
       <View
-        style={[styles.stageHalo, { backgroundColor: colors.glowStrong }]}
+        style={[
+          styles.stageHalo,
+          {
+            width: haloSize,
+            height: haloSize,
+            borderRadius: haloSize / 2,
+            backgroundColor: colors.glowStrong,
+          },
+        ]}
       />
       <WaveformCircle
         metering={metering}
@@ -74,6 +97,7 @@ export function MainScreenVoiceStage({
         isActive={isActive}
         phase={visualPhase}
         providerLabel={providerLabel}
+        size={circleSize}
         waveformVariant={signalWaveformVariant}
         inputMode={inputMode}
         onPressIn={onPressIn}
@@ -83,9 +107,11 @@ export function MainScreenVoiceStage({
       <View
         style={[
           styles.statusStrip,
+          layout === "landscape" ? styles.statusStripLandscape : null,
           {
             backgroundColor: colors.surface,
             borderColor: colors.border,
+            maxWidth: statusStripMaxWidth,
             shadowColor: colors.glow,
           },
         ]}

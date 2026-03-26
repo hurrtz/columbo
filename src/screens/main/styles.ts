@@ -32,6 +32,22 @@ export const styles = StyleSheet.create({
   defaultLayoutContent: {
     paddingBottom: 28,
   },
+  defaultLayoutContentLandscape: {
+    paddingBottom: 20,
+  },
+  landscapeMainRow: {
+    flexDirection: "row",
+    alignItems: "stretch",
+    gap: 18,
+  },
+  landscapePrimaryColumn: {
+    flex: 1.02,
+    minWidth: 0,
+  },
+  landscapeSecondaryColumn: {
+    flex: 0.98,
+    minWidth: 0,
+  },
   expandedLayout: {
     flex: 1,
     paddingHorizontal: 18,
@@ -158,6 +174,10 @@ export const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 22,
   },
+  stageBlockLandscape: {
+    paddingTop: 8,
+    paddingBottom: 10,
+  },
   stageHalo: {
     position: "absolute",
     width: 280,
@@ -180,6 +200,10 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 30,
     elevation: 8,
+  },
+  statusStripLandscape: {
+    marginTop: 24,
+    paddingVertical: 12,
   },
   statusStripCopy: {
     flex: 1,
@@ -225,6 +249,9 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 30,
     elevation: 8,
+  },
+  transcriptShellLandscape: {
+    height: 336,
   },
   expandedTranscriptDrawer: {
     flex: 1,
