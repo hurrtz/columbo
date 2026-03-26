@@ -10,6 +10,7 @@ import { RESPONSE_MODE_ORDER } from "../utils/responseModes";
 import { ProviderIcon } from "./ProviderIcon";
 
 interface ResponseModeToggleProps {
+  compact?: boolean;
   selected: ResponseMode;
   onSelect: (mode: ResponseMode) => void;
   routes: ResponseModeSelections;
@@ -31,6 +32,7 @@ function getResponseModeLabel(
 }
 
 export function ResponseModeToggle({
+  compact = false,
   selected,
   onSelect,
   routes,
@@ -43,6 +45,7 @@ export function ResponseModeToggle({
     <View
       style={[
         styles.container,
+        compact ? styles.containerCompact : null,
         {
           backgroundColor: colors.surface,
           borderColor: colors.border,
@@ -56,33 +59,44 @@ export function ResponseModeToggle({
         const ready = readyModes.includes(mode);
         const content = (
           <>
-            <View style={styles.optionHeader}>
+            <View
+              style={[
+                styles.optionHeader,
+                compact ? styles.optionHeaderCompact : null,
+              ]}
+            >
               <Text
                 style={[
                   styles.optionLabel,
+                  compact ? styles.optionLabelCompact : null,
                   { color: active ? colors.text : colors.textSecondary },
                 ]}
+                numberOfLines={1}
               >
                 {getResponseModeLabel(mode, t)}
               </Text>
             </View>
 
-            <View style={styles.providerRow}>
-              <ProviderIcon
-                provider={route.provider}
-                color={active ? colors.text : colors.textSecondary}
-              />
-            </View>
+            {!compact ? (
+              <>
+                <View style={styles.providerRow}>
+                  <ProviderIcon
+                    provider={route.provider}
+                    color={active ? colors.text : colors.textSecondary}
+                  />
+                </View>
 
-            <Text
-              style={[
-                styles.modelText,
-                { color: active ? colors.text : colors.textMuted },
-              ]}
-              numberOfLines={2}
-            >
-              {getProviderModelName(route.provider, route.model)}
-            </Text>
+                <Text
+                  style={[
+                    styles.modelText,
+                    { color: active ? colors.text : colors.textMuted },
+                  ]}
+                  numberOfLines={2}
+                >
+                  {getProviderModelName(route.provider, route.model)}
+                </Text>
+              </>
+            ) : null}
           </>
         );
 
@@ -111,12 +125,22 @@ export function ResponseModeToggle({
                 colors={[colors.accentGradientStart, colors.accentGradientEnd]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={styles.optionInner}
+                style={[
+                  styles.optionInner,
+                  compact ? styles.optionInnerCompact : null,
+                ]}
               >
                 {content}
               </LinearGradient>
             ) : (
-              <View style={styles.optionInner}>{content}</View>
+              <View
+                style={[
+                  styles.optionInner,
+                  compact ? styles.optionInnerCompact : null,
+                ]}
+              >
+                {content}
+              </View>
             )}
           </Pressable>
         );
@@ -136,6 +160,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 24,
     elevation: 8,
+  },
+  containerCompact: {
+    gap: 6,
+    padding: 5,
   },
   option: {
     flex: 1,
@@ -160,14 +188,27 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     gap: 10,
   },
+  optionInnerCompact: {
+    minHeight: 54,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    gap: 0,
+  },
   optionHeader: {
     minHeight: 17,
     alignItems: "center",
+  },
+  optionHeaderCompact: {
+    minHeight: 0,
   },
   optionLabel: {
     fontSize: 13,
     lineHeight: 17,
     fontFamily: fonts.display,
+  },
+  optionLabelCompact: {
+    fontSize: 12,
+    lineHeight: 16,
   },
   providerRow: {
     alignItems: "center",

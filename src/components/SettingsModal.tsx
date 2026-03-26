@@ -55,7 +55,7 @@ export function SettingsModal(props: SettingsModalProps) {
   const insets = useSafeAreaInsets();
   const { height, width } = useWindowDimensions();
   const isLandscape = width > height;
-  const modalMaxWidth = isLandscape ? Math.min(width - 32, 760) : 460;
+  const modalMaxWidth = isLandscape ? Math.min(width - 24, 980) : 460;
   const {
     activeTab,
     setActiveTab,
@@ -270,59 +270,135 @@ export function SettingsModal(props: SettingsModalProps) {
             </TouchableOpacity>
           </View>
 
-          <ScrollView
-            horizontal
-            style={styles.tabScroll}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.tabRow}
-            contentInsetAdjustmentBehavior="never"
-          >
-            {tabOrder.map((section) => {
-              const active = activeTab === section;
-
-              return (
-              <TouchableOpacity
-                key={section}
+          {isLandscape ? (
+            <View style={styles.landscapeBody}>
+              <View
                 style={[
-                  styles.tabButton,
-                  {
-                    backgroundColor: active ? colors.accentSoft : colors.surface,
-                    borderColor: active ? colors.accent : colors.border,
-                  },
+                  styles.landscapeTabRail,
+                  { borderRightColor: colors.border },
                 ]}
-                onPress={() => setActiveTab(section)}
-                activeOpacity={0.85}
               >
-                <Text
-                  style={[
-                    styles.tabButtonText,
-                    {
-                      color: active ? colors.accent : colors.textSecondary,
-                    },
-                  ]}
+                <ScrollView
+                  style={styles.landscapeTabScroll}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={styles.landscapeTabRow}
+                  contentInsetAdjustmentBehavior="never"
                 >
-                  {getSectionLabel(section)}
-                </Text>
-              </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+                  {tabOrder.map((section) => {
+                    const active = activeTab === section;
 
-          <ScrollView
-            ref={contentScrollRef}
-            style={styles.contentScroll}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={[
-              styles.content,
-              { paddingBottom: Math.max(20, keyboardInset + 20) },
-            ]}
-            scrollIndicatorInsets={{ bottom: keyboardInset }}
-            keyboardShouldPersistTaps="always"
-            keyboardDismissMode="interactive"
-            nestedScrollEnabled
-          >
-            {activeContent}
-          </ScrollView>
+                    return (
+                      <TouchableOpacity
+                        key={section}
+                        style={[
+                          styles.tabButton,
+                          styles.landscapeTabButton,
+                          {
+                            backgroundColor: active
+                              ? colors.accentSoft
+                              : colors.surface,
+                            borderColor: active ? colors.accent : colors.border,
+                          },
+                        ]}
+                        onPress={() => setActiveTab(section)}
+                        activeOpacity={0.85}
+                      >
+                        <Text
+                          style={[
+                            styles.tabButtonText,
+                            {
+                              color: active
+                                ? colors.accent
+                                : colors.textSecondary,
+                            },
+                          ]}
+                        >
+                          {getSectionLabel(section)}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+
+              <ScrollView
+                ref={contentScrollRef}
+                style={styles.contentScroll}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={[
+                  styles.content,
+                  styles.contentLandscape,
+                  { paddingBottom: Math.max(20, keyboardInset + 20) },
+                ]}
+                scrollIndicatorInsets={{ bottom: keyboardInset }}
+                keyboardShouldPersistTaps="always"
+                keyboardDismissMode="interactive"
+                nestedScrollEnabled
+              >
+                {activeContent}
+              </ScrollView>
+            </View>
+          ) : (
+            <>
+              <ScrollView
+                horizontal
+                style={styles.tabScroll}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.tabRow}
+                contentInsetAdjustmentBehavior="never"
+              >
+                {tabOrder.map((section) => {
+                  const active = activeTab === section;
+
+                  return (
+                    <TouchableOpacity
+                      key={section}
+                      style={[
+                        styles.tabButton,
+                        {
+                          backgroundColor: active
+                            ? colors.accentSoft
+                            : colors.surface,
+                          borderColor: active ? colors.accent : colors.border,
+                        },
+                      ]}
+                      onPress={() => setActiveTab(section)}
+                      activeOpacity={0.85}
+                    >
+                      <Text
+                        style={[
+                          styles.tabButtonText,
+                          {
+                            color: active
+                              ? colors.accent
+                              : colors.textSecondary,
+                          },
+                        ]}
+                      >
+                        {getSectionLabel(section)}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+
+              <ScrollView
+                ref={contentScrollRef}
+                style={styles.contentScroll}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={[
+                  styles.content,
+                  { paddingBottom: Math.max(20, keyboardInset + 20) },
+                ]}
+                scrollIndicatorInsets={{ bottom: keyboardInset }}
+                keyboardShouldPersistTaps="always"
+                keyboardDismissMode="interactive"
+                nestedScrollEnabled
+              >
+                {activeContent}
+              </ScrollView>
+            </>
+          )}
         </Animated.View>
       </View>
     </Modal>

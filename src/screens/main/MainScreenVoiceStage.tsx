@@ -27,6 +27,7 @@ interface MainScreenVoiceStageProps {
   providerLabel: string;
   signalLevels: number[] | undefined;
   signalWaveformVariant: WaveformVisualizationVariant;
+  showStatusStrip?: boolean;
   statusDetail: string;
   statusIndicatorTone: string;
   statusTitle: string;
@@ -48,6 +49,85 @@ function getStatusIndicatorColor(statusIndicatorTone: string, colors: Colors) {
   }
 }
 
+interface MainScreenStatusStripProps {
+  colors: Colors;
+  fullWidth?: boolean;
+  layout?: "portrait" | "landscape";
+  onOpenStatusDetails: () => void;
+  statusDetail: string;
+  statusIndicatorTone: string;
+  statusTitle: string;
+}
+
+export function MainScreenStatusStrip({
+  colors,
+  fullWidth = false,
+  layout = "portrait",
+  onOpenStatusDetails,
+  statusDetail,
+  statusIndicatorTone,
+  statusTitle,
+}: MainScreenStatusStripProps) {
+  const statusStripMaxWidth = fullWidth
+    ? undefined
+    : layout === "landscape"
+      ? 320
+      : 360;
+
+  return (
+    <View
+      style={[
+        styles.statusStrip,
+        layout === "landscape" ? styles.statusStripLandscape : null,
+        fullWidth ? styles.statusStripFullWidth : null,
+        {
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
+          maxWidth: statusStripMaxWidth,
+          shadowColor: colors.glow,
+        },
+      ]}
+    >
+      <View style={styles.statusStripCopy}>
+        <View style={styles.statusStripLead}>
+          <View
+            style={[
+              styles.statusStripDot,
+              {
+                backgroundColor: getStatusIndicatorColor(
+                  statusIndicatorTone,
+                  colors,
+                ),
+              },
+            ]}
+          />
+          <Text style={[styles.statusStripTitle, { color: colors.text }]}>
+            {statusTitle}
+          </Text>
+        </View>
+        <Text
+          style={[styles.statusStripDetail, { color: colors.textSecondary }]}
+        >
+          {statusDetail}
+        </Text>
+      </View>
+      <TouchableOpacity
+        style={[
+          styles.statusStripInfoButton,
+          {
+            backgroundColor: colors.surfaceElevated,
+            borderColor: colors.border,
+          },
+        ]}
+        onPress={onOpenStatusDetails}
+        activeOpacity={0.85}
+      >
+        <Feather name="info" size={16} color={colors.textSecondary} />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 export function MainScreenVoiceStage({
   circleSize = 260,
   colors,
@@ -62,16 +142,13 @@ export function MainScreenVoiceStage({
   providerLabel,
   signalLevels,
   signalWaveformVariant,
+  showStatusStrip = true,
   statusDetail,
   statusIndicatorTone,
   statusTitle,
   visualPhase,
 }: MainScreenVoiceStageProps) {
   const haloSize = Math.round(circleSize * 1.08);
-  const statusStripMaxWidth = Math.min(
-    Math.max(circleSize + (layout === "landscape" ? 96 : 112), 280),
-    360,
-  );
 
   return (
     <View
@@ -104,55 +181,16 @@ export function MainScreenVoiceStage({
         onPressOut={onPressOut}
         onPress={onPress}
       />
-      <View
-        style={[
-          styles.statusStrip,
-          layout === "landscape" ? styles.statusStripLandscape : null,
-          {
-            backgroundColor: colors.surface,
-            borderColor: colors.border,
-            maxWidth: statusStripMaxWidth,
-            shadowColor: colors.glow,
-          },
-        ]}
-      >
-        <View style={styles.statusStripCopy}>
-          <View style={styles.statusStripLead}>
-            <View
-              style={[
-                styles.statusStripDot,
-                {
-                  backgroundColor: getStatusIndicatorColor(
-                    statusIndicatorTone,
-                    colors,
-                  ),
-                },
-              ]}
-            />
-            <Text style={[styles.statusStripTitle, { color: colors.text }]}>
-              {statusTitle}
-            </Text>
-          </View>
-          <Text
-            style={[styles.statusStripDetail, { color: colors.textSecondary }]}
-          >
-            {statusDetail}
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={[
-            styles.statusStripInfoButton,
-            {
-              backgroundColor: colors.surfaceElevated,
-              borderColor: colors.border,
-            },
-          ]}
-          onPress={onOpenStatusDetails}
-          activeOpacity={0.85}
-        >
-          <Feather name="info" size={16} color={colors.textSecondary} />
-        </TouchableOpacity>
-      </View>
+      {showStatusStrip ? (
+        <MainScreenStatusStrip
+          colors={colors}
+          layout={layout}
+          onOpenStatusDetails={onOpenStatusDetails}
+          statusDetail={statusDetail}
+          statusIndicatorTone={statusIndicatorTone}
+          statusTitle={statusTitle}
+        />
+      ) : null}
     </View>
   );
 }

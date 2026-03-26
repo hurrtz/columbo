@@ -26,27 +26,42 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingBottom: 12,
   },
+  defaultLayoutLandscape: {
+    paddingHorizontal: 10,
+    paddingBottom: 8,
+  },
   defaultScroll: {
     flex: 1,
   },
   defaultLayoutContent: {
     paddingBottom: 28,
   },
-  defaultLayoutContentLandscape: {
-    paddingBottom: 20,
-  },
-  landscapeMainRow: {
+  landscapeShell: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "stretch",
-    gap: 18,
+    gap: 14,
+    minHeight: 0,
   },
-  landscapePrimaryColumn: {
-    flex: 1.02,
+  landscapeLeftColumn: {
+    flex: 1,
     minWidth: 0,
   },
-  landscapeSecondaryColumn: {
-    flex: 0.98,
+  landscapeRightColumn: {
+    flex: 1,
     minWidth: 0,
+    gap: 14,
+  },
+  landscapeStageArea: {
+    flex: 1,
+    minHeight: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 20,
+  },
+  landscapeTranscriptCard: {
+    flex: 1,
+    minHeight: 0,
   },
   expandedLayout: {
     flex: 1,
@@ -75,6 +90,9 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 34,
     elevation: 10,
+  },
+  heroCardLandscape: {
+    marginBottom: 0,
   },
   heroCardGlow: {
     position: "absolute",
@@ -214,8 +232,11 @@ export const styles = StyleSheet.create({
     elevation: 8,
   },
   statusStripLandscape: {
-    marginTop: 24,
+    marginTop: 0,
     paddingVertical: 12,
+  },
+  statusStripFullWidth: {
+    alignSelf: "stretch",
   },
   statusStripCopy: {
     flex: 1,
@@ -263,7 +284,8 @@ export const styles = StyleSheet.create({
     elevation: 8,
   },
   transcriptShellLandscape: {
-    height: 336,
+    flex: 1,
+    minHeight: 0,
   },
   expandedTranscriptDrawer: {
     flex: 1,

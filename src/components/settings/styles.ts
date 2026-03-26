@@ -95,11 +95,34 @@ export const styles = StyleSheet.create({
   contentScroll: {
     flex: 1,
   },
+  landscapeBody: {
+    flex: 1,
+    flexDirection: "row",
+    minHeight: 0,
+  },
+  landscapeTabRail: {
+    width: 188,
+    borderRightWidth: 1,
+  },
+  landscapeTabScroll: {
+    flex: 1,
+  },
+  landscapeTabRow: {
+    padding: 16,
+    gap: 10,
+  },
+  landscapeTabButton: {
+    width: "100%",
+  },
   content: {
     paddingHorizontal: 12,
     paddingTop: 12,
     paddingBottom: 20,
     gap: 14,
+  },
+  contentLandscape: {
+    paddingHorizontal: 18,
+    paddingTop: 16,
   },
   tabPane: {
     gap: 14,

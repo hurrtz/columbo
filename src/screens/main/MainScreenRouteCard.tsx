@@ -1,5 +1,12 @@
 import React from "react";
-import { Switch, Text, TouchableOpacity, View } from "react-native";
+import {
+  StyleProp,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
 
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -16,11 +23,13 @@ import { styles } from "./styles";
 interface MainScreenRouteCardProps {
   activeResponseMode: ResponseMode;
   availableResponseModes: ResponseMode[];
+  compactResponseModes?: boolean;
   colors: Colors;
   onOpenGroqSettings: () => void;
   onSelectResponseMode: (mode: ResponseMode) => void;
   onToggleWebSearchEnabled: () => void;
   responseModes: Record<ResponseMode, ResponseModeRoute>;
+  style?: StyleProp<ViewStyle>;
   t: TranslateFn;
   webSearchEnabled: boolean;
   webSearchMode: WebSearchMode;
@@ -31,11 +40,13 @@ interface MainScreenRouteCardProps {
 export function MainScreenRouteCard({
   activeResponseMode,
   availableResponseModes,
+  compactResponseModes = false,
   colors,
   onOpenGroqSettings,
   onSelectResponseMode,
   onToggleWebSearchEnabled,
   responseModes,
+  style,
   t,
   webSearchEnabled,
   webSearchMode,
@@ -52,6 +63,7 @@ export function MainScreenRouteCard({
     <View
       style={[
         styles.heroCard,
+        style,
         {
           backgroundColor: colors.surface,
           borderColor: colors.border,
@@ -68,6 +80,7 @@ export function MainScreenRouteCard({
       {availableResponseModes.length > 0 ? (
         <>
           <ResponseModeToggle
+            compact={compactResponseModes}
             selected={activeResponseMode}
             onSelect={onSelectResponseMode}
             routes={responseModes}

@@ -58,7 +58,10 @@ import {
 } from "../utils/responseModes";
 import { MainScreenTopBar } from "./main/MainScreenTopBar";
 import { MainScreenRouteCard } from "./main/MainScreenRouteCard";
-import { MainScreenVoiceStage } from "./main/MainScreenVoiceStage";
+import {
+  MainScreenStatusStrip,
+  MainScreenVoiceStage,
+} from "./main/MainScreenVoiceStage";
 import { StatusDetailsModal } from "./main/StatusDetailsModal";
 import { TranscriptPreviewCard } from "./main/TranscriptPreviewCard";
 import { getMainScreenViewModel } from "./main/mainScreenViewModel";
@@ -175,9 +178,8 @@ export function MainScreen() {
   const webSearchActive = webSearchMode !== "off" && webSearchReady;
   const isLandscape = width > height;
   const stageCircleSize = isLandscape
-    ? Math.max(188, Math.min(224, Math.round(Math.min(height * 0.5, width * 0.28))))
+    ? Math.max(172, Math.min(208, Math.round(Math.min(height * 0.44, width * 0.24))))
     : 260;
-  const landscapeTranscriptHeight = Math.max(stageCircleSize + 118, 320);
   const selectedSttModel = sttProvider
     ? settings.providerSttModels[sttProvider] ||
       PROVIDER_DEFAULT_STT_MODELS[sttProvider] ||
@@ -1008,56 +1010,56 @@ export function MainScreen() {
         onRetry={toast?.onRetry}
       />
 
-      <View style={styles.defaultLayout}>
-        <MainScreenTopBar
-          colors={colors}
-          debugLogLabel={t("debugLogLabel")}
-          isDebugLogging={debugLogCaptureState.active}
-          onOpenDrawer={() => setDrawerVisible(true)}
-          onOpenSettings={() => openSettings()}
-          onToggleDebugLogging={() => {
-            void handleToggleDebugLogging("main-screen");
-          }}
-        />
+      <View
+        style={[
+          styles.defaultLayout,
+          isLandscape ? styles.defaultLayoutLandscape : null,
+        ]}
+      >
+        {isLandscape ? (
+          <View style={styles.landscapeShell}>
+            <View style={styles.landscapeLeftColumn}>
+              <MainScreenTopBar
+                colors={colors}
+                debugLogLabel={t("debugLogLabel")}
+                isDebugLogging={debugLogCaptureState.active}
+                onOpenDrawer={() => setDrawerVisible(true)}
+                onOpenSettings={() => openSettings()}
+                onToggleDebugLogging={() => {
+                  void handleToggleDebugLogging("main-screen");
+                }}
+              />
 
-        <ScrollView
-          style={styles.defaultScroll}
-          contentContainerStyle={[
-            styles.defaultLayoutContent,
-            isLandscape ? styles.defaultLayoutContentLandscape : null,
-          ]}
-          showsVerticalScrollIndicator={false}
-        >
-          <MainScreenRouteCard
-            activeResponseMode={activeResponseMode}
-            availableResponseModes={loaded ? availableResponseModes : []}
-            colors={colors}
-            onOpenGroqSettings={() => openSettings("groq")}
-            onSelectResponseMode={handleResponseModeChange}
-            onToggleWebSearchEnabled={() => {
-              if (!webSearchActive && !webSearchReady) {
-                openSettings(
-                  webSearchProvider ?? DEFAULT_WEB_SEARCH_PROVIDER,
-                  "web",
-                );
-                return;
-              }
+              <MainScreenRouteCard
+                activeResponseMode={activeResponseMode}
+                availableResponseModes={loaded ? availableResponseModes : []}
+                compactResponseModes
+                colors={colors}
+                onOpenGroqSettings={() => openSettings("groq")}
+                onSelectResponseMode={handleResponseModeChange}
+                onToggleWebSearchEnabled={() => {
+                  if (!webSearchActive && !webSearchReady) {
+                    openSettings(
+                      webSearchProvider ?? DEFAULT_WEB_SEARCH_PROVIDER,
+                      "web",
+                    );
+                    return;
+                  }
 
-              updateSettings({
-                webSearchMode: webSearchActive ? "off" : "auto",
-              });
-            }}
-            responseModes={settings.responseModes}
-            t={t}
-            webSearchEnabled={webSearchActive}
-            webSearchMode={webSearchMode}
-            webSearchProvider={webSearchProvider}
-            webSearchReady={webSearchReady}
-          />
+                  updateSettings({
+                    webSearchMode: webSearchActive ? "off" : "auto",
+                  });
+                }}
+                responseModes={settings.responseModes}
+                style={styles.heroCardLandscape}
+                t={t}
+                webSearchEnabled={webSearchActive}
+                webSearchMode={webSearchMode}
+                webSearchProvider={webSearchProvider}
+                webSearchReady={webSearchReady}
+              />
 
-          {isLandscape ? (
-            <View style={styles.landscapeMainRow}>
-              <View style={styles.landscapePrimaryColumn}>
+              <View style={styles.landscapeStageArea}>
                 <MainScreenVoiceStage
                   circleSize={stageCircleSize}
                   colors={colors}
@@ -1072,32 +1074,87 @@ export function MainScreen() {
                   providerLabel={providerLabel}
                   signalLevels={signalLevels}
                   signalWaveformVariant={signalWaveformVariant}
+                  showStatusStrip={false}
                   statusDetail={statusDisplay.statusDetail}
                   statusIndicatorTone={statusIndicatorTone}
                   statusTitle={statusDisplay.actionLabel}
                   visualPhase={visualPhase}
                 />
               </View>
-
-              {messages.length > 0 ? (
-                <View style={styles.landscapeSecondaryColumn}>
-                  <TranscriptPreviewCard
-                    colors={colors}
-                    layout="landscape"
-                    messages={messages}
-                    onCopyMessage={(message) => {
-                      void handleCopyMessage(message.content);
-                    }}
-                    onOpenTranscript={openTranscript}
-                    preferredHeight={landscapeTranscriptHeight}
-                    showUsageStats={settings.showUsageStats}
-                    t={t}
-                  />
-                </View>
-              ) : null}
             </View>
-          ) : (
-            <>
+
+            <View style={styles.landscapeRightColumn}>
+              <MainScreenStatusStrip
+                colors={colors}
+                fullWidth
+                layout="landscape"
+                onOpenStatusDetails={openStatusDetails}
+                statusDetail={statusDisplay.statusDetail}
+                statusIndicatorTone={statusIndicatorTone}
+                statusTitle={statusDisplay.actionLabel}
+              />
+
+              <TranscriptPreviewCard
+                colors={colors}
+                layout="landscape"
+                messages={messages}
+                onCopyMessage={(message) => {
+                  void handleCopyMessage(message.content);
+                }}
+                onOpenTranscript={openTranscript}
+                scrollEnabled
+                showUsageStats={settings.showUsageStats}
+                showWhenEmpty
+                style={styles.landscapeTranscriptCard}
+                t={t}
+              />
+            </View>
+          </View>
+        ) : (
+          <>
+            <MainScreenTopBar
+              colors={colors}
+              debugLogLabel={t("debugLogLabel")}
+              isDebugLogging={debugLogCaptureState.active}
+              onOpenDrawer={() => setDrawerVisible(true)}
+              onOpenSettings={() => openSettings()}
+              onToggleDebugLogging={() => {
+                void handleToggleDebugLogging("main-screen");
+              }}
+            />
+
+            <ScrollView
+              style={styles.defaultScroll}
+              contentContainerStyle={styles.defaultLayoutContent}
+              showsVerticalScrollIndicator={false}
+            >
+              <MainScreenRouteCard
+                activeResponseMode={activeResponseMode}
+                availableResponseModes={loaded ? availableResponseModes : []}
+                colors={colors}
+                onOpenGroqSettings={() => openSettings("groq")}
+                onSelectResponseMode={handleResponseModeChange}
+                onToggleWebSearchEnabled={() => {
+                  if (!webSearchActive && !webSearchReady) {
+                    openSettings(
+                      webSearchProvider ?? DEFAULT_WEB_SEARCH_PROVIDER,
+                      "web",
+                    );
+                    return;
+                  }
+
+                  updateSettings({
+                    webSearchMode: webSearchActive ? "off" : "auto",
+                  });
+                }}
+                responseModes={settings.responseModes}
+                t={t}
+                webSearchEnabled={webSearchActive}
+                webSearchMode={webSearchMode}
+                webSearchProvider={webSearchProvider}
+                webSearchReady={webSearchReady}
+              />
+
               <MainScreenVoiceStage
                 circleSize={stageCircleSize}
                 colors={colors}
@@ -1127,9 +1184,9 @@ export function MainScreen() {
                 showUsageStats={settings.showUsageStats}
                 t={t}
               />
-            </>
-          )}
-        </ScrollView>
+            </ScrollView>
+          </>
+        )}
       </View>
 
       <StatusDetailsModal

@@ -1,5 +1,11 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import {
+  StyleProp,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
 
 import { ChatTranscript } from "../../components/ChatTranscript";
 import { Colors } from "../../theme/colors";
@@ -15,7 +21,10 @@ interface TranscriptPreviewCardProps {
   onCopyMessage: (message: Message) => void;
   onOpenTranscript: () => void;
   preferredHeight?: number;
+  scrollEnabled?: boolean;
   showUsageStats: boolean;
+  showWhenEmpty?: boolean;
+  style?: StyleProp<ViewStyle>;
   t: TranslateFn;
 }
 
@@ -26,10 +35,13 @@ export function TranscriptPreviewCard({
   onCopyMessage,
   onOpenTranscript,
   preferredHeight,
+  scrollEnabled = false,
   showUsageStats,
+  showWhenEmpty = false,
+  style,
   t,
 }: TranscriptPreviewCardProps) {
-  if (messages.length === 0) {
+  if (!showWhenEmpty && messages.length === 0) {
     return null;
   }
 
@@ -39,6 +51,7 @@ export function TranscriptPreviewCard({
         styles.transcriptShell,
         layout === "landscape" ? styles.transcriptShellLandscape : null,
         preferredHeight ? { height: preferredHeight } : null,
+        style,
         {
           backgroundColor: colors.surface,
           borderColor: colors.border,
@@ -69,7 +82,7 @@ export function TranscriptPreviewCard({
           emptyTitle={t("noTranscriptYet")}
           emptyDescription={t("previewTranscriptEmptyDescription")}
           contentContainerStyle={styles.previewTranscriptContent}
-          scrollEnabled={false}
+          scrollEnabled={scrollEnabled}
           showUsageStats={showUsageStats}
           onCopyMessage={onCopyMessage}
         />
