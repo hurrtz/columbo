@@ -163,6 +163,47 @@ describe("streamChat", () => {
     );
   });
 
+  it("uses Azure OpenAI chat completions with the api-key header", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "gpt-4.1-mini",
+      provider: "microsoft-azure",
+      apiKey: "https://example-resource.openai.azure.com|azure-openai-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi"]);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://example-resource.openai.azure.com/openai/v1/chat/completions",
+    );
+    expect(options.headers["api-key"]).toBe("azure-openai-key");
+    expect(options.headers.Authorization).toBeUndefined();
+    expect(JSON.parse(options.body)).toMatchObject({
+      model: "gpt-4.1-mini",
+      stream: true,
+    });
+  });
+
 
   it("uses the OpenAI realtime socket for realtime models", async () => {
     const chunks: string[] = [];

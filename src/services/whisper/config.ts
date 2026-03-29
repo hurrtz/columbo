@@ -18,6 +18,11 @@ export type OpenAiAudioInputTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type AzureOpenAiAudioInputTranscriptionConfig = {
+  kind: "azure-openai-audio-input";
+  defaultModel: string;
+};
+
 export type BaiduShortSpeechTranscriptionConfig = {
   kind: "baidu-short-speech";
   defaultModel: string;
@@ -96,6 +101,7 @@ export type ReplicateTranscriptionConfig = {
 export type ProviderSttConfig =
   | MultipartTranscriptionConfig
   | OpenAiAudioInputTranscriptionConfig
+  | AzureOpenAiAudioInputTranscriptionConfig
   | BaiduShortSpeechTranscriptionConfig
   | AssemblyAiPreRecordedTranscriptionConfig
   | AssemblyAiRealtimeTranscriptionConfig
@@ -153,6 +159,11 @@ function buildConfigForTransport(params: {
               : {}),
           }
         : null;
+    case "azure-openai-audio-input":
+      return {
+        kind: "azure-openai-audio-input",
+        defaultModel: params.defaultModel,
+      };
     case "assemblyai-pre-recorded":
       return params.endpointBase
         ? {

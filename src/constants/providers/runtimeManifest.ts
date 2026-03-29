@@ -46,6 +46,7 @@ export type RuntimeAppProviderId =
 
 export type RuntimeLlmTransport =
   | "none"
+  | "azure-openai"
   | "openai-compatible"
   | "openai-realtime"
   | "gemini-live"
@@ -55,6 +56,7 @@ export type RuntimeLlmTransport =
 export type RuntimeSttTransport =
   | "none"
   | "multipart"
+  | "azure-openai-audio-input"
   | "assemblyai-realtime"
   | "deepinfra-inference"
   | "openai-audio-input"
@@ -412,21 +414,28 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     catalogProviderId: "microsoft-azure",
     label: "Microsoft Azure",
     shortLabel: "AZURE",
-    apiKeyPlaceholder: "SpeechKey|westeurope",
+    apiKeyPlaceholder:
+      "https://your-resource.openai.azure.com|api-key|speech-key|westeurope",
     apiKeyHint:
-      "Unlocks Azure AI Speech text-to-speech. Enter the Speech resource key and region as <key>|<region>, for example abc123|westeurope.",
+      "Unlocks Azure OpenAI models and transcription plus Azure AI Speech text-to-speech. Supported formats: <endpoint>|<api-key> for Azure OpenAI, <speech-key>|<region> for Azure Speech, or <endpoint>|<api-key>|<speech-key>|<region> to use both.",
     apiKeyUrl: "https://portal.azure.com/",
     llm: {
-      support: "none",
-      transport: "none",
-      models: [],
-      defaultModel: "",
+      support: "provider",
+      transport: "azure-openai",
+      defaultModel: "gpt-4.1-mini",
+      models: catalogModelSpecs("microsoft-azure", "llm", [
+        "gpt-realtime",
+        "gpt-realtime-mini",
+        "gpt-realtime-1.5",
+      ]),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
-      defaultModel: "",
+      support: "provider",
+      transport: "azure-openai-audio-input",
+      defaultModel: "gpt-4o-mini-transcribe",
+      models: catalogModelSpecs("microsoft-azure", "stt"),
+      languageNote:
+        "Azure OpenAI STT is wired through the OpenAI-compatible audio-input chat flow for the curated GPT-4o transcribe and Whisper catalog models. The app currently treats Azure realtime speech rows as out of scope.",
     },
     tts: {
       support: "provider",
@@ -446,7 +455,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         voice("de-DE-KatjaNeural", "Katja"),
       ],
       languageNote:
-        "Azure AI Speech exposes a large regional neural voice catalog. Configure the provider key as <key>|<region>; the app live-loads English and German voices for that Azure Speech region.",
+        "Azure AI Speech exposes a large regional neural voice catalog. Configure Azure Speech as <key>|<region>, or use the combined Azure format <endpoint>|<api-key>|<speech-key>|<region>; the app live-loads English and German voices for that Azure Speech region.",
     },
   },
   anthropic: {

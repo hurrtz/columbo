@@ -4,6 +4,7 @@ import { PROVIDER_LABELS } from "../../constants/models";
 import type { WebSearchProvider } from "../../constants/webSearch";
 import { useLocalization } from "../../i18n";
 import type { Provider, Settings } from "../../types";
+import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
 
 import {
   getConfiguredProvidersForCapability,
@@ -37,7 +38,18 @@ export function useProviderValidationState(params: {
   );
 
   const canValidateProvider = useCallback(
-    (provider: Provider) => getProviderValidationTarget(settings, provider).kind !== null,
+    (provider: Provider) => {
+      const target = getProviderValidationTarget(settings, provider);
+
+      return (
+        target.kind !== null &&
+        hasProviderCredentialForCapability(
+          provider,
+          settings.apiKeys[provider],
+          target.kind,
+        )
+      );
+    },
     [settings],
   );
 
@@ -66,7 +78,11 @@ export function useProviderValidationState(params: {
       const target = getProviderValidationTarget(settings, provider);
       const trimmedApiKey = settings.apiKeys[provider].trim();
 
-      if (!trimmedApiKey || !target.kind) {
+      if (
+        !trimmedApiKey ||
+        !target.kind ||
+        !hasProviderCredentialForCapability(provider, trimmedApiKey, target.kind)
+      ) {
         return;
       }
 
@@ -82,6 +98,8 @@ export function useProviderValidationState(params: {
 
       try {
         if (target.kind === "llm") {
+          await onValidateProvider(provider);
+        } else if (target.kind === "tts") {
           await onValidateProvider(provider);
         } else if (
           target.kind === "search" &&

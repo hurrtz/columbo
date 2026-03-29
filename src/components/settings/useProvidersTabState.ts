@@ -12,8 +12,16 @@ import {
 } from "../../constants/models";
 import { useLocalization } from "../../i18n";
 import { Provider, Settings } from "../../types";
+import {
+  hasAnyProviderCredential,
+  hasProviderCredentialForCapability,
+} from "../../utils/providerCredentials";
 import { getProviderValidationModel } from "../../utils/responseModes";
 
+import {
+  getProviderValidationTarget,
+  providerSupportsCapability,
+} from "./providerSupport";
 import { ProviderHealthState, ProviderValidationState } from "./types";
 
 export function useProvidersTabState(params: {
@@ -78,9 +86,15 @@ export function useProvidersTabState(params: {
     trimmedSelectedProviderApiKey,
   ]);
   const hasApiKey =
-    !!selectedRuntimeProvider && trimmedSelectedProviderApiKey.length > 0;
+    !!selectedRuntimeProvider &&
+    hasAnyProviderCredential(
+      selectedRuntimeProvider,
+      trimmedSelectedProviderApiKey,
+    );
+  const canValidateSelectedProvider = !!selectedRuntimeProvider &&
+    getProviderValidationTarget(settings, selectedRuntimeProvider).kind !== null;
   const shouldShowValidateAction =
-    hasApiKey && validationState.status !== "success";
+    canValidateSelectedProvider && validationState.status !== "success";
 
   const handleOpenProviderPortal = useCallback(() => {
     if (!selectedRuntimeProvider) {
@@ -92,6 +106,12 @@ export function useProvidersTabState(params: {
 
   const handleValidateProviderKey = useCallback(async () => {
     if (!selectedRuntimeProvider) {
+      return;
+    }
+
+    const target = getProviderValidationTarget(settings, selectedRuntimeProvider);
+
+    if (!target.kind) {
       return;
     }
 
@@ -133,6 +153,7 @@ export function useProvidersTabState(params: {
     }
   }, [
     onValidateProvider,
+    settings,
     selectedRuntimeProvider,
     selectedProviderModel,
     t,
@@ -143,7 +164,7 @@ export function useProvidersTabState(params: {
     (provider: Provider): ProviderHealthState => {
       const apiKey = settings.apiKeys[provider].trim();
 
-      if (!apiKey) {
+      if (!hasAnyProviderCredential(provider, apiKey)) {
         return "unconfigured";
       }
 

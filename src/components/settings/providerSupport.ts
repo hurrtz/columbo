@@ -1,4 +1,6 @@
 import {
+  PROVIDER_DEFAULT_TTS_MODELS,
+  PROVIDER_DEFAULT_TTS_VOICES,
   PROVIDER_LLM_SUPPORT,
   PROVIDER_ORDER,
   PROVIDER_STT_SUPPORT,
@@ -10,8 +12,11 @@ import {
   type WebSearchProvider,
 } from "../../constants/webSearch";
 import type { Provider, Settings } from "../../types";
+import {
+  hasAnyProviderCredential,
+  hasProviderCredentialForCapability,
+} from "../../utils/providerCredentials";
 import { getProviderValidationModel } from "../../utils/responseModes";
-import { parseAzureSpeechCredentials } from "../../services/tts/azure";
 
 import type { ProviderHealthState, ProviderValidationState } from "./types";
 
@@ -25,11 +30,7 @@ export const PROVIDER_CAPABILITY_ORDER: ProviderCapability[] = [
 ];
 
 function hasApiKey(settings: Settings, provider: Provider) {
-  if (provider === "microsoft-azure") {
-    return parseAzureSpeechCredentials(settings.apiKeys[provider]) !== null;
-  }
-
-  return settings.apiKeys[provider].trim().length > 0;
+  return hasAnyProviderCredential(provider, settings.apiKeys[provider]);
 }
 
 export function isWebSearchCapableProvider(
@@ -61,7 +62,12 @@ export function getProviderCapabilities(provider: Provider) {
 }
 
 export function getProviderValidationTarget(settings: Settings, provider: Provider) {
-  if (providerSupportsCapability(provider, "llm")) {
+  const apiKey = settings.apiKeys[provider];
+
+  if (
+    providerSupportsCapability(provider, "llm") &&
+    hasProviderCredentialForCapability(provider, apiKey, "llm")
+  ) {
     return {
       kind: "llm" as const,
       model: getProviderValidationModel(settings, provider),
@@ -69,7 +75,10 @@ export function getProviderValidationTarget(settings: Settings, provider: Provid
     };
   }
 
-  if (providerSupportsCapability(provider, "search")) {
+  if (
+    providerSupportsCapability(provider, "search") &&
+    hasProviderCredentialForCapability(provider, apiKey, "search")
+  ) {
     const webSearchProvider = provider as WebSearchProvider;
 
     return {
@@ -78,6 +87,26 @@ export function getProviderValidationTarget(settings: Settings, provider: Provid
       configKey: JSON.stringify(
         settings.webSearchProviderSettings[webSearchProvider],
       ),
+    };
+  }
+
+  if (
+    providerSupportsCapability(provider, "tts") &&
+    hasProviderCredentialForCapability(provider, apiKey, "tts")
+  ) {
+    const model =
+      settings.providerTtsModels[provider] ||
+      PROVIDER_DEFAULT_TTS_MODELS[provider] ||
+      "";
+    const voice =
+      settings.providerTtsVoices[provider] ||
+      PROVIDER_DEFAULT_TTS_VOICES[provider] ||
+      "";
+
+    return {
+      kind: "tts" as const,
+      model,
+      configKey: JSON.stringify({ voice }),
     };
   }
 
@@ -148,7 +177,13 @@ export function getConfiguredProvidersForCapability(params: {
       return false;
     }
 
-    if (!hasApiKey(settings, provider)) {
+    if (
+      !hasProviderCredentialForCapability(
+        provider,
+        settings.apiKeys[provider],
+        capability,
+      )
+    ) {
       return false;
     }
 

@@ -41,6 +41,7 @@ import {
   subscribeToDebugLogCapture,
 } from "../services/debugLogCapture";
 import { validateProviderConnection } from "../services/llm";
+import { validateTtsProviderConnection } from "../services/providerValidation";
 import { validateWebSearchConnection } from "../services/webSearch";
 import { useTheme } from "../theme/ThemeContext";
 import {
@@ -53,6 +54,7 @@ import {
   getEnabledSttProviders,
   getEnabledTtsProviders,
 } from "../utils/providerCapabilities";
+import { hasProviderCredentialForCapability } from "../utils/providerCredentials";
 import {
   getAvailableResponseModes,
   getProviderValidationModel,
@@ -74,6 +76,7 @@ import { usePreviewVoiceController } from "./main/usePreviewVoiceController";
 import { useProviderAvailabilityGuards } from "./main/useProviderAvailabilityGuards";
 import { useSetupGuideController } from "./main/useSetupGuideController";
 import { useVoiceSessionController } from "./main/useVoiceSessionController";
+import { getProviderValidationTarget } from "../components/settings/providerSupport";
 
 export function MainScreen() {
   const { colors, isDark } = useTheme();
@@ -456,7 +459,13 @@ export function MainScreen() {
         },
       });
 
-      if (!settings.apiKeys[nextProvider].trim()) {
+      if (
+        !hasProviderCredentialForCapability(
+          nextProvider,
+          settings.apiKeys[nextProvider],
+          "llm",
+        )
+      ) {
         recordDebugLogEvent({
           event: "response-mode-change-blocked",
           level: "warn",
@@ -507,25 +516,50 @@ export function MainScreen() {
   const handleValidateProvider = useCallback(
     async (nextProvider: Provider) => {
       const apiKey = settings.apiKeys[nextProvider].trim();
+      const target = getProviderValidationTarget(settings, nextProvider);
 
       recordDebugLogEvent({
         event: "provider-validation-requested",
         payload: {
           provider: nextProvider,
+          target: target.kind,
         },
       });
 
       try {
-        await validateProviderConnection({
-          provider: nextProvider,
-          model: getProviderValidationModel(settings, nextProvider),
-          apiKey,
-          language,
-        });
+        if (target.kind === "llm") {
+          await validateProviderConnection({
+            provider: nextProvider,
+            model: getProviderValidationModel(settings, nextProvider),
+            apiKey,
+            language,
+          });
+        } else if (target.kind === "tts") {
+          const voice =
+            (() => {
+              try {
+                const parsed = target.configKey
+                  ? JSON.parse(target.configKey)
+                  : null;
+                return typeof parsed?.voice === "string" ? parsed.voice : "";
+              } catch {
+                return "";
+              }
+            })();
+
+          await validateTtsProviderConnection({
+            provider: nextProvider,
+            model: target.model,
+            voice,
+            apiKey,
+            language,
+          });
+        }
         recordDebugLogEvent({
           event: "provider-validation-succeeded",
           payload: {
             provider: nextProvider,
+            target: target.kind,
           },
         });
       } catch (error) {
@@ -535,6 +569,7 @@ export function MainScreen() {
           payload: {
             message: error instanceof Error ? error.message : String(error),
             provider: nextProvider,
+            target: target.kind,
           },
         });
         throw error;

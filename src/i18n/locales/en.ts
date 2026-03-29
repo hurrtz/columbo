@@ -312,7 +312,7 @@ export const en: TranslationDictionary = {
     endpointCredentialFormatInvalid: ({ provider }) =>
       `For ${provider}, enter the provider base URL and API key as https://your-endpoint.example.com|your-api-key.`,
     azureCredentialFormatInvalid: ({ provider }) =>
-      `For ${provider}, enter the Azure endpoint and API key as https://your-resource.openai.azure.com|your-api-key.`,
+      `For ${provider}, enter Azure OpenAI as https://your-resource.openai.azure.com|your-api-key, or combine it with Azure Speech as https://your-resource.openai.azure.com|your-api-key|your-speech-key|your-region.`,
     awsCredentialFormatInvalid: ({ provider }) =>
       `For ${provider}, enter the AWS region, access key ID, secret access key, and optional session token as us-east-1|access-key-id|secret-access-key|session-token.`,
     ibmCredentialFormatInvalid: ({ provider }) =>
@@ -520,7 +520,7 @@ export const en: TranslationDictionary = {
     noBase64EncoderAvailable: "No base64 encoder available.",
     noBase64DecoderAvailable: "No base64 decoder available.",
     azureSpeechApiKeyFormat:
-      "Microsoft Azure needs credentials in the format <key>|<region>, for example abc123|westeurope.",
+      "Microsoft Azure TTS needs Azure Speech credentials in the format <key>|<region>, for example abc123|westeurope, or the combined Azure format <endpoint>|<api-key>|<key>|<region>.",
     nativeTtsDoesNotSynthesizeAudioFiles:
       "Native TTS does not synthesize audio files.",
     localTtsUnavailableForLanguage: ({ languageLabel }) =>

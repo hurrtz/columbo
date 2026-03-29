@@ -27,7 +27,6 @@ describe("provider capability selectors", () => {
       "together",
     ]);
     expect(getEnabledSttProviders(settings)).toEqual([
-      "gemini",
       "groq",
       "mistral",
       "together",
@@ -52,5 +51,34 @@ describe("provider capability selectors", () => {
 
     expect(getEnabledSttProviders(settings)).toEqual(["openai"]);
     expect(getEnabledTtsProviders(settings)).toEqual(["openai"]);
+  });
+
+  it("treats Azure Speech-only credentials as TTS-only readiness", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      apiKeys: {
+        ...DEFAULT_SETTINGS.apiKeys,
+        "microsoft-azure": "azure-speech-key|westeurope",
+      },
+    };
+
+    expect(getEnabledProviders(settings)).toEqual([]);
+    expect(getEnabledSttProviders(settings)).toEqual([]);
+    expect(getEnabledTtsProviders(settings)).toEqual(["microsoft-azure"]);
+  });
+
+  it("treats combined Azure credentials as ready for llm, stt, and tts", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      apiKeys: {
+        ...DEFAULT_SETTINGS.apiKeys,
+        "microsoft-azure":
+          "https://example-resource.openai.azure.com|azure-openai-key|azure-speech-key|westeurope",
+      },
+    };
+
+    expect(getEnabledProviders(settings)).toEqual(["microsoft-azure"]);
+    expect(getEnabledSttProviders(settings)).toEqual(["microsoft-azure"]);
+    expect(getEnabledTtsProviders(settings)).toEqual(["microsoft-azure"]);
   });
 });

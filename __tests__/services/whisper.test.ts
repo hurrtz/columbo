@@ -188,6 +188,42 @@ describe("transcribeAudio", () => {
     expect(url).toBe("https://api.z.ai/api/paas/v4/audio/transcriptions");
   });
 
+  it("uses Azure OpenAI chat completions for Azure STT", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: "Hallo Welt",
+            },
+          },
+        ],
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "microsoft-azure",
+      providerModel: "gpt-4o-mini-transcribe",
+      apiKey: "https://example-resource.openai.azure.com|azure-openai-key",
+      language: "en",
+    });
+
+    expect(result).toBe("Hallo Welt");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://example-resource.openai.azure.com/openai/v1/chat/completions",
+    );
+    expect(options.headers["api-key"]).toBe("azure-openai-key");
+    expect(options.headers.Authorization).toBeUndefined();
+    expect(JSON.parse(options.body)).toMatchObject({
+      model: "gpt-4o-mini-transcribe",
+      stream: false,
+    });
+  });
+
 
   it("uses the AssemblyAI upload and transcript flow for pre-recorded STT", async () => {
     (fetch as jest.Mock)

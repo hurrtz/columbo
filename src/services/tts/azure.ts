@@ -1,48 +1,12 @@
-import { translate } from "../../i18n";
-import type { AppLanguage } from "../../types";
+export {
+  buildAzureSpeechSynthesisEndpoint,
+  buildAzureSpeechVoicesEndpoint,
+  parseAzureSpeechCredentials,
+  requireAzureSpeechCredentials,
+} from "../azure";
 
 export const AZURE_SPEECH_OUTPUT_FORMAT = "audio-24khz-48kbitrate-mono-mp3";
 export const AZURE_SPEECH_USER_AGENT = "SchnackAI";
-
-export function parseAzureSpeechCredentials(apiKey?: string | null) {
-  if (!apiKey?.trim()) {
-    return null;
-  }
-
-  const [subscriptionKeyPart, regionPart] = apiKey.split("|", 2);
-  const subscriptionKey = subscriptionKeyPart?.trim() ?? "";
-  const region = regionPart?.trim().toLowerCase() ?? "";
-
-  if (!subscriptionKey || !region) {
-    return null;
-  }
-
-  return {
-    subscriptionKey,
-    region,
-  };
-}
-
-export function requireAzureSpeechCredentials(
-  apiKey: string | undefined,
-  language: AppLanguage,
-) {
-  const credentials = parseAzureSpeechCredentials(apiKey);
-
-  if (credentials) {
-    return credentials;
-  }
-
-  throw new Error(translate(language, "azureSpeechApiKeyFormat"));
-}
-
-export function buildAzureSpeechSynthesisEndpoint(region: string) {
-  return `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`;
-}
-
-export function buildAzureSpeechVoicesEndpoint(region: string) {
-  return `https://${region}.tts.speech.microsoft.com/cognitiveservices/voices/list`;
-}
 
 function escapeXml(value: string) {
   return value

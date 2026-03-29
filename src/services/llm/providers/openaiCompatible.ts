@@ -37,7 +37,7 @@ function extractOpenAICompatibleText(content: unknown): string {
   return "";
 }
 
-async function requestChatWithOpenAiCompatibleTransport(params: {
+export async function requestChatWithOpenAiCompatibleTransport(params: {
   endpoint: string;
   headers: Record<string, string>;
   provider: Provider;
@@ -99,7 +99,7 @@ async function requestChatWithOpenAiCompatibleTransport(params: {
   return extractOpenAICompatibleText(data.choices?.[0]?.message?.content);
 }
 
-async function requestChatStreamWithOpenAiCompatibleTransport(params: {
+export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
   endpoint: string;
   headers: Record<string, string>;
   provider: Provider;

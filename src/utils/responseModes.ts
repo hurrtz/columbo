@@ -5,6 +5,7 @@ import {
   ResponseModeRoute,
   Settings,
 } from "../types";
+import { hasProviderCredentialForCapability } from "./providerCredentials";
 
 export const RESPONSE_MODE_ORDER: ResponseMode[] = ["quick", "normal", "deep"];
 
@@ -20,7 +21,11 @@ export function isResponseModeReady(
   mode: ResponseMode,
 ): boolean {
   const route = getResponseModeRoute(settings, mode);
-  return settings.apiKeys[route.provider].trim().length > 0;
+  return hasProviderCredentialForCapability(
+    route.provider,
+    settings.apiKeys[route.provider],
+    "llm",
+  );
 }
 
 export function getAvailableResponseModes(settings: Settings): ResponseMode[] {

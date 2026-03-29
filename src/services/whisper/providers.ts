@@ -3,6 +3,10 @@ import * as FileSystem from "expo-file-system/legacy";
 import { buildProviderHttpError, normalizeProviderTransportError } from "../providerErrors";
 import type { AppLanguage, Provider } from "../../types";
 import {
+  buildAzureOpenAiChatCompletionsEndpoint,
+  requireAzureOpenAiCredentials,
+} from "../azure";
+import {
   getReplicateInputProperty,
   getReplicateModelMetadata,
   runReplicatePrediction,
@@ -12,6 +16,7 @@ import { fetchWithTimeout } from "./abort";
 import { getProviderSttTimeoutMs } from "./config";
 import type {
   AssemblyAiPreRecordedTranscriptionConfig,
+  AzureOpenAiAudioInputTranscriptionConfig,
   DeepInfraInferenceTranscriptionConfig,
   BaiduShortSpeechTranscriptionConfig,
   DeepgramPreRecordedTranscriptionConfig,
@@ -179,6 +184,28 @@ export async function transcribeWithOpenAiAudioInputProvider(
     config: OpenAiAudioInputTranscriptionConfig;
   },
 ) {
+  return transcribeWithOpenAiStyleAudioInputProvider({
+    ...params,
+    endpoint: params.config.endpoint,
+    headers: {
+      Authorization: `Bearer ${requireProviderKey(
+        params.provider,
+        params.apiKey,
+        params.language,
+      )}`,
+    },
+  });
+}
+
+async function transcribeWithOpenAiStyleAudioInputProvider(
+  params: SharedProviderParams & {
+    endpoint: string;
+    headers: Record<string, string>;
+    config:
+      | AzureOpenAiAudioInputTranscriptionConfig
+      | OpenAiAudioInputTranscriptionConfig;
+  },
+) {
   const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
     params;
   const base64 = await FileSystem.readAsStringAsync(fileUri, {
@@ -191,12 +218,12 @@ export async function transcribeWithOpenAiAudioInputProvider(
 
   try {
     response = await fetchWithTimeout(
-      config.endpoint,
+      params.endpoint,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+          ...params.headers,
         },
         body: JSON.stringify({
           model: providerModel || config.defaultModel,
@@ -243,6 +270,25 @@ export async function transcribeWithOpenAiAudioInputProvider(
   const data = await response.json();
   const text = extractTextFromOpenAiAudioInputResponse(data);
   return text ? text : null;
+}
+
+export async function transcribeWithAzureOpenAiAudioInputProvider(
+  params: SharedProviderParams & {
+    config: AzureOpenAiAudioInputTranscriptionConfig;
+  },
+) {
+  const credentials = requireAzureOpenAiCredentials(
+    params.apiKey,
+    params.language,
+  );
+
+  return transcribeWithOpenAiStyleAudioInputProvider({
+    ...params,
+    endpoint: buildAzureOpenAiChatCompletionsEndpoint(credentials.endpoint),
+    headers: {
+      "api-key": credentials.apiKey,
+    },
+  });
 }
 
 export async function transcribeWithReplicateProvider(
