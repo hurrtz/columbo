@@ -519,6 +519,8 @@ export const en: TranslationDictionary = {
       "Web search was unavailable, so the reply continued without live web context.",
     noBase64EncoderAvailable: "No base64 encoder available.",
     noBase64DecoderAvailable: "No base64 decoder available.",
+    azureSpeechApiKeyFormat:
+      "Microsoft Azure needs credentials in the format <key>|<region>, for example abc123|westeurope.",
     nativeTtsDoesNotSynthesizeAudioFiles:
       "Native TTS does not synthesize audio files.",
     localTtsUnavailableForLanguage: ({ languageLabel }) =>

@@ -112,6 +112,9 @@ describe("speech provider constants", () => {
         (option) => option.id === "gpt-4o-mini-tts",
       )?.name,
     ).toBe("GPT-4o mini TTS");
+    expect(getProviderTtsModelOptions("microsoft-azure")).toEqual([
+      { id: "azure-ai-speech-neural", name: "Azure AI Speech Neural" },
+    ]);
     expect(getProviderTtsModelOptions("alibaba-qwen-dashscope")).toEqual([
       { id: "qwen3-tts-flash", name: "Qwen3-TTS-Flash" },
       { id: "qwen3-tts-instruct-flash", name: "Qwen3-TTS-Instruct-Flash" },

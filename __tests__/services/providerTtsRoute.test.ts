@@ -95,6 +95,35 @@ describe("synthesizeProviderSpeech", () => {
     });
   });
 
+  it("uses Azure Speech SSML with the configured region and subscription key", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(["fake-audio"])),
+    });
+
+    const result = await synthesizeProviderSpeech({
+      text: "Hello & goodbye",
+      voice: "de-DE-SeraphinaMultilingualNeural",
+      provider: "microsoft-azure",
+      apiKey: "azure-test-key|westeurope",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://westeurope.tts.speech.microsoft.com/cognitiveservices/v1",
+    );
+    expect(options.headers["Ocp-Apim-Subscription-Key"]).toBe("azure-test-key");
+    expect(options.headers["X-Microsoft-OutputFormat"]).toBe(
+      "audio-24khz-48kbitrate-mono-mp3",
+    );
+    expect(options.headers["User-Agent"]).toBe("SchnackAI");
+    expect(options.headers["Content-Type"]).toBe("application/ssml+xml");
+    expect(options.body).toContain("de-DE-SeraphinaMultilingualNeural");
+    expect(options.body).toContain("Hello &amp; goodbye");
+  });
+
 
   it("uses Deepgram native speak and sends the selected voice model", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({

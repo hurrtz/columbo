@@ -59,6 +59,12 @@ type BinaryTtsConfig = {
   voiceFallback: string;
 };
 
+type AzureSpeechTtsConfig = {
+  kind: "azure-speech";
+  defaultModel: string;
+  voiceFallback: string;
+};
+
 type BaiduTtsConfig = {
   kind: "baidu";
   endpoint: string;
@@ -136,6 +142,7 @@ type ElevenLabsTtsConfig = {
 
 export type ProviderTtsConfig =
   | BinaryTtsConfig
+  | AzureSpeechTtsConfig
   | BaiduTtsConfig
   | GeminiTtsConfig
   | DashScopeTtsConfig
@@ -166,6 +173,21 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
         kind: "binary",
         endpoint: manifest.tts.endpoint,
         requestFormat: manifest.tts.requestFormat,
+        defaultModel: manifest.tts.defaultModel,
+        voiceFallback: manifest.tts.voiceFallback,
+      },
+    ]);
+  }
+
+  if (
+    manifest.tts.transport === "azure-speech" &&
+    manifest.tts.defaultModel &&
+    manifest.tts.voiceFallback
+  ) {
+    ttsProviderConfigEntries.push([
+      provider,
+      {
+        kind: "azure-speech",
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,
       },

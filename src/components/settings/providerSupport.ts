@@ -11,6 +11,7 @@ import {
 } from "../../constants/webSearch";
 import type { Provider, Settings } from "../../types";
 import { getProviderValidationModel } from "../../utils/responseModes";
+import { parseAzureSpeechCredentials } from "../../services/tts/azure";
 
 import type { ProviderHealthState, ProviderValidationState } from "./types";
 
@@ -24,6 +25,10 @@ export const PROVIDER_CAPABILITY_ORDER: ProviderCapability[] = [
 ];
 
 function hasApiKey(settings: Settings, provider: Provider) {
+  if (provider === "microsoft-azure") {
+    return parseAzureSpeechCredentials(settings.apiKeys[provider]) !== null;
+  }
+
   return settings.apiKeys[provider].trim().length > 0;
 }
 

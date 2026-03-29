@@ -1,10 +1,25 @@
 import type { TtsVoiceOption } from "../../constants/providers/types";
 import type { Provider } from "../../types";
+import {
+  buildAzureSpeechVoicesEndpoint,
+  parseAzureSpeechCredentials,
+} from "./azure";
 
 const ELEVENLABS_VOICES_ENDPOINT = "https://api.elevenlabs.io/v1/voices";
 const ELEVENLABS_VOICE_FETCH_TIMEOUT_MS = 15000;
+const AZURE_SPEECH_VOICE_FETCH_TIMEOUT_MS = 15000;
+const AZURE_SPEECH_VOICE_PRIORITY = [
+  "en-US-JennyMultilingualNeural",
+  "de-DE-SeraphinaMultilingualNeural",
+  "de-DE-FlorianMultilingualNeural",
+  "en-US-JennyNeural",
+  "de-DE-KatjaNeural",
+];
 
-const dynamicVoiceCatalogProviders = new Set<Provider>(["elevenlabs"]);
+const dynamicVoiceCatalogProviders = new Set<Provider>([
+  "elevenlabs",
+  "microsoft-azure",
+]);
 const listeners = new Set<() => void>();
 const voiceCatalogCache: Partial<Record<Provider, TtsVoiceOption[]>> = {};
 const voiceCatalogCacheKeys: Partial<Record<Provider, string>> = {};
@@ -16,7 +31,7 @@ function notifyListeners() {
   });
 }
 
-function getVoiceLabel(voice: any) {
+function getElevenLabsVoiceLabel(voice: any) {
   const name =
     typeof voice?.name === "string" && voice.name.trim()
       ? voice.name.trim()
@@ -54,7 +69,7 @@ function normalizeElevenLabsVoiceOptions(data: any): TtsVoiceOption[] {
         typeof entry?.voice_id === "string" && entry.voice_id.trim()
           ? entry.voice_id.trim()
           : "";
-      const label = getVoiceLabel(entry);
+      const label = getElevenLabsVoiceLabel(entry);
 
       if (!id || !label) {
         return null;
@@ -68,10 +83,111 @@ function normalizeElevenLabsVoiceOptions(data: any): TtsVoiceOption[] {
     );
 }
 
+function supportsEnglishOrGermanLocale(locale: string) {
+  return locale.startsWith("en-") || locale.startsWith("de-");
+}
+
+function normalizeAzureSpeechVoiceOptions(data: any): TtsVoiceOption[] {
+  const voices: unknown[] = Array.isArray(data) ? data : [];
+
+  return voices
+    .map((voice: unknown) => {
+      const entry = typeof voice === "object" && voice !== null ? (voice as any) : null;
+      const id =
+        typeof entry?.ShortName === "string" && entry.ShortName.trim()
+          ? entry.ShortName.trim()
+          : "";
+      const displayName =
+        typeof entry?.DisplayName === "string" && entry.DisplayName.trim()
+          ? entry.DisplayName.trim()
+          : typeof entry?.LocalName === "string" && entry.LocalName.trim()
+            ? entry.LocalName.trim()
+            : id;
+      const locale =
+        typeof entry?.Locale === "string" && entry.Locale.trim()
+          ? entry.Locale.trim()
+          : "";
+      const localeName =
+        typeof entry?.LocaleName === "string" && entry.LocaleName.trim()
+          ? entry.LocaleName.trim()
+          : locale;
+      const gender =
+        typeof entry?.Gender === "string" && entry.Gender.trim()
+          ? entry.Gender.trim()
+          : "";
+      const voiceType =
+        typeof entry?.VoiceType === "string" && entry.VoiceType.trim()
+          ? entry.VoiceType.trim()
+          : "";
+      const status =
+        typeof entry?.Status === "string" && entry.Status.trim()
+          ? entry.Status.trim()
+          : "";
+      const secondaryLocales = Array.isArray(entry?.SecondaryLocaleList)
+        ? entry.SecondaryLocaleList.filter(
+            (value: unknown): value is string =>
+              typeof value === "string" && value.trim().length > 0,
+          ).map((value: string) => value.trim())
+        : [];
+      const isMultilingual =
+        id.includes("Multilingual") ||
+        secondaryLocales.some((candidate: string) =>
+          supportsEnglishOrGermanLocale(candidate),
+        );
+      const supportsTargetLanguage =
+        supportsEnglishOrGermanLocale(locale) ||
+        secondaryLocales.some((candidate: string) =>
+          supportsEnglishOrGermanLocale(candidate),
+        );
+
+      if (
+        !id ||
+        !displayName ||
+        voiceType !== "Neural" ||
+        !supportsTargetLanguage
+      ) {
+        return null;
+      }
+
+      const qualifiers = [localeName, gender];
+
+      if (isMultilingual) {
+        qualifiers.push("Multilingual");
+      }
+
+      if (status && status !== "GA") {
+        qualifiers.push(status);
+      }
+
+      return {
+        id,
+        label: `${displayName} · ${qualifiers.filter(Boolean).join(" · ")}`,
+      };
+    })
+    .filter((voice: TtsVoiceOption | null): voice is TtsVoiceOption => voice !== null)
+    .sort((left, right) => {
+      const leftPriority = AZURE_SPEECH_VOICE_PRIORITY.indexOf(left.id);
+      const rightPriority = AZURE_SPEECH_VOICE_PRIORITY.indexOf(right.id);
+
+      if (leftPriority !== -1 || rightPriority !== -1) {
+        if (leftPriority === -1) {
+          return 1;
+        }
+        if (rightPriority === -1) {
+          return -1;
+        }
+        return leftPriority - rightPriority;
+      }
+
+      return left.label.localeCompare(right.label);
+    });
+}
+
 async function fetchJsonWithTimeout(
   input: RequestInfo | URL,
   init: RequestInit,
   timeoutMs: number,
+  timeoutMessage: string,
   abortSignal?: AbortSignal,
 ) {
   const controller = new AbortController();
@@ -109,7 +225,7 @@ async function fetchJsonWithTimeout(
         throw abortError;
       }
 
-      throw new Error("ElevenLabs voice catalog request timed out.");
+      throw new Error(timeoutMessage);
     }
 
     throw error;
@@ -134,6 +250,7 @@ async function fetchElevenLabsVoiceOptions(params: {
       },
     },
     ELEVENLABS_VOICE_FETCH_TIMEOUT_MS,
+    "ElevenLabs voice catalog request timed out.",
     params.abortSignal,
   );
 
@@ -145,6 +262,39 @@ async function fetchElevenLabsVoiceOptions(params: {
   }
 
   return normalizeElevenLabsVoiceOptions(await response.json());
+}
+
+async function fetchAzureSpeechVoiceOptions(params: {
+  apiKey: string;
+  abortSignal?: AbortSignal;
+}) {
+  const credentials = parseAzureSpeechCredentials(params.apiKey);
+
+  if (!credentials) {
+    return [];
+  }
+
+  const response = await fetchJsonWithTimeout(
+    buildAzureSpeechVoicesEndpoint(credentials.region),
+    {
+      method: "GET",
+      headers: {
+        "Ocp-Apim-Subscription-Key": credentials.subscriptionKey,
+      },
+    },
+    AZURE_SPEECH_VOICE_FETCH_TIMEOUT_MS,
+    "Azure Speech voice catalog request timed out.",
+    params.abortSignal,
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Azure Speech voice catalog request failed (${response.status}): ${errorText || "Unknown error."}`,
+    );
+  }
+
+  return normalizeAzureSpeechVoiceOptions(await response.json());
 }
 
 export function providerHasDynamicTtsVoiceCatalog(provider?: Provider | null) {
@@ -211,10 +361,18 @@ export async function fetchDynamicProviderTtsVoiceOptions(params: {
   }
 
   const promise = (async () => {
-    const voices = await fetchElevenLabsVoiceOptions({
-      apiKey: trimmedApiKey,
-      abortSignal,
-    });
+    const voices =
+      provider === "elevenlabs"
+        ? await fetchElevenLabsVoiceOptions({
+            apiKey: trimmedApiKey,
+            abortSignal,
+          })
+        : provider === "microsoft-azure"
+          ? await fetchAzureSpeechVoiceOptions({
+              apiKey: trimmedApiKey,
+              abortSignal,
+            })
+          : [];
 
     voiceCatalogCache[provider] = voices;
     voiceCatalogCacheKeys[provider] = trimmedApiKey;

@@ -22,15 +22,19 @@ describe("app provider catalog bridge", () => {
     expect(PROVIDER_CATALOG_IDS).toEqual({
       "01-ai-yi": "01-ai-yi",
       openai: "openai",
+      "microsoft-azure": "microsoft-azure",
       anthropic: "anthropic",
       assemblyai: "assemblyai",
       "ai21-labs": "ai21-labs",
       "alibaba-qwen-dashscope": "alibaba-qwen-dashscope",
       baichuan: "baichuan",
       "baidu-ernie-qianfan": "baidu-ernie-qianfan",
+      brave: "brave",
       "bytedance-doubao-seed": "bytedance-doubao-seed",
       deepgram: "deepgram",
       elevenlabs: "elevenlabs",
+      exa: "exa",
+      firecrawl: "firecrawl",
       "fish-audio": "fish-audio",
       gemini: "google-vertex-ai-studio",
       cerebras: "cerebras",
@@ -49,8 +53,10 @@ describe("app provider catalog bridge", () => {
       perplexity: "perplexity",
       replicate: "replicate",
       sambanova: "sambanova",
+      serpapi: "serpapi",
       siliconflow: "siliconflow",
       stepfun: "stepfun",
+      tavily: "tavily",
       together: "together-ai",
       xai: "xai",
       "xiaomi-mimo": "xiaomi-mimo",
@@ -63,6 +69,9 @@ describe("app provider catalog bridge", () => {
     );
     expect(getAppProviderForCatalogProviderId("01-ai-yi")).toBe("01-ai-yi");
     expect(getAppProviderForCatalogProviderId("openai")).toBe("openai");
+    expect(getAppProviderForCatalogProviderId("microsoft-azure")).toBe(
+      "microsoft-azure",
+    );
     expect(getAppProviderForCatalogProviderId("assemblyai")).toBe("assemblyai");
     expect(getAppProviderForCatalogProviderId("baidu-ernie-qianfan")).toBe(
       "baidu-ernie-qianfan",

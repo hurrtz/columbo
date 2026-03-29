@@ -78,6 +78,76 @@ describe("tts voice catalog", () => {
     expect(getDynamicProviderTtsVoiceOptions("openai")).toEqual([]);
   });
 
+  it("fetches Azure Speech voices for the configured region", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve([
+          {
+            ShortName: "de-DE-SeraphinaMultilingualNeural",
+            DisplayName: "Seraphina Multilingual",
+            Gender: "Female",
+            Locale: "de-DE",
+            LocaleName: "German (Germany)",
+            VoiceType: "Neural",
+            Status: "GA",
+            SecondaryLocaleList: ["en-US", "en-GB"],
+          },
+          {
+            ShortName: "en-US-JennyNeural",
+            DisplayName: "Jenny",
+            Gender: "Female",
+            Locale: "en-US",
+            LocaleName: "English (United States)",
+            VoiceType: "Neural",
+            Status: "GA",
+          },
+          {
+            ShortName: "fr-FR-DeniseNeural",
+            DisplayName: "Denise",
+            Gender: "Female",
+            Locale: "fr-FR",
+            LocaleName: "French (France)",
+            VoiceType: "Neural",
+            Status: "GA",
+          },
+        ]),
+    });
+
+    const voices = await fetchDynamicProviderTtsVoiceOptions({
+      provider: "microsoft-azure",
+      apiKey: "azure-test|westeurope",
+    });
+
+    expect(fetch).toHaveBeenCalledWith(
+      "https://westeurope.tts.speech.microsoft.com/cognitiveservices/voices/list",
+      expect.objectContaining({
+        headers: {
+          "Ocp-Apim-Subscription-Key": "azure-test",
+        },
+        method: "GET",
+      }),
+    );
+    expect(voices).toEqual([
+      {
+        id: "de-DE-SeraphinaMultilingualNeural",
+        label: "Seraphina Multilingual · German (Germany) · Female · Multilingual",
+      },
+      {
+        id: "en-US-JennyNeural",
+        label: "Jenny · English (United States) · Female",
+      },
+    ]);
+    expect(getProviderTtsVoiceOptions("microsoft-azure", "en")).toEqual(voices);
+    expect(
+      getTtsVoiceLabel(
+        "microsoft-azure",
+        "de-DE-SeraphinaMultilingualNeural",
+        "en",
+      ),
+    ).toBe("Seraphina Multilingual · German (Germany) · Female · Multilingual");
+  });
+
   it("refreshes the ElevenLabs catalog when the API key changes", async () => {
     (fetch as jest.Mock)
       .mockResolvedValueOnce({

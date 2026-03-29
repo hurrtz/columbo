@@ -531,6 +531,8 @@ export const de: TranslationDictionary = {
       "Die Websuche war nicht verfügbar. Die Antwort lief ohne frischen Web-Kontext weiter.",
     noBase64EncoderAvailable: "Kein Base64-Encoder verfügbar.",
     noBase64DecoderAvailable: "Kein Base64-Decoder verfügbar.",
+    azureSpeechApiKeyFormat:
+      "Microsoft Azure benötigt Zugangsdaten im Format <Schlüssel>|<Region>, zum Beispiel abc123|westeurope.",
     nativeTtsDoesNotSynthesizeAudioFiles:
       "Native TTS erzeugt keine Audiodateien.",
     localTtsUnavailableForLanguage: ({ languageLabel }) =>

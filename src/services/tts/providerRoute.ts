@@ -25,6 +25,13 @@ import {
   writeBase64AudioFile,
   writeBlobAudioFile,
 } from "./shared";
+import {
+  AZURE_SPEECH_OUTPUT_FORMAT,
+  AZURE_SPEECH_USER_AGENT,
+  buildAzureSpeechSsml,
+  buildAzureSpeechSynthesisEndpoint,
+  requireAzureSpeechCredentials,
+} from "./azure";
 
 const GEMINI_TTS_RETRY_DELAYS_MS = [400, 1200];
 const NOVITA_ASYNC_TTS_POLL_INTERVAL_MS = 1000;
@@ -524,6 +531,41 @@ export async function synthesizeProviderSpeech(params: {
     providerModel,
     config,
   });
+
+  if (config.kind === "azure-speech") {
+    const credentials = requireAzureSpeechCredentials(apiKey, language);
+    const response = await fetchWithTimeout(
+      buildAzureSpeechSynthesisEndpoint(credentials.region),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/ssml+xml",
+          "Ocp-Apim-Subscription-Key": credentials.subscriptionKey,
+          "X-Microsoft-OutputFormat": AZURE_SPEECH_OUTPUT_FORMAT,
+          "User-Agent": AZURE_SPEECH_USER_AGENT,
+        },
+        body: buildAzureSpeechSsml({
+          text,
+          voice: selectedVoice,
+        }),
+      },
+      timeoutMs,
+      () => createTtsTimeoutError({ provider, language }),
+      abortSignal,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw buildTtsRequestError({
+        provider,
+        status: response.status,
+        errorText,
+        language,
+      });
+    }
+
+    return writeBlobAudioFile(await response.blob(), "mp3");
+  }
 
   if (config.kind === "gemini") {
     for (let attempt = 0; attempt <= GEMINI_TTS_RETRY_DELAYS_MS.length; attempt += 1) {

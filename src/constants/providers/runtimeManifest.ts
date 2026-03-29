@@ -4,6 +4,7 @@ import { PROVIDER_DOCUMENTS } from "../../../data/providers";
 export type RuntimeAppProviderId =
   | "01-ai-yi"
   | "openai"
+  | "microsoft-azure"
   | "anthropic"
   | "assemblyai"
   | "ai21-labs"
@@ -71,6 +72,7 @@ export type RuntimeSttTransport =
 export type RuntimeTtsTransport =
   | "none"
   | "binary"
+  | "azure-speech"
   | "baidu"
   | "gemini"
   | "dashscope"
@@ -266,6 +268,7 @@ function catalogModelSpecs(
 export const RUNTIME_PROVIDER_ORDER = [
   "01-ai-yi",
   "openai",
+  "microsoft-azure",
   "anthropic",
   "assemblyai",
   "ai21-labs",
@@ -402,6 +405,48 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       ],
       languageNote:
         "OpenAI currently exposes gpt-4o-mini-tts, tts-1, and tts-1-hd. OpenAI does not publish a compact well-supported language list for TTS in the same way it does for STT, and notes that the voices are optimized for English.",
+    },
+  },
+  "microsoft-azure": {
+    appProvider: "microsoft-azure",
+    catalogProviderId: "microsoft-azure",
+    label: "Microsoft Azure",
+    shortLabel: "AZURE",
+    apiKeyPlaceholder: "SpeechKey|westeurope",
+    apiKeyHint:
+      "Unlocks Azure AI Speech text-to-speech. Enter the Speech resource key and region as <key>|<region>, for example abc123|westeurope.",
+    apiKeyUrl: "https://portal.azure.com/",
+    llm: {
+      support: "none",
+      transport: "none",
+      models: [],
+      defaultModel: "",
+    },
+    stt: {
+      support: "none",
+      transport: "none",
+      models: [],
+      defaultModel: "",
+    },
+    tts: {
+      support: "provider",
+      transport: "azure-speech",
+      defaultModel: "azure-ai-speech-neural",
+      defaultVoice: "en-US-JennyMultilingualNeural",
+      voiceFallback: "en-US-JennyMultilingualNeural",
+      models: [
+        namedModel("azure-ai-speech-neural", "Azure AI Speech Neural"),
+      ],
+      voiceOptions: [
+        voice("en-US-JennyMultilingualNeural", "Jenny Multilingual"),
+        voice("en-US-JennyNeural", "Jenny"),
+        voice("en-US-EmmaMultilingualNeural", "Emma Multilingual"),
+        voice("de-DE-SeraphinaMultilingualNeural", "Seraphina Multilingual"),
+        voice("de-DE-FlorianMultilingualNeural", "Florian Multilingual"),
+        voice("de-DE-KatjaNeural", "Katja"),
+      ],
+      languageNote:
+        "Azure AI Speech exposes a large regional neural voice catalog. Configure the provider key as <key>|<region>; the app live-loads English and German voices for that Azure Speech region.",
     },
   },
   anthropic: {
