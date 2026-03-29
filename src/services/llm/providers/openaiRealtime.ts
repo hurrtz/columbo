@@ -6,7 +6,7 @@ import { AppLanguage, Provider } from "../../../types";
 
 import { ChatMessage, requireProviderKey } from "../shared";
 
-function buildOpenAiRealtimeUrl(model: string) {
+export function buildOpenAiRealtimeUrl(model: string) {
   return `wss://api.openai.com/v1/realtime?model=${encodeURIComponent(model)}`;
 }
 
@@ -46,7 +46,7 @@ function extractRealtimeDelta(payload: any) {
   return "";
 }
 
-async function requestRealtimeChatViaWebSocket(params: {
+export async function requestRealtimeChatViaWebSocket(params: {
   provider: Provider;
   model: string;
   language: AppLanguage;

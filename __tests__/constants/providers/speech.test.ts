@@ -92,7 +92,12 @@ describe("speech provider constants", () => {
     expect(getProviderSttModelOptions("novita-ai")).toEqual([
       { id: "glm-asr", name: "GLM Audio to Text" },
     ]);
-    expect(getProviderSttModelOptions("xai")).toEqual([]);
+    expect(getProviderSttModelOptions("xai")).toEqual([
+      {
+        id: "voice-agent-api",
+        name: "Voice Agent API (speech input inside realtime agent)",
+      },
+    ]);
     expect(getProviderSttModelOptions("hugging-face-inference-api")).toEqual([
       { id: "openai/whisper-large-v3", name: "Whisper large-v3" },
       {

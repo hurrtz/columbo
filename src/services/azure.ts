@@ -176,6 +176,16 @@ export function buildAzureOpenAiChatCompletionsEndpoint(baseEndpoint: string) {
   return `${normalizeAzureOpenAiEndpoint(baseEndpoint)}/chat/completions`;
 }
 
+export function buildAzureOpenAiRealtimeEndpoint(
+  baseEndpoint: string,
+  model: string,
+) {
+  const url = new URL(`${normalizeAzureOpenAiEndpoint(baseEndpoint)}/realtime`);
+  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+  url.searchParams.set("model", model);
+  return url.toString();
+}
+
 export function buildAzureSpeechSynthesisEndpoint(region: string) {
   return `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`;
 }

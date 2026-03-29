@@ -27,6 +27,7 @@ import {
   transcribeWithAssemblyAiRealtimeProvider,
   transcribeWithElevenLabsRealtimeProvider,
   transcribeWithFireworksStreamingProvider,
+  transcribeWithXaiRealtimeProvider,
 } from "./whisper/realtimeProviders";
 
 function isRemoteAudioSource(fileUri: string) {
@@ -223,6 +224,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "elevenlabs-realtime") {
     return transcribeWithElevenLabsRealtimeProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
+    });
+  }
+
+  if (config.kind === "xai-realtime") {
+    return transcribeWithXaiRealtimeProvider({
       abortSignal,
       apiKey,
       config,

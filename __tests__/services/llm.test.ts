@@ -204,6 +204,47 @@ describe("streamChat", () => {
     });
   });
 
+  it("uses the Azure OpenAI realtime socket for Azure realtime models", async () => {
+    const chunks: string[] = [];
+    const promise = streamChat({
+      messages: mockMessages,
+      model: "gpt-realtime-1.5",
+      provider: "microsoft-azure",
+      apiKey: "https://example-resource.openai.azure.com|azure-openai-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    const socket = MockWebSocket.instances[0];
+    expect(socket.url).toBe(
+      "wss://example-resource.openai.azure.com/openai/v1/realtime?model=gpt-realtime-1.5",
+    );
+    expect(socket.options.headers["api-key"]).toBe("azure-openai-key");
+    expect(socket.options.headers.Authorization).toBeUndefined();
+    expect(socket.options.headers["OpenAI-Beta"]).toBeUndefined();
+
+    socket.emitOpen();
+    expect(JSON.parse(socket.sent[0])).toMatchObject({
+      type: "conversation.item.create",
+    });
+    expect(JSON.parse(socket.sent[1])).toMatchObject({
+      type: "response.create",
+      response: { modalities: ["text"] },
+    });
+
+    socket.emitMessage({ type: "response.text.delta", delta: "Hi" });
+    socket.emitMessage({ type: "response.done" });
+
+    await promise;
+    expect(chunks).toEqual(["Hi"]);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
 
   it("uses the OpenAI realtime socket for realtime models", async () => {
     const chunks: string[] = [];

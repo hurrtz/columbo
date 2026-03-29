@@ -93,6 +93,12 @@ export type ElevenLabsRealtimeTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type XaiRealtimeTranscriptionConfig = {
+  kind: "xai-realtime";
+  endpoint: string;
+  defaultModel: string;
+};
+
 export type ReplicateTranscriptionConfig = {
   kind: "replicate";
   defaultModel: string;
@@ -114,7 +120,8 @@ export type ProviderSttConfig =
   | NovitaJsonTranscriptionConfig
   | ReplicateTranscriptionConfig
   | ElevenLabsTranscriptionConfig
-  | ElevenLabsRealtimeTranscriptionConfig;
+  | ElevenLabsRealtimeTranscriptionConfig
+  | XaiRealtimeTranscriptionConfig;
 
 export const STT_TIMEOUT_MS = 60000;
 export const OPENAI_STT_TIMEOUT_MS = 45000;
@@ -267,6 +274,14 @@ function buildConfigForTransport(params: {
         kind: "replicate",
         defaultModel: params.defaultModel,
       };
+    case "xai-realtime":
+      return params.endpoint
+        ? {
+            kind: "xai-realtime",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+          }
+        : null;
     default:
       return null;
   }

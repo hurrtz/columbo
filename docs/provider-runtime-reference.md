@@ -35,8 +35,8 @@ There is no open implementation backlog in this document.
 
 The current settled state is:
 
-- `29 providers` are fully enabled for their in-app AI/speech scope. `26` of those use the curated picker policy and `3` are effectively static.
-- `7 providers` are intentionally scope-limited relative to their broader official platform catalogs. Those deltas are documented below, but they are not pending work.
+- `30 providers` are fully enabled for their in-app AI/speech scope. `27` of those use the curated picker policy and `3` are effectively static.
+- `6 providers` are intentionally scope-limited relative to their broader official platform catalogs. Those deltas are documented below, but they are not pending work.
 - `5 providers` are intentionally search-only.
 
 ## Summary Matrix
@@ -45,7 +45,7 @@ The current settled state is:
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `01-ai-yi` | none | enabled | none | none | Fully enabled under curated picker policy | none | curated snapshot |
 | `openai` | enabled (gpt-4.1-mini) | enabled | enabled | enabled | Fully enabled under curated picker policy | none | curated snapshot |
-| `microsoft-azure` | none | enabled | enabled | enabled | Fully enabled under curated picker policy | Azure OpenAI realtime llm variants stay out of runtime scope | curated snapshot + live voices |
+| `microsoft-azure` | none | enabled | enabled | enabled | Fully enabled under curated picker policy | none | curated snapshot + live voices |
 | `anthropic` | none | enabled | none | none | Fully enabled under curated picker policy | none | curated snapshot |
 | `assemblyai` | none | enabled | enabled | none | Fully enabled under curated picker policy | none | curated snapshot |
 | `ai21-labs` | none | enabled | none | none | Fully enabled under curated picker policy | none | curated snapshot |
@@ -62,7 +62,7 @@ The current settled state is:
 | `gemini` | none | enabled | none | enabled | Intentionally scoped | Google Cloud STT stays out of the Gemini runtime scope | scoped runtime |
 | `cerebras` | none | enabled | none | none | Fully enabled under curated picker policy | none | curated snapshot |
 | `deepinfra` | none | enabled | enabled | enabled | Fully enabled under curated picker policy | none | curated snapshot |
-| `xai` | none | enabled | none | enabled | Intentionally scoped | Voice Agent audio input stays out of standalone STT scope | scoped runtime + curated voices |
+| `xai` | none | enabled | enabled | enabled | Fully enabled under curated picker policy | none | curated snapshot + curated voices |
 | `xiaomi-mimo` | none | enabled | none | enabled | Intentionally scoped | Standalone MiMo STT stays out of runtime scope | scoped runtime |
 | `groq` | none | enabled | enabled | enabled | Fully enabled under curated picker policy | none | curated snapshot |
 | `deepseek` | none | enabled | none | none | Fully enabled under curated picker policy | none | curated snapshot |
@@ -126,19 +126,18 @@ The current settled state is:
 - Catalog provider id: `microsoft-azure`
 - Overall status: Fully enabled under curated picker policy
 - Search: not exposed
-- LLM: support `provider`, transport `azure-openai`, models: `GPT-4.1` (`gpt-4.1`), `GPT-4.1 mini` (`gpt-4.1-mini`), `GPT-4.1 nano` (`gpt-4.1-nano`), `GPT-4o` (`gpt-4o`), `GPT-4o mini` (`gpt-4o-mini`)
+- LLM: support `provider`, transport `azure-openai` plus `azure-openai-realtime`, models: `GPT-4.1` (`gpt-4.1`), `GPT-4.1 mini` (`gpt-4.1-mini`), `GPT-4.1 nano` (`gpt-4.1-nano`), `GPT-4o` (`gpt-4o`), `GPT-4o mini` (`gpt-4o-mini`), `GPT-Realtime` (`gpt-realtime`), `GPT-Realtime mini` (`gpt-realtime-mini`), `GPT-Realtime 1.5` (`gpt-realtime-1.5`)
 - STT: support `provider`, transport `azure-openai-audio-input`, models: `GPT-4o Transcribe` (`gpt-4o-transcribe`), `GPT-4o mini Transcribe` (`gpt-4o-mini-transcribe`), `GPT-4o Transcribe Diarize` (`gpt-4o-transcribe-diarize`), `Whisper` (`whisper`)
 - TTS: support `provider`, transport `azure-speech`, models: `Azure AI Speech Neural` (`azure-ai-speech-neural`)
 - TTS voices: live-discovered, default voice `en-US-JennyMultilingualNeural`
-- Catalog delta: Azure OpenAI realtime llm variants stay out of runtime scope
-- Catalog-only LLM models: `GPT-Realtime` (`gpt-realtime`), `GPT-Realtime mini` (`gpt-realtime-mini`), `GPT-Realtime 1.5` (`gpt-realtime-1.5`)
+- Catalog delta: none
 - Picker policy: Runtime pickers intentionally use curated snapshot data from the bundled catalog; live model discovery is not part of the current scope.
 - Voice policy: TTS voice discovery is live in runtime.
 
 #### Resolution
 
 - No open implementation work remains under the current runtime policy.
-- Azure OpenAI realtime variants remain intentionally out of scope until the app adopts a matching Azure realtime transport.
+- Azure OpenAI realtime chat models now route through the Azure websocket transport while the text/chat models stay on Azure chat completions.
 - Azure speech credentials now validate through the TTS validation path in Settings.
 
 ### Anthropic (`anthropic`)
@@ -420,21 +419,20 @@ The current settled state is:
 ### xAI (`xai`)
 
 - Catalog provider id: `xai`
-- Overall status: Intentionally scoped
+- Overall status: Fully enabled under curated picker policy
 - Search: not exposed
 - LLM: support `provider`, transport `openai-compatible`, models: `Grok 4.20 Reasoning` (`grok-4.20-reasoning`), `Grok 4.20 Non-Reasoning` (`grok-4.20-non-reasoning`), `Grok 4.1 Fast Reasoning` (`grok-4-1-fast-reasoning`), `Grok 4.1 Fast Non-Reasoning` (`grok-4-1-fast-non-reasoning`), `Grok 4` (`grok-4-0709`), `Grok 4 Fast` (`grok-4-fast-reasoning`), `Grok 4.20 Multi-Agent` (`grok-4.20-multi-agent-0309`)
-- STT: support `none`, transport `none`, models: none
+- STT: support `provider`, transport `xai-realtime`, models: `Voice Agent API (speech input inside realtime agent)` (`voice-agent-api`)
 - TTS: support `provider`, transport `binary`, models: `Text to Speech API` (`text-to-speech`)
 - TTS voices: static runtime list, default voice `ara`. Voices: `Eve · Energetic` (`eve`), `Ara · Warm` (`ara`), `Rex · Confident` (`rex`), `Sal · Balanced` (`sal`), `Leo · Authoritative` (`leo`)
-- Catalog delta: Voice Agent audio input stays out of standalone STT scope
-- Catalog-only STT models: `Voice Agent API (speech input inside realtime agent)` (`voice-agent-api`)
+- Catalog delta: none
 - Picker policy: Runtime pickers intentionally use curated snapshot data from the bundled catalog; live model discovery is not part of the current scope.
 - Voice policy: TTS voice list is an intentional curated runtime subset (5 baked-in voices).
 
 #### Resolution
 
 - No open implementation work remains under the current runtime policy.
-- SchnackAI intentionally scopes xAI to llm and TTS; Voice Agent audio input is not exposed as standalone STT.
+- xAI speech input now routes through the Voice Agent realtime WebSocket and finishes on the completed input-audio transcription event.
 
 ### Xiaomi MiMo (`xiaomi-mimo`)
 

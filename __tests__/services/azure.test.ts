@@ -1,4 +1,5 @@
 import {
+  buildAzureOpenAiRealtimeEndpoint,
   normalizeAzureOpenAiEndpoint,
   parseAzureOpenAiCredentials,
   parseAzureProviderCredentials,
@@ -55,5 +56,16 @@ describe("Azure credential helpers", () => {
         region: "westeurope",
       },
     });
+  });
+
+  it("builds the Azure OpenAI realtime websocket endpoint from the normalized base", () => {
+    expect(
+      buildAzureOpenAiRealtimeEndpoint(
+        "https://example-resource.openai.azure.com/openai/v1/chat/completions",
+        "gpt-realtime-1.5",
+      ),
+    ).toBe(
+      "wss://example-resource.openai.azure.com/openai/v1/realtime?model=gpt-realtime-1.5",
+    );
   });
 });

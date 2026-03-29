@@ -224,6 +224,50 @@ describe("transcribeAudio", () => {
     });
   });
 
+  it("uses the xAI realtime socket for voice-agent STT", async () => {
+    const promise = transcribeAudio({
+      fileUri: "/tmp/recording.wav",
+      mode: "provider",
+      provider: "xai",
+      providerModel: "voice-agent-api",
+      apiKey: "xai-test",
+      language: "en",
+    });
+
+    const socket = await waitForMockSocket();
+    expect(socket.url).toBe("wss://api.x.ai/v1/realtime");
+    expect(socket.options.headers.Authorization).toBe("Bearer xai-test");
+    expect(socket.options.headers["Content-Type"]).toBe("application/json");
+
+    socket.emitOpen();
+    expect(JSON.parse(socket.sent[0])).toMatchObject({
+      type: "session.update",
+      session: {
+        turn_detection: { type: null },
+        audio: {
+          input: { format: { type: "audio/pcm", rate: 16000 } },
+          output: { format: { type: "audio/pcm", rate: 16000 } },
+        },
+      },
+    });
+
+    socket.emitMessage({ type: "session.updated" });
+    expect(JSON.parse(socket.sent[1])).toMatchObject({
+      type: "input_audio_buffer.append",
+      audio: expect.any(String),
+    });
+    expect(JSON.parse(socket.sent[2])).toEqual({
+      type: "input_audio_buffer.commit",
+    });
+
+    socket.emitMessage({
+      type: "conversation.item.input_audio_transcription.completed",
+      transcript: "Hello from xAI realtime",
+    });
+
+    await expect(promise).resolves.toBe("Hello from xAI realtime");
+  });
+
 
   it("uses the AssemblyAI upload and transcript flow for pre-recorded STT", async () => {
     (fetch as jest.Mock)

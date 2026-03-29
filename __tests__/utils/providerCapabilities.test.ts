@@ -27,6 +27,7 @@ describe("provider capability selectors", () => {
       "together",
     ]);
     expect(getEnabledSttProviders(settings)).toEqual([
+      "xai",
       "groq",
       "mistral",
       "together",

@@ -47,6 +47,7 @@ export type RuntimeAppProviderId =
 export type RuntimeLlmTransport =
   | "none"
   | "azure-openai"
+  | "azure-openai-realtime"
   | "openai-compatible"
   | "openai-realtime"
   | "gemini-live"
@@ -70,6 +71,7 @@ export type RuntimeSttTransport =
   | "huggingface-json"
   | "novita-json"
   | "elevenlabs"
+  | "xai-realtime"
   | "replicate";
 export type RuntimeTtsTransport =
   | "none"
@@ -422,12 +424,10 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     llm: {
       support: "provider",
       transport: "azure-openai",
+      realtimeTransport: "azure-openai-realtime",
       defaultModel: "gpt-4.1-mini",
-      models: catalogModelSpecs("microsoft-azure", "llm", [
-        "gpt-realtime",
-        "gpt-realtime-mini",
-        "gpt-realtime-1.5",
-      ]),
+      realtimeModelIds: ["gpt-realtime", "gpt-realtime-mini", "gpt-realtime-1.5"],
+      models: catalogModelSpecs("microsoft-azure", "llm"),
     },
     stt: {
       support: "provider",
@@ -435,7 +435,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "gpt-4o-mini-transcribe",
       models: catalogModelSpecs("microsoft-azure", "stt"),
       languageNote:
-        "Azure OpenAI STT is wired through the OpenAI-compatible audio-input chat flow for the curated GPT-4o transcribe and Whisper catalog models. The app currently treats Azure realtime speech rows as out of scope.",
+        "Azure OpenAI STT is wired through the OpenAI-compatible audio-input chat flow for the curated GPT-4o transcribe and Whisper catalog models. Azure realtime speech-chat rows are exposed on the LLM side rather than as standalone STT pickers.",
     },
     tts: {
       support: "provider",
@@ -1026,7 +1026,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     label: "xAI",
     shortLabel: "XAI",
     apiKeyPlaceholder: "xai-...",
-    apiKeyHint: "Unlocks Grok models from xAI.",
+    apiKeyHint: "Unlocks Grok models plus xAI voice APIs.",
     apiKeyUrl: "https://console.x.ai/team/default/api-keys",
     llm: {
       support: "provider",
@@ -1036,9 +1036,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("xai", "llm"),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "xai-realtime",
+      endpoint: "wss://api.x.ai/v1/realtime",
+      defaultModel: "voice-agent-api",
+      models: catalogModelSpecs("xai", "stt"),
+      languageNote:
+        "xAI speech input is wired through the Voice Agent realtime WebSocket. SchnackAI streams recorded audio as PCM 16 kHz input and consumes the completed transcription event without requesting an assistant response.",
     },
     tts: {
       support: "provider",
