@@ -7,6 +7,10 @@ import {
   requireAzureOpenAiCredentials,
 } from "../azure";
 import {
+  createBytedanceRequestId,
+  requireBytedanceSpeechCredentials,
+} from "../bytedance";
+import {
   getReplicateInputProperty,
   getReplicateModelMetadata,
   runReplicatePrediction,
@@ -17,6 +21,7 @@ import { getProviderSttTimeoutMs } from "./config";
 import type {
   AssemblyAiPreRecordedTranscriptionConfig,
   AzureOpenAiAudioInputTranscriptionConfig,
+  BytedanceBigmodelFlashTranscriptionConfig,
   DeepInfraInferenceTranscriptionConfig,
   BaiduShortSpeechTranscriptionConfig,
   DeepgramPreRecordedTranscriptionConfig,
@@ -289,6 +294,107 @@ export async function transcribeWithAzureOpenAiAudioInputProvider(
       "api-key": credentials.apiKey,
     },
   });
+}
+
+export async function transcribeWithBytedanceBigmodelFlashProvider(
+  params: SharedProviderParams & {
+    config: BytedanceBigmodelFlashTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const selectedModel = providerModel || config.defaultModel;
+  const credentials = requireBytedanceSpeechCredentials(apiKey, language);
+  const audioData = await FileSystem.readAsStringAsync(fileUri, {
+    encoding: "base64",
+  });
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      config.endpoint,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Api-App-Key": credentials.appKey,
+          "X-Api-Access-Key": credentials.accessKey,
+          "X-Api-Resource-Id": credentials.resourceId,
+          "X-Api-Request-Id": createBytedanceRequestId(),
+          "X-Api-Sequence": "-1",
+        },
+        body: JSON.stringify({
+          user: {
+            uid: credentials.appKey,
+          },
+          audio: {
+            data: audioData,
+          },
+          request: {
+            model_name: selectedModel,
+          },
+        }),
+      },
+      getProviderSttTimeoutMs(provider),
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  const responseText = await response.text();
+
+  if (!response.ok) {
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText: responseText,
+      action: "transcription",
+    });
+  }
+
+  const apiStatusCode = response.headers.get("X-Api-Status-Code");
+  const apiMessage = response.headers.get("X-Api-Message");
+
+  if (apiStatusCode && apiStatusCode !== "20000000") {
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: 400,
+      errorText: apiMessage || responseText || "Unknown ByteDance STT error.",
+      action: "transcription",
+    });
+  }
+
+  let data: any;
+
+  try {
+    data = responseText ? JSON.parse(responseText) : {};
+  } catch {
+    data = {};
+  }
+
+  const text =
+    typeof data?.result?.text === "string"
+      ? data.result.text.trim()
+      : Array.isArray(data?.result)
+        ? data.result
+            .map((entry: any) =>
+              typeof entry?.text === "string" ? entry.text : "",
+            )
+            .join(" ")
+            .trim()
+        : "";
+
+  return text ? text : null;
 }
 
 export async function transcribeWithReplicateProvider(

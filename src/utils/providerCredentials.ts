@@ -3,6 +3,10 @@ import {
   parseAzureOpenAiCredentials,
   parseAzureSpeechCredentials,
 } from "../services/azure";
+import {
+  parseBytedanceArkCredentials,
+  parseBytedanceSpeechCredentials,
+} from "../services/bytedance";
 
 export type ProviderCredentialCapability = "llm" | "stt" | "tts" | "search";
 
@@ -14,7 +18,14 @@ export function hasAnyProviderCredential(provider: Provider, apiKey: string) {
   }
 
   if (provider !== "microsoft-azure") {
-    return true;
+    if (provider !== "bytedance-doubao-seed") {
+      return true;
+    }
+
+    return (
+      parseBytedanceArkCredentials(trimmedApiKey) !== null ||
+      parseBytedanceSpeechCredentials(trimmedApiKey) !== null
+    );
   }
 
   return (
@@ -35,7 +46,19 @@ export function hasProviderCredentialForCapability(
   }
 
   if (provider !== "microsoft-azure") {
-    return true;
+    if (provider !== "bytedance-doubao-seed") {
+      return true;
+    }
+
+    switch (capability) {
+      case "llm":
+        return parseBytedanceArkCredentials(trimmedApiKey) !== null;
+      case "stt":
+        return parseBytedanceSpeechCredentials(trimmedApiKey) !== null;
+      case "tts":
+      case "search":
+        return false;
+    }
   }
 
   switch (capability) {

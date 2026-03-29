@@ -40,6 +40,12 @@ export type AssemblyAiRealtimeTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type BytedanceBigmodelFlashTranscriptionConfig = {
+  kind: "bytedance-bigmodel-flash";
+  endpoint: string;
+  defaultModel: string;
+};
+
 export type DeepgramPreRecordedTranscriptionConfig = {
   kind: "deepgram-pre-recorded";
   endpointBase: string;
@@ -111,6 +117,7 @@ export type ProviderSttConfig =
   | BaiduShortSpeechTranscriptionConfig
   | AssemblyAiPreRecordedTranscriptionConfig
   | AssemblyAiRealtimeTranscriptionConfig
+  | BytedanceBigmodelFlashTranscriptionConfig
   | DeepgramPreRecordedTranscriptionConfig
   | DeepInfraInferenceTranscriptionConfig
   | FireworksPreRecordedTranscriptionConfig
@@ -183,6 +190,14 @@ function buildConfigForTransport(params: {
       return params.endpoint
         ? {
             kind: "assemblyai-realtime",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "bytedance-bigmodel-flash":
+      return params.endpoint
+        ? {
+            kind: "bytedance-bigmodel-flash",
             endpoint: params.endpoint,
             defaultModel: params.defaultModel,
           }

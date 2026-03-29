@@ -224,6 +224,57 @@ describe("transcribeAudio", () => {
     });
   });
 
+  it("uses the ByteDance bigmodel flash route for Doubao Speech STT", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          result: {
+            text: "Hello from Doubao Speech",
+          },
+        }),
+      headers: {
+        get: (name: string) =>
+          name === "X-Api-Status-Code"
+            ? "20000000"
+            : name === "X-Api-Message"
+              ? "OK"
+              : null,
+      },
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "bytedance-doubao-seed",
+      providerModel: "bigmodel",
+      apiKey: "speech-app-key|speech-access-key",
+      language: "en",
+    });
+
+    expect(result).toBe("Hello from Doubao Speech");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://openspeech.bytedance.com/api/v3/auc/bigmodel/recognize/flash",
+    );
+    expect(options.headers["X-Api-App-Key"]).toBe("speech-app-key");
+    expect(options.headers["X-Api-Access-Key"]).toBe("speech-access-key");
+    expect(options.headers["X-Api-Resource-Id"]).toBe("volc.bigasr.auc_turbo");
+    expect(options.headers["X-Api-Sequence"]).toBe("-1");
+    expect(options.headers["X-Api-Request-Id"]).toEqual(expect.any(String));
+    expect(JSON.parse(options.body)).toMatchObject({
+      user: {
+        uid: "speech-app-key",
+      },
+      audio: {
+        data: "ZmFrZQ==",
+      },
+      request: {
+        model_name: "bigmodel",
+      },
+    });
+  });
+
   it("uses the xAI realtime socket for voice-agent STT", async () => {
     const promise = transcribeAudio({
       fileUri: "/tmp/recording.wav",

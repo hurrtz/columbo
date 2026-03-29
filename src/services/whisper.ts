@@ -11,6 +11,7 @@ import { waitForRecordedFileReady } from "./whisper/recordedFileReady";
 import {
   transcribeWithAssemblyAiPreRecordedProvider,
   transcribeWithBaiduShortSpeechProvider,
+  transcribeWithBytedanceBigmodelFlashProvider,
   transcribeWithDeepgramPreRecordedProvider,
   transcribeWithDeepInfraInferenceProvider,
   transcribeWithElevenLabsProvider,
@@ -183,6 +184,18 @@ export async function transcribeAudio(params: {
       language,
       provider,
       providerModel: selectedModel,
+    });
+  }
+
+  if (config.kind === "bytedance-bigmodel-flash") {
+    return transcribeWithBytedanceBigmodelFlashProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
     });
   }
 

@@ -59,6 +59,7 @@ export type RuntimeSttTransport =
   | "multipart"
   | "azure-openai-audio-input"
   | "assemblyai-realtime"
+  | "bytedance-bigmodel-flash"
   | "deepinfra-inference"
   | "openai-audio-input"
   | "baidu-short-speech"
@@ -194,6 +195,66 @@ function voice(
 ): RuntimeVoiceOption {
   return localizedLabels ? { id, label, localizedLabels } : { id, label };
 }
+
+const DEEPGRAM_TTS_VOICE_OPTIONS: RuntimeVoiceOption[] = [
+  voice("aura-2-thalia-en", "Aura 2 · Thalia"),
+  voice("aura-2-asteria-en", "Aura 2 · Asteria"),
+  voice("aura-2-apollo-en", "Aura 2 · Apollo"),
+  voice("aura-2-helena-en", "Aura 2 · Helena"),
+  voice("aura-2-viktoria-de", "Aura 2 · Viktoria"),
+  voice("aura-2-linnea-de", "Aura 2 · Linnea"),
+  voice("aura-2-sophia-de", "Aura 2 · Sophia"),
+  voice("aura-2-casper-de", "Aura 2 · Casper"),
+  voice("aura-2-julian-de", "Aura 2 · Julian"),
+  voice("aura-2-lukas-de", "Aura 2 · Lukas"),
+  voice("aura-2-julius-de", "Aura 2 · Julius"),
+  voice("aura-2-adele-fr", "Aura 2 · Adele"),
+  voice("aura-2-marcel-fr", "Aura 2 · Marcel"),
+  voice("aura-2-daan-nl", "Aura 2 · Daan"),
+  voice("aura-2-fenna-nl", "Aura 2 · Fenna"),
+  voice("aura-2-isa-nl", "Aura 2 · Isa"),
+  voice("aura-2-ruben-nl", "Aura 2 · Ruben"),
+  voice("aura-2-saar-nl", "Aura 2 · Saar"),
+  voice("aura-2-sem-nl", "Aura 2 · Sem"),
+  voice("aura-2-sophie-nl", "Aura 2 · Sophie"),
+  voice("aura-2-viggo-nl", "Aura 2 · Viggo"),
+  voice("aura-2-luna-es", "Aura 2 · Luna"),
+  voice("aura-2-seraphina-es", "Aura 2 · Seraphina"),
+  voice("aura-2-celeste-es", "Aura 2 · Celeste"),
+  voice("aura-2-estrella-es", "Aura 2 · Estrella"),
+  voice("aura-2-orfeo-es", "Aura 2 · Orfeo"),
+  voice("aura-2-selene-es", "Aura 2 · Selene"),
+  voice("aura-2-omara-es", "Aura 2 · Omara"),
+  voice("aura-2-bruno-es", "Aura 2 · Bruno"),
+  voice("aura-2-javier-es", "Aura 2 · Javier"),
+  voice("aura-2-jorge-es", "Aura 2 · Jorge"),
+  voice("aura-2-hector-es", "Aura 2 · Hector"),
+  voice("aura-2-raquel-es", "Aura 2 · Raquel"),
+  voice("aura-2-teresa-es", "Aura 2 · Teresa"),
+  voice("aura-2-tomas-es", "Aura 2 · Tomas"),
+  voice("aura-2-valeria-es", "Aura 2 · Valeria"),
+  voice("aura-2-alvaro-es", "Aura 2 · Alvaro"),
+  voice("aura-2-lucia-es", "Aura 2 · Lucia"),
+  voice("aura-2-stella-it", "Aura 2 · Stella"),
+  voice("aura-2-ginevra-it", "Aura 2 · Ginevra"),
+  voice("aura-2-luna-it", "Aura 2 · Luna"),
+  voice("aura-2-seneca-it", "Aura 2 · Seneca"),
+  voice("aura-2-orfeo-it", "Aura 2 · Orfeo"),
+  voice("aura-2-virgilio-it", "Aura 2 · Virgilio"),
+  voice("aura-2-beatrice-it", "Aura 2 · Beatrice"),
+  voice("aura-2-diana-it", "Aura 2 · Diana"),
+  voice("aura-2-marcello-it", "Aura 2 · Marcello"),
+  voice("aura-2-carlo-it", "Aura 2 · Carlo"),
+  voice("aura-2-himari-ja", "Aura 2 · Himari"),
+  voice("aura-2-keita-ja", "Aura 2 · Keita"),
+  voice("aura-2-aoi-ja", "Aura 2 · Aoi"),
+  voice("aura-2-naoki-ja", "Aura 2 · Naoki"),
+  voice("aura-2-yuki-ja", "Aura 2 · Yuki"),
+  voice("aura-asteria-en", "Aura 1 · Asteria"),
+  voice("aura-luna-en", "Aura 1 · Luna"),
+  voice("aura-orion-en", "Aura 1 · Orion"),
+  voice("aura-zeus-en", "Aura 1 · Zeus"),
+];
 
 function searchOnlyProviderEntry(params: {
   appProvider: RuntimeAppProviderId;
@@ -700,9 +761,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     catalogProviderId: "bytedance-doubao-seed",
     label: "ByteDance",
     shortLabel: "DOUBAO",
-    apiKeyPlaceholder: "Enter API key",
+    apiKeyPlaceholder: "Ark key or Ark|App|Access|Resource",
     apiKeyHint:
-      "Unlocks ByteDance / Doubao chat models through Volcengine Ark's OpenAI-compatible API.",
+      "Unlocks Volcengine Ark chat models and Doubao Speech STT. Supported formats: <ark-api-key> for chat, <app-key>|<access-key> or <app-key>|<access-key>|<resource-id> for speech, or <ark-api-key>|<app-key>|<access-key>|<resource-id> to use both.",
     apiKeyUrl: "https://www.volcengine.com/docs/82379/1298459",
     llm: {
       support: "provider",
@@ -712,9 +773,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: catalogModelSpecs("bytedance-doubao-seed", "llm"),
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "bytedance-bigmodel-flash",
+      endpoint: "https://openspeech.bytedance.com/api/v3/auc/bigmodel/recognize/flash",
+      defaultModel: "bigmodel",
+      models: catalogModelSpecs("bytedance-doubao-seed", "stt"),
+      languageNote:
+        "Doubao Speech STT is wired through the one-shot bigmodel flash recognition route. The app sends local recordings as base64 audio with the speech credential format <app-key>|<access-key> or the combined Ark plus speech format.",
     },
     tts: {
       support: "none",
@@ -755,18 +820,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultVoice: "aura-2-thalia-en",
       voiceFallback: "aura-2-thalia-en",
       models: catalogModelSpecs("deepgram", "tts"),
-      voiceOptions: [
-        voice("aura-2-thalia-en", "Aura 2 · Thalia"),
-        voice("aura-2-asteria-en", "Aura 2 · Asteria"),
-        voice("aura-2-apollo-en", "Aura 2 · Apollo"),
-        voice("aura-2-helena-en", "Aura 2 · Helena"),
-        voice("aura-asteria-en", "Aura 1 · Asteria"),
-        voice("aura-luna-en", "Aura 1 · Luna"),
-        voice("aura-orion-en", "Aura 1 · Orion"),
-        voice("aura-zeus-en", "Aura 1 · Zeus"),
-      ],
+      voiceOptions: DEEPGRAM_TTS_VOICE_OPTIONS,
       languageNote:
-        "Deepgram Aura voices are language- and voice-specific. Aura 2 currently documents English, Spanish, German, French, Dutch, Italian, and Japanese; Aura 1 is older and should be treated as a compatibility fallback.",
+        "Deepgram Aura voices are language- and voice-specific. The runtime now includes the documented German, Spanish, Dutch, French, Italian, and Japanese Aura 2 rows alongside the curated English Aura snapshot and Aura 1 compatibility voices.",
     },
   },
   elevenlabs: {

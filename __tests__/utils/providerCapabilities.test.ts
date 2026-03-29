@@ -82,4 +82,33 @@ describe("provider capability selectors", () => {
     expect(getEnabledSttProviders(settings)).toEqual(["microsoft-azure"]);
     expect(getEnabledTtsProviders(settings)).toEqual(["microsoft-azure"]);
   });
+
+  it("treats ByteDance speech-only credentials as STT-only readiness", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      apiKeys: {
+        ...DEFAULT_SETTINGS.apiKeys,
+        "bytedance-doubao-seed": "speech-app-key|speech-access-key",
+      },
+    };
+
+    expect(getEnabledProviders(settings)).toEqual([]);
+    expect(getEnabledSttProviders(settings)).toEqual(["bytedance-doubao-seed"]);
+    expect(getEnabledTtsProviders(settings)).toEqual([]);
+  });
+
+  it("treats combined ByteDance Ark and speech credentials as ready for llm and stt", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      apiKeys: {
+        ...DEFAULT_SETTINGS.apiKeys,
+        "bytedance-doubao-seed":
+          "ark-api-key|speech-app-key|speech-access-key|volc.bigasr.auc_turbo",
+      },
+    };
+
+    expect(getEnabledProviders(settings)).toEqual(["bytedance-doubao-seed"]);
+    expect(getEnabledSttProviders(settings)).toEqual(["bytedance-doubao-seed"]);
+    expect(getEnabledTtsProviders(settings)).toEqual([]);
+  });
 });

@@ -521,6 +521,8 @@ export const en: TranslationDictionary = {
     noBase64DecoderAvailable: "No base64 decoder available.",
     azureSpeechApiKeyFormat:
       "Microsoft Azure TTS needs Azure Speech credentials in the format <key>|<region>, for example abc123|westeurope, or the combined Azure format <endpoint>|<api-key>|<key>|<region>.",
+    bytedanceSpeechCredentialFormat: ({ provider }) =>
+      `${provider} STT needs Doubao Speech credentials in the format <app-key>|<access-key>, optionally <app-key>|<access-key>|<resource-id>, or the combined format <ark-api-key>|<app-key>|<access-key>|<resource-id>.`,
     nativeTtsDoesNotSynthesizeAudioFiles:
       "Native TTS does not synthesize audio files.",
     localTtsUnavailableForLanguage: ({ languageLabel }) =>

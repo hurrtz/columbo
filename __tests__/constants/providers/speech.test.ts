@@ -4,6 +4,7 @@ import {
   getProviderTtsModelOptions,
   getSttModelLabel,
   getTtsModelLabel,
+  getTtsVoiceLabel,
 } from "../../../src/constants/providers/speech";
 
 describe("speech provider constants", () => {
@@ -52,7 +53,12 @@ describe("speech provider constants", () => {
     expect(getProviderSttModelOptions("z-ai-zhipu-ai")).toEqual([
       { id: "glm-asr-2512", name: "GLM-ASR-2512" },
     ]);
-    expect(getProviderSttModelOptions("bytedance-doubao-seed")).toEqual([]);
+    expect(getProviderSttModelOptions("bytedance-doubao-seed")).toEqual([
+      {
+        id: "bigmodel",
+        name: "Doubao Big-Model Streaming ASR",
+      },
+    ]);
     expect(getProviderSttModelOptions("alibaba-qwen-dashscope")).toEqual([
       { id: "qwen3-asr-flash", name: "Qwen3-ASR-Flash" },
     ]);
@@ -219,5 +225,14 @@ describe("speech provider constants", () => {
     ]);
     expect(PROVIDER_DEFAULT_TTS_MODELS.xai).toBe("text-to-speech");
     expect(getTtsModelLabel("xai", "text-to-speech")).toBe("Text to Speech API");
+  });
+
+  it("surfaces the expanded Deepgram multilingual voice labels", () => {
+    expect(getTtsVoiceLabel("deepgram", "aura-2-viktoria-de", "en")).toBe(
+      "Aura 2 · Viktoria",
+    );
+    expect(getTtsVoiceLabel("deepgram", "aura-2-marcel-fr", "en")).toBe(
+      "Aura 2 · Marcel",
+    );
   });
 });

@@ -53,7 +53,7 @@ The current settled state is:
 | `baichuan` | none | enabled | none | none | Fully enabled | none | static curated |
 | `baidu-ernie-qianfan` | none | enabled | enabled | enabled | Fully enabled under curated picker policy | none | curated snapshot |
 | `brave` | enabled (Brave Search API) | none | none | none | Fully enabled for search only | none | runtime-only |
-| `bytedance-doubao-seed` | none | enabled | none | none | Intentionally scoped | Doubao Speech STT/TTS stay out of runtime scope | scoped runtime |
+| `bytedance-doubao-seed` | none | enabled | enabled | none | Intentionally scoped | Doubao Speech TTS stays out of runtime scope | scoped runtime |
 | `deepgram` | none | none | enabled | enabled | Intentionally scoped | Voice Agent llm routing stays out of runtime scope | scoped runtime + curated voices |
 | `elevenlabs` | none | none | enabled | enabled | Intentionally scoped | ElevenAgents/custom llm surfaces stay out of runtime scope | scoped runtime + live voices |
 | `exa` | enabled (Exa Search API) | none | none | none | Fully enabled for search only | none | runtime-only |
@@ -261,17 +261,17 @@ The current settled state is:
 - Overall status: Intentionally scoped
 - Search: not exposed
 - LLM: support `provider`, transport `openai-compatible`, models: `Doubao Seed 2.0 Pro` (`doubao-seed-2-0-pro-260215`), `Doubao Seed 2.0 Lite` (`doubao-seed-2-0-lite-260215`), `Doubao Seed 2.0 Mini` (`doubao-seed-2-0-mini-260215`), `Doubao Seed 2.0 Code Preview` (`doubao-seed-2-0-code-preview-260215`), `Doubao Seed 1.8` (`doubao-seed-1-8-251228`)
-- STT: support `none`, transport `none`, models: none
+- STT: support `provider`, transport `bytedance-bigmodel-flash`, models: `Doubao Big-Model Streaming ASR` (`bigmodel`)
 - TTS: support `none`, transport `none`, models: none
-- Catalog delta: Doubao Speech STT/TTS stay out of runtime scope
-- Catalog-only STT models: `Doubao Big-Model Streaming ASR` (`bigmodel`)
+- Catalog delta: Doubao Speech TTS stays out of runtime scope
 - Catalog-only TTS models: `Doubao Large-Model TTS` (`unknown`)
 - Picker policy: Runtime pickers intentionally use curated snapshot data from the bundled catalog; live model discovery is not part of the current scope.
 
 #### Resolution
 
 - No open implementation work remains under the current runtime policy.
-- SchnackAI intentionally limits ByteDance to the Ark LLM surface; the separate Doubao Speech STT/TTS family stays out of scope because it requires a distinct non-uniform adapter model.
+- SchnackAI now exposes the one-shot Doubao Speech `bigmodel` STT route alongside Ark chat models.
+- Doubao Speech TTS remains out of runtime scope because it is voice- and cluster-oriented rather than a stable picker-model surface.
 
 ### Deepgram (`deepgram`)
 
@@ -281,16 +281,17 @@ The current settled state is:
 - LLM: support `none`, transport `none`, models: none
 - STT: support `provider`, transport `deepgram-pre-recorded`, models: `Flux General English` (`flux-general-en`), `Nova-3 General` (`nova-3`), `Nova-3 Medical` (`nova-3-medical`), `Nova-2 General` (`nova-2`), `Nova-2 Vertical Variants` (`nova-2-verticals`), `Legacy Nova Family` (`legacy-nova-family`), `Legacy Enhanced Family` (`legacy-enhanced-family`), `Legacy Base Family` (`legacy-base-family`), `Deepgram Whisper Cloud` (`whisper`)
 - TTS: support `provider`, transport `deepgram`, models: `Aura-2 Voice Family` (`aura-2`), `Aura-1 Voice Family` (`aura-1`)
-- TTS voices: static runtime list, default voice `aura-2-thalia-en`. Voices: `Aura 2 · Thalia` (`aura-2-thalia-en`), `Aura 2 · Asteria` (`aura-2-asteria-en`), `Aura 2 · Apollo` (`aura-2-apollo-en`), `Aura 2 · Helena` (`aura-2-helena-en`), `Aura 1 · Asteria` (`aura-asteria-en`), `Aura 1 · Luna` (`aura-luna-en`), `Aura 1 · Orion` (`aura-orion-en`), `Aura 1 · Zeus` (`aura-zeus-en`)
+- TTS voices: static runtime list, default voice `aura-2-thalia-en`. The runtime now includes the curated English Aura rows plus the documented German, Spanish, Dutch, French, Italian, and Japanese Aura 2 voices, alongside Aura 1 compatibility voices.
 - Catalog delta: Voice Agent llm routing stays out of runtime scope
 - Catalog-only LLM models: none
 - Picker policy: Runtime pickers intentionally use curated snapshot data from the bundled catalog; live model discovery is not part of the current scope.
-- Voice policy: TTS voice list is an intentional curated runtime subset (8 baked-in voices).
+- Voice policy: TTS voice list is a curated multilingual runtime snapshot of the documented Aura catalog.
 
 #### Resolution
 
 - No open implementation work remains under the current runtime policy.
 - Deepgram is intentionally scoped to speech in SchnackAI; Voice Agent llm routing is documented but not exposed as a general provider capability.
+- The runtime now exposes the documented multilingual Aura voice families instead of the earlier English-heavy subset.
 - Deepgram credentials now validate through the TTS validation path in Settings.
 
 ### ElevenLabs (`elevenlabs`)
