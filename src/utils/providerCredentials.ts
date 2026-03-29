@@ -7,6 +7,10 @@ import {
   parseBytedanceArkCredentials,
   parseBytedanceSpeechCredentials,
 } from "../services/bytedance";
+import {
+  parseGoogleAiStudioCredentials,
+  parseGoogleCloudSpeechCredentials,
+} from "../services/google";
 
 export type ProviderCredentialCapability = "llm" | "stt" | "tts" | "search";
 
@@ -18,6 +22,13 @@ export function hasAnyProviderCredential(provider: Provider, apiKey: string) {
   }
 
   if (provider !== "microsoft-azure") {
+    if (provider === "gemini") {
+      return (
+        parseGoogleAiStudioCredentials(trimmedApiKey) !== null ||
+        parseGoogleCloudSpeechCredentials(trimmedApiKey) !== null
+      );
+    }
+
     if (provider !== "bytedance-doubao-seed") {
       return true;
     }
@@ -46,6 +57,18 @@ export function hasProviderCredentialForCapability(
   }
 
   if (provider !== "microsoft-azure") {
+    if (provider === "gemini") {
+      switch (capability) {
+        case "llm":
+        case "tts":
+          return parseGoogleAiStudioCredentials(trimmedApiKey) !== null;
+        case "stt":
+          return parseGoogleCloudSpeechCredentials(trimmedApiKey) !== null;
+        case "search":
+          return false;
+      }
+    }
+
     if (provider !== "bytedance-doubao-seed") {
       return true;
     }

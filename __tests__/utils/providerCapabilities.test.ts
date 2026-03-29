@@ -111,4 +111,32 @@ describe("provider capability selectors", () => {
     expect(getEnabledSttProviders(settings)).toEqual(["bytedance-doubao-seed"]);
     expect(getEnabledTtsProviders(settings)).toEqual([]);
   });
+
+  it("treats Gemini Cloud Speech-only credentials as STT-only readiness", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      apiKeys: {
+        ...DEFAULT_SETTINGS.apiKeys,
+        gemini: "my-project|ya29.test-token|us",
+      },
+    };
+
+    expect(getEnabledProviders(settings)).toEqual([]);
+    expect(getEnabledSttProviders(settings)).toEqual(["gemini"]);
+    expect(getEnabledTtsProviders(settings)).toEqual([]);
+  });
+
+  it("treats combined Gemini AI Studio and Cloud Speech credentials as ready for llm, stt, and tts", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      apiKeys: {
+        ...DEFAULT_SETTINGS.apiKeys,
+        gemini: "AIza-test|my-project|ya29.test-token|us",
+      },
+    };
+
+    expect(getEnabledProviders(settings)).toEqual(["gemini"]);
+    expect(getEnabledSttProviders(settings)).toEqual(["gemini"]);
+    expect(getEnabledTtsProviders(settings)).toEqual(["gemini"]);
+  });
 });

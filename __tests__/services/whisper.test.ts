@@ -275,6 +275,48 @@ describe("transcribeAudio", () => {
     });
   });
 
+  it("uses Google Cloud Speech v2 for Gemini STT", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        results: [
+          {
+            alternatives: [
+              {
+                transcript: "Hello from Gemini STT",
+              },
+            ],
+          },
+        ],
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "gemini",
+      providerModel: "chirp_3",
+      apiKey: "AIza-test-key|my-project|ya29.test-token|us",
+      language: "de",
+    });
+
+    expect(result).toBe("Hello from Gemini STT");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://us-speech.googleapis.com/v2/projects/my-project/locations/us/recognizers/_:recognize",
+    );
+    expect(options.headers.Authorization).toBe("Bearer ya29.test-token");
+    expect(options.headers["x-goog-user-project"]).toBe("my-project");
+    expect(JSON.parse(options.body)).toEqual({
+      config: {
+        autoDecodingConfig: {},
+        languageCodes: ["de-DE"],
+        model: "chirp_3",
+      },
+      content: "ZmFrZQ==",
+    });
+  });
+
   it("uses the xAI realtime socket for voice-agent STT", async () => {
     const promise = transcribeAudio({
       fileUri: "/tmp/recording.wav",

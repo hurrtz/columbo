@@ -11,6 +11,10 @@ import {
   requireBytedanceSpeechCredentials,
 } from "../bytedance";
 import {
+  buildGoogleCloudSpeechRecognizeEndpoint,
+  requireGoogleCloudSpeechCredentials,
+} from "../google";
+import {
   getReplicateInputProperty,
   getReplicateModelMetadata,
   runReplicatePrediction,
@@ -28,6 +32,7 @@ import type {
   ElevenLabsTranscriptionConfig,
   FishAudioTranscriptionConfig,
   FireworksPreRecordedTranscriptionConfig,
+  GoogleCloudSpeechV2TranscriptionConfig,
   HuggingFaceJsonTranscriptionConfig,
   NovitaJsonTranscriptionConfig,
   OpenAiAudioInputTranscriptionConfig,
@@ -119,6 +124,16 @@ function getBaiduSpeechPid(model: string, language: AppLanguage) {
   }
 
   return language === "en" ? 1737 : 1537;
+}
+
+function getGoogleCloudSpeechLanguageCode(language: AppLanguage) {
+  const deviceLocale = getDeviceLocale();
+
+  if (language === "de") {
+    return deviceLocale.toLowerCase().startsWith("de-") ? deviceLocale : "de-DE";
+  }
+
+  return deviceLocale.toLowerCase().startsWith("en-") ? deviceLocale : "en-US";
 }
 
 export async function transcribeWithMultipartProvider(
@@ -393,6 +408,88 @@ export async function transcribeWithBytedanceBigmodelFlashProvider(
             .join(" ")
             .trim()
         : "";
+
+  return text ? text : null;
+}
+
+export async function transcribeWithGoogleCloudSpeechV2Provider(
+  params: SharedProviderParams & {
+    config: GoogleCloudSpeechV2TranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const selectedModel = providerModel || config.defaultModel;
+  const credentials = requireGoogleCloudSpeechCredentials(apiKey, language);
+  const audioData = await FileSystem.readAsStringAsync(fileUri, {
+    encoding: "base64",
+  });
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      buildGoogleCloudSpeechRecognizeEndpoint({
+        projectId: credentials.projectId,
+        location: credentials.location,
+      }),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${credentials.accessToken}`,
+          "x-goog-user-project": credentials.projectId,
+        },
+        body: JSON.stringify({
+          config: {
+            autoDecodingConfig: {},
+            languageCodes: [getGoogleCloudSpeechLanguageCode(language)],
+            model: selectedModel,
+          },
+          content: audioData,
+        }),
+      },
+      getProviderSttTimeoutMs(provider),
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const text = Array.isArray(data?.results)
+    ? data.results
+        .map((result: any) =>
+          Array.isArray(result?.alternatives)
+            ? result.alternatives
+                .map((alternative: any) =>
+                  typeof alternative?.transcript === "string"
+                    ? alternative.transcript
+                    : "",
+                )
+                .join(" ")
+            : "",
+        )
+        .join(" ")
+        .trim()
+    : "";
 
   return text ? text : null;
 }

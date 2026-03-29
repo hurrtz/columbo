@@ -18,6 +18,7 @@ import {
   transcribeWithAzureOpenAiAudioInputProvider,
   transcribeWithFireworksPreRecordedProvider,
   transcribeWithFishAudioProvider,
+  transcribeWithGoogleCloudSpeechV2Provider,
   transcribeWithHuggingFaceJsonProvider,
   transcribeWithMultipartProvider,
   transcribeWithNovitaJsonProvider,
@@ -189,6 +190,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "bytedance-bigmodel-flash") {
     return transcribeWithBytedanceBigmodelFlashProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
+    });
+  }
+
+  if (config.kind === "google-cloud-speech-v2") {
+    return transcribeWithGoogleCloudSpeechV2Provider({
       abortSignal,
       apiKey,
       config,

@@ -60,6 +60,7 @@ export type RuntimeSttTransport =
   | "azure-openai-audio-input"
   | "assemblyai-realtime"
   | "bytedance-bigmodel-flash"
+  | "google-cloud-speech-v2"
   | "deepinfra-inference"
   | "openai-audio-input"
   | "baidu-short-speech"
@@ -929,9 +930,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     catalogProviderId: "google-vertex-ai-studio",
     label: "Google",
     shortLabel: "GOOGLE",
-    apiKeyPlaceholder: "AIza...",
+    apiKeyPlaceholder: "AIza...|project-id|access-token|us",
     apiKeyHint:
-      "Unlocks Gemini models and Gemini-hosted speech on the public AI Studio API with a single API key.",
+      "Use AI Studio as AIza... for Gemini chat and TTS, Google Cloud Speech STT as <project-id>|<access-token>|<location>, or combine both as AIza...|<project-id>|<access-token>|<location>.",
     apiKeyUrl: "https://aistudio.google.com/app/apikey",
     llm: {
       support: "provider",
@@ -949,9 +950,12 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       ],
     },
     stt: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "google-cloud-speech-v2",
+      defaultModel: "chirp_3",
+      models: catalogModelSpecs("google-vertex-ai-studio", "stt"),
+      languageNote:
+        "Google Cloud Speech-to-Text is a separate credential path from the Gemini AI Studio key. Use <project-id>|<access-token>|<location> for STT-only, or combine it with AI Studio as AIza...|<project-id>|<access-token>|<location>.",
     },
     tts: {
       support: "provider",

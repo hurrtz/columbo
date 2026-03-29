@@ -29,7 +29,11 @@ describe("speech provider constants", () => {
   });
 
   it("surfaces the remaining simple Mistral STT rows from the runtime manifest", () => {
-    expect(getProviderSttModelOptions("gemini")).toEqual([]);
+    expect(getProviderSttModelOptions("gemini")).toEqual([
+      { id: "chirp_3", name: "Chirp 3: Transcription" },
+      { id: "chirp_2", name: "Chirp 2: Transcription" },
+      { id: "telephony", name: "Telephony" },
+    ]);
     expect(getProviderSttModelOptions("mistral")).toEqual(
       [{ id: "voxtral-mini-latest", name: "Voxtral Mini Transcribe 2" }],
     );

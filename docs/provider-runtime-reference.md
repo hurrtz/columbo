@@ -35,8 +35,8 @@ There is no open implementation backlog in this document.
 
 The current settled state is:
 
-- `30 providers` are fully enabled for their in-app AI/speech scope. `27` of those use the curated picker policy and `3` are effectively static.
-- `6 providers` are intentionally scope-limited relative to their broader official platform catalogs. Those deltas are documented below, but they are not pending work.
+- `31 providers` are fully enabled for their in-app AI/speech scope. `28` of those use the curated picker policy and `3` are effectively static.
+- `5 providers` are intentionally scope-limited relative to their broader official platform catalogs. Those deltas are documented below, but they are not pending work.
 - `5 providers` are intentionally search-only.
 
 ## Summary Matrix
@@ -59,7 +59,7 @@ The current settled state is:
 | `exa` | enabled (Exa Search API) | none | none | none | Fully enabled for search only | none | runtime-only |
 | `firecrawl` | enabled (Firecrawl Search API) | none | none | none | Fully enabled for search only | none | runtime-only |
 | `fish-audio` | none | none | enabled | enabled | Fully enabled under curated picker policy | none | curated snapshot |
-| `gemini` | none | enabled | none | enabled | Intentionally scoped | Google Cloud STT stays out of the Gemini runtime scope | scoped runtime |
+| `gemini` | none | enabled | enabled | enabled | Fully enabled under curated picker policy | none | curated snapshot |
 | `cerebras` | none | enabled | none | none | Fully enabled under curated picker policy | none | curated snapshot |
 | `deepinfra` | none | enabled | enabled | enabled | Fully enabled under curated picker policy | none | curated snapshot |
 | `xai` | none | enabled | enabled | enabled | Fully enabled under curated picker policy | none | curated snapshot + curated voices |
@@ -367,21 +367,21 @@ The current settled state is:
 ### Google (`gemini`)
 
 - Catalog provider id: `google-vertex-ai-studio`
-- Overall status: Intentionally scoped
+- Overall status: Fully enabled under curated picker policy
 - Search: not exposed
 - LLM: support `provider`, transport `openai-compatible`, models: `Gemini Live 2.5 Flash Native Audio` (`gemini-live-2.5-flash-native-audio`), `Gemini 2.5 Pro` (`gemini-2.5-pro`), `Gemini 2.5 Flash` (`gemini-2.5-flash`), `Gemini 2.5 Flash-Lite` (`gemini-2.5-flash-lite`)
-- STT: support `none`, transport `none`, models: none
-- TTS: support `provider`, transport `gemini`, models: none
+- STT: support `provider`, transport `google-cloud-speech-v2`, models: `Chirp 3: Transcription` (`chirp_3`), `Chirp 2: Transcription` (`chirp_2`), `Telephony` (`telephony`)
+- TTS: support `provider`, transport `gemini`, models: `Gemini 2.5 Flash TTS` (`gemini-2.5-flash-preview-tts`), `Gemini 2.5 Pro TTS` (`gemini-2.5-pro-preview-tts`)
 - TTS voices: static runtime list, default voice `Kore`. Voices: `Zephyr · Bright` (`Zephyr`), `Puck · Upbeat` (`Puck`), `Charon · Informative` (`Charon`), `Kore · Firm` (`Kore`), `Fenrir · Excitable` (`Fenrir`), `Leda · Youthful` (`Leda`), `Orus · Firm` (`Orus`), `Aoede · Breezy` (`Aoede`), `Callirrhoe · Easy-going` (`Callirrhoe`), `Autonoe · Bright` (`Autonoe`), `Enceladus · Breathy` (`Enceladus`), `Iapetus · Clear` (`Iapetus`), `Umbriel · Easy-going` (`Umbriel`), `Algieba · Smooth` (`Algieba`), `Despina · Smooth` (`Despina`), `Erinome · Clear` (`Erinome`), `Algenib · Gravelly` (`Algenib`), `Rasalgethi · Informative` (`Rasalgethi`), `Laomedeia · Upbeat` (`Laomedeia`), `Achernar · Soft` (`Achernar`), `Alnilam · Firm` (`Alnilam`), `Schedar · Even` (`Schedar`), `Gacrux · Mature` (`Gacrux`), `Pulcherrima · Forward` (`Pulcherrima`), `Achird · Friendly` (`Achird`), `Zubenelgenubi · Casual` (`Zubenelgenubi`), `Vindemiatrix · Gentle` (`Vindemiatrix`), `Sadachbia · Lively` (`Sadachbia`), `Sadaltager · Knowledgeable` (`Sadaltager`), `Sulafat · Warm` (`Sulafat`)
-- Catalog delta: Google Cloud STT stays out of the Gemini runtime scope
-- Catalog-only STT models: `Chirp 3: Transcription` (`chirp_3`), `Chirp 2: Transcription` (`chirp_2`), `Telephony` (`telephony`)
+- Catalog delta: none
 - Picker policy: Runtime pickers intentionally use curated snapshot data from the bundled catalog; live model discovery is not part of the current scope.
+- Credential policy: Gemini chat and TTS use the AI Studio key segment, while Gemini STT uses Google Cloud Speech credentials as `<project-id>|<access-token>|<location>` or the combined form `AIza...|<project-id>|<access-token>|<location>`.
 - Voice policy: TTS voice list is an intentional curated runtime subset (30 baked-in voices).
 
 #### Resolution
 
 - No open implementation work remains under the current runtime policy.
-- SchnackAI intentionally scopes Google to Gemini LLM plus Gemini TTS; Google Cloud Speech-to-Text is not part of this provider integration.
+- Gemini now covers chat, TTS, and Google Cloud Speech STT under the current runtime scope.
 
 ### Cerebras (`cerebras`)
 

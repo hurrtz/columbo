@@ -46,6 +46,11 @@ export type BytedanceBigmodelFlashTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type GoogleCloudSpeechV2TranscriptionConfig = {
+  kind: "google-cloud-speech-v2";
+  defaultModel: string;
+};
+
 export type DeepgramPreRecordedTranscriptionConfig = {
   kind: "deepgram-pre-recorded";
   endpointBase: string;
@@ -118,6 +123,7 @@ export type ProviderSttConfig =
   | AssemblyAiPreRecordedTranscriptionConfig
   | AssemblyAiRealtimeTranscriptionConfig
   | BytedanceBigmodelFlashTranscriptionConfig
+  | GoogleCloudSpeechV2TranscriptionConfig
   | DeepgramPreRecordedTranscriptionConfig
   | DeepInfraInferenceTranscriptionConfig
   | FireworksPreRecordedTranscriptionConfig
@@ -202,6 +208,11 @@ function buildConfigForTransport(params: {
             defaultModel: params.defaultModel,
           }
         : null;
+    case "google-cloud-speech-v2":
+      return {
+        kind: "google-cloud-speech-v2",
+        defaultModel: params.defaultModel,
+      };
     case "baidu-short-speech":
       return {
         kind: "baidu-short-speech",
