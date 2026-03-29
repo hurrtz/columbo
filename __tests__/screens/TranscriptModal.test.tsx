@@ -58,10 +58,8 @@ const baseProps = {
     accent: "#66ccff",
   },
   conversationMenuVisible: false,
-  debugLogLabel: "LOG",
   insets: { top: 0, right: 0, bottom: 0, left: 0 },
   isActive: false,
-  isDebugLogging: false,
   metering: -160,
   messages: [
     {
@@ -82,7 +80,6 @@ const baseProps = {
   onRepeatMessage: jest.fn(),
   onShareMessage: jest.fn(),
   onShareThread: jest.fn(),
-  onToggleDebugLogging: jest.fn(),
   replayPhase: "idle" as const,
   settingsShowUsageStats: true,
   signalLevels: undefined,
@@ -127,6 +124,7 @@ describe("TranscriptModal", () => {
     expect(screen.getByText("wave:tapToSpeak")).toBeTruthy();
     expect(screen.getByText("estimatedUsageTitle")).toBeTruthy();
     expect(screen.getByText("chat:1")).toBeTruthy();
+    expect(screen.queryByText("LOG")).toBeNull();
   });
 
   it("renders the landscape transcript layout", () => {

@@ -441,21 +441,6 @@ export const styles = StyleSheet.create({
     lineHeight: 28,
     fontFamily: fonts.display,
   },
-  transcriptLogButton: {
-    minWidth: 56,
-    height: 38,
-    borderRadius: 19,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 14,
-  },
-  transcriptLogButtonText: {
-    fontSize: 11,
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    fontFamily: fonts.mono,
-  },
   expandedTranscriptHeader: {
     flexDirection: "row",
     alignItems: "center",

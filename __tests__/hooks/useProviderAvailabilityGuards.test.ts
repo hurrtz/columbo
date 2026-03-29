@@ -4,6 +4,70 @@ import { useProviderAvailabilityGuards } from "../../src/screens/main/useProvide
 import { DEFAULT_SETTINGS } from "../../src/types";
 
 describe("useProviderAvailabilityGuards", () => {
+  it("promotes native STT mode to provider when an STT provider becomes available", async () => {
+    const updateSettings = jest.fn();
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      sttMode: "native" as const,
+      sttProvider: null,
+    };
+
+    renderHook(() =>
+      useProviderAvailabilityGuards({
+        activeResponseMode: "normal",
+        availableResponseModes: ["normal"],
+        availableSttProviders: ["openai"],
+        availableTtsProviders: [],
+        loaded: true,
+        providerApiKey: "key",
+        settings,
+        sttProvider: null,
+        ttsProvider: null,
+        updateActiveResponseMode: jest.fn(),
+        updateSettings,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(updateSettings).toHaveBeenCalledWith({
+        sttMode: "provider",
+        sttProvider: "openai",
+      });
+    });
+  });
+
+  it("promotes non-provider TTS mode to provider when a TTS provider becomes available", async () => {
+    const updateSettings = jest.fn();
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      ttsMode: "local" as const,
+      ttsProvider: null,
+    };
+
+    renderHook(() =>
+      useProviderAvailabilityGuards({
+        activeResponseMode: "normal",
+        availableResponseModes: ["normal"],
+        availableSttProviders: [],
+        availableTtsProviders: ["openai"],
+        loaded: true,
+        providerApiKey: "key",
+        settings,
+        sttProvider: null,
+        ttsProvider: null,
+        updateActiveResponseMode: jest.fn(),
+        updateSettings,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(updateSettings).toHaveBeenCalledWith({
+        ttsMode: "provider",
+        ttsProvider: "openai",
+      });
+    });
+  });
+
   it("switches to the first ready response mode when the active provider has no key", async () => {
     const updateActiveResponseMode = jest.fn();
 

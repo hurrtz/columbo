@@ -393,6 +393,11 @@ function ProviderVaultRow({
               onFocus={onTextInputFocus}
               autoCapitalize="none"
               autoCorrect={false}
+              autoComplete="off"
+              textContentType="none"
+              importantForAutofill="no"
+              spellCheck={false}
+              contextMenuHidden={false}
               secureTextEntry={secureApiKey}
               placeholder={getProviderApiKeyPlaceholder(provider, language)}
               placeholderTextColor={colors.textMuted}

@@ -180,7 +180,7 @@ export function getDefaultTtsListenLanguages(
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  inputMode: "push-to-talk",
+  inputMode: "toggle-to-talk",
   replyPlayback: "stream",
   activeResponseMode: "normal",
   responseModes: DEFAULT_RESPONSE_MODES,

@@ -36,10 +36,8 @@ interface TranscriptModalProps {
   activeReplayMessageId: string | null;
   colors: Colors;
   conversationMenuVisible: boolean;
-  debugLogLabel: string;
   insets: EdgeInsets;
   isActive: boolean;
-  isDebugLogging: boolean;
   metering: number;
   messages: Message[];
   onClose: () => void;
@@ -53,7 +51,6 @@ interface TranscriptModalProps {
   onRepeatMessage: (message: Message) => void;
   onShareMessage: (message: Message) => void;
   onShareThread: () => void;
-  onToggleDebugLogging: () => void;
   replayPhase: ReplayPhase;
   settingsShowUsageStats: boolean;
   signalLevels: number[] | undefined;
@@ -86,10 +83,8 @@ export function TranscriptModal({
   activeReplayMessageId,
   colors,
   conversationMenuVisible,
-  debugLogLabel,
   insets,
   isActive,
-  isDebugLogging,
   metering,
   messages,
   onClose,
@@ -103,7 +98,6 @@ export function TranscriptModal({
   onRepeatMessage,
   onShareMessage,
   onShareThread,
-  onToggleDebugLogging,
   replayPhase,
   settingsShowUsageStats,
   signalLevels,
@@ -255,35 +249,6 @@ export function TranscriptModal({
               {t("conversation")}
             </Text>
             <View style={styles.expandedTopBarActions}>
-              <TouchableOpacity
-                style={[
-                  styles.transcriptLogButton,
-                  {
-                    backgroundColor: isDebugLogging
-                      ? colors.accent
-                      : colors.surface,
-                    borderColor: isDebugLogging
-                      ? colors.accent
-                      : colors.border,
-                  },
-                ]}
-                onPress={onToggleDebugLogging}
-                activeOpacity={0.85}
-              >
-                <Text
-                  style={[
-                    styles.transcriptLogButtonText,
-                    {
-                      color: isDebugLogging
-                        ? colors.background
-                        : colors.textSecondary,
-                    },
-                  ]}
-                >
-                  {debugLogLabel}
-                </Text>
-              </TouchableOpacity>
-
               <TouchableOpacity
                 style={[
                   styles.menuIconButton,

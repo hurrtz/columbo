@@ -716,12 +716,11 @@ export function ProviderApiKeyCard({
           autoCapitalize="none"
           autoCorrect={false}
           autoComplete="off"
-          textContentType="password"
+          textContentType="none"
           importantForAutofill="no"
           spellCheck={false}
           contextMenuHidden={false}
           selectTextOnFocus={apiKeyVisible}
-          keyboardType="ascii-capable"
           returnKeyType="done"
           secureTextEntry={secureApiKey}
           style={[

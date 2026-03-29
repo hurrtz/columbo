@@ -29,6 +29,25 @@ describe("statusSelectors", () => {
     });
   });
 
+  it("uses tap-to-speak wording for toggle mode", () => {
+    const status = getStatusDisplayData({
+      inputMode: "toggle-to-talk",
+      messageCount: 0,
+      pipelinePhase: "idle",
+      providerLabel: "OpenAI",
+      t: (key) =>
+        ({
+          freshSession: "Fresh session",
+          tapToSpeak: "Tap to speak",
+          idle: "Idle",
+        }[key] ?? key),
+      ttsProviderLabel: "OpenAI",
+      visualPhase: "idle",
+    });
+
+    expect(status.actionLabel).toBe("Tap to speak");
+  });
+
   it("maps active phases to stable indicator tones", () => {
     expect(getStatusIndicatorTone("recording", "idle")).toBe("danger");
     expect(getStatusIndicatorTone("speaking", "speaking")).toBe("accent");

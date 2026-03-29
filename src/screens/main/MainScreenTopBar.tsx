@@ -9,21 +9,15 @@ import { fonts } from "../../theme/typography";
 interface MainScreenTopBarProps {
   colors: Colors;
   compact?: boolean;
-  debugLogLabel: string;
-  isDebugLogging: boolean;
   onOpenDrawer: () => void;
   onOpenSettings: () => void;
-  onToggleDebugLogging: () => void;
 }
 
 export function MainScreenTopBar({
   colors,
   compact = false,
-  debugLogLabel,
-  isDebugLogging,
   onOpenDrawer,
   onOpenSettings,
-  onToggleDebugLogging,
 }: MainScreenTopBarProps) {
   return (
     <View style={styles.topBar}>
@@ -70,32 +64,6 @@ export function MainScreenTopBar({
       <View style={styles.actions}>
         <TouchableOpacity
           style={[
-            styles.logButton,
-            {
-              backgroundColor: isDebugLogging
-                ? colors.accent
-                : colors.surface,
-              borderColor: isDebugLogging ? colors.accent : colors.border,
-              shadowColor: colors.glow,
-            },
-          ]}
-          onPress={onToggleDebugLogging}
-          activeOpacity={0.85}
-        >
-          <Text
-            style={[
-              styles.logButtonText,
-              {
-                color: isDebugLogging ? colors.background : colors.textSecondary,
-              },
-            ]}
-          >
-            {debugLogLabel}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
             styles.iconButton,
             {
               backgroundColor: colors.surface,
@@ -136,25 +104,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-  },
-  logButton: {
-    minWidth: 56,
-    height: 42,
-    borderRadius: 21,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 14,
-    borderWidth: 1,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    elevation: 6,
-  },
-  logButtonText: {
-    fontSize: 11,
-    letterSpacing: 1.1,
-    textTransform: "uppercase",
-    fontFamily: fonts.mono,
   },
   wordmark: {
     flexDirection: "row",

@@ -32,13 +32,9 @@ import { useConversations } from "../hooks/useConversations";
 import { useVoicePipeline } from "../hooks/useVoicePipeline";
 import { useLocalization } from "../i18n";
 import {
-  getDebugLogCaptureState,
   installDebugLogConsoleCapture,
   recoverPendingDebugLogCapture,
   recordDebugLogEvent,
-  startDebugLogCapture,
-  stopDebugLogCapture,
-  subscribeToDebugLogCapture,
 } from "../services/debugLogCapture";
 import { validateProviderConnection } from "../services/llm";
 import { validateTtsProviderConnection } from "../services/providerValidation";
@@ -127,8 +123,6 @@ export function MainScreen() {
     message: string;
     onRetry?: () => void;
   } | null>(null);
-  const [debugLogCaptureState, setDebugLogCaptureState] =
-    useState(getDebugLogCaptureState());
   const {
     settingsVisible,
     settingsFocusCatalogProviderId,
@@ -661,130 +655,8 @@ export function MainScreen() {
     lastCompletedReplyRef.current = lastAssistantReply;
   }, [lastAssistantReply, lastCompletedReplyRef]);
 
-  const createDebugLogContext = useCallback(
-    () => ({
-      activeConversationId: activeConversation?.id ?? null,
-      activeConversationTitle: activeConversation?.title ?? null,
-      activeReplayMessageId,
-      activeResponseMode,
-      conversationCount: conversations.length,
-      conversationMenuVisible,
-      drawerVisible,
-      inputMode: settings.inputMode,
-      isBusy,
-      isPlaying: player.isPlaying,
-      isRecording,
-      memoryVisible,
-      messageCount: messages.length,
-      model,
-      pipelinePhase,
-      provider,
-      replayPhase,
-      settingsVisible,
-      setupGuideVisible,
-      statusDetailsVisible,
-      streamingTextLength: streamingText.length,
-      sttMode: settings.sttMode,
-      sttProvider,
-      transcriptVisible,
-      ttsMode: settings.ttsMode,
-      ttsProvider,
-      webSearchActive,
-      webSearchMode,
-      webSearchProvider,
-      webSearchReady,
-      visualPhase,
-    }),
-    [
-      activeConversation?.id,
-      activeConversation?.title,
-      activeReplayMessageId,
-      activeResponseMode,
-      conversationMenuVisible,
-      conversations.length,
-      drawerVisible,
-      isBusy,
-      isRecording,
-      memoryVisible,
-      messages.length,
-      model,
-      pipelinePhase,
-      player.isPlaying,
-      provider,
-      replayPhase,
-      settings.inputMode,
-      settings.sttMode,
-      settings.ttsMode,
-      webSearchMode,
-      webSearchActive,
-      webSearchProvider,
-      webSearchReady,
-      settingsVisible,
-      setupGuideVisible,
-      statusDetailsVisible,
-      streamingText.length,
-      sttProvider,
-      transcriptVisible,
-      ttsProvider,
-      visualPhase,
-    ],
-  );
-
-  const handleToggleDebugLogging = useCallback(
-    async (source: "main-screen" | "transcript-modal") => {
-      try {
-        if (debugLogCaptureState.active) {
-          const result = await stopDebugLogCapture({
-            source,
-            ...createDebugLogContext(),
-          });
-
-          if (!result) {
-            return;
-          }
-
-          const fileName =
-            result.path.split("/").filter(Boolean).pop() ?? result.sessionId;
-
-          showToast(
-            result.copiedToClipboard
-              ? t("debugLogCaptureStopped", {
-                  entryCount: result.entryCount,
-                  fileName,
-                })
-              : t("debugLogCaptureStoppedNoClipboard", {
-                  entryCount: result.entryCount,
-                  fileName,
-                }),
-          );
-          return;
-        }
-
-        startDebugLogCapture({
-          source,
-          ...createDebugLogContext(),
-        });
-        showToast(t("debugLogCaptureStarted"));
-      } catch (error) {
-        recordDebugLogEvent({
-          event: "debug-log-toggle-failed",
-          level: "error",
-          payload: {
-            message: error instanceof Error ? error.message : String(error),
-            source,
-          },
-        });
-        showToast(t("debugLogCaptureFailed"));
-      }
-    },
-    [createDebugLogContext, debugLogCaptureState.active, showToast, t],
-  );
-
   useEffect(() => {
     installDebugLogConsoleCapture();
-    const unsubscribe = subscribeToDebugLogCapture(() => {
-      setDebugLogCaptureState(getDebugLogCaptureState());
-    });
 
     recordDebugLogEvent({
       event: "main-screen-mounted",
@@ -794,7 +666,6 @@ export function MainScreen() {
       recordDebugLogEvent({
         event: "main-screen-unmounted",
       });
-      unsubscribe();
     };
   }, []);
 
@@ -1062,13 +933,8 @@ export function MainScreen() {
             <View style={styles.landscapeLeftColumn}>
               <MainScreenTopBar
                 colors={colors}
-                debugLogLabel={t("debugLogLabel")}
-                isDebugLogging={debugLogCaptureState.active}
                 onOpenDrawer={() => setDrawerVisible(true)}
                 onOpenSettings={() => openSettings()}
-                onToggleDebugLogging={() => {
-                  void handleToggleDebugLogging("main-screen");
-                }}
               />
 
               <MainScreenRouteCard
@@ -1155,13 +1021,8 @@ export function MainScreen() {
           <>
             <MainScreenTopBar
               colors={colors}
-              debugLogLabel={t("debugLogLabel")}
-              isDebugLogging={debugLogCaptureState.active}
               onOpenDrawer={() => setDrawerVisible(true)}
               onOpenSettings={() => openSettings()}
-              onToggleDebugLogging={() => {
-                void handleToggleDebugLogging("main-screen");
-              }}
             />
 
             <ScrollView
@@ -1251,10 +1112,8 @@ export function MainScreen() {
         activeReplayMessageId={activeReplayMessageId}
         colors={colors}
         conversationMenuVisible={conversationMenuVisible}
-        debugLogLabel={t("debugLogLabel")}
         insets={insets}
         isActive={isActive}
-        isDebugLogging={debugLogCaptureState.active}
         metering={metering}
         messages={messages}
         onClose={closeTranscript}
@@ -1289,9 +1148,6 @@ export function MainScreen() {
         signalWaveformVariant={signalWaveformVariant}
         t={t}
         toggleConversationMenu={toggleConversationMenu}
-        onToggleDebugLogging={() => {
-          void handleToggleDebugLogging("transcript-modal");
-        }}
         usageDisplay={usageDisplay}
         visualPhase={visualPhase}
         waveformInputMode={settings.inputMode}
