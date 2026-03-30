@@ -2,14 +2,17 @@
   "expo": {
     "name": "SchnackAI",
     "slug": "schnackai",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "default",
     "userInterfaceStyle": "automatic",
     "ios": {
+      "buildNumber": "3",
       "supportsTablet": false,
       "bundleIdentifier": "com.tobiaswinkler.app.schnackai",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "SchnackAI needs microphone access to record your voice for conversations."
+        "NSMicrophoneUsageDescription": "SchnackAI needs microphone access to record your voice for conversations.",
+        "NSPhotoLibraryUsageDescription": "SchnackAI may request access to your photo library only when an iOS system sharing or attachment flow requires it. SchnackAI does not scan your photo library.",
+        "NSPhotoLibraryAddUsageDescription": "SchnackAI may request permission to save user-initiated exported content to your photo library."
       },
       "appleTeamId": "Y295UCE38G"
     },
