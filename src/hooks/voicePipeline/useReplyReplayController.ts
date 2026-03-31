@@ -21,6 +21,7 @@ type ReplayControllerParams = Pick<
   | "ttsListenLanguages"
   | "ttsMode"
   | "replyPlayback"
+  | "spokenRepliesEnabled"
   | "ttsProvider"
 > & {
   isBusy: boolean;
@@ -43,6 +44,7 @@ export function useReplyReplayController({
   ttsListenLanguages,
   ttsMode,
   replyPlayback,
+  spokenRepliesEnabled,
   ttsProvider,
 }: ReplayControllerParams) {
   const replayingRef = useRef(false);
@@ -58,6 +60,11 @@ export function useReplyReplayController({
       const trimmed = text.trim();
 
       if (!trimmed || replayingRef.current) {
+        return;
+      }
+
+      if (!spokenRepliesEnabled) {
+        showToast(t("spokenRepliesDisabled"));
         return;
       }
 
@@ -195,6 +202,7 @@ export function useReplyReplayController({
       ttsListenLanguages,
       ttsMode,
       replyPlayback,
+      spokenRepliesEnabled,
       ttsProvider,
     ],
   );

@@ -43,6 +43,7 @@ export function useVoiceCaptureHandler({
   setPipelinePhase,
   setStreamingText,
   showToast,
+  spokenRepliesEnabled,
   sttApiKey,
   sttMode,
   sttProvider,
@@ -131,6 +132,7 @@ export function useVoiceCaptureHandler({
           ttsListenLanguages,
           localTtsVoices,
           replyPlayback,
+          spokenRepliesEnabled,
           assistantInstructions,
           responseLength,
           responseTone,
@@ -239,9 +241,13 @@ export function useVoiceCaptureHandler({
               });
               setStreamingText("");
               setPipelinePhase(
-                ttsMode === "native" || playbackStartedRef.current
+                playbackStartedRef.current
                   ? "speaking"
-                  : "synthesizing",
+                  : spokenRepliesEnabled
+                    ? ttsMode === "native"
+                      ? "speaking"
+                      : "synthesizing"
+                    : "thinking",
               );
               lastCompletedReplyRef.current = fullText;
               const assistantNotices = pendingAssistantNoticesRef.current;
@@ -481,6 +487,7 @@ export function useVoiceCaptureHandler({
       setPipelinePhase,
       setStreamingText,
       showToast,
+      spokenRepliesEnabled,
       sttApiKey,
       sttMode,
       sttProvider,

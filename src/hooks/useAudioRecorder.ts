@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback, useState } from "react";
-import { Platform } from "react-native";
 import {
   RecordingPresets,
   requestRecordingPermissionsAsync,
@@ -53,8 +52,7 @@ function wait(ms: number) {
 
 export function useAudioRecorder() {
   const { t } = useLocalization();
-  const usingNativeRecorder =
-    Platform.OS === "ios" && isNativeWaveformAvailable();
+  const usingNativeRecorder = isNativeWaveformAvailable();
   const recorder = useExpoAudioRecorder(RECORDING_OPTIONS);
   const recorderState = useAudioRecorderState(recorder, RECORDER_STATUS_INTERVAL_MS);
   const startTimeRef = useRef<number>(0);

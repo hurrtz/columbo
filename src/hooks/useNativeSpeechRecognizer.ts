@@ -7,10 +7,21 @@ import { useRecognitionControls } from "./nativeSpeechRecognizer/useRecognitionC
 import { useRecognitionSession } from "./nativeSpeechRecognizer/useRecognitionSession";
 import { useRecognitionSubscriptions } from "./nativeSpeechRecognizer/useRecognitionSubscriptions";
 
+function canUseNativeWaveformRecorderForRecognition() {
+  if (!isNativeWaveformAvailable()) {
+    return false;
+  }
+
+  if (Platform.OS !== "android") {
+    return true;
+  }
+
+  return typeof Platform.Version === "number" && Platform.Version >= 33;
+}
+
 export function useNativeSpeechRecognizer() {
   const { t } = useLocalization();
-  const usingNativeRecorder =
-    Platform.OS === "ios" && isNativeWaveformAvailable();
+  const usingNativeRecorder = canUseNativeWaveformRecorderForRecognition();
   const session = useRecognitionSession({ t, usingNativeRecorder });
 
   useRecognitionSubscriptions({

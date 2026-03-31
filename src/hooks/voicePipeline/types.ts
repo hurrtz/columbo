@@ -67,6 +67,7 @@ export interface UseVoicePipelineParams {
   ttsListenLanguages: TtsListenLanguage[];
   localTtsVoices: LocalTtsVoiceSelections;
   replyPlayback: ReplyPlayback;
+  spokenRepliesEnabled: boolean;
   assistantInstructions: string;
   responseLength: AssistantResponseLength;
   responseTone: AssistantResponseTone;

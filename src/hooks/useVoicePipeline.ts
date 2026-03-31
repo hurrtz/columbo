@@ -41,6 +41,7 @@ export function useVoicePipeline(
     ttsListenLanguages: params.ttsListenLanguages,
     ttsMode: params.ttsMode,
     replyPlayback: params.replyPlayback,
+    spokenRepliesEnabled: params.spokenRepliesEnabled,
     ttsProvider: params.ttsProvider,
   });
 

@@ -126,6 +126,7 @@ function createParams(
     ttsListenLanguages: DEFAULT_SETTINGS.ttsListenLanguages,
     localTtsVoices: DEFAULT_SETTINGS.localTtsVoices,
     replyPlayback: DEFAULT_SETTINGS.replyPlayback,
+    spokenRepliesEnabled: DEFAULT_SETTINGS.spokenRepliesEnabled,
     assistantInstructions: DEFAULT_SETTINGS.assistantInstructions,
     responseLength: DEFAULT_SETTINGS.responseLength,
     responseTone: DEFAULT_SETTINGS.responseTone,
@@ -162,6 +163,24 @@ describe("useVoicePipeline", () => {
     expect(params.showToast).toHaveBeenCalledWith(
       translate("en", "noReplyToRepeatYet"),
     );
+  });
+
+  it("blocks reply replay when spoken replies are turned off", async () => {
+    const params = createParams({
+      spokenRepliesEnabled: false,
+      player: createPlayer(),
+    });
+    const { result } = renderHook(() => useVoicePipeline(params));
+
+    await act(async () => {
+      await result.current.playReplyText("Replay this", "message-1");
+    });
+
+    expect(params.showToast).toHaveBeenCalledWith(
+      translate("en", "spokenRepliesDisabled"),
+    );
+    expect(params.player.speakText).not.toHaveBeenCalled();
+    expect(params.player.enqueueAudio).not.toHaveBeenCalled();
   });
 
   it("falls back to native speech when replay synthesis fails", async () => {

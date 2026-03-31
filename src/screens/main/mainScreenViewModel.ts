@@ -111,20 +111,22 @@ export function getMainScreenViewModel({
         : t("noProviderYet");
 
   const ttsStatusLabel =
-    settings.ttsMode === "native"
-      ? t("systemVoice")
-      : settings.ttsMode === "local"
-        ? `${t("localTts")} · ${settings.ttsListenLanguages
-            .map((entry) => getTtsListenLanguageLabel(entry, language))
-            .join(", ")}`
-        : ttsProvider
-          ? `${PROVIDER_LABELS[ttsProvider]}${
-              getProviderTtsModelOptions(ttsProvider).length > 1 &&
-              selectedTtsModel
-                ? ` · ${getTtsModelLabel(ttsProvider, selectedTtsModel)}`
-                : ""
-            } · ${getTtsVoiceLabel(ttsProvider, selectedTtsVoice, language)}`
-          : t("noTtsProvider");
+    !settings.spokenRepliesEnabled
+      ? t("spokenRepliesOff")
+      : settings.ttsMode === "native"
+        ? t("systemVoice")
+        : settings.ttsMode === "local"
+          ? `${t("localTts")} · ${settings.ttsListenLanguages
+              .map((entry) => getTtsListenLanguageLabel(entry, language))
+              .join(", ")}`
+          : ttsProvider
+            ? `${PROVIDER_LABELS[ttsProvider]}${
+                getProviderTtsModelOptions(ttsProvider).length > 1 &&
+                selectedTtsModel
+                  ? ` · ${getTtsModelLabel(ttsProvider, selectedTtsModel)}`
+                  : ""
+              } · ${getTtsVoiceLabel(ttsProvider, selectedTtsVoice, language)}`
+            : t("noTtsProvider");
 
   const readyLocalFallbackLanguages = settings.ttsListenLanguages.filter(
     (entry) =>
@@ -147,11 +149,13 @@ export function getMainScreenViewModel({
         } · ${getTtsVoiceLabel(ttsProvider, selectedTtsVoice, language)}`
       : null;
   const fallbackTtsStatusLabel =
-    settings.ttsMode === "local"
-      ? providerFallbackStatusLabel
-      : settings.ttsMode === "provider"
-        ? localFallbackStatusLabel
-        : null;
+    !settings.spokenRepliesEnabled
+      ? null
+      : settings.ttsMode === "local"
+        ? providerFallbackStatusLabel
+        : settings.ttsMode === "provider"
+          ? localFallbackStatusLabel
+          : null;
 
   const visualPhase: VoiceVisualPhase = isRecording
     ? "recording"

@@ -25,7 +25,7 @@ interface MainScreenRouteCardProps {
   availableResponseModes: ResponseMode[];
   compactResponseModes?: boolean;
   colors: Colors;
-  onOpenGroqSettings: () => void;
+  onOpenSetupGuide: () => void;
   onSelectResponseMode: (mode: ResponseMode) => void;
   onToggleWebSearchEnabled: () => void;
   responseModes: Record<ResponseMode, ResponseModeRoute>;
@@ -42,7 +42,7 @@ export function MainScreenRouteCard({
   availableResponseModes,
   compactResponseModes = false,
   colors,
-  onOpenGroqSettings,
+  onOpenSetupGuide,
   onSelectResponseMode,
   onToggleWebSearchEnabled,
   responseModes,
@@ -135,7 +135,7 @@ export function MainScreenRouteCard({
               borderColor: colors.border,
             },
           ]}
-          onPress={onOpenGroqSettings}
+          onPress={onOpenSetupGuide}
           activeOpacity={0.9}
         >
           <View style={styles.providerEmptyHeader}>
@@ -148,22 +148,17 @@ export function MainScreenRouteCard({
                 },
               ]}
             >
-              <ProviderIcon provider="groq" color={colors.text} />
-              <Text
-                style={[styles.providerEmptyBadgeText, { color: colors.text }]}
-              >
-                Groq
-              </Text>
+              <Feather name="key" size={14} color={colors.text} />
             </View>
             <Feather name="arrow-up-right" size={16} color={colors.accent} />
           </View>
           <Text style={[styles.providerEmptyTitle, { color: colors.text }]}>
-            {t("startWithGroq")}
+            {t("setupGuideConnectProviderTitle")}
           </Text>
           <Text
             style={[styles.providerEmptyText, { color: colors.textSecondary }]}
           >
-            {t("groqStarterDescription")}
+            {t("setupGuideConnectProviderDescription")}
           </Text>
         </TouchableOpacity>
       )}

@@ -165,6 +165,57 @@ describe("runVoicePipeline", () => {
     expect(synthesizeSpeech).not.toHaveBeenCalled();
   });
 
+  it("keeps replies text-only when spoken replies are disabled", async () => {
+    (streamChat as jest.Mock).mockImplementation(
+      async ({
+        onChunk,
+        onDone,
+      }: {
+        onChunk: (text: string) => void;
+        onDone: (text: string) => Promise<void>;
+      }) => {
+        onChunk("Wind is moving air.");
+        await onDone("Wind is moving air.");
+      },
+    );
+
+    const callbacks = {
+      onTranscription: jest.fn(),
+      onChunk: jest.fn(),
+      onResponseDone: jest.fn(),
+      onAudioReady: jest.fn(),
+      onSpeechTextReady: jest.fn(),
+      onError: jest.fn(),
+    };
+
+    await runVoicePipeline({
+      transcriptionOverride: "Explain wind.",
+      messages: [],
+      model: "llama-3.3-70b-versatile",
+      provider: "groq",
+      providerApiKey: "gsk-test",
+      sttMode: "native",
+      ttsMode: "native",
+      ttsVoice: "alloy",
+      replyPlayback: "wait",
+      spokenRepliesEnabled: false,
+      assistantInstructions: "You are a voice assistant.",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      callbacks,
+    });
+
+    expect(callbacks.onResponseDone).toHaveBeenCalledWith(
+      "Wind is moving air.",
+      undefined,
+      undefined,
+    );
+    expect(callbacks.onSpeechTextReady).not.toHaveBeenCalled();
+    expect(callbacks.onAudioReady).not.toHaveBeenCalled();
+    expect(synthesizeSpeech).not.toHaveBeenCalled();
+  });
+
   it("passes summary usage metadata through the pipeline callback", async () => {
     (summarizeConversationContext as jest.Mock).mockResolvedValueOnce({
       summary: "User prefers concise answers.",

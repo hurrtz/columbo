@@ -16,6 +16,7 @@ interface CreateVoicePipelineTtsQueueParams {
   language: RunVoicePipelineParams["language"];
   localTtsVoices?: RunVoicePipelineParams["localTtsVoices"];
   replyPlayback: RunVoicePipelineParams["replyPlayback"];
+  spokenRepliesEnabled?: RunVoicePipelineParams["spokenRepliesEnabled"];
   ttsApiKey?: string;
   ttsListenLanguages?: RunVoicePipelineParams["ttsListenLanguages"];
   ttsMode: RunVoicePipelineParams["ttsMode"];
@@ -31,6 +32,7 @@ export function createVoicePipelineTtsQueue({
   language,
   localTtsVoices,
   replyPlayback,
+  spokenRepliesEnabled = true,
   ttsApiKey,
   ttsListenLanguages,
   ttsMode,
@@ -72,6 +74,10 @@ export function createVoicePipelineTtsQueue({
 
     const task = ttsChain.then(async () => {
       if (abortSignal?.aborted) {
+        return;
+      }
+
+      if (!spokenRepliesEnabled) {
         return;
       }
 
@@ -135,6 +141,10 @@ export function createVoicePipelineTtsQueue({
   };
 
   const enqueueTts = (text: string) => {
+    if (!spokenRepliesEnabled) {
+      return;
+    }
+
     if (ttsMode === "native") {
       enqueueTtsChunk(text);
       return;

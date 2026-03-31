@@ -218,6 +218,11 @@ export const en: TranslationDictionary = {
     fullReplyFirstDescription:
       "Generate the entire answer first, then play it in one pass.",
     textToSpeech: "Text to Speech",
+    spokenReplies: "Spoken Replies",
+    spokenRepliesEnabledDescription:
+      "Read assistant replies aloud when a voice route is available.",
+    spokenRepliesDisabledDescription:
+      "Keep replies text-only for now. Your preferred TTS route stays saved for later.",
     nativeTtsDescription:
       "Use the device speech engine for spoken replies and voice preview.",
     voiceOutputDescription:
@@ -293,6 +298,7 @@ export const en: TranslationDictionary = {
     generatingPreview: "Generating Preview...",
     playingPreview: "Playing Preview...",
     systemVoice: "System voice",
+    spokenRepliesOff: "Text only",
     noTtsProvider: "No TTS provider",
     nothingToCopyYet: "Nothing to copy yet.",
     couldntCopyText: "Couldn't copy that text.",
@@ -348,6 +354,8 @@ export const en: TranslationDictionary = {
     downloadSelectedLocalVoiceFirst: ({ languageLabel }) =>
       `Download the selected ${languageLabel} local voice first.`,
     couldntPreviewVoice: "Couldn't preview voice.",
+    spokenRepliesDisabled:
+      "Spoken replies are turned off in Settings.",
     providerVoiceFallback:
       "Provider voice failed. Switched this reply to the system voice.",
     localVoiceFallback:
@@ -426,6 +434,9 @@ export const en: TranslationDictionary = {
     startWithGroq: "Start with Groq",
     groqStarterDescription:
       "Groq offers a free tier, so it is the fastest way to unlock the app. Add its API key in Settings and the provider switcher will appear here right away.",
+    setupGuideConnectProviderTitle: "Connect a provider",
+    setupGuideConnectProviderDescription:
+      "Add a BYOK provider, test the voice path, and let SchnackAI configure the best available routes.",
     idle: "Idle",
     yourConversationAppearsHere: "Your conversation appears here",
     defaultTranscriptEmptyDescription:
@@ -451,6 +462,62 @@ export const en: TranslationDictionary = {
       "We will open Settings next so you can paste and validate the provider key.",
     useThisSetup: "Use this setup",
     notNow: "Not now",
+    setupGuideIntroTitle: "Bring Your Own AI",
+    setupGuideIntroBody:
+      "SchnackAI is a voice-first BYOK client. Add a provider key and the app will configure the best listening and speaking path available on this device.",
+    setupGuideIntroNote:
+      "Voice, transcription, and web search support depend on the provider and your local device capabilities. You can change everything later in Settings.",
+    setupGuideProviderTitle: "Connect A Provider",
+    setupGuideProviderBody:
+      "Choose the provider you want SchnackAI to use for replies, then paste a key with LLM access.",
+    setupGuideProviderPickerLabel: "Response provider",
+    setupGuideApiKeyLabel: "API key",
+    setupGuideApiKeyPlaceholder: "Paste your provider key",
+    setupGuideContinue: "Continue",
+    setupGuideBack: "Back",
+    setupGuideValidateKey: "Validate key",
+    setupGuideProviderKeyNeedsLlmAccess: ({ provider }) =>
+      `This ${provider} key does not unlock LLM access for replies.`,
+    setupGuideVoiceTestTitle: "Test Your Setup",
+    setupGuideVoiceTestBody:
+      "Say a short sentence. SchnackAI will test microphone access, transcription, the provider reply path, and spoken output when an acceptable voice route is available.",
+    setupGuideVoiceTestNoInputBody:
+      "Voice input is not available with this setup. Continue to review the detected routes, then adjust speech settings later if needed.",
+    setupGuideVoiceTestTextOnlyNote:
+      "This test stays text-only because no acceptable spoken voice route is ready yet.",
+    setupGuideVoiceTestStart: "Start test",
+    setupGuideVoiceTestStop: "Stop recording",
+    setupGuideVoiceTestRetry: "Run again",
+    setupGuideVoiceTestTranscribing: "Transcribing…",
+    setupGuideVoiceTestThinking: "Testing reply…",
+    setupGuideVoiceTestSynthesizing: "Preparing voice…",
+    setupGuideVoiceTestSpeaking: "Playing reply…",
+    setupGuideVoiceTestTranscript: "Transcript",
+    setupGuideVoiceTestReply: "Reply",
+    setupGuideVoiceTestReset: "Clear this result",
+    setupGuideVoiceInputUnavailable:
+      "Voice input is not available for this setup on this device.",
+    setupGuideSummaryTitle: "Setup Complete",
+    setupGuideSummaryBody:
+      "Here is the route SchnackAI will use with your current setup.",
+    setupGuideSummaryLlm: "LLM",
+    setupGuideSummaryStt: "Speech to text",
+    setupGuideSummaryTts: "Text to speech",
+    setupGuideSummaryWebSearch: "Web search",
+    setupGuideRouteProviderLlm: ({ provider }) => `Enabled via ${provider}`,
+    setupGuideRouteOnDeviceStt: "Enabled via on-device speech recognition",
+    setupGuideRouteProviderStt: ({ provider }) =>
+      `Enabled via ${provider} speech transcription`,
+    setupGuideRouteProviderTts: ({ provider }) =>
+      `Enabled via ${provider} voice`,
+    setupGuideRouteLocalTts: "Enabled via local voice pack",
+    setupGuideRouteUnavailable: "Not available",
+    setupGuideRouteOff: "Off",
+    setupGuideWebSearchAvailableOff: ({ provider }) =>
+      `Available via ${provider}, currently off`,
+    setupGuideSummaryTextOnlyNote:
+      "Spoken replies are off for now. Replies stay in text until you enable a provider or local voice.",
+    setupGuideFinish: "Start Using SchnackAI",
     searchConversationsPlaceholder: "Search titles, models, and message text",
     noMatchingConversations: "No matching conversations",
     noMatchingConversationsDescription:

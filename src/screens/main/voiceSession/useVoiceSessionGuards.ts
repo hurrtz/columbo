@@ -10,7 +10,7 @@ interface UseVoiceSessionGuardsParams {
   nativeSttAvailable: boolean;
   providerApiKey: string;
   providerLabel: string;
-  settings: Pick<Settings, "sttMode" | "ttsMode">;
+  settings: Pick<Settings, "spokenRepliesEnabled" | "sttMode" | "ttsMode">;
   showToast: ShowToastFn;
   sttApiKey: string;
   sttProvider: Provider | null;
@@ -55,6 +55,7 @@ export function useVoiceSessionGuards({
     }
 
     if (
+      settings.spokenRepliesEnabled &&
       settings.ttsMode === "provider" &&
       (!ttsProvider ||
         !availableTtsProviders.includes(ttsProvider) ||
@@ -72,6 +73,7 @@ export function useVoiceSessionGuards({
     providerApiKey,
     providerLabel,
     settings.sttMode,
+    settings.spokenRepliesEnabled,
     settings.ttsMode,
     showToast,
     sttApiKey,

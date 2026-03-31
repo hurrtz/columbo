@@ -51,7 +51,24 @@ yarn-error.*
 !/ios/SchnackAI.xcodeproj/
 /ios/SchnackAI.xcodeproj/*
 !/ios/SchnackAI.xcodeproj/project.pbxproj
-/android
+/android/*
+!/android/app/
+/android/app/*
+!/android/app/src/
+/android/app/src/*
+!/android/app/src/main/
+/android/app/src/main/*
+!/android/app/src/main/java/
+/android/app/src/main/java/*
+!/android/app/src/main/java/com/
+/android/app/src/main/java/com/*
+!/android/app/src/main/java/com/tobiaswinkler/
+/android/app/src/main/java/com/tobiaswinkler/*
+!/android/app/src/main/java/com/tobiaswinkler/schnackai/
+/android/app/src/main/java/com/tobiaswinkler/schnackai/*
+!/android/app/src/main/java/com/tobiaswinkler/schnackai/MainApplication.kt
+!/android/app/src/main/java/com/tobiaswinkler/schnackai/SchnackNativeWaveformModule.kt
+!/android/app/src/main/java/com/tobiaswinkler/schnackai/SchnackNativeWaveformPackage.kt
 
 # secrets
 src/config.ts

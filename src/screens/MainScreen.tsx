@@ -261,6 +261,7 @@ export function MainScreen() {
     ttsListenLanguages: settings.ttsListenLanguages,
     localTtsVoices: settings.localTtsVoices,
     replyPlayback: settings.replyPlayback,
+    spokenRepliesEnabled: settings.spokenRepliesEnabled,
     assistantInstructions: settings.assistantInstructions,
     responseLength: settings.responseLength,
     responseTone: settings.responseTone,
@@ -371,12 +372,34 @@ export function MainScreen() {
 
   const {
     handleDismissSetupGuide,
-    handleChooseSetupPreset,
+    handleOpenSetupGuide,
+    handleBack,
+    handleContinueFromIntro,
+    handleSelectProvider,
+    handleProviderApiKeyChange,
+    handleValidateProviderKey,
+    handleContinueFromProvider,
+    handleContinueFromVoiceTest,
+    handleFinishSetupGuide,
+    handleOpenSettingsFromSummary,
+    step: setupGuideStep,
+    providerOptions: setupGuideProviderOptions,
+    selectedProvider: setupGuideSelectedProvider,
+    selectedProviderApiKey: setupGuideSelectedProviderApiKey,
+    currentValidationState: setupGuideValidationState,
+    resolvedRoutes: setupGuideResolvedRoutes,
+    voiceTest: setupGuideVoiceTest,
   } = useSetupGuideController({
     loaded,
+    localTtsPackStates,
+    nativeStt,
     openSettings,
+    player,
+    recorder,
     setSetupGuideVisible,
     setupGuideDismissed: settings.setupGuideDismissed,
+    settings,
+    updateApiKey,
     updateSettings,
   });
 
@@ -730,6 +753,7 @@ export function MainScreen() {
         replyPlayback: settings.replyPlayback,
         responseLength: settings.responseLength,
         responseTone: settings.responseTone,
+        spokenRepliesEnabled: settings.spokenRepliesEnabled,
         sttMode: settings.sttMode,
         sttProvider,
         ttsMode: settings.ttsMode,
@@ -744,6 +768,7 @@ export function MainScreen() {
     settings.replyPlayback,
     settings.responseLength,
     settings.responseTone,
+    settings.spokenRepliesEnabled,
     settings.sttMode,
     settings.ttsMode,
     sttProvider,
@@ -942,7 +967,7 @@ export function MainScreen() {
                 availableResponseModes={loaded ? availableResponseModes : []}
                 compactResponseModes
                 colors={colors}
-                onOpenGroqSettings={() => openSettings("groq")}
+                onOpenSetupGuide={() => handleOpenSetupGuide("provider")}
                 onSelectResponseMode={handleResponseModeChange}
                 onToggleWebSearchEnabled={() => {
                   if (!webSearchActive && !webSearchReady) {
@@ -1034,7 +1059,7 @@ export function MainScreen() {
                 activeResponseMode={activeResponseMode}
                 availableResponseModes={loaded ? availableResponseModes : []}
                 colors={colors}
-                onOpenGroqSettings={() => openSettings("groq")}
+                onOpenSetupGuide={() => handleOpenSetupGuide("provider")}
                 onSelectResponseMode={handleResponseModeChange}
                 onToggleWebSearchEnabled={() => {
                   if (!webSearchActive && !webSearchReady) {
@@ -1175,8 +1200,35 @@ export function MainScreen() {
       />
       <SetupGuideModal
         visible={setupGuideVisible}
-        onChoosePreset={handleChooseSetupPreset}
+        step={setupGuideStep}
+        providerOptions={setupGuideProviderOptions}
+        selectedProvider={setupGuideSelectedProvider}
+        selectedProviderApiKey={setupGuideSelectedProviderApiKey}
+        currentValidationState={setupGuideValidationState}
+        resolvedRoutes={setupGuideResolvedRoutes}
+        voiceTest={setupGuideVoiceTest}
+        onSelectProvider={handleSelectProvider}
+        onChangeProviderApiKey={handleProviderApiKeyChange}
         onDismiss={handleDismissSetupGuide}
+        onBack={handleBack}
+        onContinueFromIntro={handleContinueFromIntro}
+        onValidateProviderKey={() => {
+          void handleValidateProviderKey();
+        }}
+        onContinueFromProvider={handleContinueFromProvider}
+        onVoiceTestAction={() => {
+          void setupGuideVoiceTest.handleAction();
+        }}
+        onResetVoiceTest={() => {
+          void setupGuideVoiceTest.reset(true);
+        }}
+        onContinueFromVoiceTest={handleContinueFromVoiceTest}
+        onFinish={() => {
+          void handleFinishSetupGuide();
+        }}
+        onOpenSettings={() => {
+          void handleOpenSettingsFromSummary();
+        }}
       />
       <ConversationMemoryModal
         visible={memoryVisible}

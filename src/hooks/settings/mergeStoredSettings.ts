@@ -337,12 +337,17 @@ export function mergeSettings(
   const hasConfiguredKeys = Object.values(mergedApiKeys).some(
     (apiKey) => apiKey.trim().length > 0,
   );
+  const spokenRepliesEnabled =
+    typeof storedSettings?.spokenRepliesEnabled === "boolean"
+      ? storedSettings.spokenRepliesEnabled
+      : DEFAULT_SETTINGS.spokenRepliesEnabled;
 
   return {
     ...DEFAULT_SETTINGS,
     ...storedSettings,
     language,
     replyPlayback,
+    spokenRepliesEnabled,
     ttsListenLanguages:
       storedTtsListenLanguages.length > 0
         ? storedTtsListenLanguages

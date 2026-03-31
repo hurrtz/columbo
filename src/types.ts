@@ -91,6 +91,7 @@ export type WaveformVisualizationVariant = "bars" | "oscilloscope";
 export interface Settings {
   inputMode: InputMode;
   replyPlayback: ReplyPlayback;
+  spokenRepliesEnabled: boolean;
   activeResponseMode: ResponseMode;
   responseModes: ResponseModeSelections;
   providerModels: ProviderModelSelections;
@@ -182,6 +183,7 @@ export function getDefaultTtsListenLanguages(
 export const DEFAULT_SETTINGS: Settings = {
   inputMode: "toggle-to-talk",
   replyPlayback: "stream",
+  spokenRepliesEnabled: true,
   activeResponseMode: "normal",
   responseModes: DEFAULT_RESPONSE_MODES,
   providerModels: PROVIDER_DEFAULT_MODELS,

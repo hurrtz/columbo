@@ -47,10 +47,9 @@ const nativeModule = NativeModules.SchnackNativeWaveform as
   | NativeWaveformModule
   | undefined;
 
-const nativeEmitter =
-  Platform.OS === "ios" && nativeModule
-    ? new NativeEventEmitter(nativeModule as any)
-    : null;
+const nativeEmitter = nativeModule
+  ? new NativeEventEmitter(nativeModule as any)
+  : null;
 
 export function supportsNativeOutputWaveformPlayback() {
   return (
@@ -62,7 +61,7 @@ export function supportsNativeOutputWaveformPlayback() {
 }
 
 export function isNativeWaveformAvailable() {
-  return Platform.OS === "ios" && !!nativeModule;
+  return !!nativeModule;
 }
 
 export function subscribeToNativeWaveform(

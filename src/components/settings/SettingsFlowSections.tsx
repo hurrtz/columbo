@@ -1167,6 +1167,28 @@ export function VoiceSection({
       </View>
 
       <View style={styles.settingsSubsectionStack}>
+        <View style={styles.inlineSwitchRow}>
+          <View style={styles.inlineSwitchCopy}>
+            <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
+              {t("spokenReplies")}
+            </Text>
+            <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
+              {settings.spokenRepliesEnabled
+                ? t("spokenRepliesEnabledDescription")
+                : t("spokenRepliesDisabledDescription")}
+            </Text>
+          </View>
+          <Switch
+            value={settings.spokenRepliesEnabled}
+            onValueChange={(value) => onUpdate({ spokenRepliesEnabled: value })}
+            trackColor={{
+              false: colors.border,
+              true: colors.accent,
+            }}
+            thumbColor={colors.surface}
+          />
+        </View>
+
         <ListenLanguageSelector
           selectedLanguages={settings.ttsListenLanguages}
           onToggleLanguage={onToggleListenLanguage}

@@ -5,6 +5,10 @@ import { useVoiceSessionController } from "../../src/screens/main/useVoiceSessio
 
 const mockReleaseLocalTtsResources = jest.fn(async () => undefined);
 
+jest.mock("../../src/services/debugLogCapture", () => ({
+  recordDebugLogEvent: jest.fn(),
+}));
+
 jest.mock("../../src/services/localTts", () => ({
   releaseLocalTtsResources: () => mockReleaseLocalTtsResources(),
 }));
@@ -60,6 +64,7 @@ describe("useVoiceSessionController", () => {
       setPipelinePhase: jest.fn(),
       setStreamingText: jest.fn(),
       settings: {
+        spokenRepliesEnabled: true,
         sttMode: "provider" as const,
         ttsMode: "provider" as const,
       },

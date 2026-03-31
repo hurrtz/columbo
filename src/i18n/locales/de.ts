@@ -222,6 +222,11 @@ export const de: TranslationDictionary = {
     fullReplyFirstDescription:
       "Warte erst ab, bis die Antwort komplett eingegangen ist, bevor der Vorleseonkel loslegt.",
     textToSpeech: "Text zu Sprache",
+    spokenReplies: "Gesprochene Antworten",
+    spokenRepliesEnabledDescription:
+      "Lies Antworten laut vor, sobald eine brauchbare Sprachroute verfügbar ist.",
+    spokenRepliesDisabledDescription:
+      "Halte Antworten vorerst textbasiert. Deine bevorzugte TTS-Route bleibt fuer spaeter gespeichert.",
     nativeTtsDescription:
       "Verwende die Sprachausgabe des Geräts für die Sprachausgabe.",
     voiceOutputDescription:
@@ -297,6 +302,7 @@ export const de: TranslationDictionary = {
     generatingPreview: "Vorschau wird erzeugt…",
     playingPreview: "Vorschau wird abgespielt…",
     systemVoice: "Systemstimme",
+    spokenRepliesOff: "Nur Text",
     noTtsProvider: "Kein TTS-Anbieter",
     nothingToCopyYet: "Noch nichts zum Kopieren.",
     couldntCopyText: "Der Text konnte nicht kopiert werden.",
@@ -353,6 +359,8 @@ export const de: TranslationDictionary = {
     downloadSelectedLocalVoiceFirst: ({ languageLabel }) =>
       `Lade zuerst die ausgewählte lokale Stimme für ${languageLabel} herunter.`,
     couldntPreviewVoice: "Die Stimmvorschau konnte nicht abgespielt werden.",
+    spokenRepliesDisabled:
+      "Gesprochene Antworten sind in den Einstellungen deaktiviert.",
     providerVoiceFallback:
       "Die Anbieter-Stimme ist ausgefallen. Diese Antwort wird mit der Systemstimme abgespielt.",
     localVoiceFallback:
@@ -433,6 +441,9 @@ export const de: TranslationDictionary = {
     startWithGroq: "Mit Groq starten",
     groqStarterDescription:
       "Groq bietet einen kostenlosen Tarif und ist damit der schnellste Weg, die App freizuschalten. Füge in den Einstellungen den API-Schlüssel hinzu – der Anbieter-Umschalter erscheint dann sofort hier.",
+    setupGuideConnectProviderTitle: "Anbieter verbinden",
+    setupGuideConnectProviderDescription:
+      "Füge einen BYOK-Anbieter hinzu, teste den Sprachpfad und lass SchnackAI die besten verfügbaren Routen konfigurieren.",
     idle: "Bereit",
     yourConversationAppearsHere: "Dein Schnack erscheint hier",
     defaultTranscriptEmptyDescription:
@@ -459,6 +470,63 @@ export const de: TranslationDictionary = {
       "Danach öffnen wir die Einstellungen, damit du den API-Key einfügen und prüfen kannst.",
     useThisSetup: "Dieses Setup nutzen",
     notNow: "Jetzt nicht",
+    setupGuideIntroTitle: "Bring Your Own AI",
+    setupGuideIntroBody:
+      "SchnackAI ist ein sprachfokussierter BYOK-Client. Füge einen Anbieter-Key hinzu, und die App konfiguriert den besten verfügbaren Hör- und Sprachpfad auf diesem Gerät.",
+    setupGuideIntroNote:
+      "Sprachausgabe, Transkription und Websuche hängen vom Anbieter und von den lokalen Gerätefähigkeiten ab. Du kannst später alles in den Einstellungen ändern.",
+    setupGuideProviderTitle: "Anbieter verbinden",
+    setupGuideProviderBody:
+      "Wähle den Anbieter, den SchnackAI für Antworten nutzen soll, und füge dann einen Key mit LLM-Zugriff ein.",
+    setupGuideProviderPickerLabel: "Antwort-Anbieter",
+    setupGuideApiKeyLabel: "API-Key",
+    setupGuideApiKeyPlaceholder: "Füge deinen Anbieter-Key ein",
+    setupGuideContinue: "Weiter",
+    setupGuideBack: "Zurück",
+    setupGuideValidateKey: "Key prüfen",
+    setupGuideProviderKeyNeedsLlmAccess: ({ provider }) =>
+      `Dieser ${provider}-Key schaltet keinen LLM-Zugriff für Antworten frei.`,
+    setupGuideVoiceTestTitle: "Setup testen",
+    setupGuideVoiceTestBody:
+      "Sprich einen kurzen Satz. SchnackAI testet Mikrofonzugriff, Transkription, den Antwortpfad des Anbieters und gesprochene Ausgabe, wenn eine brauchbare Sprachroute verfügbar ist.",
+    setupGuideVoiceTestNoInputBody:
+      "Spracheingabe ist mit diesem Setup nicht verfügbar. Fahr fort, um die erkannten Routen zu prüfen, und passe die Spracheinstellungen später bei Bedarf an.",
+    setupGuideVoiceTestTextOnlyNote:
+      "Dieser Test bleibt bei Text, weil derzeit keine brauchbare Sprachroute für gesprochene Antworten bereitsteht.",
+    setupGuideVoiceTestStart: "Test starten",
+    setupGuideVoiceTestStop: "Aufnahme stoppen",
+    setupGuideVoiceTestRetry: "Erneut testen",
+    setupGuideVoiceTestTranscribing: "Transkribiere…",
+    setupGuideVoiceTestThinking: "Teste Antwort…",
+    setupGuideVoiceTestSynthesizing: "Bereite Stimme vor…",
+    setupGuideVoiceTestSpeaking: "Spiele Antwort ab…",
+    setupGuideVoiceTestTranscript: "Transkript",
+    setupGuideVoiceTestReply: "Antwort",
+    setupGuideVoiceTestReset: "Dieses Ergebnis löschen",
+    setupGuideVoiceInputUnavailable:
+      "Spracheingabe ist für dieses Setup auf diesem Gerät nicht verfügbar.",
+    setupGuideSummaryTitle: "Setup abgeschlossen",
+    setupGuideSummaryBody:
+      "Das ist die Route, die SchnackAI mit deinem aktuellen Setup verwendet.",
+    setupGuideSummaryLlm: "LLM",
+    setupGuideSummaryStt: "Sprache zu Text",
+    setupGuideSummaryTts: "Text zu Sprache",
+    setupGuideSummaryWebSearch: "Websuche",
+    setupGuideRouteProviderLlm: ({ provider }) => `Aktiv über ${provider}`,
+    setupGuideRouteOnDeviceStt:
+      "Aktiv über geräteinterne Spracherkennung",
+    setupGuideRouteProviderStt: ({ provider }) =>
+      `Aktiv über ${provider}-Transkription`,
+    setupGuideRouteProviderTts: ({ provider }) =>
+      `Aktiv über ${provider}-Stimme`,
+    setupGuideRouteLocalTts: "Aktiv über lokales Sprachpaket",
+    setupGuideRouteUnavailable: "Nicht verfügbar",
+    setupGuideRouteOff: "Aus",
+    setupGuideWebSearchAvailableOff: ({ provider }) =>
+      `Über ${provider} verfügbar, derzeit aus`,
+    setupGuideSummaryTextOnlyNote:
+      "Gesprochene Antworten sind vorerst aus. Antworten bleiben als Text, bis du eine Anbieter- oder lokale Stimme aktivierst.",
+    setupGuideFinish: "SchnackAI starten",
     searchConversationsPlaceholder:
       "Suche nach Titeln, Modellen und Nachrichtentext",
     noMatchingConversations: "Keine passenden Schnacks",

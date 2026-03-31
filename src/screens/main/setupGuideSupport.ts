@@ -1,0 +1,261 @@
+import type { LocalTtsPackStates } from "../../components/settings/types";
+import {
+  PROVIDER_DEFAULT_TTS_MODELS,
+  PROVIDER_DEFAULT_TTS_VOICES,
+  PROVIDER_LABELS,
+  PROVIDER_LLM_SUPPORT,
+  PROVIDER_ORDER,
+  PROVIDER_STT_SUPPORT,
+  PROVIDER_TTS_SUPPORT,
+} from "../../constants/models";
+import {
+  WEB_SEARCH_PROVIDER_IDS,
+  type WebSearchProvider,
+} from "../../constants/webSearch";
+import { getResolvedLocalTtsSelection } from "../../services/tts/localRoute";
+import type {
+  Provider,
+  ResponseModeSelections,
+  Settings,
+  TtsListenLanguage,
+} from "../../types";
+import { getDefaultModelForProvider, getProviderValidationModel } from "../../utils/responseModes";
+import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
+
+export type SetupGuideStep = "intro" | "provider" | "voice-test" | "summary";
+
+export type SetupGuideValidationState = {
+  status: "idle" | "validating" | "success" | "error";
+  provider?: Provider;
+  apiKey?: string;
+  model?: string;
+  message?: string;
+};
+
+export interface SetupGuideProviderOption {
+  label: string;
+  value: Provider;
+}
+
+export interface SetupGuideResolvedRoutes {
+  llm: {
+    enabled: boolean;
+    model: string;
+    provider: Provider;
+  };
+  stt:
+    | {
+        enabled: true;
+        kind: "on-device";
+      }
+    | {
+        enabled: true;
+        kind: "provider";
+        provider: Provider;
+        model: string;
+      }
+    | {
+        enabled: false;
+        kind: "disabled";
+      };
+  tts:
+    | {
+        enabled: true;
+        kind: "provider";
+        provider: Provider;
+        model: string;
+        voice: string;
+      }
+    | {
+        enabled: true;
+        kind: "local";
+        language: TtsListenLanguage;
+        voice: string;
+      }
+    | {
+        enabled: false;
+        kind: "disabled";
+      };
+  webSearch: {
+    available: boolean;
+    provider: WebSearchProvider | null;
+  };
+}
+
+function providerSupportsCapability(
+  provider: Provider,
+  capability: "llm" | "stt" | "tts" | "search",
+) {
+  switch (capability) {
+    case "llm":
+      return PROVIDER_LLM_SUPPORT[provider] === "provider";
+    case "stt":
+      return PROVIDER_STT_SUPPORT[provider] === "provider";
+    case "tts":
+      return PROVIDER_TTS_SUPPORT[provider] === "provider";
+    case "search":
+      return WEB_SEARCH_PROVIDER_IDS.includes(provider as never);
+  }
+}
+
+export function getSetupGuideProviderOptions(): SetupGuideProviderOption[] {
+  return PROVIDER_ORDER.filter((provider) =>
+    providerSupportsCapability(provider, "llm"),
+  ).map((provider) => ({
+    label: PROVIDER_LABELS[provider],
+    value: provider,
+  }));
+}
+
+export function getSetupGuideInitialProvider(settings: Settings): Provider {
+  const providerOptions = getSetupGuideProviderOptions();
+  const optionValues = providerOptions.map((option) => option.value);
+
+  if (optionValues.includes(settings.lastProvider)) {
+    return settings.lastProvider;
+  }
+
+  return providerOptions[0]?.value ?? settings.lastProvider;
+}
+
+export function getSetupGuideValidationModel(
+  settings: Settings,
+  provider: Provider,
+) {
+  return getProviderValidationModel(settings, provider).trim() ||
+    getDefaultModelForProvider(provider);
+}
+
+export function getCurrentSetupGuideValidationState(params: {
+  provider: Provider;
+  apiKey: string;
+  model: string;
+  validationState: SetupGuideValidationState;
+}): SetupGuideValidationState {
+  const { provider, apiKey, model, validationState } = params;
+
+  if (
+    validationState.provider !== provider ||
+    validationState.apiKey !== apiKey.trim() ||
+    validationState.model !== model
+  ) {
+    return { status: "idle" };
+  }
+
+  return validationState;
+}
+
+export function resolveSetupGuideRoutes(params: {
+  provider: Provider;
+  settings: Settings;
+  nativeSttAvailable: boolean;
+  localTtsPackStates: LocalTtsPackStates;
+}): SetupGuideResolvedRoutes {
+  const { localTtsPackStates, nativeSttAvailable, provider, settings } = params;
+  const apiKey = settings.apiKeys[provider].trim();
+  const llmModel = getSetupGuideValidationModel(settings, provider);
+  const providerSttModel = settings.providerSttModels[provider]?.trim() || "";
+  const providerTtsModel =
+    settings.providerTtsModels[provider]?.trim() ||
+    PROVIDER_DEFAULT_TTS_MODELS[provider] ||
+    "";
+  const providerTtsVoice =
+    settings.providerTtsVoices[provider]?.trim() ||
+    PROVIDER_DEFAULT_TTS_VOICES[provider] ||
+    "";
+
+  const llmEnabled =
+    providerSupportsCapability(provider, "llm") &&
+    hasProviderCredentialForCapability(provider, apiKey, "llm");
+  const providerSttEnabled =
+    providerSupportsCapability(provider, "stt") &&
+    hasProviderCredentialForCapability(provider, apiKey, "stt");
+  const providerTtsEnabled =
+    providerSupportsCapability(provider, "tts") &&
+    hasProviderCredentialForCapability(provider, apiKey, "tts");
+  const searchEnabled =
+    providerSupportsCapability(provider, "search") &&
+    hasProviderCredentialForCapability(provider, apiKey, "search");
+
+  const localSelection = getResolvedLocalTtsSelection({
+    text: settings.language === "de" ? "Hallo" : "Hello",
+    language: settings.language,
+    listenLanguages: settings.ttsListenLanguages,
+    localVoices: settings.localTtsVoices,
+  });
+  const localPackState = localTtsPackStates[localSelection.resolvedLanguage];
+  const localTtsEnabled = Boolean(
+    localSelection.canUseLocal &&
+      localSelection.localVoice &&
+      localPackState?.installed &&
+      localPackState?.verified,
+  );
+
+  return {
+    llm: {
+      enabled: llmEnabled,
+      provider,
+      model: llmModel,
+    },
+    stt: nativeSttAvailable
+      ? {
+          enabled: true,
+          kind: "on-device",
+        }
+      : providerSttEnabled
+        ? {
+            enabled: true,
+            kind: "provider",
+            provider,
+            model: providerSttModel,
+          }
+        : {
+            enabled: false,
+            kind: "disabled",
+          },
+    tts: providerTtsEnabled
+      ? {
+          enabled: true,
+          kind: "provider",
+          provider,
+          model: providerTtsModel,
+          voice: providerTtsVoice,
+        }
+      : localTtsEnabled
+        ? {
+            enabled: true,
+            kind: "local",
+            language: localSelection.resolvedLanguage,
+            voice: localSelection.localVoice,
+          }
+        : {
+            enabled: false,
+            kind: "disabled",
+          },
+    webSearch: {
+      available: searchEnabled,
+      provider: searchEnabled ? (provider as WebSearchProvider) : null,
+    },
+  };
+}
+
+export function buildSetupGuideResponseModes(
+  provider: Provider,
+): ResponseModeSelections {
+  const model = getDefaultModelForProvider(provider);
+
+  return {
+    quick: {
+      provider,
+      model,
+    },
+    normal: {
+      provider,
+      model,
+    },
+    deep: {
+      provider,
+      model,
+    },
+  };
+}
