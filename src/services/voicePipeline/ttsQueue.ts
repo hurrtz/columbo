@@ -41,6 +41,7 @@ export function createVoicePipelineTtsQueue({
   ttsVoice,
 }: CreateVoicePipelineTtsQueueParams) {
   const STREAM_TTS_FOLLOW_UP_MIN_CHARS = 160;
+  const PROVIDER_TTS_TARGET_CHUNK_CHARS = 1200;
   let sentenceBuffer = "";
   let streamReadyBuffer = "";
   let ttsChain = Promise.resolve();
@@ -154,7 +155,10 @@ export function createVoicePipelineTtsQueue({
       text,
       ttsMode === "local"
         ? LOCAL_TTS_MAX_INPUT_CHARS
-        : PROVIDER_TTS_MAX_INPUT_CHARS,
+        : Math.min(
+            PROVIDER_TTS_MAX_INPUT_CHARS,
+            PROVIDER_TTS_TARGET_CHUNK_CHARS,
+          ),
     );
 
     if (segments.length === 0) {

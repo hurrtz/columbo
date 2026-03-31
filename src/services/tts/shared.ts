@@ -15,12 +15,12 @@ import { extractProviderErrorMessage } from "../providerErrors";
 
 export const PROVIDER_TTS_MAX_INPUT_CHARS = 3500;
 export const LOCAL_TTS_MAX_INPUT_CHARS = 420;
-export const PROVIDER_TTS_TIMEOUT_MS = 15000;
-export const PROVIDER_TTS_TIMEOUT_MS_PER_CHAR = 10;
-export const PROVIDER_TTS_MAX_TIMEOUT_MS = 60000;
-const GEMINI_PROVIDER_TTS_TIMEOUT_MS = 25000;
-const GEMINI_PROVIDER_TTS_TIMEOUT_MS_PER_CHAR = 20;
-const GEMINI_PROVIDER_TTS_MAX_TIMEOUT_MS = 90000;
+export const PROVIDER_TTS_TIMEOUT_MS = 12000;
+export const PROVIDER_TTS_TIMEOUT_MS_PER_CHAR = 8;
+export const PROVIDER_TTS_MAX_TIMEOUT_MS = 40000;
+const GEMINI_PROVIDER_TTS_TIMEOUT_MS = 18000;
+const GEMINI_PROVIDER_TTS_TIMEOUT_MS_PER_CHAR = 12;
+const GEMINI_PROVIDER_TTS_MAX_TIMEOUT_MS = 50000;
 
 export class TtsRequestError extends Error {
   readonly provider: Provider;

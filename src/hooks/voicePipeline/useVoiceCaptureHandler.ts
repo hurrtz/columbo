@@ -9,6 +9,27 @@ import type {
 } from "../../types";
 import type { PipelinePhase, UseVoicePipelineParams } from "./types";
 
+function getUnexpectedIssueDetail(
+  error: unknown,
+  fallbackMessage: string,
+): string | undefined {
+  if (!(error instanceof Error)) {
+    return undefined;
+  }
+
+  const detail = error.message.trim();
+
+  if (!detail) {
+    return undefined;
+  }
+
+  return detail === fallbackMessage ? undefined : detail;
+}
+
+function formatNoticeToast(notice: MessagePipelineNotice) {
+  return notice.detail ? `${notice.message} ${notice.detail}` : notice.message;
+}
+
 type VoiceCaptureHandlerParams = Omit<UseVoicePipelineParams, "isRecording"> & {
   abortRef: React.MutableRefObject<AbortController | null>;
   handleRepeatLastReply: (
@@ -73,7 +94,9 @@ export function useVoiceCaptureHandler({
       const notices = metadata?.notices ?? [];
       const alreadyPresent = notices.some(
         (entry) =>
-          entry.stage === notice.stage && entry.message === notice.message,
+          entry.stage === notice.stage &&
+          entry.message === notice.message &&
+          entry.detail === notice.detail,
       );
 
       return {
@@ -198,6 +221,7 @@ export function useVoiceCaptureHandler({
                 stage: "web-search",
                 level: "warning",
                 message: t("webSearchFallback"),
+                detail: getUnexpectedIssueDetail(error, t("webSearchFallback")),
               };
               recordDebugLogEvent({
                 event: "voice-pipeline-web-search-fallback",
@@ -213,7 +237,7 @@ export function useVoiceCaptureHandler({
                 ...pendingAssistantNoticesRef.current,
                 notice,
               ];
-              showToast(notice.message);
+              showToast(formatNoticeToast(notice));
             },
             onChunk: (text) => {
               recordDebugLogEvent({
@@ -301,7 +325,7 @@ export function useVoiceCaptureHandler({
                 diagnostics,
               });
             },
-            onTtsFallback: () => {
+            onTtsFallback: (error) => {
               const noticeMessage =
                 ttsMode === "local"
                   ? t("localVoiceFallback")
@@ -310,11 +334,13 @@ export function useVoiceCaptureHandler({
                 stage: "tts",
                 level: "warning",
                 message: noticeMessage,
+                detail: getUnexpectedIssueDetail(error, noticeMessage),
               };
               recordDebugLogEvent({
                 event: "voice-pipeline-tts-fallback",
                 level: "warn",
                 payload: {
+                  message: error.message,
                   ttsMode,
                 },
               });
@@ -335,7 +361,7 @@ export function useVoiceCaptureHandler({
               }
 
               ttsFallbackToastShownRef.current = true;
-              showToast(notice.message);
+              showToast(formatNoticeToast(notice));
             },
             onError: async (error) => {
               recordDebugLogEvent({

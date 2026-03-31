@@ -208,7 +208,7 @@ describe("useVoicePipeline", () => {
       }),
     );
     expect(params.showToast).toHaveBeenCalledWith(
-      translate("en", "localVoiceFallback"),
+      `${translate("en", "localVoiceFallback")} Local TTS unavailable`,
     );
     expect(result.current.replayPhase).toBe("idle");
     expect(result.current.activeReplayMessageId).toBeNull();
@@ -421,6 +421,7 @@ describe("useVoicePipeline", () => {
               stage: "tts",
               level: "warning",
               message: translate("en", "providerVoiceFallback"),
+              detail: "Provider fallback",
             },
           ],
         },

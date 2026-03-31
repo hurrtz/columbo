@@ -37,6 +37,8 @@ interface UseNativeOutputWaveformControllerParams {
   usingNativeAudioQueue: boolean;
 }
 
+const NATIVE_OUTPUT_WAVEFORM_ANALYSIS_SAMPLE_COUNT = 480;
+
 export function useNativeOutputWaveformController({
   nativeAudioQueueContextsRef,
   nativeAudioQueuePendingCountRef,
@@ -126,7 +128,7 @@ export function useNativeOutputWaveformController({
 
     const next = analyzeNativeAudioFile({
       uri,
-      sampleCount: 960,
+      sampleCount: NATIVE_OUTPUT_WAVEFORM_ANALYSIS_SAMPLE_COUNT,
     }).catch(() => null);
 
     waveformAnalysisCacheRef.current.set(uri, next);

@@ -98,6 +98,7 @@ describe("ChatBubble", () => {
                 stage: "stt",
                 level: "error",
                 message: "OpenAI speech transcription took too long.",
+                detail: "The request hit the provider timeout window.",
               },
             ],
           },
@@ -107,6 +108,9 @@ describe("ChatBubble", () => {
 
     expect(getByText("Speech to Text")).toBeTruthy();
     expect(getByText("OpenAI speech transcription took too long.")).toBeTruthy();
+    expect(
+      getByText("The request hit the provider timeout window."),
+    ).toBeTruthy();
     expect(queryByText("Just a normal answer.")).toBeNull();
   });
 });

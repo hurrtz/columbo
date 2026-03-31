@@ -1,4 +1,10 @@
-import { type MutableRefObject, useCallback, useEffect, useState } from "react";
+import {
+  type MutableRefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   useAudioSampleListener,
   type AudioPlayer,
@@ -15,6 +21,7 @@ import {
   levelToMetering,
 } from "../../utils/audioVisualization";
 import {
+  OSCILLOSCOPE_TICK_INTERVAL_MS,
   VISUAL_UPDATE_INTERVAL_MS,
 } from "./shared";
 
@@ -38,8 +45,10 @@ export function usePlaybackVisualState(params: {
   const [waveformData, setWaveformData] = useState(EMPTY_VISUAL_LEVELS);
   const [waveformVariant, setWaveformVariant] =
     useState<WaveformVisualizationVariant>("bars");
+  const lastSampleUpdateAtRef = useRef(0);
 
   const resetVisualState = useCallback(() => {
+    lastSampleUpdateAtRef.current = 0;
     setMeteringData(-160);
     setWaveformData(EMPTY_VISUAL_LEVELS);
     setWaveformVariant("bars");
@@ -49,6 +58,17 @@ export function usePlaybackVisualState(params: {
     if (usingNativeAudioQueue || nativeSpeakingRef.current) {
       return;
     }
+
+    const now = Date.now();
+
+    if (
+      lastSampleUpdateAtRef.current &&
+      now - lastSampleUpdateAtRef.current < OSCILLOSCOPE_TICK_INTERVAL_MS
+    ) {
+      return;
+    }
+
+    lastSampleUpdateAtRef.current = now;
 
     const samples = buildSampleWaveform(sample.channels);
 

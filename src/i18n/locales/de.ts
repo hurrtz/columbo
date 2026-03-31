@@ -362,9 +362,9 @@ export const de: TranslationDictionary = {
     spokenRepliesDisabled:
       "Gesprochene Antworten sind in den Einstellungen deaktiviert.",
     providerVoiceFallback:
-      "Die Anbieter-Stimme ist ausgefallen. Diese Antwort wird mit der Systemstimme abgespielt.",
+      "Die Anbieter-Stimme ist ausgefallen. Diese Antwort nutzt jetzt eine Ersatzstimme.",
     localVoiceFallback:
-      "Die lokale Stimme war nicht verfügbar. Diese Antwort nutzt die beste verfügbare Ersatzstimme.",
+      "Die lokale Stimme war nicht verfügbar. Diese Antwort nutzt jetzt eine Ersatzstimme.",
     localTtsPackInstalled: ({ languageLabel }) =>
       `Lokales Sprachpaket für ${languageLabel} installiert.`,
     localTtsPackInstallFailed:

@@ -8,6 +8,16 @@ import type {
   UseVoicePipelineParams,
 } from "./types";
 
+function formatFallbackToast(message: string, error?: Error) {
+  const detail = error?.message.trim();
+
+  if (!detail || detail === message) {
+    return message;
+  }
+
+  return `${message} ${detail}`;
+}
+
 type ReplayControllerParams = Pick<
   UseVoicePipelineParams,
   | "isRecording"
@@ -132,7 +142,7 @@ export function useReplyReplayController({
                 diagnostics,
               });
             },
-            onTtsFallback: () => {
+            onTtsFallback: (error) => {
               if (
                 replaySessionRef.current !== replaySession ||
                 fallbackToastShown
@@ -142,9 +152,12 @@ export function useReplyReplayController({
 
               fallbackToastShown = true;
               showToast(
-                ttsMode === "local"
-                  ? t("localVoiceFallback")
-                  : t("providerVoiceFallback"),
+                formatFallbackToast(
+                  ttsMode === "local"
+                    ? t("localVoiceFallback")
+                    : t("providerVoiceFallback"),
+                  error,
+                ),
               );
             },
             onError: (error) => {

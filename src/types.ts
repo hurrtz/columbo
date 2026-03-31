@@ -146,6 +146,7 @@ export interface MessagePipelineNotice {
   stage: "stt" | "tts" | "web-search";
   level: "warning" | "error";
   message: string;
+  detail?: string;
 }
 
 export interface MessageMetadata {

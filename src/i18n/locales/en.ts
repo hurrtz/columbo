@@ -357,9 +357,9 @@ export const en: TranslationDictionary = {
     spokenRepliesDisabled:
       "Spoken replies are turned off in Settings.",
     providerVoiceFallback:
-      "Provider voice failed. Switched this reply to the system voice.",
+      "Provider voice failed. Switched this reply to a fallback voice.",
     localVoiceFallback:
-      "Local voice was unavailable. Switched this reply to the best fallback voice.",
+      "Local voice was unavailable. Switched this reply to a fallback voice.",
     localTtsPackInstalled: ({ languageLabel }) =>
       `${languageLabel} local voice pack installed.`,
     localTtsPackInstallFailed: "Couldn't install the local voice pack.",

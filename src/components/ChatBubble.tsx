@@ -168,7 +168,7 @@ export function ChatBubble({
         <View style={styles.noticeList}>
           {notices.map((notice, index) => (
             <View
-              key={`${notice.stage}:${notice.message}:${index}`}
+              key={`${notice.stage}:${notice.message}:${notice.detail ?? ""}:${index}`}
               style={[
                 styles.noticeCard,
                 {
@@ -219,6 +219,16 @@ export function ChatBubble({
                 >
                   {notice.message}
                 </Text>
+                {notice.detail ? (
+                  <Text
+                    style={[
+                      styles.noticeDetail,
+                      { color: colors.textMuted },
+                    ]}
+                  >
+                    {notice.detail}
+                  </Text>
+                ) : null}
               </View>
             </View>
           ))}
@@ -559,6 +569,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
     fontFamily: fonts.body,
+  },
+  noticeDetail: {
+    fontSize: 11,
+    lineHeight: 16,
+    fontFamily: fonts.mono,
   },
   referenceCard: {
     alignSelf: "stretch",
