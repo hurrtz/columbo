@@ -35,7 +35,7 @@ const PROVIDER_ICON_ASSETS: Record<string, number> = {
   "google-vertex-ai-studio": require(
     "../../assets/providers/google-vertex-ai-studio.svg"
   ),
-  grok: require("../../assets/providers/xai.svg"),
+  grok: require("../../assets/providers/grok.svg"),
   groq: require("../../assets/providers/groq.svg"),
   "hugging-face-inference-api": require(
     "../../assets/providers/hugging-face-inference-api.svg"
