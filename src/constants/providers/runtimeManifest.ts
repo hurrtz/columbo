@@ -24,6 +24,7 @@ export type RuntimeAppProviderId =
   | "deepinfra"
   | "deepseek"
   | "fireworks-ai"
+  | "grok"
   | "groq"
   | "hugging-face-inference-api"
   | "hyperbolic"
@@ -94,6 +95,7 @@ export type RuntimeTtsBinaryRequestFormat =
   | "openai-speech"
   | "together-speech"
   | "xai-speech"
+  | "grok-speech"
   | "groq-speech"
   | "siliconflow-speech"
   | "novita-glm-speech"
@@ -349,6 +351,7 @@ export const RUNTIME_PROVIDER_ORDER = [
   "fish-audio",
   "gemini",
   "xai",
+  "grok",
   "groq",
   "deepseek",
   "mistral",
@@ -1157,6 +1160,49 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       voiceOptions: [voice("alloy", "Default")],
       languageNote:
         "MiMo-V2-TTS is still under-documented at the protocol level. The app uses an experimental OpenAI-style speech request until Xiaomi publishes a fuller public API reference.",
+    },
+  },
+  grok: {
+    appProvider: "grok",
+    catalogProviderId: "grok",
+    label: "Grok",
+    shortLabel: "GROK",
+    apiKeyPlaceholder: "xai-...",
+    apiKeyHint:
+      "Uses the same xAI Bearer key as the xAI provider. Unlocks the standalone Grok Speech-to-Text and Text-to-Speech endpoints.",
+    apiKeyUrl: "https://console.x.ai/team/default/api-keys",
+    llm: {
+      support: "none",
+      transport: "none",
+      models: [],
+    },
+    stt: {
+      support: "provider",
+      transport: "multipart",
+      endpoint: "https://api.x.ai/v1/stt",
+      defaultModel: "grok-stt",
+      models: catalogModelSpecs("grok", "stt"),
+      languageNote:
+        "Grok STT is a standalone batch endpoint (POST /v1/stt) with multipart audio upload. It supports 25 languages with speaker diarization, word-level timestamps, and multichannel input. A streaming WebSocket variant is documented at api.x.ai but is not wired in SchnackAI yet.",
+    },
+    tts: {
+      support: "provider",
+      transport: "binary",
+      endpoint: "https://api.x.ai/v1/tts",
+      requestFormat: "grok-speech",
+      defaultModel: "grok-tts",
+      defaultVoice: "ara",
+      voiceFallback: "ara",
+      models: catalogModelSpecs("grok", "tts"),
+      voiceOptions: [
+        voice("ara", "Ara · Warm", { de: "Ara · Warm" }),
+        voice("eve", "Eve · Energetic", { de: "Eve · Energetisch" }),
+        voice("leo", "Leo · Authoritative", { de: "Leo · Autoritaer" }),
+        voice("rex", "Rex · Bold", { de: "Rex · Kraeftig" }),
+        voice("sal", "Sal · Smooth", { de: "Sal · Sanft" }),
+      ],
+      languageNote:
+        "Grok TTS supports auto-detect plus 20 languages/locale variants including English, Arabic (EG/SA/AE), Bengali, Simplified Chinese, French, German, Hindi, Indonesian, Italian, Japanese, Korean, Portuguese (BR/PT), Russian, Spanish (MX/ES), Turkish, and Vietnamese. Inline expressive tags are supported: [laugh], [sigh], [pause], <whisper>.",
     },
   },
   groq: {

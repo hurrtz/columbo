@@ -35,6 +35,7 @@ const PROVIDER_ICON_ASSETS: Record<string, number> = {
   "google-vertex-ai-studio": require(
     "../../assets/providers/google-vertex-ai-studio.svg"
   ),
+  grok: require("../../assets/providers/xai.svg"),
   groq: require("../../assets/providers/groq.svg"),
   "hugging-face-inference-api": require(
     "../../assets/providers/hugging-face-inference-api.svg"
@@ -72,6 +73,7 @@ const PROVIDER_ICON_SIZES: Record<string, { width: number; height: number }> = {
   "google-vertex-ai-studio": { width: 24, height: 24 },
   cohere: { width: 24, height: 24 },
   deepseek: { width: 24, height: 24 },
+  grok: { width: 24, height: 24 },
   groq: { width: 24, height: 24 },
   mistral: { width: 24, height: 24 },
   "mistral-ai": { width: 24, height: 24 },

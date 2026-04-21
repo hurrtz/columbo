@@ -42,6 +42,7 @@ describe("app provider catalog bridge", () => {
       deepinfra: "deepinfra",
       deepseek: "deepseek",
       "fireworks-ai": "fireworks-ai",
+      grok: "grok",
       groq: "groq",
       "hugging-face-inference-api": "hugging-face-inference-api",
       hyperbolic: "hyperbolic",

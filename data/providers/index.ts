@@ -21,6 +21,7 @@ import ElevenlabsDocument from "./elevenlabs";
 import FireworksAiDocument from "./fireworks-ai";
 import FishAudioDocument from "./fish-audio";
 import GoogleVertexAiStudioDocument from "./google-vertex-ai-studio";
+import GrokDocument from "./grok";
 import GroqDocument from "./groq";
 import HuggingFaceInferenceApiDocument from "./hugging-face-inference-api";
 import HyperbolicDocument from "./hyperbolic";
@@ -63,6 +64,7 @@ export const PROVIDER_DOCUMENTS = defineProviderDocuments([
   FireworksAiDocument,
   FishAudioDocument,
   GoogleVertexAiStudioDocument,
+  GrokDocument,
   GroqDocument,
   HuggingFaceInferenceApiDocument,
   HyperbolicDocument,
@@ -86,4 +88,4 @@ export const PROVIDER_DOCUMENTS = defineProviderDocuments([
   ZAiZhipuAiDocument,
 ]);
 
-export const PROVIDER_CATALOG_UPDATED_AT = "2026-03-23";
+export const PROVIDER_CATALOG_UPDATED_AT = "2026-04-21";

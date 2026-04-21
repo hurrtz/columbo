@@ -96,6 +96,12 @@ function buildBinaryTtsRequestBody(params: {
           bit_rate: 128000,
         },
       };
+    case "grok-speech":
+      return {
+        text: params.text,
+        voice_id: params.selectedVoice,
+        language: "auto",
+      };
     case "groq-speech":
       return {
         model: params.selectedModel,
