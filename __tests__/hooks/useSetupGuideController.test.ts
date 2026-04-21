@@ -66,6 +66,7 @@ function createControllerParams() {
     loaded: true,
     openSettings: jest.fn(),
     setSetupGuideVisible: jest.fn(),
+    setupGuideVisible: false,
     setupGuideDismissed: true,
     settings: createSettings(),
     updateSettings: jest.fn(),

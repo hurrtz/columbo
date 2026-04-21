@@ -9,15 +9,21 @@ import { fonts } from "../../theme/typography";
 interface MainScreenTopBarProps {
   colors: Colors;
   compact?: boolean;
+  debugLogActive?: boolean;
+  debugLogLabel?: string;
   onOpenDrawer: () => void;
   onOpenSettings: () => void;
+  onToggleDebugLog?: () => void;
 }
 
 export function MainScreenTopBar({
   colors,
   compact = false,
+  debugLogActive = false,
+  debugLogLabel = "LOG",
   onOpenDrawer,
   onOpenSettings,
+  onToggleDebugLog,
 }: MainScreenTopBarProps) {
   return (
     <View style={styles.topBar}>
@@ -62,6 +68,31 @@ export function MainScreenTopBar({
       )}
 
       <View style={styles.actions}>
+        {onToggleDebugLog ? (
+          <TouchableOpacity
+            style={[
+              styles.iconButton,
+              {
+                backgroundColor: debugLogActive
+                  ? colors.accentSoft
+                  : colors.surface,
+                borderColor: debugLogActive ? colors.accent : colors.border,
+                shadowColor: colors.glow,
+              },
+            ]}
+            onPress={onToggleDebugLog}
+          >
+            <Text
+              style={[
+                styles.logButtonText,
+                { color: debugLogActive ? colors.accent : colors.textSecondary },
+              ]}
+            >
+              {debugLogLabel}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
+
         <TouchableOpacity
           style={[
             styles.iconButton,
@@ -104,6 +135,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+  },
+  logButtonText: {
+    fontSize: 11,
+    letterSpacing: 0.6,
+    fontFamily: fonts.displayHeavy,
   },
   wordmark: {
     flexDirection: "row",

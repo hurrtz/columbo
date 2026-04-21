@@ -92,6 +92,7 @@ async function requestSetupGuideReply(params: {
 }
 
 export function useSetupGuideVoiceTest(params: {
+  visible: boolean;
   settings: Settings;
   routes: SetupGuideResolvedRoutes;
   provider: SetupGuideResolvedRoutes["llm"]["provider"];
@@ -103,12 +104,31 @@ export function useSetupGuideVoiceTest(params: {
     params?: Record<string, string | number | undefined>,
   ) => string;
 }) {
-  const { nativeStt, player, provider, recorder, routes, settings, t } = params;
+  const {
+    nativeStt,
+    player,
+    provider,
+    recorder,
+    routes,
+    settings,
+    t,
+    visible,
+  } = params;
   const [phase, setPhase] = useState<SetupGuideVoiceTestPhase>("idle");
   const [transcript, setTranscript] = useState("");
   const [reply, setReply] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const routeResetKey = useMemo(
+    () =>
+      JSON.stringify({
+        llmModel: routes.llm.model,
+        provider,
+        stt: routes.stt,
+        tts: routes.tts,
+      }),
+    [provider, routes.llm.model, routes.stt, routes.tts],
+  );
 
   const isRecording = phase === "recording";
   const isBusy = useMemo(
@@ -153,8 +173,12 @@ export function useSetupGuideVoiceTest(params: {
   );
 
   useEffect(() => {
+    if (!visible) {
+      return;
+    }
+
     void reset(true);
-  }, [provider, reset, routes]);
+  }, [provider, routeResetKey, visible]);
 
   const startRecording = useCallback(async () => {
     setErrorMessage(null);

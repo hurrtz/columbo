@@ -32,9 +32,13 @@ import { useConversations } from "../hooks/useConversations";
 import { useVoicePipeline } from "../hooks/useVoicePipeline";
 import { useLocalization } from "../i18n";
 import {
+  getDebugLogCaptureState,
   installDebugLogConsoleCapture,
   recoverPendingDebugLogCapture,
   recordDebugLogEvent,
+  startDebugLogCapture,
+  stopDebugLogCapture,
+  subscribeToDebugLogCapture,
 } from "../services/debugLogCapture";
 import { validateProviderConnection } from "../services/llm";
 import { validateTtsProviderConnection } from "../services/providerValidation";
@@ -123,6 +127,9 @@ export function MainScreen() {
     message: string;
     onRetry?: () => void;
   } | null>(null);
+  const [debugLogCaptureState, setDebugLogCaptureState] = useState(
+    () => getDebugLogCaptureState(),
+  );
   const {
     settingsVisible,
     settingsFocusCatalogProviderId,
@@ -225,6 +232,16 @@ export function MainScreen() {
       },
     });
     setToast({ message, onRetry });
+  }, []);
+
+  useEffect(() => {
+    const syncState = () => {
+      setDebugLogCaptureState(getDebugLogCaptureState());
+    };
+
+    syncState();
+
+    return subscribeToDebugLogCapture(syncState);
   }, []);
 
   const {
@@ -397,6 +414,7 @@ export function MainScreen() {
     player,
     recorder,
     setSetupGuideVisible,
+    setupGuideVisible,
     setupGuideDismissed: settings.setupGuideDismissed,
     settings,
     updateApiKey,
@@ -692,6 +710,75 @@ export function MainScreen() {
     };
   }, []);
 
+  const handleToggleDebugLog = useCallback(async () => {
+    if (!debugLogCaptureState.active) {
+      startDebugLogCapture({
+        activeConversationId: activeConversation?.id ?? null,
+        inputMode: settings.inputMode,
+        model,
+        pipelinePhase,
+        provider,
+        sttMode: settings.sttMode,
+        ttsMode: settings.ttsMode,
+      });
+      showToast(t("debugLogCaptureStarted"));
+      return;
+    }
+
+    try {
+      const result = await stopDebugLogCapture({
+        activeConversationId: activeConversation?.id ?? null,
+        inputMode: settings.inputMode,
+        model,
+        pipelinePhase,
+        provider,
+        sttMode: settings.sttMode,
+        ttsMode: settings.ttsMode,
+      });
+
+      if (!result) {
+        return;
+      }
+
+      const fileName =
+        result.path.split("/").filter(Boolean).pop() ??
+        result.sessionId ??
+        "debug-log.log";
+
+      showToast(
+        result.copiedToClipboard
+          ? t("debugLogCaptureStopped", {
+              entryCount: result.entryCount,
+              fileName,
+            })
+          : t("debugLogCaptureStoppedNoClipboard", {
+              entryCount: result.entryCount,
+              fileName,
+            }),
+      );
+    } catch (error) {
+      recordDebugLogEvent({
+        event: "debug-log-stop-failed",
+        level: "error",
+        payload: {
+          message: error instanceof Error ? error.message : String(error),
+        },
+      });
+      showToast(t("debugLogCaptureFailed"));
+    }
+  }, [
+    activeConversation?.id,
+    debugLogCaptureState.active,
+    model,
+    pipelinePhase,
+    provider,
+    settings.inputMode,
+    settings.sttMode,
+    settings.ttsMode,
+    showToast,
+    t,
+  ]);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -958,8 +1045,11 @@ export function MainScreen() {
             <View style={styles.landscapeLeftColumn}>
               <MainScreenTopBar
                 colors={colors}
+                debugLogActive={debugLogCaptureState.active}
+                debugLogLabel={t("debugLogLabel")}
                 onOpenDrawer={() => setDrawerVisible(true)}
                 onOpenSettings={() => openSettings()}
+                onToggleDebugLog={handleToggleDebugLog}
               />
 
               <MainScreenRouteCard
@@ -1046,8 +1136,11 @@ export function MainScreen() {
           <>
             <MainScreenTopBar
               colors={colors}
+              debugLogActive={debugLogCaptureState.active}
+              debugLogLabel={t("debugLogLabel")}
               onOpenDrawer={() => setDrawerVisible(true)}
               onOpenSettings={() => openSettings()}
+              onToggleDebugLog={handleToggleDebugLog}
             />
 
             <ScrollView

@@ -26,6 +26,7 @@ interface UseSetupGuideControllerParams {
   loaded: boolean;
   openSettings: (focusProvider?: Provider, focusTab?: SettingsTab) => void;
   setSetupGuideVisible: (visible: boolean) => void;
+  setupGuideVisible: boolean;
   setupGuideDismissed: boolean;
   settings: Settings;
   updateSettings: (partial: Partial<Settings>) => void;
@@ -44,6 +45,7 @@ export function useSetupGuideController({
   player,
   recorder,
   setSetupGuideVisible,
+  setupGuideVisible,
   setupGuideDismissed,
   settings,
   updateApiKey,
@@ -100,6 +102,7 @@ export function useSetupGuideController({
   );
 
   const voiceTest = useSetupGuideVoiceTest({
+    visible: setupGuideVisible,
     settings,
     routes: resolvedRoutes,
     provider: selectedProvider,

@@ -136,9 +136,11 @@ jest.mock("../../src/services/webSearch", () => ({
 
 jest.mock("../../src/screens/main/MainScreenTopBar", () => ({
   MainScreenTopBar: ({
+    onToggleDebugLog,
     onOpenDrawer,
     onOpenSettings,
   }: {
+    onToggleDebugLog?: () => void;
     onOpenDrawer: () => void;
     onOpenSettings: () => void;
   }) => {
@@ -148,6 +150,11 @@ jest.mock("../../src/screens/main/MainScreenTopBar", () => ({
     return React.createElement(
       View,
       null,
+      React.createElement(
+        TouchableOpacity,
+        { onPress: onToggleDebugLog },
+        React.createElement(Text, null, "toggle-debug-log"),
+      ),
       React.createElement(
         TouchableOpacity,
         { onPress: onOpenDrawer },
@@ -295,5 +302,11 @@ describe("MainScreen", () => {
 
     expect(screen.getByText("settings:open")).toBeTruthy();
     expect(screen.getByText("drawer:open")).toBeTruthy();
+  });
+
+  it("renders the debug log action in the top bar", () => {
+    const screen = renderWithProviders(<MainScreen />);
+
+    expect(screen.getByText("toggle-debug-log")).toBeTruthy();
   });
 });
