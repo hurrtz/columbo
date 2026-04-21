@@ -15,11 +15,18 @@ describe("provider metadata constants", () => {
       "GPT-OSS 20B",
     );
     expect(
-      PROVIDER_MODELS.xai.find((model) => model.id === "grok-4")?.name,
+      PROVIDER_MODELS.xai.find((model) => model.id === "grok-4-0709")?.name,
     ).toBe("Grok 4");
   });
 
   it("uses direct catalog labels for known models even outside the curated picker list", () => {
-    expect(getProviderModelName("xai", "grok-4.20")).toBe("Grok 4.20");
+    expect(getProviderModelName("xai", "grok-4")).toBe("Grok 4");
+  });
+
+  it("surfaces newly added Anthropic picker models from the catalog", () => {
+    expect(
+      PROVIDER_MODELS.anthropic.find((model) => model.id === "claude-opus-4-7")
+        ?.name,
+    ).toBe("Claude Opus 4.7");
   });
 });

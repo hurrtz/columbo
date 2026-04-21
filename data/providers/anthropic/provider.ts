@@ -13,6 +13,7 @@ export const providerDefinition = defineProviderDefinition(
     },
     "officialSources": [
       "https://platform.claude.com/docs/en/about-claude/models/overview",
+      "https://platform.claude.com/docs/en/about-claude/models/whats-new-claude-4-7",
       "https://platform.claude.com/docs/en/about-claude/pricing",
       "https://platform.claude.com/docs/en/api/overview",
       "https://platform.claude.com/docs/en/build-with-claude/streaming",
@@ -44,7 +45,7 @@ export const providerDefinition = defineProviderDefinition(
       "regionSplitRecommended": false
     },
     "summaries": {
-      "pricing": "Latest direct models: Opus 4.6 $5 / million input tokens and $25 / million output tokens; Sonnet 4.6 $3 / $15; Haiku 4.5 $1 / $5. Batch API is 50% off input and output pricing. Prompt caching multipliers are public: 5-minute cache writes 1.25x, 1-hour cache writes 2x, cache hits 0.1x. US-only inference_geo pricing is 1.1x for Opus 4.6 and newer models.",
+      "pricing": "Latest direct models: Opus 4.7 $5 / million input tokens and $25 / million output tokens; Sonnet 4.6 $3 / $15; Haiku 4.5 $1 / $5. Batch API is 50% off input and output pricing. Prompt caching multipliers are public: 5-minute cache writes 1.25x, 1-hour cache writes 2x, cache hits 0.1x. US-only inference_geo pricing is 1.1x for Opus 4.6 and newer models.",
       "limits": "Standard request body limit 32 MB; Message Batches 256 MB; Files API 500 MB per file and 500 GB total organization storage. PDFs up to 600 pages per request, or 100 pages on 200k-context models. Images up to 600 per request, or 100 on 200k-context models. Batch jobs can take up to 24 hours. Exact RPM/ITPM/OTPM values should be treated as live policy.",
       "region": "Anthropic publishes a supported-country list for API access. The direct API supports inference_geo controls with global default behavior and US-only inference controls. Files API beta is first-party only and is not supported on Amazon Bedrock or Google Vertex AI.",
       "sttLanguages": "Unsupported on first-party public API.",
@@ -62,6 +63,17 @@ export const providerDefinition = defineProviderDefinition(
           "models",
           "limits",
           "languages"
+        ]
+      },
+      {
+        "url": "https://platform.claude.com/docs/en/about-claude/models/whats-new-claude-4-7",
+        "title": "What's new in Claude Opus 4.7",
+        "type": "official",
+        "lastUpdated": null,
+        "usedFor": [
+          "models",
+          "limits",
+          "vision"
         ]
       },
       {
