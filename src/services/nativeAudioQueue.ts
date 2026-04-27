@@ -18,6 +18,8 @@ type NativeAudioQueueModule = {
     source?: string | null,
   ): Promise<boolean>;
   start(): Promise<boolean>;
+  pause(): Promise<boolean>;
+  resume(): Promise<boolean>;
   stop(): Promise<boolean>;
 };
 
@@ -83,6 +85,22 @@ export async function startNativeAudioQueue() {
   }
 
   return nativeModule.start();
+}
+
+export async function pauseNativeAudioQueue() {
+  if (!nativeModule) {
+    return false;
+  }
+
+  return nativeModule.pause();
+}
+
+export async function resumeNativeAudioQueue() {
+  if (!nativeModule) {
+    return false;
+  }
+
+  return nativeModule.resume();
 }
 
 export async function stopNativeAudioQueue() {

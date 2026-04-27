@@ -6,6 +6,7 @@ export const OSCILLOSCOPE_TICK_INTERVAL_MS = 32;
 export const PLAYBACK_ROUTE_SETTLE_MS = 650;
 
 export interface PlayerState {
+  isPlaybackPaused: boolean;
   isPlaying: boolean;
   hasPendingPlayback: boolean;
   meteringData: number;

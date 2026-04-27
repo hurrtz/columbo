@@ -107,6 +107,54 @@
   }
 }
 
+- (BOOL)pause:(NSError **)error
+{
+  @try {
+    if (_player != nil) {
+      [_player pause];
+    }
+    return YES;
+  } @catch (NSException *exception) {
+    if (error != nil) {
+      *error = [NSError errorWithDomain:@"SchnackAudioQueue"
+                                   code:4
+                               userInfo:@{
+                                 NSLocalizedDescriptionKey :
+                                     exception.reason ?: @"Audio queue pause failed."
+                               }];
+    }
+    return NO;
+  }
+}
+
+- (BOOL)resume:(NSError **)error
+{
+  @try {
+    [self ensurePlayer];
+    if (_player.currentItem == nil && _player.items.count == 0) {
+      return NO;
+    }
+
+    if (![SchnackAudioQueueSession activatePlaybackSession:error]) {
+      return NO;
+    }
+
+    [_player play];
+    [self emitStartedForCurrentItemIfNeeded];
+    return YES;
+  } @catch (NSException *exception) {
+    if (error != nil) {
+      *error = [NSError errorWithDomain:@"SchnackAudioQueue"
+                                   code:5
+                               userInfo:@{
+                                 NSLocalizedDescriptionKey :
+                                     exception.reason ?: @"Audio queue resume failed."
+                               }];
+    }
+    return NO;
+  }
+}
+
 - (BOOL)stop:(NSError **)error
 {
   @try {

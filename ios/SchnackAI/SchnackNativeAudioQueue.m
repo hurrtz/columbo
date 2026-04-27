@@ -123,6 +123,37 @@ RCT_REMAP_METHOD(start,
   resolve(@(started));
 }
 
+RCT_REMAP_METHOD(pause,
+                 pauseWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  NSError *error = nil;
+  if (![_coordinator pause:&error]) {
+    reject(@"audio_queue_pause_error",
+           error.localizedDescription ?: @"Audio queue pause failed.",
+           error);
+    return;
+  }
+
+  resolve(@YES);
+}
+
+RCT_REMAP_METHOD(resume,
+                 resumeWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+  NSError *error = nil;
+  BOOL resumed = [_coordinator resume:&error];
+  if (error != nil) {
+    reject(@"audio_queue_resume_error",
+           error.localizedDescription ?: @"Audio queue resume failed.",
+           error);
+    return;
+  }
+
+  resolve(@(resumed));
+}
+
 RCT_REMAP_METHOD(stop,
                  stopWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)

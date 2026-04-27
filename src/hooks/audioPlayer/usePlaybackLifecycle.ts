@@ -12,12 +12,14 @@ export function usePlaybackLifecycle(params: {
   nativeAudioQueuePlayingRef: MutableRefObject<boolean>;
   nativeQueueRef: MutableRefObject<NativeSpeechQueueItem[]>;
   nativeSpeakingRef: MutableRefObject<boolean>;
+  playbackPausedRef: MutableRefObject<boolean>;
   playNextAudio: () => Promise<void>;
   playNextNative: () => Promise<void>;
   playingRef: MutableRefObject<boolean>;
   queueRef: MutableRefObject<AudioQueueItem[]>;
   resolveDrainWaiters: () => void;
   setNativeAudioQueuePlaying: (value: boolean) => void;
+  statusPlaybackState?: string;
   statusPlaying: boolean;
   stopNativeMetering: () => void;
   stopNativeOutputWaveform: () => void;
@@ -33,12 +35,14 @@ export function usePlaybackLifecycle(params: {
     nativeAudioQueuePlayingRef,
     nativeQueueRef,
     nativeSpeakingRef,
+    playbackPausedRef,
     playNextAudio,
     playNextNative,
     playingRef,
     queueRef,
     resolveDrainWaiters,
     setNativeAudioQueuePlaying,
+    statusPlaybackState,
     statusPlaying,
     stopNativeMetering,
     stopNativeOutputWaveform,
@@ -47,6 +51,12 @@ export function usePlaybackLifecycle(params: {
   } = params;
 
   useEffect(() => {
+    if (playbackPausedRef.current) {
+      playingRef.current = false;
+      updatePendingPlaybackState();
+      return;
+    }
+
     if (usingNativeAudioQueue) {
       if (
         !nativeSpeakingRef.current &&
@@ -85,6 +95,16 @@ export function usePlaybackLifecycle(params: {
           message: currentAudioRef.current.uri,
         });
       }
+      updatePendingPlaybackState();
+      return;
+    }
+
+    if (
+      currentAudioRef.current &&
+      hasSeenAudioPlayingRef.current &&
+      statusPlaybackState === "paused"
+    ) {
+      playingRef.current = false;
       updatePendingPlaybackState();
       return;
     }
@@ -151,10 +171,12 @@ export function usePlaybackLifecycle(params: {
     nativeAudioQueuePlayingRef,
     nativeQueueRef,
     nativeSpeakingRef,
+    playbackPausedRef,
     playNextAudio,
     playNextNative,
     playingRef,
     queueRef,
+    statusPlaybackState,
     statusPlaying,
     updatePendingPlaybackState,
     usingNativeAudioQueue,

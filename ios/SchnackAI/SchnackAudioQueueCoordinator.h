@@ -14,6 +14,8 @@ typedef void (^SchnackAudioQueueEventHandler)(NSDictionary *payload);
             source:(NSString *_Nullable)source
              error:(NSError **)error;
 - (BOOL)start:(NSError **)error;
+- (BOOL)pause:(NSError **)error;
+- (BOOL)resume:(NSError **)error;
 - (BOOL)stop:(NSError **)error;
 - (void)invalidate;
 

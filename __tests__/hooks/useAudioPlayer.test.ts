@@ -27,11 +27,15 @@ const mockPlayer = {
   remove: jest.fn(),
   replace: jest.fn(),
   play: jest.fn(),
+  clearLockScreenControls: jest.fn(),
+  setActiveForLockScreen: jest.fn(),
 };
 
 let mockStatus: any;
 
 jest.mock("expo-speech", () => ({
+  pause: jest.fn(() => Promise.resolve()),
+  resume: jest.fn(() => Promise.resolve()),
   speak: jest.fn(),
   stop: jest.fn(() => Promise.resolve()),
 }));
@@ -161,5 +165,51 @@ describe("useAudioPlayer", () => {
       "playback-enqueued",
     ]);
     expect(diagnostics.every((event) => event.source === "preview")).toBe(true);
+  });
+
+  it("pauses and resumes the current clip without draining playback", async () => {
+    const { result, rerender } = renderHook(() => useAudioPlayer());
+
+    await act(async () => {
+      result.current.enqueueAudio("reply.mp3");
+      await Promise.resolve();
+    });
+
+    await act(async () => {
+      mockStatus = {
+        ...mockStatus,
+        playing: true,
+        playbackState: "playing",
+        timeControlStatus: "playing",
+      };
+      rerender(undefined);
+      await Promise.resolve();
+    });
+
+    await act(async () => {
+      await expect(result.current.pausePlayback()).resolves.toBe(true);
+    });
+
+    expect(mockPlayer.pause).toHaveBeenCalledTimes(1);
+    expect(result.current.isPlaybackPaused).toBe(true);
+    expect(result.current.isPlaying).toBe(true);
+
+    await act(async () => {
+      mockStatus = {
+        ...mockStatus,
+        playing: false,
+        playbackState: "paused",
+        timeControlStatus: "paused",
+      };
+      rerender(undefined);
+      await Promise.resolve();
+    });
+
+    await act(async () => {
+      await expect(result.current.resumePlayback()).resolves.toBe(true);
+    });
+
+    expect(mockPlayer.play).toHaveBeenCalledTimes(2);
+    expect(result.current.isPlaybackPaused).toBe(false);
   });
 });

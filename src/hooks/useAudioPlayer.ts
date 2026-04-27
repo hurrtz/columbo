@@ -4,9 +4,12 @@ import {
   useAudioPlayer as useExpoAudioPlayer,
   useAudioPlayerStatus,
 } from "expo-audio";
+import * as Speech from "expo-speech";
 import {
   isNativeAudioQueueAvailable,
+  pauseNativeAudioQueue,
   prepareNativeAudioQueue,
+  resumeNativeAudioQueue,
 } from "../services/nativeAudioQueue";
 import { supportsNativeOutputWaveformPlayback } from "../services/nativeWaveform";
 import { logWaveformDebug } from "../utils/waveformDebug";
@@ -51,9 +54,11 @@ export function useAudioPlayer() {
   const nativeAudioQueuePlayingRef = useRef(false);
   const nativeQueueRef = useRef<NativeSpeechQueueItem[]>([]);
   const nativeSpeakingRef = useRef(false);
+  const playbackPausedRef = useRef(false);
   const [nativeAudioQueuePlaying, setNativeAudioQueuePlaying] =
     useState(false);
   const [nativeSpeaking, setNativeSpeaking] = useState(false);
+  const [isPlaybackPaused, setPlaybackPaused] = useState(false);
   const { ensurePlaybackSession, resetPlaybackSession } =
     usePlaybackSession();
   const {
@@ -170,6 +175,8 @@ export function useAudioPlayer() {
     });
 
   const finalizeDrainedState = useCallback(() => {
+    playbackPausedRef.current = false;
+    setPlaybackPaused(false);
     markPlaybackEnded();
     removeLoadedAudio();
     stopNativeMetering();
@@ -239,12 +246,14 @@ export function useAudioPlayer() {
     nativeAudioQueuePlayingRef,
     nativeQueueRef,
     nativeSpeakingRef,
+    playbackPausedRef,
     playNextAudio,
     playNextNative,
     playingRef,
     queueRef,
     resolveDrainWaiters,
     setNativeAudioQueuePlaying,
+    statusPlaybackState: status.playbackState,
     statusPlaying: status.playing,
     stopNativeMetering,
     stopNativeOutputWaveform,
@@ -261,12 +270,14 @@ export function useAudioPlayer() {
     markPlaybackEnded,
     nativeQueueRef,
     nativeSpeakingRef,
+    playbackPausedRef,
     player,
     playingRef,
     removeLoadedAudio,
     resetPlaybackSession,
     resetVisualState,
     setNativeSpeaking,
+    setPlaybackPaused,
     startingRef,
     stopNativeMetering,
     stopNativeOutputWaveform,
@@ -274,6 +285,125 @@ export function useAudioPlayer() {
     usingNativeAudioQueue,
     queueRef,
   });
+
+  const pausePlayback = useCallback(async () => {
+    if (playbackPausedRef.current) {
+      return true;
+    }
+
+    const hasNativeSpeech = nativeSpeakingRef.current;
+    const hasNativeAudioQueue =
+      usingNativeAudioQueue && nativeAudioQueuePlayingRef.current;
+    const hasAudioClip =
+      !usingNativeAudioQueue &&
+      (playingRef.current || currentAudioRef.current !== null);
+
+    if (!hasNativeSpeech && !hasNativeAudioQueue && !hasAudioClip) {
+      return false;
+    }
+
+    try {
+      if (hasNativeSpeech) {
+        await Speech.pause();
+      } else if (hasNativeAudioQueue) {
+        await pauseNativeAudioQueue();
+        nativeAudioQueuePlayingRef.current = false;
+        setNativeAudioQueuePlaying(false);
+      } else {
+        player.pause();
+      }
+
+      playbackPausedRef.current = true;
+      setPlaybackPaused(true);
+      playingRef.current = false;
+      stopNativeMetering();
+      stopNativeOutputWaveform();
+      updatePendingPlaybackState();
+      return true;
+    } catch {
+      return false;
+    }
+  }, [
+    currentAudioRef,
+    nativeSpeakingRef,
+    nativeAudioQueuePlayingRef,
+    player,
+    playingRef,
+    setNativeAudioQueuePlaying,
+    stopNativeMetering,
+    stopNativeOutputWaveform,
+    updatePendingPlaybackState,
+    usingNativeAudioQueue,
+  ]);
+
+  const resumePlayback = useCallback(async () => {
+    if (!playbackPausedRef.current) {
+      return true;
+    }
+
+    try {
+      if (nativeSpeakingRef.current) {
+        await ensurePlaybackSession();
+        await Speech.resume();
+        startNativeMetering();
+      } else if (usingNativeAudioQueue && currentAudioRef.current) {
+        await ensureAudioQueuePlaybackSession();
+        const resumed = await resumeNativeAudioQueue();
+
+        if (!resumed) {
+          return false;
+        }
+
+        nativeAudioQueuePlayingRef.current = true;
+        setNativeAudioQueuePlaying(true);
+        playingRef.current = true;
+      } else if (currentAudioRef.current) {
+        await ensurePlaybackSession();
+        player.play();
+        playingRef.current = true;
+      } else if (queueRef.current.length > 0) {
+        playbackPausedRef.current = false;
+        setPlaybackPaused(false);
+        void playNextAudio();
+        updatePendingPlaybackState();
+        return true;
+      } else if (nativeQueueRef.current.length > 0) {
+        playbackPausedRef.current = false;
+        setPlaybackPaused(false);
+        void playNextNative();
+        updatePendingPlaybackState();
+        return true;
+      } else {
+        playbackPausedRef.current = false;
+        setPlaybackPaused(false);
+        updatePendingPlaybackState();
+        return false;
+      }
+
+      playbackPausedRef.current = false;
+      setPlaybackPaused(false);
+      updatePendingPlaybackState();
+      return true;
+    } catch {
+      return false;
+    }
+  }, [
+    currentAudioRef,
+    ensureAudioQueuePlaybackSession,
+    ensurePlaybackSession,
+    nativeAudioQueuePlayingRef,
+    nativeQueueRef,
+    nativeSpeakingRef,
+    playNextAudio,
+    playNextNative,
+    player,
+    playingRef,
+    queueRef,
+    setNativeAudioQueuePlaying,
+    startNativeMetering,
+    updatePendingPlaybackState,
+    usingNativeAudioQueue,
+  ]);
 
   const waitForPlaybackRouteSettle = useCallback(async () => {
     if (Platform.OS !== "ios") {
@@ -289,8 +419,11 @@ export function useAudioPlayer() {
     meteringData,
     waveformData,
     waveformVariant,
+    isPlaybackPaused,
     enqueueAudio,
     speakText,
+    pausePlayback,
+    resumePlayback,
     stopPlayback,
     resetCancellation,
     hasPendingPlaybackNow,
