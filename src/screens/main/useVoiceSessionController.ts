@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { recordDebugLogEvent } from "../../services/debugLogCapture";
 
 import { useVoiceCaptureLifecycle } from "./voiceSession/useVoiceCaptureLifecycle";
@@ -33,6 +33,7 @@ export function useVoiceSessionController<Snapshot>({
   ttsApiKey,
   ttsProvider,
 }: UseVoiceSessionControllerParams<Snapshot>) {
+  const suppressNextPressOutRef = useRef(false);
   const {
     clearCancelableVoiceTurn,
     processCapturedVoiceTurn,
@@ -75,6 +76,7 @@ export function useVoiceSessionController<Snapshot>({
 
   useVoiceSessionAppState({
     abortRef,
+    isRecording,
     nativeStt,
     recorder,
     setPipelinePhase,
@@ -87,6 +89,16 @@ export function useVoiceSessionController<Snapshot>({
       clearCancelableVoiceTurn();
     }
   }, [clearCancelableVoiceTurn, player.isPlaying]);
+
+  const togglePlaybackPause = useCallback(async () => {
+    const updated = player.isPlaybackPaused
+      ? await player.resumePlayback()
+      : await player.pausePlayback();
+
+    if (!updated) {
+      showToast(t("pausePlaybackUnavailable"));
+    }
+  }, [player, showToast, t]);
 
   useEffect(() => {
     if (!nativeStt.lastError) {
@@ -117,7 +129,8 @@ export function useVoiceSessionController<Snapshot>({
     });
 
     if (player.isPlaying) {
-      await cancelCurrentInteraction({ rollbackConversation: false });
+      suppressNextPressOutRef.current = true;
+      await togglePlaybackPause();
       return;
     }
 
@@ -152,6 +165,7 @@ export function useVoiceSessionController<Snapshot>({
     showToast,
     startVoiceCapture,
     t,
+    togglePlaybackPause,
   ]);
 
   const handlePressOut = useCallback(async () => {
@@ -161,6 +175,11 @@ export function useVoiceSessionController<Snapshot>({
         isRecording,
       },
     });
+
+    if (suppressNextPressOutRef.current) {
+      suppressNextPressOutRef.current = false;
+      return;
+    }
 
     try {
       await stopVoiceCapture();
@@ -198,7 +217,7 @@ export function useVoiceSessionController<Snapshot>({
     }
 
     if (player.isPlaying) {
-      await cancelCurrentInteraction({ rollbackConversation: false });
+      await togglePlaybackPause();
       return;
     }
 
@@ -241,6 +260,7 @@ export function useVoiceSessionController<Snapshot>({
     startVoiceCapture,
     stopVoiceCapture,
     t,
+    togglePlaybackPause,
   ]);
 
   const resetVoiceSessionState = useCallback(async () => {

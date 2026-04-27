@@ -95,7 +95,11 @@ jest.mock("../../src/hooks/useNativeSpeechRecognizer", () => ({
 
 jest.mock("../../src/hooks/useAudioPlayer", () => ({
   useAudioPlayer: jest.fn(() => ({
+    isPlaybackPaused: false,
     isPlaying: false,
+    pausePlayback: jest.fn(async () => true),
+    resumePlayback: jest.fn(async () => true),
+    stopPlayback: jest.fn(async () => undefined),
     meteringData: -160,
     waveformData: undefined,
     waveformVariant: "bars",

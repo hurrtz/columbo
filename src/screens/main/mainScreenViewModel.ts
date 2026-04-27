@@ -31,6 +31,7 @@ type LocalPackStateLike = {
 };
 
 interface AudioSignalState {
+  isPlaybackPaused: boolean;
   isPlaying: boolean;
   meteringData: number;
   waveformData: number[] | undefined;
@@ -210,6 +211,7 @@ export function getMainScreenViewModel({
   const statusDisplay = getStatusDisplayData({
     inputMode: settings.inputMode,
     messageCount: messages.length,
+    playbackPaused: player.isPlaybackPaused,
     pipelinePhase,
     providerLabel,
     t,
@@ -229,7 +231,11 @@ export function getMainScreenViewModel({
     signalLevels,
     signalWaveformVariant,
     statusDisplay,
-    statusIndicatorTone: getStatusIndicatorTone(visualPhase, pipelinePhase),
+    statusIndicatorTone: getStatusIndicatorTone(
+      visualPhase,
+      pipelinePhase,
+      player.isPlaybackPaused,
+    ),
     sttStatusLabel,
     ttsStatusLabel,
     usageDisplay: getConversationUsageDisplayData({

@@ -48,7 +48,10 @@ describe("useVoiceSessionController", () => {
         stopRecognition: jest.fn(async () => null),
       },
       player: {
+        isPlaybackPaused: false,
         isPlaying: false,
+        pausePlayback: jest.fn(async () => true),
+        resumePlayback: jest.fn(async () => true),
         stopPlayback: jest.fn(async () => undefined),
         waitForPlaybackRouteSettle: jest.fn(async () => undefined),
       },
@@ -76,6 +79,7 @@ describe("useVoiceSessionController", () => {
           addProviderKeyToUseProvider: `missing ${params?.provider}`,
           couldntProcessVoiceInput: "process failed",
           couldntStartVoiceInput: "start failed",
+          pausePlaybackUnavailable: "pause unavailable",
         }[key] ?? key),
       ttsApiKey: "tts-key",
       ttsProvider: "openai" as const,
@@ -106,6 +110,45 @@ describe("useVoiceSessionController", () => {
 
     expect(params.player.waitForPlaybackRouteSettle).toHaveBeenCalledTimes(1);
     expect(params.recorder.startRecording).toHaveBeenCalledTimes(1);
+  });
+
+  it("pauses active playback instead of cancelling the reply", async () => {
+    const player = {
+      isPlaybackPaused: false,
+      isPlaying: true,
+      pausePlayback: jest.fn(async () => true),
+      resumePlayback: jest.fn(async () => true),
+      stopPlayback: jest.fn(async () => undefined),
+      waitForPlaybackRouteSettle: jest.fn(async () => undefined),
+    };
+    const { result, params } = renderController({ player });
+
+    await act(async () => {
+      await result.current.handleTogglePress();
+    });
+
+    expect(player.pausePlayback).toHaveBeenCalledTimes(1);
+    expect(player.stopPlayback).not.toHaveBeenCalled();
+    expect(params.recorder.startRecording).not.toHaveBeenCalled();
+  });
+
+  it("resumes paused playback from the main voice control", async () => {
+    const player = {
+      isPlaybackPaused: true,
+      isPlaying: true,
+      pausePlayback: jest.fn(async () => true),
+      resumePlayback: jest.fn(async () => true),
+      stopPlayback: jest.fn(async () => undefined),
+      waitForPlaybackRouteSettle: jest.fn(async () => undefined),
+    };
+    const { result } = renderController({ player });
+
+    await act(async () => {
+      await result.current.handleTogglePress();
+    });
+
+    expect(player.resumePlayback).toHaveBeenCalledTimes(1);
+    expect(player.pausePlayback).not.toHaveBeenCalled();
   });
 
   it("processes a completed recording through the voice pipeline", async () => {

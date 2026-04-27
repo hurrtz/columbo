@@ -12,12 +12,15 @@ export interface StatusDisplayData {
 
 export function getVisualPhaseActionLabel(params: {
   inputMode: InputMode;
+  playbackPaused?: boolean;
   t: TranslateFn;
   visualPhase: VoiceVisualPhase;
 }) {
-  const { inputMode, t, visualPhase } = params;
+  const { inputMode, playbackPaused = false, t, visualPhase } = params;
 
-  return visualPhase === "recording"
+  return playbackPaused && visualPhase === "speaking"
+    ? t("paused")
+    : visualPhase === "recording"
     ? t("listening")
     : visualPhase === "transcribing"
       ? t("parsing")
@@ -37,6 +40,7 @@ export function getVisualPhaseActionLabel(params: {
 export function getStatusDisplayData(params: {
   inputMode: InputMode;
   messageCount: number;
+  playbackPaused?: boolean;
   pipelinePhase: PipelinePhase;
   providerLabel: string;
   t: TranslateFn;
@@ -46,6 +50,7 @@ export function getStatusDisplayData(params: {
   const {
     inputMode,
     messageCount,
+    playbackPaused = false,
     pipelinePhase,
     providerLabel,
     t,
@@ -57,11 +62,14 @@ export function getStatusDisplayData(params: {
     messageCount > 0 ? t("messageCount", { count: messageCount }) : null;
   const actionLabel = getVisualPhaseActionLabel({
     inputMode,
+    playbackPaused,
     t,
     visualPhase,
   });
   const statusTitle =
-    visualPhase === "recording"
+    playbackPaused && visualPhase === "speaking"
+      ? t("paused")
+      : visualPhase === "recording"
       ? t("listening")
       : visualPhase === "searching"
         ? t("webSearch")
@@ -75,7 +83,9 @@ export function getStatusDisplayData(params: {
               ? t("thinking")
               : t("idle");
   const statusDetail =
-    visualPhase === "recording"
+    playbackPaused && visualPhase === "speaking"
+      ? t("speechPaused")
+      : visualPhase === "recording"
       ? t("listeningToYourVoice")
       : visualPhase === "searching"
         ? t("searchingTheWeb")
@@ -102,7 +112,12 @@ export function getStatusDisplayData(params: {
 export function getStatusIndicatorTone(
   visualPhase: VoiceVisualPhase,
   pipelinePhase: PipelinePhase,
+  playbackPaused = false,
 ): "danger" | "accent" | "muted" | "success" | "accentWarm" {
+  if (playbackPaused && visualPhase === "speaking") {
+    return "muted";
+  }
+
   if (visualPhase === "recording") {
     return "danger";
   }

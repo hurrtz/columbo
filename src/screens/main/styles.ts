@@ -248,6 +248,11 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
+  statusStripActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   statusStripDot: {
     width: 10,
     height: 10,

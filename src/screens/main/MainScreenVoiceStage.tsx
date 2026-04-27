@@ -21,16 +21,24 @@ interface MainScreenVoiceStageProps {
   layout?: "portrait" | "landscape";
   metering: number;
   onOpenStatusDetails: () => void;
+  onPausePlayback?: () => void | Promise<void>;
   onPress: () => void;
   onPressIn: () => void;
   onPressOut: () => void;
+  onResumePlayback?: () => void | Promise<void>;
+  onStopPlayback?: () => void | Promise<void>;
+  pausePlaybackLabel?: string;
+  playbackActive?: boolean;
+  playbackPaused?: boolean;
   providerLabel: string;
+  resumePlaybackLabel?: string;
   signalLevels: number[] | undefined;
   signalWaveformVariant: WaveformVisualizationVariant;
   showStatusStrip?: boolean;
   statusDetail: string;
   statusIndicatorTone: string;
   statusTitle: string;
+  stopPlaybackLabel?: string;
   visualPhase: VoiceVisualPhase;
 }
 
@@ -54,9 +62,17 @@ interface MainScreenStatusStripProps {
   fullWidth?: boolean;
   layout?: "portrait" | "landscape";
   onOpenStatusDetails: () => void;
+  onPausePlayback?: () => void | Promise<void>;
+  onResumePlayback?: () => void | Promise<void>;
+  onStopPlayback?: () => void | Promise<void>;
+  pausePlaybackLabel?: string;
+  playbackActive?: boolean;
+  playbackPaused?: boolean;
+  resumePlaybackLabel?: string;
   statusDetail: string;
   statusIndicatorTone: string;
   statusTitle: string;
+  stopPlaybackLabel?: string;
 }
 
 export function MainScreenStatusStrip({
@@ -64,9 +80,17 @@ export function MainScreenStatusStrip({
   fullWidth = false,
   layout = "portrait",
   onOpenStatusDetails,
+  onPausePlayback,
+  onResumePlayback,
+  onStopPlayback,
+  pausePlaybackLabel = "Pause",
+  playbackActive = false,
+  playbackPaused = false,
+  resumePlaybackLabel = "Resume",
   statusDetail,
   statusIndicatorTone,
   statusTitle,
+  stopPlaybackLabel = "Stop",
 }: MainScreenStatusStripProps) {
   const statusStripMaxWidth = fullWidth
     ? undefined
@@ -111,19 +135,63 @@ export function MainScreenStatusStrip({
           {statusDetail}
         </Text>
       </View>
-      <TouchableOpacity
-        style={[
-          styles.statusStripInfoButton,
-          {
-            backgroundColor: colors.surfaceElevated,
-            borderColor: colors.border,
-          },
-        ]}
-        onPress={onOpenStatusDetails}
-        activeOpacity={0.85}
-      >
-        <Feather name="info" size={16} color={colors.textSecondary} />
-      </TouchableOpacity>
+      <View style={styles.statusStripActions}>
+        {playbackActive ? (
+          <>
+            <TouchableOpacity
+              style={[
+                styles.statusStripInfoButton,
+                {
+                  backgroundColor: colors.surfaceElevated,
+                  borderColor: colors.border,
+                },
+              ]}
+              onPress={() => {
+                void (playbackPaused ? onResumePlayback?.() : onPausePlayback?.());
+              }}
+              activeOpacity={0.85}
+              accessibilityLabel={
+                playbackPaused ? resumePlaybackLabel : pausePlaybackLabel
+              }
+            >
+              <Feather
+                name={playbackPaused ? "play" : "pause"}
+                size={16}
+                color={colors.textSecondary}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.statusStripInfoButton,
+                {
+                  backgroundColor: colors.surfaceElevated,
+                  borderColor: colors.border,
+                },
+              ]}
+              onPress={() => {
+                void onStopPlayback?.();
+              }}
+              activeOpacity={0.85}
+              accessibilityLabel={stopPlaybackLabel}
+            >
+              <Feather name="square" size={14} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </>
+        ) : null}
+        <TouchableOpacity
+          style={[
+            styles.statusStripInfoButton,
+            {
+              backgroundColor: colors.surfaceElevated,
+              borderColor: colors.border,
+            },
+          ]}
+          onPress={onOpenStatusDetails}
+          activeOpacity={0.85}
+        >
+          <Feather name="info" size={16} color={colors.textSecondary} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -136,16 +204,24 @@ export function MainScreenVoiceStage({
   layout = "portrait",
   metering,
   onOpenStatusDetails,
+  onPausePlayback,
   onPress,
   onPressIn,
   onPressOut,
+  onResumePlayback,
+  onStopPlayback,
+  pausePlaybackLabel,
+  playbackActive = false,
+  playbackPaused = false,
   providerLabel,
+  resumePlaybackLabel,
   signalLevels,
   signalWaveformVariant,
   showStatusStrip = true,
   statusDetail,
   statusIndicatorTone,
   statusTitle,
+  stopPlaybackLabel,
   visualPhase,
 }: MainScreenVoiceStageProps) {
   const haloSize = Math.round(circleSize * 1.08);
@@ -186,9 +262,17 @@ export function MainScreenVoiceStage({
           colors={colors}
           layout={layout}
           onOpenStatusDetails={onOpenStatusDetails}
+          onPausePlayback={onPausePlayback}
+          onResumePlayback={onResumePlayback}
+          onStopPlayback={onStopPlayback}
+          pausePlaybackLabel={pausePlaybackLabel}
+          playbackActive={playbackActive}
+          playbackPaused={playbackPaused}
+          resumePlaybackLabel={resumePlaybackLabel}
           statusDetail={statusDetail}
           statusIndicatorTone={statusIndicatorTone}
           statusTitle={statusTitle}
+          stopPlaybackLabel={stopPlaybackLabel}
         />
       ) : null}
     </View>

@@ -73,7 +73,10 @@ describe("useSetupGuideVoiceTest", () => {
       },
       provider: "groq" as const,
       player: {
+        isPlaybackPaused: false,
         isPlaying: false,
+        pausePlayback: jest.fn(async () => true),
+        resumePlayback: jest.fn(async () => true),
         stopPlayback: jest.fn(async () => undefined),
         resetCancellation: jest.fn(),
         enqueueAudio: jest.fn(),

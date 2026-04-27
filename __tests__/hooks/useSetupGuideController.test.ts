@@ -73,7 +73,10 @@ function createControllerParams() {
     updateApiKey: jest.fn(),
     localTtsPackStates: {},
     player: {
+      isPlaybackPaused: false,
       isPlaying: false,
+      pausePlayback: jest.fn().mockResolvedValue(true),
+      resumePlayback: jest.fn().mockResolvedValue(true),
       stopPlayback: jest.fn().mockResolvedValue(undefined),
       resetCancellation: jest.fn(),
       enqueueAudio: jest.fn(),

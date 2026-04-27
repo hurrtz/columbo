@@ -373,6 +373,26 @@ export function MainScreen() {
     [activeReplayMessageId, handleRepeatLastReply, stopReplay],
   );
 
+  const handlePausePlayback = useCallback(async () => {
+    const paused = await player.pausePlayback();
+
+    if (!paused) {
+      showToast(t("pausePlaybackUnavailable"));
+    }
+  }, [player, showToast, t]);
+
+  const handleResumePlayback = useCallback(async () => {
+    const resumed = await player.resumePlayback();
+
+    if (!resumed) {
+      showToast(t("pausePlaybackUnavailable"));
+    }
+  }, [player, showToast, t]);
+
+  const handleStopPlayback = useCallback(async () => {
+    await player.stopPlayback();
+  }, [player]);
+
   useProviderAvailabilityGuards({
     activeResponseMode,
     availableResponseModes,
@@ -1090,16 +1110,24 @@ export function MainScreen() {
                   layout="landscape"
                   metering={metering}
                   onOpenStatusDetails={openStatusDetails}
+                  onPausePlayback={handlePausePlayback}
                   onPress={handleTogglePress}
                   onPressIn={handlePressIn}
                   onPressOut={handlePressOut}
+                  onResumePlayback={handleResumePlayback}
+                  onStopPlayback={handleStopPlayback}
+                  pausePlaybackLabel={t("pause")}
+                  playbackActive={player.isPlaying}
+                  playbackPaused={player.isPlaybackPaused}
                   providerLabel={providerLabel}
+                  resumePlaybackLabel={t("resume")}
                   signalLevels={signalLevels}
                   signalWaveformVariant={signalWaveformVariant}
                   showStatusStrip={false}
                   statusDetail={statusDisplay.statusDetail}
                   statusIndicatorTone={statusIndicatorTone}
                   statusTitle={statusDisplay.actionLabel}
+                  stopPlaybackLabel={t("stop")}
                   visualPhase={visualPhase}
                 />
               </View>
@@ -1111,9 +1139,17 @@ export function MainScreen() {
                 fullWidth
                 layout="landscape"
                 onOpenStatusDetails={openStatusDetails}
+                onPausePlayback={handlePausePlayback}
+                onResumePlayback={handleResumePlayback}
+                onStopPlayback={handleStopPlayback}
+                pausePlaybackLabel={t("pause")}
+                playbackActive={player.isPlaying}
+                playbackPaused={player.isPlaybackPaused}
+                resumePlaybackLabel={t("resume")}
                 statusDetail={statusDisplay.statusDetail}
                 statusIndicatorTone={statusIndicatorTone}
                 statusTitle={statusDisplay.actionLabel}
+                stopPlaybackLabel={t("stop")}
               />
 
               <TranscriptPreviewCard
@@ -1182,15 +1218,23 @@ export function MainScreen() {
                 isActive={isActive}
                 metering={metering}
                 onOpenStatusDetails={openStatusDetails}
+                onPausePlayback={handlePausePlayback}
                 onPress={handleTogglePress}
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
+                onResumePlayback={handleResumePlayback}
+                onStopPlayback={handleStopPlayback}
+                pausePlaybackLabel={t("pause")}
+                playbackActive={player.isPlaying}
+                playbackPaused={player.isPlaybackPaused}
                 providerLabel={providerLabel}
+                resumePlaybackLabel={t("resume")}
                 signalLevels={signalLevels}
                 signalWaveformVariant={signalWaveformVariant}
                 statusDetail={statusDisplay.statusDetail}
                 statusIndicatorTone={statusIndicatorTone}
                 statusTitle={statusDisplay.actionLabel}
+                stopPlaybackLabel={t("stop")}
                 visualPhase={visualPhase}
               />
 

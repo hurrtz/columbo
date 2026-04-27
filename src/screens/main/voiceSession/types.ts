@@ -6,7 +6,10 @@ import { Provider, Settings } from "../../../types";
 import { ShowToastFn, TranslateFn } from "../shared";
 
 export interface AudioPlayerController {
+  isPlaybackPaused: boolean;
   isPlaying: boolean;
+  pausePlayback: () => Promise<boolean>;
+  resumePlayback: () => Promise<boolean>;
   stopPlayback: () => Promise<void>;
   waitForPlaybackRouteSettle: () => Promise<void>;
 }

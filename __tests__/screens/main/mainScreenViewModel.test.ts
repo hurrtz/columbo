@@ -82,6 +82,7 @@ describe("getMainScreenViewModel", () => {
       model: "gpt-5.4",
       pipelinePhase: "thinking",
       player: {
+        isPlaybackPaused: false,
         isPlaying: false,
         meteringData: -160,
         waveformData: undefined,
@@ -123,6 +124,7 @@ describe("getMainScreenViewModel", () => {
       model: "gpt-5.4",
       pipelinePhase: "speaking",
       player: {
+        isPlaybackPaused: false,
         isPlaying: false,
         meteringData: -160,
         waveformData: undefined,
