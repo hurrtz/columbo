@@ -14,9 +14,9 @@ describe("provider catalog", () => {
   it("matches the normalized provider and model counts in the flattened catalog", () => {
     expect(getCatalogStats()).toEqual({
       providerCount: 41,
-      modelCount: 458,
+      modelCount: 459,
       serviceCounts: {
-        llm: 295,
+        llm: 296,
         stt: 72,
         tts: 91,
       },

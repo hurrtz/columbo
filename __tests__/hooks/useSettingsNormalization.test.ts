@@ -122,9 +122,9 @@ describe("useSettingsNormalization", () => {
           en: "af_heart",
         }),
         responseModes: {
-          quick: { provider: "openai", model: "gpt-5.4" },
-          normal: { provider: "openai", model: "gpt-5.4" },
-          deep: { provider: "openai", model: "gpt-5.4" },
+          quick: { provider: "openai", model: "gpt-5.5" },
+          normal: { provider: "openai", model: "gpt-5.5" },
+          deep: { provider: "openai", model: "gpt-5.5" },
         },
       }),
     );

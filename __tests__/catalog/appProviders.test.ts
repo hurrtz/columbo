@@ -114,7 +114,7 @@ describe("app provider catalog bridge", () => {
     );
     expect(
       getCatalogModelsForAppProvider("openai", "llm").some(
-        (model) => model.modelId === "gpt-5.4",
+        (model) => model.modelId === "gpt-5.5",
       ),
     ).toBe(true);
   });

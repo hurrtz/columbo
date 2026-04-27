@@ -6,6 +6,69 @@ export const llms = providerContext.defineLlms([
       "providerId": "openai",
       "providerName": "OpenAI",
       "service": "llm",
+      "modelId": "gpt-5.5",
+      "publicName": "GPT-5.5",
+      "aliases": [
+        "gpt-5.5-2026-04-23"
+      ],
+      "status": "Documented active/current",
+      "catalogScope": "Dynamic/non-exhaustive",
+      "pricingSummary": "$5.00 / 1M input tokens, $30.00 / 1M output tokens, $0.50 / 1M cached input; Batch halves standard pricing. Prompts above 272K input tokens are billed at higher rates for the full session.",
+      "limitsSummary": "Pricing docs identify a 272K-token long-context threshold; exact max context and output token limits should be verified from live model metadata when needed.",
+      "regionSummary": "Regional processing endpoints are documented with a 10% uplift for GPT-5.5.",
+      "languagesSummary": "Multilingual text+vision model; no model-specific language list is published on the model page.",
+      "notes": "Newest OpenAI frontier model. Canonical stable slug is gpt-5.5; use the snapshot only for explicit pinning.",
+      "officialSources": [
+        "https://developers.openai.com/api/docs/models/gpt-5.5",
+        "https://developers.openai.com/api/docs/guides/latest-model",
+        "https://developers.openai.com/api/docs/pricing/",
+        "https://developers.openai.com/api/docs/guides/your-data/",
+        "https://developers.openai.com/api/docs/models"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [
+        {
+          "amountUsd": 5.0,
+          "unit": "million_input_tokens",
+          "sourceText": "Text input $5.00 / 1M tokens."
+        },
+        {
+          "amountUsd": 30.0,
+          "unit": "million_output_tokens",
+          "sourceText": "Text output $30.00 / 1M tokens."
+        }
+      ],
+      "constraints": [
+        {
+          "metric": "other",
+          "comparator": ">",
+          "value": 272000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "For GPT-5.5, prompts with >272K input tokens are priced at 2x input and 1.5x output for the full session."
+        }
+      ],
+      "languageSupport": {
+        "rawText": "OpenAI describes current flagship/latest models as multilingual, but no per-model language list is published on these model pages.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": [
+          "multilingual",
+          "vision-supported",
+          "no official per-model language list"
+        ]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "providerId": "openai",
+      "providerName": "OpenAI",
+      "service": "llm",
       "modelId": "gpt-5.4",
       "publicName": "GPT-5.4",
       "aliases": [

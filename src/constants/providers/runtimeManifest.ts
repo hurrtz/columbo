@@ -423,9 +423,10 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.openai.com/v1/chat/completions",
-      defaultModel: "gpt-5.4",
+      defaultModel: "gpt-5.5",
       realtimeModelIds: ["gpt-realtime-1.5", "gpt-realtime-mini"],
       models: [
+        model("gpt-5.5", "2026-04-23"),
         model("gpt-5.4", "2026-03-01"),
         model("gpt-5.4-mini", "2026-03-17"),
         model("gpt-5.4-nano", "2026-03-17"),

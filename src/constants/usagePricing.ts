@@ -16,7 +16,7 @@ export interface PricingAssumption {
   checkedAt: string;
 }
 
-export const PRICING_ASSUMPTIONS_LAST_UPDATED = "2026-03-17";
+export const PRICING_ASSUMPTIONS_LAST_UPDATED = "2026-04-27";
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -52,6 +52,16 @@ function createCatalogPricingAssumption(params: {
 }
 
 export const PRICING_ASSUMPTIONS: PricingAssumption[] = [
+  {
+    provider: "openai",
+    modelPattern: /^gpt-5\.5$/,
+    modelLabel: "GPT-5.5",
+    inputUsdPerMillion: 5,
+    outputUsdPerMillion: 30,
+    sourceLabel: "OpenAI API pricing",
+    sourceUrl: "https://developers.openai.com/api/docs/pricing",
+    checkedAt: "2026-04-27",
+  },
   {
     provider: "openai",
     modelPattern: /^gpt-5\.4$/,

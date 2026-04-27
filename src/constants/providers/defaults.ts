@@ -49,6 +49,6 @@ export const DEFAULT_RESPONSE_MODES: ResponseModeSelections = {
   },
   deep: {
     provider: "openai",
-    model: "gpt-5.4",
+    model: "gpt-5.5",
   },
 };
