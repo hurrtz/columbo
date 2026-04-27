@@ -101,6 +101,7 @@ export function useNativeSpeechPlayback(params: {
       Speech.speak(next.text, {
         voice: next.voice,
         rate: 0.96,
+        useApplicationAudioSession: true,
         onDone: () => {
           nativeSpeakingRef.current = false;
           setNativeSpeaking(false);

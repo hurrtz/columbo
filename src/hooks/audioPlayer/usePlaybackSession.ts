@@ -42,7 +42,9 @@ export function usePlaybackSession() {
         .then(() =>
           setAudioModeAsync({
             allowsRecording: false,
+            interruptionMode: "doNotMix",
             playsInSilentMode: true,
+            shouldPlayInBackground: true,
           }),
         )
         .then(() => {

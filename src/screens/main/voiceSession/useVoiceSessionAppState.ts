@@ -12,6 +12,7 @@ import type {
 
 interface UseVoiceSessionAppStateParams {
   abortRef: MutableRefObject<AbortController | null>;
+  isRecording: boolean;
   nativeStt: NativeSpeechRecognizerController;
   recorder: AudioRecorderController;
   setPipelinePhase: (phase: PipelinePhase) => void;
@@ -21,6 +22,7 @@ interface UseVoiceSessionAppStateParams {
 
 export function useVoiceSessionAppState({
   abortRef,
+  isRecording,
   nativeStt,
   recorder,
   setPipelinePhase,
@@ -30,6 +32,10 @@ export function useVoiceSessionAppState({
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (nextAppState !== "background") {
+        return;
+      }
+
+      if (!isRecording) {
         return;
       }
 
@@ -58,6 +64,7 @@ export function useVoiceSessionAppState({
     };
   }, [
     abortRef,
+    isRecording,
     nativeStt,
     recorder,
     setPipelinePhase,

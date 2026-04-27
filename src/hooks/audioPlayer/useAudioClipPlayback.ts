@@ -50,6 +50,8 @@ export function useAudioClipPlayback(params: {
   } = params;
 
   const removeLoadedAudio = useCallback(() => {
+    player.clearLockScreenControls?.();
+
     if (!loadedSourceRef.current) {
       return;
     }
@@ -94,6 +96,17 @@ export function useAudioClipPlayback(params: {
 
       player.replace(next.uri);
       loadedSourceRef.current = true;
+      player.setActiveForLockScreen?.(
+        true,
+        {
+          artist: "SchnackAI",
+          title: "Spoken reply",
+        },
+        {
+          showSeekBackward: false,
+          showSeekForward: false,
+        },
+      );
       player.play();
       playingRef.current = true;
     } catch (error) {

@@ -39,7 +39,9 @@ describe("usePlaybackSession", () => {
     expect(mockSetIsAudioActiveAsync).toHaveBeenCalledWith(true);
     expect(mockSetAudioModeAsync).toHaveBeenCalledWith({
       allowsRecording: false,
+      interruptionMode: "doNotMix",
       playsInSilentMode: true,
+      shouldPlayInBackground: true,
     });
     expect(mockSetCategoryIOS).toHaveBeenCalledWith({
       category: "playback",
