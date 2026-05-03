@@ -1,3 +1,4 @@
+import { AppState, type AppStateStatus } from "react-native";
 import * as FileSystem from "expo-file-system/legacy";
 import { LOCAL_TTS_VERIFY_SAMPLE_TEXT } from "./localTts/constants";
 import type { TtsListenLanguage } from "../types";
@@ -193,6 +194,22 @@ export async function installLocalTtsPack(params: {
 export async function releaseLocalTtsResources() {
   cancelLocalTtsIdleRelease();
   await releaseLocalTtsSessions();
+}
+
+let localTtsAppStateSubscription: { remove: () => void } | null = null;
+
+export function installLocalTtsBackgroundReleaseGuard() {
+  if (localTtsAppStateSubscription) {
+    return;
+  }
+  localTtsAppStateSubscription = AppState.addEventListener(
+    "change",
+    (nextAppState: AppStateStatus) => {
+      if (nextAppState === "background" || nextAppState === "inactive") {
+        void releaseLocalTtsResources();
+      }
+    },
+  );
 }
 
 export async function synthesizeLocalSpeech(params: {

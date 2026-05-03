@@ -1,7 +1,7 @@
 import type { TtsListenLanguage } from "../../types";
 
 export const KOKORO_MULTILINGUAL_MODEL_ID = "kokoro-multi-lang-v1_0";
-export const LOCAL_TTS_IDLE_RELEASE_MS = 45000;
+export const LOCAL_TTS_IDLE_RELEASE_MS = 12000;
 
 export const GERMAN_PIPER_MODEL_IDS = {
   "thorsten-medium": "vits-piper-de_DE-thorsten-medium",
