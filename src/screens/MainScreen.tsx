@@ -717,7 +717,9 @@ export function MainScreen() {
   }, [lastAssistantReply, lastCompletedReplyRef]);
 
   useEffect(() => {
-    installDebugLogConsoleCapture();
+    if (__DEV__) {
+      installDebugLogConsoleCapture();
+    }
 
     recordDebugLogEvent({
       event: "main-screen-mounted",
