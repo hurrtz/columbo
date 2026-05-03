@@ -30,7 +30,6 @@
           "speechRecognitionPermission": "Allow SchnackAI to transcribe your voice with the system speech recognizer."
         }
       ],
-      "./plugins/withBuildReactNativeFromSource",
       "./plugins/withDisableDevClientInspector"
     ],
     "scheme": "schnackai",
