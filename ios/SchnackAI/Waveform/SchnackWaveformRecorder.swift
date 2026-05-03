@@ -10,7 +10,7 @@ final class SchnackWaveformRecorder {
   var onEvent: (([String: Any]) -> Void)?
 
   private let stateLock = NSLock()
-  private let levelEmitter = SchnackWaveformLevelEmitter(intervalMs: 33)
+  private let levelEmitter = SchnackWaveformLevelEmitter(intervalMs: 80)
   private let rollingBuffer = SchnackWaveformRollingBuffer(
     sampleCount: SchnackWaveformRecorder.rollingSampleCount,
     referenceFloor: SchnackWaveformRecorder.inputReferenceFloor
