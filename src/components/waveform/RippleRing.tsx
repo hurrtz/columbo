@@ -1,15 +1,17 @@
 import { useEffect } from "react";
 import Animated, {
   Easing,
+  cancelAnimation,
+  interpolate,
   useAnimatedStyle,
-  useDerivedValue,
   useSharedValue,
   withDelay,
   withRepeat,
-  withSequence,
   withTiming,
 } from "react-native-reanimated";
 import { styles } from "../WaveformCircle.styles";
+
+const RIPPLE_DURATION_MS = 2000;
 
 export function RippleRing({
   delay,
@@ -26,6 +28,7 @@ export function RippleRing({
 }) {
   const isActiveSV = useSharedValue(isActive);
   const intensitySV = useSharedValue(intensity);
+  const progress = useSharedValue(0);
 
   useEffect(() => {
     isActiveSV.value = isActive;
@@ -35,47 +38,41 @@ export function RippleRing({
     intensitySV.value = intensity;
   }, [intensity, intensitySV]);
 
-  const duration = useDerivedValue(() => 2500 - intensitySV.value * 1300);
-  const peakOpacity = useDerivedValue(() => 0.1 + intensitySV.value * 0.25);
+  useEffect(() => {
+    if (!isActive) {
+      cancelAnimation(progress);
+      progress.value = 0;
+      return;
+    }
+
+    progress.value = withDelay(
+      delay,
+      withRepeat(
+        withTiming(1, {
+          duration: RIPPLE_DURATION_MS,
+          easing: Easing.out(Easing.ease),
+        }),
+        -1,
+        false,
+      ),
+    );
+
+    return () => {
+      cancelAnimation(progress);
+    };
+  }, [isActive, delay, progress]);
 
   const animatedStyle = useAnimatedStyle(() => {
     if (!isActiveSV.value) {
       return { opacity: 0, transform: [{ scale: 0.8 }] };
     }
 
+    const peakOpacity = 0.1 + intensitySV.value * 0.25;
+
     return {
-      opacity: withDelay(
-        delay,
-        withRepeat(
-          withSequence(
-            withTiming(peakOpacity.value, {
-              duration: 0,
-              easing: Easing.linear,
-            }),
-            withTiming(0, {
-              duration: duration.value,
-              easing: Easing.out(Easing.ease),
-            }),
-          ),
-          -1,
-        ),
-      ),
+      opacity: interpolate(progress.value, [0, 1], [peakOpacity, 0]),
       transform: [
-        {
-          scale: withDelay(
-            delay,
-            withRepeat(
-              withSequence(
-                withTiming(0.7, { duration: 0, easing: Easing.linear }),
-                withTiming(1.4, {
-                  duration: duration.value,
-                  easing: Easing.out(Easing.ease),
-                }),
-              ),
-              -1,
-            ),
-          ),
-        },
+        { scale: interpolate(progress.value, [0, 1], [0.7, 1.4]) },
       ],
     };
   });
