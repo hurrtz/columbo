@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useMemo } from "react";
 import { useSettings } from "../hooks/useSettings";
 
 type SettingsContextValue = ReturnType<typeof useSettings>;
@@ -11,9 +11,25 @@ export function SettingsProvider({
   children: React.ReactNode;
 }) {
   const value = useSettings();
+  const memoised = useMemo<SettingsContextValue>(
+    () => value,
+    [
+      value.settings,
+      value.loaded,
+      value.updateSettings,
+      value.updateProviderModel,
+      value.updateProviderSttModel,
+      value.updateProviderTtsModel,
+      value.updateResponseModeRoute,
+      value.updateActiveResponseMode,
+      value.updateProviderTtsVoice,
+      value.updateLocalTtsVoice,
+      value.updateApiKey,
+    ],
+  );
 
   return (
-    <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>
+    <SettingsContext.Provider value={memoised}>{children}</SettingsContext.Provider>
   );
 }
 
