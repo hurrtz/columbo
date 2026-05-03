@@ -4,7 +4,7 @@ import Foundation
 final class SchnackWaveformRecorder {
   static let rollingSampleCount = 192
   private static let inputSampleChunkCount = 6
-  private static let inputTapBufferSize: AVAudioFrameCount = 256
+  private static let inputTapBufferSize: AVAudioFrameCount = 512
   private static let inputReferenceFloor: Float = 0.11
 
   var onEvent: (([String: Any]) -> Void)?
