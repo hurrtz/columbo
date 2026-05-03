@@ -1,8 +1,10 @@
 import { networkFetch } from "../networkFetch";
 
 const REPLICATE_API_BASE = "https://api.replicate.com/v1";
-const REPLICATE_POLL_INTERVAL_MS = 1000;
-const REPLICATE_MAX_POLLS = 60;
+const REPLICATE_POLL_DELAYS_MS = [
+  500, 750, 1000, 1500, 2500, 4000, 6000, 8000, 10000,
+];
+const REPLICATE_MAX_POLLS = 30;
 
 type ReplicateInputProperties = Record<string, unknown>;
 
@@ -166,7 +168,11 @@ export async function runReplicatePrediction(params: {
   }
 
   for (let pollIndex = 0; pollIndex < REPLICATE_MAX_POLLS; pollIndex += 1) {
-    await wait(REPLICATE_POLL_INTERVAL_MS);
+    const delay =
+      REPLICATE_POLL_DELAYS_MS[
+        Math.min(pollIndex, REPLICATE_POLL_DELAYS_MS.length - 1)
+      ];
+    await wait(delay);
     prediction = await getReplicatePrediction({
       apiKey: params.apiKey,
       url: pollUrl,
