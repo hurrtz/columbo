@@ -25,7 +25,7 @@ class SchnackNativeWaveformModule(
     const val NAME = "SchnackNativeWaveform"
     private const val EVENT_NAME = "SchnackNativeWaveformEvent"
     private const val LEVEL_HISTORY_SIZE = 48
-    private const val LEVEL_TICK_MS = 60L
+    private const val LEVEL_TICK_MS = 100L
   }
 
   private val mainHandler = Handler(Looper.getMainLooper())
