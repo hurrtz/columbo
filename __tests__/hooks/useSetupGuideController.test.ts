@@ -103,7 +103,7 @@ describe("useSetupGuideController", () => {
     validateProviderConnection.mockResolvedValue(undefined);
   });
 
-  it("shows the setup guide once settings are loaded and not dismissed", async () => {
+  it("shows the neutral intro once settings are loaded and not dismissed", async () => {
     const params = createControllerParams();
     params.setupGuideDismissed = false;
 
@@ -112,6 +112,28 @@ describe("useSetupGuideController", () => {
     await waitFor(() => {
       expect(params.setSetupGuideVisible).toHaveBeenCalledWith(true);
     });
+    expect(params.updateSettings).not.toHaveBeenCalledWith({
+      setupGuideDismissed: true,
+    });
+  });
+
+  it("continues from the intro into provider setup", async () => {
+    const params = createControllerParams();
+    params.setupGuideDismissed = false;
+    const { result } = renderHook(() => useSetupGuideController(params), {
+      wrapper,
+    });
+
+    act(() => {
+      result.current.handleContinueFromIntro();
+    });
+
+    expect(result.current.step).toBe("provider");
+    expect(result.current.selectedProvider).toBeNull();
+    expect(params.updateSettings).not.toHaveBeenCalledWith({
+      setupGuideDismissed: true,
+    });
+    expect(params.openSettings).not.toHaveBeenCalled();
   });
 
   it("validates the selected provider key and saves the detected setup", async () => {
@@ -122,6 +144,7 @@ describe("useSetupGuideController", () => {
 
     act(() => {
       result.current.handleOpenSetupGuide("provider");
+      result.current.handleSelectProvider("openai");
     });
 
     await act(async () => {

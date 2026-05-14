@@ -33,7 +33,7 @@ interface SetupGuideModalProps {
   visible: boolean;
   step: SetupGuideStep;
   providerOptions: SetupGuideProviderOption[];
-  selectedProvider: Provider;
+  selectedProvider: Provider | null;
   selectedProviderApiKey: string;
   currentValidationState: SetupGuideValidationState;
   resolvedRoutes: SetupGuideResolvedRoutes;
@@ -46,7 +46,7 @@ interface SetupGuideModalProps {
     isBusy: boolean;
     hasCompleted: boolean;
   };
-  onSelectProvider: (provider: Provider) => void;
+  onSelectProvider: (provider: Provider | null) => void;
   onChangeProviderApiKey: (value: string) => void;
   onDismiss: () => void;
   onBack: () => void;
@@ -61,6 +61,7 @@ interface SetupGuideModalProps {
 }
 
 const STEP_ORDER: SetupGuideStep[] = ["intro", "provider", "voice-test", "summary"];
+const PROVIDER_PLACEHOLDER_VALUE = "__setup_guide_select_provider__";
 
 function RouteRow({
   label,
@@ -185,10 +186,22 @@ export function SetupGuideModal({
   const isLandscape = width > height;
   const cardMaxWidth = isLandscape ? Math.min(width - 40, 760) : 460;
   const stepIndex = STEP_ORDER.indexOf(step);
-  const providerHint = PROVIDER_API_KEY_HINTS[selectedProvider];
+  const providerPickerValue = selectedProvider ?? PROVIDER_PLACEHOLDER_VALUE;
+  const providerPickerOptions = [
+    {
+      label: t("setupGuideSelectProvider"),
+      value: PROVIDER_PLACEHOLDER_VALUE,
+    },
+    ...providerOptions,
+  ];
+  const providerHint = selectedProvider
+    ? PROVIDER_API_KEY_HINTS[selectedProvider]
+    : t("setupGuideSelectProviderFirst");
   const providerPlaceholder =
-    PROVIDER_API_KEY_PLACEHOLDERS[selectedProvider] || t("setupGuideApiKeyPlaceholder");
-  const canValidateProvider = selectedProviderApiKey.trim().length > 0;
+    (selectedProvider ? PROVIDER_API_KEY_PLACEHOLDERS[selectedProvider] : null) ||
+    t("setupGuideApiKeyPlaceholder");
+  const canValidateProvider =
+    Boolean(selectedProvider) && selectedProviderApiKey.trim().length > 0;
   const canContinueFromProvider = currentValidationState.status === "success";
   const canContinueFromVoiceTest =
     !resolvedRoutes.stt.enabled || voiceTest.hasCompleted;
@@ -340,10 +353,16 @@ export function SetupGuideModal({
                     {t("setupGuideProviderBody")}
                   </Text>
                   <Picker
-                    label={t("provider")}
-                    value={selectedProvider}
-                    options={providerOptions}
-                    onChange={(value) => onSelectProvider(value as Provider)}
+                    label={t("setupGuideProviderPickerLabel")}
+                    value={providerPickerValue}
+                    options={providerPickerOptions}
+                    onChange={(value) =>
+                      onSelectProvider(
+                        value === PROVIDER_PLACEHOLDER_VALUE
+                          ? null
+                          : (value as Provider),
+                      )
+                    }
                     dropdownLabel={t("setupGuideProviderPickerLabel")}
                     containerStyle={styles.providerPicker}
                   />
@@ -354,6 +373,7 @@ export function SetupGuideModal({
                     <TextInput
                       value={selectedProviderApiKey}
                       onChangeText={onChangeProviderApiKey}
+                      editable={Boolean(selectedProvider)}
                       autoCapitalize="none"
                       autoCorrect={false}
                       placeholder={providerPlaceholder}

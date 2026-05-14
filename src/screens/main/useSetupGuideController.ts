@@ -54,8 +54,8 @@ export function useSetupGuideController({
   const { t } = useLocalization();
   const providerOptions = useMemo(() => getSetupGuideProviderOptions(), []);
   const [step, setStep] = useState<SetupGuideStep>("intro");
-  const [selectedProvider, setSelectedProvider] = useState<Provider>(() =>
-    getSetupGuideInitialProvider(settings),
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
+    null,
   );
   const [validationState, setValidationState] = useState<SetupGuideValidationState>(
     {
@@ -64,48 +64,53 @@ export function useSetupGuideController({
   );
 
   useEffect(() => {
-    if (!loaded) {
+    if (!loaded || setupGuideDismissed) {
       return;
     }
 
-    if (!setupGuideDismissed) {
-      setSelectedProvider(getSetupGuideInitialProvider(settings));
-      setStep("intro");
-      setSetupGuideVisible(true);
-    }
+    setSelectedProvider(null);
+    setStep("intro");
+    setSetupGuideVisible(true);
   }, [loaded, setSetupGuideVisible, setupGuideDismissed]);
 
-  const selectedProviderApiKey = settings.apiKeys[selectedProvider].trim();
-  const selectedProviderModel = getSetupGuideValidationModel(
-    settings,
-    selectedProvider,
-  );
+  const routeProvider = selectedProvider ?? getSetupGuideInitialProvider(settings);
+  const selectedProviderApiKey = selectedProvider
+    ? settings.apiKeys[selectedProvider].trim()
+    : "";
+  const selectedProviderModel = selectedProvider
+    ? getSetupGuideValidationModel(settings, selectedProvider)
+    : "";
   const currentValidationState = useMemo(
-    () =>
-      getCurrentSetupGuideValidationState({
+    () => {
+      if (!selectedProvider) {
+        return { status: "idle" } satisfies SetupGuideValidationState;
+      }
+
+      return getCurrentSetupGuideValidationState({
         provider: selectedProvider,
         apiKey: selectedProviderApiKey,
         model: selectedProviderModel,
         validationState,
-      }),
+      });
+    },
     [selectedProvider, selectedProviderApiKey, selectedProviderModel, validationState],
   );
   const resolvedRoutes = useMemo(
     () =>
       resolveSetupGuideRoutes({
-        provider: selectedProvider,
+        provider: routeProvider,
         settings,
         nativeSttAvailable: nativeStt.isAvailable,
         localTtsPackStates,
       }),
-    [localTtsPackStates, nativeStt.isAvailable, selectedProvider, settings],
+    [localTtsPackStates, nativeStt.isAvailable, routeProvider, settings],
   );
 
   const voiceTest = useSetupGuideVoiceTest({
     visible: setupGuideVisible,
     settings,
     routes: resolvedRoutes,
-    provider: selectedProvider,
+    provider: routeProvider,
     player,
     recorder,
     nativeStt,
@@ -117,6 +122,7 @@ export function useSetupGuideController({
       await voiceTest.reset(true);
       setSetupGuideVisible(false);
       setStep("intro");
+      setSelectedProvider(null);
 
       if (markDismissed) {
         updateSettings({ setupGuideDismissed: true });
@@ -128,12 +134,12 @@ export function useSetupGuideController({
   const handleOpenSetupGuide = useCallback(
     (nextStep: SetupGuideStep = "provider") => {
       setValidationState({ status: "idle" });
-      setSelectedProvider(getSetupGuideInitialProvider(settings));
+      setSelectedProvider(null);
       setStep(nextStep);
       setSetupGuideVisible(true);
       void voiceTest.reset(true);
     },
-    [setSetupGuideVisible, settings, voiceTest],
+    [setSetupGuideVisible, voiceTest],
   );
 
   const handleDismissSetupGuide = useCallback(() => {
@@ -162,7 +168,7 @@ export function useSetupGuideController({
   }, []);
 
   const handleSelectProvider = useCallback(
-    (provider: Provider) => {
+    (provider: Provider | null) => {
       setSelectedProvider(provider);
     },
     [],
@@ -170,12 +176,24 @@ export function useSetupGuideController({
 
   const handleProviderApiKeyChange = useCallback(
     (value: string) => {
+      if (!selectedProvider) {
+        return;
+      }
+
       updateApiKey(selectedProvider, value);
     },
     [selectedProvider, updateApiKey],
   );
 
   const handleValidateProviderKey = useCallback(async () => {
+    if (!selectedProvider) {
+      setValidationState({
+        status: "error",
+        message: t("setupGuideSelectProviderFirst"),
+      });
+      return false;
+    }
+
     if (
       !hasProviderCredentialForCapability(
         selectedProvider,
@@ -252,6 +270,10 @@ export function useSetupGuideController({
   }, []);
 
   const handleFinishSetupGuide = useCallback(async () => {
+    if (!selectedProvider) {
+      return;
+    }
+
     updateSettings({
       activeResponseMode: "normal",
       responseModes: buildSetupGuideResponseModes(selectedProvider),
@@ -280,6 +302,10 @@ export function useSetupGuideController({
   }, [closeGuide, resolvedRoutes, selectedProvider, updateSettings]);
 
   const handleOpenSettingsFromSummary = useCallback(async () => {
+    if (!selectedProvider) {
+      return;
+    }
+
     const focusTab: SettingsTab =
       !resolvedRoutes.stt.enabled
         ? "stt"

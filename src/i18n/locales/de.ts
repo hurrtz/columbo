@@ -479,6 +479,8 @@ export const de: TranslationDictionary = {
     setupGuideProviderBody:
       "Wähle den Anbieter, den SchnackAI für Antworten nutzen soll, und füge dann einen Key mit LLM-Zugriff ein.",
     setupGuideProviderPickerLabel: "Antwort-Anbieter",
+    setupGuideSelectProvider: "Anbieter auswählen",
+    setupGuideSelectProviderFirst: "Wähle zuerst einen Anbieter aus.",
     setupGuideApiKeyLabel: "API-Key",
     setupGuideApiKeyPlaceholder: "Füge deinen Anbieter-Key ein",
     setupGuideContinue: "Weiter",
