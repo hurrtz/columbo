@@ -15,18 +15,18 @@ export const de: TranslationDictionary = {
     stt: "STT",
     tts: "TTS",
     ui: "UI",
-    settingsSectionApiKeys: "API-Keys",
+    settingsSectionApiKeys: "Zugangsdaten",
     settingsSectionApiKeysDescription:
-      "Hinterlege hier alle Anbieter-Keys zentral und filtere bei Bedarf nach Fähigkeiten.",
-    settingsSectionAiModels: "KI & Modelle",
+      "Füge Zugangsdaten fuer externe Dienste ein, die du bereits nutzt. Keys bleiben auf diesem Geraet.",
+    settingsSectionAiModels: "Verhalten & Routen",
     settingsSectionAiModelsDescription:
-      "Lege Systemprompt, Antwortstil, Modellrouting und optionale Web-Grundierung an einer Stelle fest.",
+      "Lege Systemprompt, Antwortstil, Routing und optionale Web-Grundierung an einer Stelle fest.",
     settingsSectionVoice: "Stimme",
     settingsSectionVoiceDescription:
       "Bestimme, wie du mit der App sprichst und wie die App mit dir spricht.",
     settingsSectionApp: "App",
     settingsSectionAppDescription:
-      "Steuere Design, Sprache, Sichtbarkeit der Nutzung und Preisreferenzen.",
+      "Steuere Design, Sprache und Sichtbarkeit der Nutzung.",
     theme: "Design",
     language: "Sprache",
     usageStats: "Nutzungsdaten",
@@ -43,14 +43,16 @@ export const de: TranslationDictionary = {
     instructionsTabDescription:
       "Definiere, was jeder Anfrage als Befehl an das Model vorangestellt wird.",
     providersTabDescription:
-      "Verbinde dich mit Anbietern, indem du API-Keys hinterlegts und ordne jeder Gesprächskategorie ein Modell zu.",
+      "Speichere Zugangsdaten fuer externe Dienste auf dem Geraet und ordne jeder Gesprächskategorie nach der Konfiguration eine Route zu.",
     webSearchTabDescription:
-      "Wähle den Anbieter, der vor der eigentlichen Antwort frischen Web-Kontext holt.",
+      "Konfiguriere optionalen frischen Web-Kontext vor Antworten.",
     catalogOnlyProvidersHint: ({ count }) =>
       `Hier werden ${count} zusaetzliche Anbieter nur aus dem Katalog fuer die UI-Pruefung angezeigt. Konfigurierbar und wirklich aufrufbar sind aktuell nur die verdrahteten Anbieter.`,
     openProviderCatalogDetails: ({ provider }) =>
       `Katalogdetails für ${provider} öffnen`,
     responseModes: "Gesprächskategorien",
+    responseModesNoConfiguredProviders:
+      "Füge zuerst Zugangsdaten hinzu. Routen bleiben ausgeblendet, bis mindestens ein kompatibler Dienst konfiguriert ist.",
     quickAndShallow: "Zackig",
     deepThinking: "Tiefgründig",
     quickModeDescription:
@@ -58,7 +60,7 @@ export const de: TranslationDictionary = {
     normalModeDescription:
       "Nutze das für die meisten Gespräche, wenn du eine ausgewogene Antwort willst.",
     deepModeDescription:
-      "Nutze das, wenn du das stärkste Modell für Details, Abwägungen und Reasoning willst.",
+      "Nutze das, wenn du mehr Details, Abwägungen und Reasoning willst.",
     useResponseMode: ({ mode }) => `${mode} verwenden`,
     sttTabDescription:
       "Steuere, wie Sprache aufgenommen wird und welches Backend Audio in Text umwandelt, bevor es das Modell erreicht.",
@@ -93,10 +95,10 @@ export const de: TranslationDictionary = {
       "Erkläre alles so einfach wie möglich. Nutze Analogien, Alltagssprache und verzichte auf Fachjargon.",
     openProviderSettings: ({ provider }) => `${provider}-Einstellungen öffnen`,
     createProviderApiKey: ({ provider }) =>
-      `API-Schlüssel für ${provider} erstellen`,
+      `Zugangsdaten fuer ${provider} bearbeiten`,
     useProvider: ({ provider }) => `${provider} verwenden`,
-    createApiKey: "API-Schlüssel erstellen",
-    searchProviders: "Anbieter suchen",
+    createApiKey: "Zugangsdaten",
+    searchProviders: "Dienste suchen",
     aboutThisProvider: "Über diesen Anbieter",
     providerStatusInvalid: "Ungültig",
     providerStatusTesting: "Prüfe",
@@ -116,15 +118,12 @@ export const de: TranslationDictionary = {
       `Verifizierte Unterstützung: LLM ${llm}, STT ${stt}, TTS ${tts}.`,
     catalogProviderLiveDiscoveryHint:
       "Dieser Anbieter hat einen dynamischen Katalog. Für eine echte Integration wird voraussichtlich eine Live-Modellerkennung nötig sein.",
-    catalogProviderPricingSummary: ({ summary }) => `Preise: ${summary}`,
     catalogProviderLimitsSummary: ({ summary }) => `Limits: ${summary}`,
     catalogProviderRegionSummary: ({ summary }) => `Regionen: ${summary}`,
     catalogProviderSttLanguagesSummary: ({ summary }) =>
       `STT-Sprachen: ${summary}`,
     catalogProviderTtsLanguagesSummary: ({ summary }) =>
       `TTS-Sprachen: ${summary}`,
-    catalogProviderFreeTierSummary: ({ summary }) =>
-      `Kostenloser Umfang: ${summary}`,
     catalogProviderIntegrationNotesSummary: ({ summary }) =>
       `Integrationshinweise: ${summary}`,
     catalogProviderNoModels: "Keine dokumentierten Modelle.",
@@ -162,9 +161,9 @@ export const de: TranslationDictionary = {
     provider: "Anbieter",
     webSearchProvider: "Websuche-Anbieter",
     webSearchProviderHint:
-      "Wähle den Anbieter für Live-Websuchen. Sein API-Key wird wie alle anderen Anbieter-Keys lokal auf dem Gerät gespeichert.",
+      "Wähle den konfigurierten Dienst für Live-Websuchen. Die Zugangsdaten werden lokal auf dem Geraet gespeichert.",
     webSearchProviderMissingHint:
-      "Richte in den API-Keys mindestens einen suchfähigen Anbieter ein, damit Web-Grundierung hier verfügbar ist.",
+      "Richte unter Zugangsdaten mindestens einen suchfähigen Dienst ein, damit Web-Grundierung hier verfügbar ist.",
     webSearchMode: "Websuche-Modus",
     webSearchBehavior: "Wann gesucht wird",
     webSearchModeOff: "Aus",
@@ -176,7 +175,7 @@ export const de: TranslationDictionary = {
     webSearchModeAutoDescription:
       "Nur suchen, wenn die Anfrage nach aktuellem Wissen aussieht oder an eine bereits geerdete Antwort anknüpft.",
     webSearchModeOnDescription:
-      "Vor jeder Antwort suchen, sobald der Anbieter korrekt konfiguriert ist.",
+      "Vor jeder Antwort suchen, sobald ein Suchdienst korrekt konfiguriert ist.",
     webSearchModelHint: ({ model }) =>
       `Verwendet im Hintergrund ${model} für die Live-Webrecherche.`,
     webSearchHomeHint:
@@ -185,7 +184,7 @@ export const de: TranslationDictionary = {
       "Optional wird vor der eigentlichen Antwort frischer Web-Kontext eingefügt.",
     webSearchAdvanced: "Erweiterte Suchregler",
     webSearchSetupNeeded:
-      "Hinterlege den Anbieter-Key, um die Live-Websuche zu nutzen.",
+      "Hinterlege Zugangsdaten, um die Live-Websuche zu nutzen.",
     webSearchEnabledDescription:
       "Vor der Modellantwort wird frischer Web-Kontext ergänzt.",
     webSearchDisabledDescription:
@@ -206,12 +205,12 @@ export const de: TranslationDictionary = {
     setWebSearchMode: ({ mode }) => `Websuche auf ${mode} setzen`,
     openWebSearchSettings: "Websuche-Einstellungen öffnen",
     providerSttDescription:
-      "Verwende einen der Anbieter aus der Liste, um deine Sprache zu transkribieren, bevor sie an das Modell geht.",
+      "Nutze einen konfigurierten externen Dienst, um Sprache vor der Antwortroute in Text umzuwandeln.",
     sttProvider: "STT-Anbieter",
     sttProviderEnabledHint:
       "Hier erscheinen nur aktivierte Anbieter mit Transkriptionsunterstützung.",
     sttProviderMissingHint:
-      'Aktiviere im Tab "Anbieter" einen Dienst mit STT-Unterstützung, um ihn hier auszuwählen.',
+      "Füge Zugangsdaten fuer einen Dienst mit STT-Unterstuetzung hinzu, um ihn hier auszuwaehlen.",
     nativeSttHint:
       "Native STT nutzt die Spracherkennung des Geräts direkt und funktioniert unabhängig von deinen API-Keys.",
     replyPlayback: "Wiedergabe",
@@ -233,18 +232,18 @@ export const de: TranslationDictionary = {
       "Wähle Sprachengine, Zielsprachen und Stimmvorschauen für die Sprachausgabe.",
     localTts: "Lokal",
     localTtsDescription:
-      "Nutze zuerst ein passendes lokales LLM, dann (falls vorhanden) den ausgewählten Anbieter, und zuletzt die Systemstimme.",
+      "Nutze zuerst eine passende heruntergeladene lokale Stimme, dann falls verfuegbar den konfigurierten Dienst und danach die Systemstimme.",
     providerTtsDescription:
-      "Nutze zuerst den ausgewählten Anbieter, dann das passende lokale LLM und zuletzt die Systemstimme.",
+      "Nutze zuerst den ausgewaehlten konfigurierten Dienst, dann eine passende lokale Stimme und danach die Systemstimme.",
     ttsProvider: "TTS-Anbieter",
     ttsProviderEnabledHint:
       "Hier erscheinen nur aktivierte Anbieter mit Sprachausgabe-Unterstützung.",
     ttsProviderMissingHint:
-      'Aktiviere im Tab "Anbieter" einen Dienst mit TTS-Unterstützung, um ihn hier auszuwählen.',
+      "Füge Zugangsdaten fuer einen Dienst mit TTS-Unterstuetzung hinzu, um ihn hier auszuwaehlen.",
     localTtsOrderHint:
-      "Reihenfolge: passende lokale LLM zuerst, dann der ausgewählte Anbieter (falls vorhanden), dann die Systemstimme.",
+      "Reihenfolge: passende lokale Stimme zuerst, dann der ausgewaehlte konfigurierte Dienst (falls vorhanden), dann die Systemstimme.",
     providerTtsOrderHint:
-      "Reihenfolge: ausgewählter Anbieter zuerst, dann eine passende lokale LLM, dann die Systemstimme.",
+      "Reihenfolge: ausgewaehlter konfigurierter Dienst zuerst, dann eine passende lokale Stimme, dann die Systemstimme.",
     nativeTtsHint:
       "Native TTS nutzt die Systemstimmen des Geräts und benötigt keinen API-Key.",
     localTtsLanguageCoverageHint:
@@ -255,13 +254,13 @@ export const de: TranslationDictionary = {
     listenLanguages: "Sprachen",
     listenLanguagesHint:
       "Wähle die Sprachen aus, die gut klingen sollen. SchnackAI probiert sie in dieser Reihenfolge für die Sprachausgabe.",
-    localVoicePacks: "Lokale LLMs",
+    localVoicePacks: "Lokale Sprachpakete",
     localVoicePacksHint:
-      "Jede Sprache bringt eigene Stimmen mit. Wähle zuerst eine Stimme pro Sprache aus und lade dann die LLMs herunter, die du brauchst.",
+      "Jede Sprache bringt eigene Stimmen mit. Wähle zuerst eine Stimme pro Sprache aus und lade dann die Pakete herunter, die du brauchst.",
     localVoiceForLanguage: ({ languageLabel }) => `Stimme für ${languageLabel}`,
     providerVoicePreviews: "Anbieter-Stimmvorschau",
     providerVoicePreviewsHint:
-      "Teste hier den aktuell ausgewählten TTS-Anbieter mit eigener Stimme und einem separaten Vorschautext pro Antwortsprache.",
+      "Teste hier die aktuell ausgewaehlte TTS-Route mit einem separaten Vorschautext pro Antwortsprache.",
     nativeVoicePreviewSection: "Native Stimmvorschau",
     nativeVoicePreviewSectionHint:
       "Nutzt direkt die eingebaute Sprachsynthese des Geräts, damit du sie mit lokalen und Cloud-Stimmen vergleichen kannst.",
@@ -289,7 +288,7 @@ export const de: TranslationDictionary = {
     localTtsPackMissing:
       "Noch nicht installiert. Bis zum Download werden Cloud-TTS oder die Systemstimme genutzt.",
     localTtsUnsupportedLanguageFallback:
-      "Für diese Sprache gibt es noch kein lokales LLM. Cloud-TTS oder die Systemstimme übernehmen.",
+      "Für diese Sprache gibt es noch kein lokales Sprachpaket. Cloud-TTS oder die Systemstimme übernehmen.",
     downloadingLocalTtsPack: ({ progress }) =>
       `Lokales Paket wird geladen… ${progress} %`,
     download: "Download",
@@ -318,7 +317,9 @@ export const de: TranslationDictionary = {
     threadPinned: "Schnack angeheftet.",
     threadUnpinned: "Nicht mehr angeheftet.",
     addProviderKeyToUseProvider: ({ provider }) =>
-      `Füge in den Einstellungen deinen API-Schlüssel für ${provider} hinzu, um diesen Anbieter zu nutzen.`,
+      `Füge in den Einstellungen Zugangsdaten fuer ${provider} hinzu, bevor du diese Route nutzt.`,
+    configureCredentialsBeforeVoiceSession:
+      "Füge in den Einstellungen Zugangsdaten hinzu, bevor du eine Sprachsitzung startest.",
     endpointCredentialFormatInvalid: ({ provider }) =>
       `Gib für ${provider} die Basis-URL des Anbieters und den API-Schlüssel als https://dein-endpunkt.example.com|dein-api-schluessel ein.`,
     azureCredentialFormatInvalid: ({ provider }) =>
@@ -341,9 +342,9 @@ export const de: TranslationDictionary = {
       `Vorheriges Debug-Log ${fileName} wiederhergestellt (${entryCount} Einträge).`,
     debugLogCaptureFailed: "Das Debug-Log konnte nicht gespeichert werden.",
     chooseSttBeforeVoiceSession:
-      "Wähle in den Einstellungen einen aktivierten STT-Anbieter, bevor du eine Sprachsitzung startest.",
+      "Wähle in den Einstellungen eine konfigurierte STT-Route, bevor du eine Sprachsitzung startest.",
     chooseTtsBeforeSpokenReplies:
-      "Wähle in den Einstellungen einen aktivierten TTS-Anbieter, bevor du gesprochene Antworten nutzt.",
+      "Wähle in den Einstellungen eine konfigurierte TTS-Route, bevor du gesprochene Antworten nutzt.",
     stopSessionBeforeReplay:
       "Beende die laufende Sprachsitzung, bevor du die letzte Antwort erneut abspielst.",
     couldntCatchThatTryAgain:
@@ -351,18 +352,18 @@ export const de: TranslationDictionary = {
     couldntStartVoiceInput: "Schnack konnte nicht gestartet werden.",
     couldntProcessVoiceInput: "Schnack konnte nicht verarbeitet werden.",
     addProviderKeyToEnableProvider: ({ provider }) =>
-      `Füge in den Einstellungen deinen API-Schlüssel für ${provider} hinzu, um ihn zu aktivieren.`,
+      `Füge in den Einstellungen Zugangsdaten fuer ${provider} hinzu, bevor du diese Route nutzt.`,
     stopSessionBeforePreview:
       "Beende den laufenden Schnack, bevor du eine Stimme testest.",
     chooseTtsToPreviewVoices:
-      "Wähle in den Einstellungen einen aktivierten TTS-Anbieter, um Stimmen zu testen.",
+      "Wähle in den Einstellungen eine konfigurierte TTS-Route, um Stimmen zu testen.",
     downloadSelectedLocalVoiceFirst: ({ languageLabel }) =>
       `Lade zuerst die ausgewählte lokale Stimme für ${languageLabel} herunter.`,
     couldntPreviewVoice: "Die Stimmvorschau konnte nicht abgespielt werden.",
     spokenRepliesDisabled:
       "Gesprochene Antworten sind in den Einstellungen deaktiviert.",
     providerVoiceFallback:
-      "Die Anbieter-Stimme ist ausgefallen. Diese Antwort nutzt jetzt eine Ersatzstimme.",
+      "Die konfigurierte Stimmroute ist ausgefallen. Diese Antwort nutzt jetzt eine Ersatzstimme.",
     localVoiceFallback:
       "Die lokale Stimme war nicht verfügbar. Diese Antwort nutzt jetzt eine Ersatzstimme.",
     localTtsPackInstalled: ({ languageLabel }) =>
@@ -410,11 +411,16 @@ export const de: TranslationDictionary = {
       "Blende Token- und Kostenschätzungen im Transkript aus.",
     usageStatsVisibleDescription:
       "Zeige geschätzte Token-Nutzung und geschätzte Kosten pro Antwort sowie für den gesamten Schnack.",
+    debugLogButton: "Debug-Log-Button",
+    debugLogButtonHiddenDescription:
+      "Blende den LOG-Button auf der Hauptseite aus, solange kein Mitschnitt läuft.",
+    debugLogButtonVisibleDescription:
+      "Zeige den LOG-Button auf der Hauptseite, um Debug-Mitschnitte zu starten und zu stoppen.",
     estimatedUsageTitle: "Geschätzte Nutzung",
     estimatedUsageCounts: ({ replies, summaries }) =>
       `${replies} Antworten · ${summaries} Speicher-Updates`,
     estimatedUsageConversationScope:
-      "Die Summen enthalten alle Anbieter und Modelle, die in diesem Schnack verwendet wurden.",
+      "Die Summen enthalten alle Routen und Modelle, die in diesem Schnack verwendet wurden.",
     estimatedPromptTokens: ({ count }) => `Prompt: ${count}`,
     estimatedReplyTokens: ({ count }) => `Antwort: ${count}`,
     estimatedTotalTokens: ({ count }) => `Gesamt: ${count}`,
@@ -438,12 +444,12 @@ export const de: TranslationDictionary = {
     pricingAssumptionCheckedAt: ({ date }) => `Geprüft: ${date}`,
     openPricingSource: ({ source }) => `Preisquelle öffnen: ${source}`,
     source: "Quelle",
-    startWithGroq: "Mit Groq starten",
+    startWithGroq: "Zugangsdaten konfigurieren",
     groqStarterDescription:
-      "Groq bietet einen kostenlosen Tarif und ist damit der schnellste Weg, die App freizuschalten. Füge in den Einstellungen den API-Schlüssel hinzu – der Anbieter-Umschalter erscheint dann sofort hier.",
-    setupGuideConnectProviderTitle: "Anbieter verbinden",
+      "Füge Zugangsdaten fuer einen externen Dienst ein, den du bereits nutzt. Die App zeigt Routen erst nach der Konfiguration an.",
+    setupGuideConnectProviderTitle: "Zugangsdaten konfigurieren",
     setupGuideConnectProviderDescription:
-      "Füge einen BYOK-Anbieter hinzu, teste den Sprachpfad und lass SchnackAI die besten verfügbaren Routen konfigurieren.",
+      "Füge Zugangsdaten in den Einstellungen hinzu und waehle danach die Routen aus, die du nutzen willst.",
     idle: "Bereit",
     yourConversationAppearsHere: "Dein Schnack erscheint hier",
     defaultTranscriptEmptyDescription:
@@ -457,40 +463,41 @@ export const de: TranslationDictionary = {
     noSavedConversationsYet: "Noch keine gespeicherten Schnacks",
     drawerEmptyDescription:
       "Sprich in der Hauptansicht los und SchnackAI erstellt automatisch einen Schnack.",
-    setupGuideTitle: "Wähle ein Start-Setup",
+    setupGuideTitle: "App konfigurieren",
     setupGuideSubtitle:
-      "Such dir zuerst einen Stack aus. Du kannst später alles in den Einstellungen ändern.",
-    fastestStartPreset: "Schnellster Start",
+      "Füge Zugangsdaten hinzu und waehle Routen in den Einstellungen.",
+    fastestStartPreset: "Minimales Setup",
     fastestStartDescription:
-      "Groq übernimmt die Antworten, das Gerät kümmert sich ums Hören und Sprechen. Minimaler Aufwand.",
-    fullVoicePreset: "Kompletter Anbieter-Stack",
+      "Nutze Geraete-Sprache, wenn verfuegbar, und konfiguriere nur die Antwortroute, die du brauchst.",
+    fullVoicePreset: "Konfigurierte Stimme",
     fullVoiceDescription:
-      "OpenAI übernimmt Antworten, Transkription und Sprachausgabe. Ideal, wenn du alles über einen Anbieter laufen lassen willst.",
+      "Nutze konfigurierte Dienste fuer Antworten, Transkription und Sprachausgabe, wenn du sie auswaehlst.",
     setupGuideNote:
-      "Danach öffnen wir die Einstellungen, damit du den API-Key einfügen und prüfen kannst.",
+      "Danach öffnen wir die Einstellungen, damit du Zugangsdaten einfügen und prüfen kannst.",
     useThisSetup: "Dieses Setup nutzen",
     notNow: "Jetzt nicht",
-    setupGuideIntroTitle: "Bring Your Own AI",
+    setupGuideIntroTitle: "So funktioniert SchnackAI",
     setupGuideIntroBody:
-      "SchnackAI ist ein sprachfokussierter BYOK-Client. Füge einen Anbieter-Key hinzu, und die App konfiguriert den besten verfügbaren Hör- und Sprachpfad auf diesem Gerät.",
+      "SchnackAI startet leer. Füge Zugangsdaten fuer externe Dienste ein, die du bereits nutzt, und waehle danach aus, wie Antworten, Spracheingabe, Sprachausgabe und optionaler Web-Kontext geroutet werden.",
     setupGuideIntroNote:
-      "Sprachausgabe, Transkription und Websuche hängen vom Anbieter und von den lokalen Gerätefähigkeiten ab. Du kannst später alles in den Einstellungen ändern.",
-    setupGuideProviderTitle: "Anbieter verbinden",
+      "Nach der Einrichtung startest und stoppst du Gespräche über die Sprachsteuerung auf der Hauptseite. Schnacks werden in der Seitenleiste gespeichert, und jede Route laesst sich spaeter in den Einstellungen aendern.",
+    setupGuideProviderTitle: "Zugangsdaten hinzufügen",
     setupGuideProviderBody:
-      "Wähle den Anbieter, den SchnackAI für Antworten nutzen soll, und füge dann einen Key mit LLM-Zugriff ein.",
-    setupGuideProviderPickerLabel: "Antwort-Anbieter",
+      "Wähle den externen Dienst, den du konfigurieren willst, und füge Zugangsdaten mit Antwortzugriff ein.",
+    setupGuideProviderPickerLabel: "Antwortdienst",
     setupGuideSelectProvider: "Anbieter auswählen",
     setupGuideSelectProviderFirst: "Wähle zuerst einen Anbieter aus.",
-    setupGuideApiKeyLabel: "API-Key",
-    setupGuideApiKeyPlaceholder: "Füge deinen Anbieter-Key ein",
+    setupGuideApiKeyLabel: "Zugangsdaten",
+    setupGuideApiKeyPlaceholder: "Zugangsdaten einfügen",
     setupGuideContinue: "Weiter",
+    setupGuideOpenSettings: "Einstellungen öffnen",
     setupGuideBack: "Zurück",
     setupGuideValidateKey: "Key prüfen",
     setupGuideProviderKeyNeedsLlmAccess: ({ provider }) =>
-      `Dieser ${provider}-Key schaltet keinen LLM-Zugriff für Antworten frei.`,
+      `Diese Zugangsdaten fuer ${provider} erlauben keine Antwortanfragen.`,
     setupGuideVoiceTestTitle: "Setup testen",
     setupGuideVoiceTestBody:
-      "Sprich einen kurzen Satz. SchnackAI testet Mikrofonzugriff, Transkription, den Antwortpfad des Anbieters und gesprochene Ausgabe, wenn eine brauchbare Sprachroute verfügbar ist.",
+      "Sprich einen kurzen Satz. SchnackAI testet Mikrofonzugriff, Transkription, die konfigurierte Antwortroute und gesprochene Ausgabe, wenn eine brauchbare Sprachroute verfügbar ist.",
     setupGuideVoiceTestNoInputBody:
       "Spracheingabe ist mit diesem Setup nicht verfügbar. Fahr fort, um die erkannten Routen zu prüfen, und passe die Spracheinstellungen später bei Bedarf an.",
     setupGuideVoiceTestTextOnlyNote:
@@ -509,7 +516,7 @@ export const de: TranslationDictionary = {
       "Spracheingabe ist für dieses Setup auf diesem Gerät nicht verfügbar.",
     setupGuideSummaryTitle: "Setup abgeschlossen",
     setupGuideSummaryBody:
-      "Das ist die Route, die SchnackAI mit deinem aktuellen Setup verwendet.",
+      "Das ist die Route, die SchnackAI mit deiner aktuellen Konfiguration verwendet.",
     setupGuideSummaryLlm: "LLM",
     setupGuideSummaryStt: "Sprache zu Text",
     setupGuideSummaryTts: "Text zu Sprache",
@@ -528,12 +535,12 @@ export const de: TranslationDictionary = {
       `Über ${provider} verfügbar, derzeit aus`,
     setupGuideSummaryTextOnlyNote:
       "Gesprochene Antworten sind vorerst aus. Antworten bleiben als Text, bis du eine Anbieter- oder lokale Stimme aktivierst.",
-    setupGuideFinish: "SchnackAI starten",
+    setupGuideFinish: "Fertig",
     searchConversationsPlaceholder:
       "Suche nach Titeln, Modellen und Nachrichtentext",
     noMatchingConversations: "Keine passenden Schnacks",
     noMatchingConversationsDescription:
-      "Versuch es mit einem anderen Titel, Anbieter, Modell oder Satz aus dem Transkript.",
+      "Versuch es mit einem anderen Titel, einer anderen Route, einem Modell oder einem Satz aus dem Transkript.",
     memoryModalTitle: "Alle deine Schnacks",
     memoryModalDescription:
       "Das ist die kompakte Zusammenfassung, die SchnackAI weiterträgt, sobald ein Schnack lang genug wird und ältere Beiträge zusammengefasst werden.",

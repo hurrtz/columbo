@@ -2,6 +2,7 @@ import React from "react";
 import { fireEvent } from "@testing-library/react-native";
 
 import { MainScreen } from "../../src/screens/MainScreen";
+import { DEFAULT_SETTINGS, type Settings } from "../../src/types";
 import { renderWithProviders } from "../test-utils/renderWithProviders";
 
 jest.mock("react-native-safe-area-context", () => ({
@@ -150,26 +151,30 @@ jest.mock("../../src/screens/main/MainScreenTopBar", () => ({
   }) => {
     const React = require("react");
     const { Text, TouchableOpacity, View } = require("react-native");
+    const children = [];
 
-    return React.createElement(
-      View,
-      null,
-      React.createElement(
+    if (onToggleDebugLog) {
+      children.push(React.createElement(
         TouchableOpacity,
-        { onPress: onToggleDebugLog },
+        { key: "debug-log", onPress: onToggleDebugLog },
         React.createElement(Text, null, "toggle-debug-log"),
-      ),
+      ));
+    }
+
+    children.push(
       React.createElement(
         TouchableOpacity,
-        { onPress: onOpenDrawer },
+        { key: "drawer", onPress: onOpenDrawer },
         React.createElement(Text, null, "open-drawer"),
       ),
       React.createElement(
         TouchableOpacity,
-        { onPress: onOpenSettings },
+        { key: "settings", onPress: onOpenSettings },
         React.createElement(Text, null, "open-settings"),
       ),
     );
+
+    return React.createElement(View, null, children);
   },
 }));
 
@@ -288,7 +293,35 @@ jest.mock("../../src/screens/main/usePreviewVoiceController", () => ({
   })),
 }));
 
+const { useSharedSettings } = jest.requireMock(
+  "../../src/context/SettingsContext",
+) as {
+  useSharedSettings: jest.Mock;
+};
+
+function createSharedSettingsValue(settingsOverrides: Partial<Settings> = {}) {
+  return {
+    settings: {
+      ...DEFAULT_SETTINGS,
+      ...settingsOverrides,
+    },
+    updateSettings: jest.fn(),
+    updateActiveResponseMode: jest.fn(),
+    updateResponseModeRoute: jest.fn(),
+    updateProviderSttModel: jest.fn(),
+    updateProviderTtsModel: jest.fn(),
+    updateProviderTtsVoice: jest.fn(),
+    updateLocalTtsVoice: jest.fn(),
+    updateApiKey: jest.fn(),
+    loaded: true,
+  };
+}
+
 describe("MainScreen", () => {
+  beforeEach(() => {
+    useSharedSettings.mockReturnValue(createSharedSettingsValue());
+  });
+
   it("renders the shell with the route card", () => {
     const screen = renderWithProviders(<MainScreen />);
 
@@ -308,7 +341,17 @@ describe("MainScreen", () => {
     expect(screen.getByText("drawer:open")).toBeTruthy();
   });
 
-  it("renders the debug log action in the top bar", () => {
+  it("hides the debug log action by default", () => {
+    const screen = renderWithProviders(<MainScreen />);
+
+    expect(screen.queryByText("toggle-debug-log")).toBeNull();
+  });
+
+  it("renders the debug log action when enabled in app settings", () => {
+    useSharedSettings.mockReturnValue(
+      createSharedSettingsValue({ showDebugLogButton: true }),
+    );
+
     const screen = renderWithProviders(<MainScreen />);
 
     expect(screen.getByText("toggle-debug-log")).toBeTruthy();

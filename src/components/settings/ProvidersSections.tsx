@@ -73,84 +73,89 @@ export function ResponseModesSection({
         {t("responseModes")}
       </Text>
 
-      <View style={styles.responseModeList}>
-        {RESPONSE_MODE_ORDER.map((mode, index) => {
-          const route = settings.responseModes[mode];
+      {enabledProviders.length === 0 ? (
+        <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
+          {t("responseModesNoConfiguredProviders")}
+        </Text>
+      ) : (
+        <View style={styles.responseModeList}>
+          {RESPONSE_MODE_ORDER.map((mode, index) => {
+            const route = settings.responseModes[mode];
 
-          return (
-            <View
-              key={mode}
-              style={[
-                styles.responseModeItem,
-                {
-                  borderTopColor: colors.border,
-                  borderTopWidth: index === 0 ? 0 : 1,
-                  paddingBottom:
-                    index === RESPONSE_MODE_ORDER.length - 1 ? 4 : 18,
-                  paddingTop: index === 0 ? 8 : 20,
-                },
-              ]}
-            >
-              <View style={styles.responseModeCopy}>
-                <Text style={[styles.responseModeTitle, { color: colors.text }]}>
-                  {getResponseModeLabel(mode, t)}
-                </Text>
-                <Text
-                  style={[
-                    styles.responseModeDescription,
-                    { color: colors.textMuted },
-                  ]}
-                >
-                  {getResponseModeDescription(mode, t)}
-                </Text>
+            return (
+              <View
+                key={mode}
+                style={[
+                  styles.responseModeItem,
+                  {
+                    borderTopColor: colors.border,
+                    borderTopWidth: index === 0 ? 0 : 1,
+                    paddingBottom:
+                      index === RESPONSE_MODE_ORDER.length - 1 ? 4 : 18,
+                    paddingTop: index === 0 ? 8 : 20,
+                  },
+                ]}
+              >
+                <View style={styles.responseModeCopy}>
+                  <Text style={[styles.responseModeTitle, { color: colors.text }]}>
+                    {getResponseModeLabel(mode, t)}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.responseModeDescription,
+                      { color: colors.textMuted },
+                    ]}
+                  >
+                    {getResponseModeDescription(mode, t)}
+                  </Text>
+                </View>
+
+                <Picker
+                  label={t("provider")}
+                  dropdownLabel={t("provider")}
+                  hideLabel
+                  containerStyle={styles.responseModePicker}
+                  value={route.provider}
+                  options={renderProviderPickerOptions(enabledProviders)}
+                  onChange={(value) => {
+                    const nextProvider = value as Provider;
+                    const preferredModel = settings.providerModels[nextProvider];
+                    const nextModel = isValidModelForProvider(
+                      nextProvider,
+                      preferredModel,
+                    )
+                      ? preferredModel
+                      : getDefaultModelForProvider(nextProvider);
+
+                    onUpdateResponseModeRoute(mode, {
+                      provider: nextProvider,
+                      model: nextModel,
+                    });
+                  }}
+                />
+
+                <Picker
+                  label={t("model")}
+                  dropdownLabel={t("model")}
+                  hideLabel
+                  containerStyle={styles.responseModePickerLast}
+                  value={route.model}
+                  options={PROVIDER_MODELS[route.provider].map((model) => ({
+                    value: model.id,
+                    label: model.name,
+                  }))}
+                  onChange={(value) =>
+                    onUpdateResponseModeRoute(mode, {
+                      ...route,
+                      model: value,
+                    })
+                  }
+                />
               </View>
-
-              <Picker
-                label={t("provider")}
-                dropdownLabel={t("provider")}
-                hideLabel
-                containerStyle={styles.responseModePicker}
-                value={route.provider}
-                options={renderProviderPickerOptions(enabledProviders)}
-                disabled={enabledProviders.length === 0}
-                onChange={(value) => {
-                  const nextProvider = value as Provider;
-                  const preferredModel = settings.providerModels[nextProvider];
-                  const nextModel = isValidModelForProvider(
-                    nextProvider,
-                    preferredModel,
-                  )
-                    ? preferredModel
-                    : getDefaultModelForProvider(nextProvider);
-
-                  onUpdateResponseModeRoute(mode, {
-                    provider: nextProvider,
-                    model: nextModel,
-                  });
-                }}
-              />
-
-              <Picker
-                label={t("model")}
-                dropdownLabel={t("model")}
-                hideLabel
-                containerStyle={styles.responseModePickerLast}
-                value={route.model}
-                options={PROVIDER_MODELS[route.provider].map((model) => ({
-                  value: model.id,
-                  label: model.name,
-                }))}
-                onChange={(value) =>
-                  onUpdateResponseModeRoute(mode, {
-                    ...route,
-                    model: value,
-                  })
-                }
-              />
-            </View>
-          );
-        })}
-      </View>
+            );
+          })}
+        </View>
+      )}
     </View>
   );
 }
@@ -504,11 +509,6 @@ function CatalogProviderSummary({
     { key: "tts", label: t("tts"), models: catalogEntry.tts },
   ] as const;
   const summaryLines = [
-    hasMeaningfulCatalogSummary(catalogEntry.provider.summaries.pricing)
-      ? t("catalogProviderPricingSummary", {
-          summary: catalogEntry.provider.summaries.pricing,
-        })
-      : null,
     hasMeaningfulCatalogSummary(catalogEntry.provider.summaries.limits)
       ? t("catalogProviderLimitsSummary", {
           summary: catalogEntry.provider.summaries.limits,
@@ -527,11 +527,6 @@ function CatalogProviderSummary({
     hasMeaningfulCatalogSummary(catalogEntry.provider.summaries.ttsLanguages)
       ? t("catalogProviderTtsLanguagesSummary", {
           summary: catalogEntry.provider.summaries.ttsLanguages,
-        })
-      : null,
-    hasMeaningfulCatalogSummary(catalogEntry.provider.summaries.freeTier)
-      ? t("catalogProviderFreeTierSummary", {
-          summary: catalogEntry.provider.summaries.freeTier,
         })
       : null,
     hasMeaningfulCatalogSummary(catalogEntry.provider.summaries.integrationNotes)

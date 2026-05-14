@@ -47,6 +47,7 @@ describe("useSettings", () => {
     await flushSettingsLoad();
     expect(result.current.settings).toEqual(DEFAULT_SETTINGS);
     expect(result.current.settings.showUsageStats).toBe(false);
+    expect(result.current.settings.showDebugLogButton).toBe(false);
   });
 
   it("loads saved settings from AsyncStorage", async () => {
@@ -165,6 +166,21 @@ describe("useSettings", () => {
     );
   });
 
+  it("persists the debug log button visibility toggle", async () => {
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    await act(async () => {
+      result.current.updateSettings({ showDebugLogButton: true });
+    });
+
+    expect(result.current.settings.showDebugLogButton).toBe(true);
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+      "@schnackai/settings",
+      expect.stringContaining('"showDebugLogButton":true'),
+    );
+  });
+
   it("persists web search mode and provider settings", async () => {
     const { result } = renderHook(() => useSettings());
     await flushSettingsLoad();
@@ -208,7 +224,7 @@ describe("useSettings", () => {
     expect(result.current.settings.webSearchMode).toBe("on");
   });
 
-  it("falls back to the default web search provider when stored data is unsupported", async () => {
+  it("keeps web search unselected when stored provider data is unsupported", async () => {
     (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
       JSON.stringify({
         ...DEFAULT_SETTINGS,
@@ -219,10 +235,10 @@ describe("useSettings", () => {
     const { result } = renderHook(() => useSettings());
     await flushSettingsLoad();
 
-    expect(result.current.settings.webSearchProvider).toBe("openai");
+    expect(result.current.settings.webSearchProvider).toBeNull();
   });
 
-  it("keeps the setup guide visible for brand-new installs without keys", async () => {
+  it("keeps the setup guide available for brand-new installs without keys", async () => {
     const { result } = renderHook(() => useSettings());
     await flushSettingsLoad();
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { getProviderModelName } from "../constants/models";
+import { PROVIDER_LABELS, getProviderModelName } from "../constants/models";
 import { useLocalization } from "../i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { fonts } from "../theme/typography";
@@ -57,12 +57,15 @@ export function ResponseModeToggle({
         const active = mode === selected;
         const route = routes[mode];
         const ready = readyModes.includes(mode);
+        const modeLabel = getResponseModeLabel(mode, t);
+        const providerLabel = PROVIDER_LABELS[route.provider];
+        const modelLabel = getProviderModelName(route.provider, route.model);
         const content = (
-          <>
+          <View style={styles.optionContent}>
             <View
               style={[
-                styles.optionHeader,
-                compact ? styles.optionHeaderCompact : null,
+                styles.modeRow,
+                compact ? styles.modeRowCompact : null,
               ]}
             >
               <Text
@@ -73,31 +76,40 @@ export function ResponseModeToggle({
                 ]}
                 numberOfLines={1}
               >
-                {getResponseModeLabel(mode, t)}
+                {modeLabel}
               </Text>
             </View>
 
-            {!compact ? (
-              <>
-                <View style={styles.providerRow}>
-                  <ProviderIcon
-                    provider={route.provider}
-                    color={active ? colors.text : colors.textSecondary}
-                  />
-                </View>
+            <View
+              style={[
+                styles.providerIconRow,
+                compact ? styles.providerIconRowCompact : null,
+              ]}
+            >
+              <ProviderIcon
+                provider={route.provider}
+                color={active ? colors.text : colors.textSecondary}
+              />
+            </View>
 
-                <Text
-                  style={[
-                    styles.modelText,
-                    { color: active ? colors.text : colors.textMuted },
-                  ]}
-                  numberOfLines={2}
-                >
-                  {getProviderModelName(route.provider, route.model)}
-                </Text>
-              </>
-            ) : null}
-          </>
+            <View
+              style={[
+                styles.modelRow,
+                compact ? styles.modelRowCompact : null,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.modelText,
+                  compact ? styles.modelTextCompact : null,
+                  { color: active ? colors.text : colors.textMuted },
+                ]}
+                numberOfLines={compact ? 1 : 2}
+              >
+                {modelLabel}
+              </Text>
+            </View>
+          </View>
         );
 
         return (
@@ -115,9 +127,9 @@ export function ResponseModeToggle({
             ]}
             onPress={() => onSelect(mode)}
             accessibilityRole="button"
-            accessibilityLabel={t("useResponseMode", {
-              mode: getResponseModeLabel(mode, t),
-            })}
+            accessibilityLabel={`${t("useResponseMode", {
+              mode: modeLabel,
+            })}. ${providerLabel}. ${modelLabel}`}
             accessibilityState={{ disabled: !ready, selected: active }}
           >
             {active ? (
@@ -180,26 +192,30 @@ const styles = StyleSheet.create({
   },
   optionInner: {
     flex: 1,
-    minHeight: 96,
+    minHeight: 116,
     borderRadius: 17,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 12,
-    paddingVertical: 14,
-    gap: 10,
+    paddingVertical: 12,
   },
   optionInnerCompact: {
-    minHeight: 54,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    gap: 0,
+    minHeight: 82,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
   },
-  optionHeader: {
-    minHeight: 17,
+  optionContent: {
+    width: "100%",
     alignItems: "center",
   },
-  optionHeaderCompact: {
-    minHeight: 0,
+  modeRow: {
+    height: 20,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modeRowCompact: {
+    height: 18,
   },
   optionLabel: {
     fontSize: 13,
@@ -210,15 +226,32 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
   },
-  providerRow: {
+  providerIconRow: {
+    height: 32,
+    width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    minHeight: 24,
+  },
+  providerIconRowCompact: {
+    height: 28,
+  },
+  modelRow: {
+    height: 38,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modelRowCompact: {
+    height: 18,
   },
   modelText: {
     fontSize: 12,
     lineHeight: 16,
     fontFamily: fonts.body,
     textAlign: "center",
+  },
+  modelTextCompact: {
+    fontSize: 10,
+    lineHeight: 14,
   },
 });

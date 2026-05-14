@@ -33,6 +33,7 @@ describe("getMainScreenViewModel", () => {
         openai: "gpt-4o-mini-transcribe",
       },
       ttsMode: "local",
+      spokenRepliesEnabled: true,
       ttsProvider: "openai",
       providerTtsModels: {
         ...DEFAULT_SETTINGS.providerTtsModels,

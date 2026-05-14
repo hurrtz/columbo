@@ -14,7 +14,7 @@ import { useLocalization } from "../i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { fonts } from "../theme/typography";
 import { Message } from "../types";
-import { formatTokenCount, formatUsd } from "../utils/usageStats";
+import { formatTokenCount } from "../utils/usageStats";
 
 interface ChatBubbleProps {
   message: Message;
@@ -309,13 +309,6 @@ export function ChatBubble({
               total: formatTokenCount(usage.totalTokens),
             })}
           </Text>
-          {usage.totalCostUsd !== null ? (
-            <Text style={[styles.usageTextStrong, { color: colors.text }]}>
-              {t("estimatedCost", {
-                cost: formatUsd(usage.totalCostUsd),
-              })}
-            </Text>
-          ) : null}
         </View>
       ) : null}
       {selectable && (onCopy || onShare || onRepeat) ? (
@@ -626,11 +619,6 @@ const styles = StyleSheet.create({
   },
   usageText: {
     fontSize: 11,
-    lineHeight: 16,
-    fontFamily: fonts.mono,
-  },
-  usageTextStrong: {
-    fontSize: 12,
     lineHeight: 16,
     fontFamily: fonts.mono,
   },

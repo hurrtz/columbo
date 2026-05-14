@@ -15,18 +15,18 @@ export const en: TranslationDictionary = {
     stt: "STT",
     tts: "TTS",
     ui: "UI",
-    settingsSectionApiKeys: "API Keys",
+    settingsSectionApiKeys: "Credentials",
     settingsSectionApiKeysDescription:
-      "Store every provider credential in one vault, then filter by capability when you need something specific.",
-    settingsSectionAiModels: "AI & Models",
+      "Add credentials for external services you already use. Keys stay on this device.",
+    settingsSectionAiModels: "Behavior & Routes",
     settingsSectionAiModelsDescription:
-      "Set the system prompt, response style, model routing, and optional web grounding in one place.",
+      "Set the system prompt, response style, routing, and optional web grounding in one place.",
     settingsSectionVoice: "Voice",
     settingsSectionVoiceDescription:
       "Choose how you speak to the app and how the app speaks back.",
     settingsSectionApp: "App",
     settingsSectionAppDescription:
-      "Control theme, language, usage visibility, and pricing references.",
+      "Control theme, language, and usage visibility.",
     theme: "Theme",
     language: "Language",
     usageStats: "Usage Stats",
@@ -43,14 +43,16 @@ export const en: TranslationDictionary = {
     instructionsTabDescription:
       "Shape the hidden guidance that steers the assistant before any provider sees the request.",
     providersTabDescription:
-      "Connect providers, store keys on-device, and map each home-screen response mode to a provider and model.",
+      "Store external-service credentials on-device and map each response mode after a service is configured.",
     webSearchTabDescription:
-      "Choose the provider that fetches live web context before the main model answers.",
+      "Configure optional live web context before replies.",
     catalogOnlyProvidersHint: ({ count }) =>
       `Showing ${count} extra catalog-only providers here for UI inspection. Only the wired providers can be configured and called right now.`,
     openProviderCatalogDetails: ({ provider }) =>
       `Open ${provider} catalog details`,
     responseModes: "Response Modes",
+    responseModesNoConfiguredProviders:
+      "Add credentials first. Route controls stay hidden until at least one compatible service is configured.",
     quickAndShallow: "Quick",
     deepThinking: "Deep",
     quickModeDescription:
@@ -58,7 +60,7 @@ export const en: TranslationDictionary = {
     normalModeDescription:
       "Use this for most conversations when you want a balanced answer.",
     deepModeDescription:
-      "Use this when you want the strongest model for detail, tradeoffs, and reasoning.",
+      "Use this when you want more detail, tradeoffs, and reasoning.",
     useResponseMode: ({ mode }) => `Use ${mode}`,
     sttTabDescription:
       "Control how speech is captured and which backend turns audio into text before it reaches the model.",
@@ -92,10 +94,10 @@ export const en: TranslationDictionary = {
     eli5Description:
       "Explain everything as simply as possible. Use analogies, everyday language, zero jargon. Assume no prior knowledge on any topic.",
     openProviderSettings: ({ provider }) => `Open ${provider} settings`,
-    createProviderApiKey: ({ provider }) => `Create ${provider} API key`,
+    createProviderApiKey: ({ provider }) => `Edit ${provider} credentials`,
     useProvider: ({ provider }) => `Use ${provider}`,
-    createApiKey: "Create API key",
-    searchProviders: "Search providers",
+    createApiKey: "Credentials",
+    searchProviders: "Search services",
     aboutThisProvider: "About this provider",
     providerStatusInvalid: "Invalid",
     providerStatusTesting: "Testing",
@@ -115,14 +117,12 @@ export const en: TranslationDictionary = {
       `Verified support: LLM ${llm}, STT ${stt}, TTS ${tts}.`,
     catalogProviderLiveDiscoveryHint:
       "This provider has a dynamic catalog, so a real integration will likely need live model discovery.",
-    catalogProviderPricingSummary: ({ summary }) => `Pricing: ${summary}`,
     catalogProviderLimitsSummary: ({ summary }) => `Limits: ${summary}`,
     catalogProviderRegionSummary: ({ summary }) => `Region: ${summary}`,
     catalogProviderSttLanguagesSummary: ({ summary }) =>
       `STT languages: ${summary}`,
     catalogProviderTtsLanguagesSummary: ({ summary }) =>
       `TTS languages: ${summary}`,
-    catalogProviderFreeTierSummary: ({ summary }) => `Free tier: ${summary}`,
     catalogProviderIntegrationNotesSummary: ({ summary }) =>
       `Integration notes: ${summary}`,
     catalogProviderNoModels: "No documented models.",
@@ -159,9 +159,9 @@ export const en: TranslationDictionary = {
     provider: "Provider",
     webSearchProvider: "Web Search Provider",
     webSearchProviderHint:
-      "Choose the provider that performs live web lookups. Its API key is stored on-device like any other provider key.",
+      "Choose the configured service that performs live web lookups. Its credentials are stored on-device.",
     webSearchProviderMissingHint:
-      "Configure at least one search-capable provider in API Keys to enable web grounding here.",
+      "Configure at least one search-capable service in Credentials to enable web grounding here.",
     webSearchMode: "Web Search Mode",
     webSearchBehavior: "When to search",
     webSearchModeOff: "Off",
@@ -173,7 +173,7 @@ export const en: TranslationDictionary = {
     webSearchModeAutoDescription:
       "Only search when the request looks freshness-sensitive or follows a grounded answer.",
     webSearchModeOnDescription:
-      "Always search the web before the assistant reply when the provider is configured.",
+      "Always search the web before the assistant reply when a search service is configured.",
     webSearchModelHint: ({ model }) =>
       `Uses ${model} behind the scenes for live web grounding.`,
     webSearchHomeHint:
@@ -181,7 +181,7 @@ export const en: TranslationDictionary = {
     settingsWebSearchCompactHint:
       "Optionally prepend fresh web context before the main model replies.",
     webSearchAdvanced: "Advanced Search Controls",
-    webSearchSetupNeeded: "Add the provider key to use live web search.",
+    webSearchSetupNeeded: "Add credentials to use live web search.",
     webSearchEnabledDescription:
       "Fresh web context is added before the model replies.",
     webSearchDisabledDescription:
@@ -202,12 +202,12 @@ export const en: TranslationDictionary = {
     setWebSearchMode: ({ mode }) => `Set web search mode to ${mode}`,
     openWebSearchSettings: "Open web search settings",
     providerSttDescription:
-      "Use a configured provider to transcribe your voice before it is sent to the model.",
+      "Use a configured external service to transcribe your voice before it is sent to the reply route.",
     sttProvider: "STT Provider",
     sttProviderEnabledHint:
       "Only enabled providers with transcription support appear here.",
     sttProviderMissingHint:
-      "Enable a provider with STT support in the Providers tab to choose it here.",
+      "Add credentials for a service with STT support to choose it here.",
     nativeSttHint:
       "Native STT uses the device speech recognizer directly and works independently of your provider keys.",
     replyPlayback: "Reply Playback",
@@ -229,14 +229,14 @@ export const en: TranslationDictionary = {
       "Pick the speech engine, listening languages, and voice previews for spoken replies.",
     localTts: "Local",
     localTtsDescription:
-      "Try a matching downloaded local voice first, then the selected provider if available, then the system voice.",
+      "Try a matching downloaded local voice first, then the selected configured service if available, then the system voice.",
     providerTtsDescription:
-      "Try the selected provider first, then a matching downloaded local voice, then the system voice.",
+      "Try the selected configured service first, then a matching downloaded local voice, then the system voice.",
     ttsProvider: "TTS Provider",
     ttsProviderEnabledHint:
       "Only enabled providers with spoken-reply support appear here.",
     ttsProviderMissingHint:
-      "Enable a provider with TTS support in the Providers tab to choose it here.",
+      "Add credentials for a service with TTS support to choose it here.",
     localTtsOrderHint:
       "Playback order: matching local voice first, then the selected provider if configured, then the system voice.",
     providerTtsOrderHint:
@@ -257,7 +257,7 @@ export const en: TranslationDictionary = {
     localVoiceForLanguage: ({ languageLabel }) => `Voice for ${languageLabel}`,
     providerVoicePreviews: "Provider Voice Previews",
     providerVoicePreviewsHint:
-      "Test the currently selected TTS provider here with its own voice and a separate preview text for each reply language.",
+      "Test the currently selected TTS route here with a separate preview text for each reply language.",
     nativeVoicePreviewSection: "Native Voice Preview",
     nativeVoicePreviewSectionHint:
       "This speaks directly through the phone's built-in speech synthesizer so you can compare it against local and cloud voices.",
@@ -314,7 +314,9 @@ export const en: TranslationDictionary = {
     threadPinned: "Thread pinned.",
     threadUnpinned: "Thread unpinned.",
     addProviderKeyToUseProvider: ({ provider }) =>
-      `Add your ${provider} API key in Settings to use this provider.`,
+      `Add credentials for ${provider} in Settings before using this route.`,
+    configureCredentialsBeforeVoiceSession:
+      "Add credentials in Settings before starting a voice session.",
     endpointCredentialFormatInvalid: ({ provider }) =>
       `For ${provider}, enter the provider base URL and API key as https://your-endpoint.example.com|your-api-key.`,
     azureCredentialFormatInvalid: ({ provider }) =>
@@ -337,27 +339,27 @@ export const en: TranslationDictionary = {
       `Recovered previous debug log ${fileName} (${entryCount} entries).`,
     debugLogCaptureFailed: "Couldn't save the debug log.",
     chooseSttBeforeVoiceSession:
-      "Choose an enabled STT provider in Settings before starting a voice session.",
+      "Choose a configured STT route in Settings before starting a voice session.",
     chooseTtsBeforeSpokenReplies:
-      "Choose an enabled TTS provider in Settings before using spoken replies.",
+      "Choose a configured TTS route in Settings before using spoken replies.",
     stopSessionBeforeReplay:
       "Stop the active voice session before replaying the last reply.",
     couldntCatchThatTryAgain: "Couldn't catch that, try again.",
     couldntStartVoiceInput: "Couldn't start voice input.",
     couldntProcessVoiceInput: "Couldn't process voice input.",
     addProviderKeyToEnableProvider: ({ provider }) =>
-      `Add your ${provider} API key in Settings to enable it.`,
+      `Add credentials for ${provider} in Settings before using this route.`,
     stopSessionBeforePreview:
       "Stop the active voice session before previewing a voice.",
     chooseTtsToPreviewVoices:
-      "Choose an enabled TTS provider in Settings to preview voices.",
+      "Choose a configured TTS route in Settings to preview voices.",
     downloadSelectedLocalVoiceFirst: ({ languageLabel }) =>
       `Download the selected ${languageLabel} local voice first.`,
     couldntPreviewVoice: "Couldn't preview voice.",
     spokenRepliesDisabled:
       "Spoken replies are turned off in Settings.",
     providerVoiceFallback:
-      "Provider voice failed. Switched this reply to a fallback voice.",
+      "Configured voice route failed. Switched this reply to a fallback voice.",
     localVoiceFallback:
       "Local voice was unavailable. Switched this reply to a fallback voice.",
     localTtsPackInstalled: ({ languageLabel }) =>
@@ -403,11 +405,16 @@ export const en: TranslationDictionary = {
       "Keep token and cost estimates out of the transcript UI.",
     usageStatsVisibleDescription:
       "Show estimated token usage and estimated cost for replies and conversation totals.",
+    debugLogButton: "Debug Log Button",
+    debugLogButtonHiddenDescription:
+      "Keep the home-screen LOG button hidden unless a capture is already running.",
+    debugLogButtonVisibleDescription:
+      "Show the home-screen LOG button for starting and stopping debug captures.",
     estimatedUsageTitle: "Estimated Usage",
     estimatedUsageCounts: ({ replies, summaries }) =>
       `${replies} replies · ${summaries} memory updates`,
     estimatedUsageConversationScope:
-      "Totals include every provider and model used inside this conversation.",
+      "Totals include every route and model used inside this conversation.",
     estimatedPromptTokens: ({ count }) => `Prompt: ${count}`,
     estimatedReplyTokens: ({ count }) => `Reply: ${count}`,
     estimatedTotalTokens: ({ count }) => `Total: ${count}`,
@@ -431,12 +438,12 @@ export const en: TranslationDictionary = {
     pricingAssumptionCheckedAt: ({ date }) => `Checked: ${date}`,
     openPricingSource: ({ source }) => `Open pricing source: ${source}`,
     source: "Source",
-    startWithGroq: "Start with Groq",
+    startWithGroq: "Configure credentials",
     groqStarterDescription:
-      "Groq offers a free tier, so it is the fastest way to unlock the app. Add its API key in Settings and the provider switcher will appear here right away.",
-    setupGuideConnectProviderTitle: "Connect a provider",
+      "Add credentials for an external service you already use. The app will only show routes after credentials are configured.",
+    setupGuideConnectProviderTitle: "Configure credentials",
     setupGuideConnectProviderDescription:
-      "Add a BYOK provider, test the voice path, and let SchnackAI configure the best available routes.",
+      "Add credentials in Settings, then choose the routes you want to use.",
     idle: "Idle",
     yourConversationAppearsHere: "Your conversation appears here",
     defaultTranscriptEmptyDescription:
@@ -449,40 +456,41 @@ export const en: TranslationDictionary = {
     noSavedConversationsYet: "No saved conversations yet",
     drawerEmptyDescription:
       "Start speaking from the main view and SchnackAI will build a session automatically.",
-    setupGuideTitle: "Choose a starting setup",
+    setupGuideTitle: "Configure the app",
     setupGuideSubtitle:
-      "Pick the stack you want first. You can change every route later in Settings.",
-    fastestStartPreset: "Fastest start",
+      "Add credentials and choose routes in Settings.",
+    fastestStartPreset: "Minimal setup",
     fastestStartDescription:
-      "Groq handles replies, while the device handles listening and speaking. Lowest setup friction.",
-    fullVoicePreset: "Full provider voice",
+      "Use device speech where available and configure only the reply route you need.",
+    fullVoicePreset: "Configured voice",
     fullVoiceDescription:
-      "OpenAI handles replies, transcription, and spoken output. Best if you want one provider stack.",
+      "Use configured services for replies, transcription, and spoken output when you choose them.",
     setupGuideNote:
-      "We will open Settings next so you can paste and validate the provider key.",
+      "We will open Settings next so you can paste and validate credentials.",
     useThisSetup: "Use this setup",
     notNow: "Not now",
-    setupGuideIntroTitle: "Bring Your Own AI",
+    setupGuideIntroTitle: "How SchnackAI works",
     setupGuideIntroBody:
-      "SchnackAI is a voice-first BYOK client. Add a provider key and the app will configure the best listening and speaking path available on this device.",
+      "SchnackAI starts blank. Add credentials for external services you already use, then choose how replies, speech input, spoken output, and optional web context are routed.",
     setupGuideIntroNote:
-      "Voice, transcription, and web search support depend on the provider and your local device capabilities. You can change everything later in Settings.",
-    setupGuideProviderTitle: "Connect A Provider",
+      "After setup, use the main voice control to start and stop a conversation. Threads are saved in the drawer, and every route can be changed later in Settings.",
+    setupGuideProviderTitle: "Add Credentials",
     setupGuideProviderBody:
-      "Choose the provider you want SchnackAI to use for replies, then paste a key with LLM access.",
-    setupGuideProviderPickerLabel: "Response provider",
+      "Choose the external service you want to configure, then paste credentials with reply access.",
+    setupGuideProviderPickerLabel: "Reply service",
     setupGuideSelectProvider: "Select a provider",
     setupGuideSelectProviderFirst: "Select a provider first.",
     setupGuideApiKeyLabel: "API key",
-    setupGuideApiKeyPlaceholder: "Paste your provider key",
+    setupGuideApiKeyPlaceholder: "Paste credentials",
     setupGuideContinue: "Continue",
+    setupGuideOpenSettings: "Open Settings",
     setupGuideBack: "Back",
     setupGuideValidateKey: "Validate key",
     setupGuideProviderKeyNeedsLlmAccess: ({ provider }) =>
-      `This ${provider} key does not unlock LLM access for replies.`,
+      `These ${provider} credentials do not allow reply requests.`,
     setupGuideVoiceTestTitle: "Test Your Setup",
     setupGuideVoiceTestBody:
-      "Say a short sentence. SchnackAI will test microphone access, transcription, the provider reply path, and spoken output when an acceptable voice route is available.",
+      "Say a short sentence. SchnackAI will test microphone access, transcription, the configured reply route, and spoken output when an acceptable voice route is available.",
     setupGuideVoiceTestNoInputBody:
       "Voice input is not available with this setup. Continue to review the detected routes, then adjust speech settings later if needed.",
     setupGuideVoiceTestTextOnlyNote:
@@ -501,7 +509,7 @@ export const en: TranslationDictionary = {
       "Voice input is not available for this setup on this device.",
     setupGuideSummaryTitle: "Setup Complete",
     setupGuideSummaryBody:
-      "Here is the route SchnackAI will use with your current setup.",
+      "Here is the route SchnackAI will use with your current configuration.",
     setupGuideSummaryLlm: "LLM",
     setupGuideSummaryStt: "Speech to text",
     setupGuideSummaryTts: "Text to speech",
@@ -519,11 +527,11 @@ export const en: TranslationDictionary = {
       `Available via ${provider}, currently off`,
     setupGuideSummaryTextOnlyNote:
       "Spoken replies are off for now. Replies stay in text until you enable a provider or local voice.",
-    setupGuideFinish: "Start Using SchnackAI",
+    setupGuideFinish: "Done",
     searchConversationsPlaceholder: "Search titles, models, and message text",
     noMatchingConversations: "No matching conversations",
     noMatchingConversationsDescription:
-      "Try a different title, provider, model, or phrase from the transcript.",
+      "Try a different title, route, model, or phrase from the transcript.",
     memoryModalTitle: "Conversation memory",
     memoryModalDescription:
       "This is the compact summary SchnackAI carries forward once a thread gets long enough to compress older turns.",

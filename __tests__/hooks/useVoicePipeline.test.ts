@@ -129,7 +129,7 @@ function createParams(
     ttsListenLanguages: DEFAULT_SETTINGS.ttsListenLanguages,
     localTtsVoices: DEFAULT_SETTINGS.localTtsVoices,
     replyPlayback: DEFAULT_SETTINGS.replyPlayback,
-    spokenRepliesEnabled: DEFAULT_SETTINGS.spokenRepliesEnabled,
+    spokenRepliesEnabled: true,
     assistantInstructions: DEFAULT_SETTINGS.assistantInstructions,
     responseLength: DEFAULT_SETTINGS.responseLength,
     responseTone: DEFAULT_SETTINGS.responseTone,

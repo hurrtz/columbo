@@ -11,11 +11,15 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
-import { ResponseModeToggle } from "../../components/ResponseModeToggle";
 import { ProviderIcon } from "../../components/ProviderIcon";
-import { type WebSearchMode } from "../../constants/webSearch";
+import { ResponseModeToggle } from "../../components/ResponseModeToggle";
+import { PROVIDER_LABELS } from "../../constants/models";
+import {
+  type WebSearchMode,
+  type WebSearchProvider,
+} from "../../constants/webSearch";
 import { Colors } from "../../theme/colors";
-import { Provider, ResponseMode, ResponseModeRoute } from "../../types";
+import { ResponseMode, ResponseModeRoute } from "../../types";
 
 import { TranslateFn } from "./shared";
 import { styles } from "./styles";
@@ -33,7 +37,7 @@ interface MainScreenRouteCardProps {
   t: TranslateFn;
   webSearchEnabled: boolean;
   webSearchMode: WebSearchMode;
-  webSearchProvider: Provider | null;
+  webSearchProvider: WebSearchProvider | null;
   webSearchReady: boolean;
 }
 
@@ -53,11 +57,13 @@ export function MainScreenRouteCard({
   webSearchProvider,
   webSearchReady,
 }: MainScreenRouteCardProps) {
-  const badgeProvider = webSearchProvider ?? "openai";
   const isHighlighted = webSearchEnabled && webSearchReady;
   const webSearchTitle = `${t("webSearch")} (${t(
     webSearchMode === "on" ? "webSearchModeAlways" : "webSearchModeAuto",
   )})`;
+  const webSearchProviderLabel = webSearchProvider
+    ? PROVIDER_LABELS[webSearchProvider]
+    : undefined;
 
   return (
     <View
@@ -98,6 +104,12 @@ export function MainScreenRouteCard({
             ]}
             onPress={onToggleWebSearchEnabled}
             activeOpacity={0.9}
+            accessibilityRole="button"
+            accessibilityLabel={
+              webSearchProviderLabel
+                ? `${webSearchTitle}. ${webSearchProviderLabel}`
+                : webSearchTitle
+            }
           >
             <View style={styles.webSearchToggleCopy}>
               <View style={styles.webSearchToggleHeader}>
@@ -118,11 +130,19 @@ export function MainScreenRouteCard({
               </View>
             </View>
             <View style={styles.webSearchProviderIcon}>
-              <ProviderIcon
-                provider={badgeProvider}
-                color={webSearchReady ? colors.text : colors.textMuted}
-                label={badgeProvider}
-              />
+              {webSearchProvider ? (
+                <ProviderIcon
+                  provider={webSearchProvider}
+                  color={webSearchReady ? colors.text : colors.textMuted}
+                  label={webSearchProviderLabel}
+                />
+              ) : (
+                <Feather
+                  name="search"
+                  size={18}
+                  color={colors.textMuted}
+                />
+              )}
             </View>
           </TouchableOpacity>
         </>

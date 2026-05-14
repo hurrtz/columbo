@@ -11,10 +11,7 @@ import { ConversationDrawer } from "../components/ConversationDrawer";
 import { SettingsModal } from "../components/SettingsModal";
 import { SetupGuideModal } from "../components/SetupGuideModal";
 import { Toast } from "../components/Toast";
-import {
-  DEFAULT_WEB_SEARCH_PROVIDER,
-  type WebSearchProvider,
-} from "../constants/webSearch";
+import { type WebSearchProvider } from "../constants/webSearch";
 import { getTtsListenLanguageLabel } from "../constants/localTts";
 import {
   PROVIDER_DEFAULT_STT_MODELS,
@@ -409,7 +406,6 @@ export function MainScreen() {
 
   const {
     handleDismissSetupGuide,
-    handleOpenSetupGuide,
     handleBack,
     handleContinueFromIntro,
     handleSelectProvider,
@@ -1071,7 +1067,11 @@ export function MainScreen() {
                 debugLogLabel={t("debugLogLabel")}
                 onOpenDrawer={() => setDrawerVisible(true)}
                 onOpenSettings={() => openSettings()}
-                onToggleDebugLog={handleToggleDebugLog}
+                onToggleDebugLog={
+                  settings.showDebugLogButton || debugLogCaptureState.active
+                    ? handleToggleDebugLog
+                    : undefined
+                }
               />
 
               <MainScreenRouteCard
@@ -1079,14 +1079,11 @@ export function MainScreen() {
                 availableResponseModes={loaded ? availableResponseModes : []}
                 compactResponseModes
                 colors={colors}
-                onOpenSetupGuide={() => handleOpenSetupGuide("provider")}
+                onOpenSetupGuide={() => openSettings(undefined, "providers")}
                 onSelectResponseMode={handleResponseModeChange}
                 onToggleWebSearchEnabled={() => {
                   if (!webSearchActive && !webSearchReady) {
-                    openSettings(
-                      webSearchProvider ?? DEFAULT_WEB_SEARCH_PROVIDER,
-                      "web",
-                    );
+                    openSettings(undefined, "web");
                     return;
                   }
 
@@ -1178,7 +1175,11 @@ export function MainScreen() {
               debugLogLabel={t("debugLogLabel")}
               onOpenDrawer={() => setDrawerVisible(true)}
               onOpenSettings={() => openSettings()}
-              onToggleDebugLog={handleToggleDebugLog}
+              onToggleDebugLog={
+                settings.showDebugLogButton || debugLogCaptureState.active
+                  ? handleToggleDebugLog
+                  : undefined
+              }
             />
 
             <ScrollView
@@ -1190,14 +1191,11 @@ export function MainScreen() {
                 activeResponseMode={activeResponseMode}
                 availableResponseModes={loaded ? availableResponseModes : []}
                 colors={colors}
-                onOpenSetupGuide={() => handleOpenSetupGuide("provider")}
+                onOpenSetupGuide={() => openSettings(undefined, "providers")}
                 onSelectResponseMode={handleResponseModeChange}
                 onToggleWebSearchEnabled={() => {
                   if (!webSearchActive && !webSearchReady) {
-                    openSettings(
-                      webSearchProvider ?? DEFAULT_WEB_SEARCH_PROVIDER,
-                      "web",
-                    );
+                    openSettings(undefined, "web");
                     return;
                   }
 

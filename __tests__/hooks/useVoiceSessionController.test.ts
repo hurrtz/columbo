@@ -77,6 +77,7 @@ describe("useVoiceSessionController", () => {
       t: (key, params) =>
         ({
           addProviderKeyToUseProvider: `missing ${params?.provider}`,
+          configureCredentialsBeforeVoiceSession: "missing credentials",
           couldntProcessVoiceInput: "process failed",
           couldntStartVoiceInput: "start failed",
           pausePlaybackUnavailable: "pause unavailable",

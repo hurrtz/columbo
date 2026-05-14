@@ -4,7 +4,6 @@ import {
   aggregateConversationUsage,
   aggregateConversationUsageByRoute,
   formatTokenCount,
-  formatUsd,
 } from "../../utils/usageStats";
 
 import { TranslateFn } from "./shared";
@@ -42,17 +41,6 @@ export function getConversationUsageDisplayData(params: {
     return null;
   }
 
-  const totalCostLabel =
-    totals.pricedEntryCount > 0
-      ? t(
-          totals.unpricedEntryCount > 0
-            ? "estimatedCostPartial"
-            : "estimatedCost",
-          {
-            cost: formatUsd(totals.totalCostUsd),
-          },
-        )
-      : null;
   const routes = aggregateConversationUsageByRoute(conversation)
     .filter((routeList) => routeList.totalTokens > 0)
     .map((route) => {
@@ -63,25 +51,13 @@ export function getConversationUsageDisplayData(params: {
               route.model,
             )}`
           : route.model || t("unknownUsageRoute");
-      const routeCostLabel =
-        route.pricedEntryCount > 0 ? formatUsd(route.totalCostUsd) : null;
 
       return {
         key: `${route.provider ?? "unknown"}:${route.model ?? "unknown"}`,
         label: routeLabel,
-        value: routeCostLabel
-          ? t(
-              route.unpricedEntryCount > 0
-                ? "estimatedRouteUsagePartial"
-                : "estimatedRouteUsage",
-              {
-                tokens: formatTokenCount(route.totalTokens),
-                cost: routeCostLabel,
-              },
-            )
-          : t("estimatedRouteUsageTokensOnly", {
-              tokens: formatTokenCount(route.totalTokens),
-            }),
+        value: t("estimatedRouteUsageTokensOnly", {
+          tokens: formatTokenCount(route.totalTokens),
+        }),
       };
     });
 
@@ -100,7 +76,7 @@ export function getConversationUsageDisplayData(params: {
     totalTokensLabel: t("estimatedTotalTokens", {
       count: formatTokenCount(totals.totalTokens),
     }),
-    totalCostLabel,
+    totalCostLabel: null,
     routes: routes.length > 1 ? routes : [],
   };
 }

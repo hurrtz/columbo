@@ -4,7 +4,11 @@ import { useLocalization } from "../../i18n";
 import { AppLanguage, Settings, ThemeMode } from "../../types";
 import { Picker } from "../Picker";
 
-import { PickerSection, RadioGroup, UsagePricingReferenceSection } from "./shared";
+import {
+  PickerSection,
+  RadioGroup,
+  UsagePricingReferenceSection,
+} from "./shared";
 
 interface UiTabProps {
   settings: Settings;
@@ -57,6 +61,25 @@ export function UiTab({ settings, onUpdate }: UiTabProps) {
         onChange={(value) => onUpdate({ showUsageStats: value === "show" })}
       />
       <UsagePricingReferenceSection />
+      <RadioGroup<"show" | "hide">
+        label={t("debugLogButton")}
+        options={[
+          {
+            value: "hide",
+            label: t("hide"),
+            description: t("debugLogButtonHiddenDescription"),
+          },
+          {
+            value: "show",
+            label: t("show"),
+            description: t("debugLogButtonVisibleDescription"),
+          },
+        ]}
+        value={settings.showDebugLogButton ? "show" : "hide"}
+        onChange={(value) =>
+          onUpdate({ showDebugLogButton: value === "show" })
+        }
+      />
     </>
   );
 }

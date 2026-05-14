@@ -26,7 +26,6 @@ import {
   getProviderApiKeyPlaceholder,
 } from "../../constants/models";
 import {
-  DEFAULT_WEB_SEARCH_PROVIDER,
   WEB_SEARCH_DEPTH_VALUES,
   WEB_SEARCH_RESULT_LIMIT_VALUES,
   WEB_SEARCH_SEARCH_MODE_VALUES,
@@ -164,13 +163,9 @@ function getStatusMeta(
   }
 }
 
-function ProviderAboutAccordion({
-  provider,
-}: {
-  provider: Provider;
-}) {
+function ProviderAboutAccordion({ provider }: { provider: Provider }) {
   const { colors } = useTheme();
-  const { t, language } = useLocalization();
+  const { t } = useLocalization();
   const [open, setOpen] = React.useState(false);
   const catalogEntry = getCatalogProviderEntry(
     getCatalogProviderIdForAppProvider(provider),
@@ -710,30 +705,40 @@ export function AiModelsSection({
   const selectedWebSearchProvider =
     settings.webSearchProvider ??
     selectableSearchProviders[0] ??
-    DEFAULT_WEB_SEARCH_PROVIDER;
+    null;
   const webSearchEnabled = settings.webSearchMode !== "off";
   const webSearchPickerOptions = buildProviderPickerOptions(
     selectableSearchProviders,
     selectedWebSearchProvider,
     t("providerNeedsAttention"),
   );
-  const selectedProviderSettings = normalizeWebSearchProviderSettings(
-    selectedWebSearchProvider,
-    settings.webSearchProviderSettings[selectedWebSearchProvider],
-  );
-  const controlSupport = getWebSearchProviderControlSupport(
-    selectedWebSearchProvider,
-  );
+  const selectedProviderSettings = selectedWebSearchProvider
+    ? normalizeWebSearchProviderSettings(
+        selectedWebSearchProvider,
+        settings.webSearchProviderSettings[selectedWebSearchProvider],
+      )
+    : null;
+  const controlSupport = selectedWebSearchProvider
+    ? getWebSearchProviderControlSupport(selectedWebSearchProvider)
+    : {
+        resultLimit: false,
+        depth: false,
+        searchMode: false,
+      };
 
   const updateWebSearchProviderSettings = React.useCallback(
     (partial: Partial<WebSearchProviderSettings>) => {
       onUpdate({
         webSearchProviderSettings: {
           ...settings.webSearchProviderSettings,
-          [selectedWebSearchProvider]: {
-            ...selectedProviderSettings,
-            ...partial,
-          },
+          ...(selectedWebSearchProvider && selectedProviderSettings
+            ? {
+                [selectedWebSearchProvider]: {
+                  ...selectedProviderSettings,
+                  ...partial,
+                },
+              }
+            : {}),
         },
       });
     },
@@ -856,16 +861,18 @@ export function AiModelsSection({
               onChange={(value) => onUpdate({ webSearchMode: value })}
             />
 
-            <Picker
-              label={t("webSearchProvider")}
-              value={selectedWebSearchProvider}
-              options={webSearchPickerOptions}
-              disabled={webSearchPickerOptions.length === 0}
-              containerStyle={styles.webSearchProviderPicker}
-              onChange={(value) =>
-                onUpdate({ webSearchProvider: value as WebSearchProvider })
-              }
-            />
+            {selectedWebSearchProvider ? (
+              <Picker
+                label={t("webSearchProvider")}
+                value={selectedWebSearchProvider}
+                options={webSearchPickerOptions}
+                disabled={webSearchPickerOptions.length === 0}
+                containerStyle={styles.webSearchProviderPicker}
+                onChange={(value) =>
+                  onUpdate({ webSearchProvider: value as WebSearchProvider })
+                }
+              />
+            ) : null}
 
             {webSearchPickerOptions.length === 0 ? (
               <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
@@ -913,7 +920,7 @@ export function AiModelsSection({
                     {controlSupport.resultLimit ? (
                       <Picker
                         label={t("webSearchResultCount")}
-                        value={String(selectedProviderSettings.resultLimit)}
+                        value={String(selectedProviderSettings!.resultLimit)}
                         options={WEB_SEARCH_RESULT_LIMIT_VALUES.map((value) => ({
                           value: String(value),
                           label: `${value}`,
@@ -928,7 +935,7 @@ export function AiModelsSection({
                     {controlSupport.depth ? (
                       <Picker
                         label={t("webSearchDepth")}
-                        value={selectedProviderSettings.depth}
+                        value={selectedProviderSettings!.depth}
                         options={WEB_SEARCH_DEPTH_VALUES.map((value) => ({
                           value,
                           label:
@@ -946,7 +953,7 @@ export function AiModelsSection({
                     {controlSupport.searchMode ? (
                       <Picker
                         label={t("webSearchSearchMode")}
-                        value={selectedProviderSettings.searchMode}
+                        value={selectedProviderSettings!.searchMode}
                         options={WEB_SEARCH_SEARCH_MODE_VALUES.map((value) => ({
                           value,
                           label:

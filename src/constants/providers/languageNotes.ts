@@ -24,22 +24,6 @@ const NATIVE_TTS_LANGUAGE_NOTES_BY_LANGUAGE: Record<AppLanguage, string> = {
     "Die Sprachunterstuetzung haengt von den auf dem Geraet installierten Systemstimmen ab. Die genaue Liste, Aussprachequalitaet und Offline-Verfuegbarkeit variieren je nach Betriebssystem und Geraet.",
 };
 
-const GERMAN_PROVIDER_API_KEY_HINT_OVERRIDES: Partial<Record<Provider, string>> = {
-  openai:
-    "Schaltet OpenAI-Modelle und von OpenAI gehostete Sprachfunktionen frei, wenn du STT oder TTS ueber einen Anbieter nutzt.",
-  anthropic: "Schaltet Anthropic-Modelle auf der Hauptbuehne frei.",
-  gemini:
-    "Schaltet Gemini-Chat und Gemini-TTS mit einem AI-Studio-Schluessel frei. Fuer Google-Cloud-STT nutze <project-id>|<access-token>|<location> oder das kombinierte Format AIza...|<project-id>|<access-token>|<location>.",
-  xai: "Schaltet Grok-Modelle von xAI frei.",
-  groq:
-    "Groq bietet einen kostenlosen Tarif und schaltet schnelle gehostete Inferenzmodelle frei.",
-  deepseek: "Schaltet DeepSeek-Chat- und Reasoning-Modelle frei.",
-  mistral: "Schaltet gehostete Mistral-Modelle frei.",
-  cohere: "Schaltet Command-Modelle von Cohere frei.",
-  together: "Schaltet bei Together gehostete Open-Modelle frei.",
-  nvidia: "Schaltet gehostete Sprachmodelle von NVIDIA ueber die Integrate-API frei.",
-};
-
 const GERMAN_PROVIDER_API_KEY_PLACEHOLDER_OVERRIDES: Partial<
   Record<Provider, string>
 > = {
@@ -53,19 +37,6 @@ const GERMAN_PROVIDER_API_KEY_PLACEHOLDER_OVERRIDES: Partial<
   cohere: "API-Schluessel eingeben",
   together: "API-Schluessel eingeben",
   nvidia: "nvapi-...",
-};
-
-const PROVIDER_API_KEY_HINTS_BY_LANGUAGE: Record<AppLanguage, Record<Provider, string>> = {
-  en: Object.fromEntries(
-    PROVIDER_ORDER.map((provider) => [provider, PROVIDER_CONFIGS[provider].apiKeyHint]),
-  ) as Record<Provider, string>,
-  de: Object.fromEntries(
-    PROVIDER_ORDER.map((provider) => [
-      provider,
-      GERMAN_PROVIDER_API_KEY_HINT_OVERRIDES[provider] ??
-        PROVIDER_CONFIGS[provider].apiKeyHint,
-    ]),
-  ) as Record<Provider, string>,
 };
 
 const PROVIDER_API_KEY_PLACEHOLDERS_BY_LANGUAGE: Record<
@@ -85,6 +56,13 @@ const PROVIDER_API_KEY_PLACEHOLDERS_BY_LANGUAGE: Record<
         PROVIDER_CONFIGS[provider].apiKeyPlaceholder,
     ]),
   ) as Record<Provider, string>,
+};
+
+const GENERIC_PROVIDER_API_KEY_HINTS: Record<AppLanguage, string> = {
+  en:
+    "Paste credentials for an external service you already use. Keys stay on this device and are used only for requests you start in the app.",
+  de:
+    "Füge Zugangsdaten fuer einen externen Dienst ein, den du bereits nutzt. Keys bleiben auf diesem Geraet und werden nur fuer Anfragen verwendet, die du in der App startest.",
 };
 
 const PROVIDER_STT_LANGUAGE_NOTES_BY_LANGUAGE: Partial<
@@ -140,7 +118,8 @@ export function getNativeTtsLanguageNote(language: AppLanguage) {
 }
 
 export function getProviderApiKeyHint(provider: Provider, language: AppLanguage) {
-  return PROVIDER_API_KEY_HINTS_BY_LANGUAGE[language][provider];
+  void provider;
+  return GENERIC_PROVIDER_API_KEY_HINTS[language];
 }
 
 export function getProviderApiKeyPlaceholder(

@@ -11,7 +11,6 @@ import {
   isRuntimeProviderId,
 } from "../../constants/providers/runtimeState";
 import {
-  DEFAULT_WEB_SEARCH_PROVIDER,
   createDefaultWebSearchProviderSettings,
   isWebSearchMode,
   isWebSearchProvider,
@@ -334,13 +333,13 @@ export function mergeSettings(
   const hasStoredResponseModes = RESPONSE_MODE_ORDER.some(
     (mode) => !!extractedResponseModes[mode],
   );
-  const hasConfiguredKeys = Object.values(mergedApiKeys).some(
-    (apiKey) => apiKey.trim().length > 0,
-  );
   const spokenRepliesEnabled =
     typeof storedSettings?.spokenRepliesEnabled === "boolean"
       ? storedSettings.spokenRepliesEnabled
       : DEFAULT_SETTINGS.spokenRepliesEnabled;
+  const hasConfiguredKeys = Object.values(mergedApiKeys).some(
+    (apiKey) => apiKey.trim().length > 0,
+  );
 
   return {
     ...DEFAULT_SETTINGS,
@@ -366,7 +365,7 @@ export function mergeSettings(
         : DEFAULT_SETTINGS.webSearchMode,
     webSearchProvider: isWebSearchProvider(storedSettings?.webSearchProvider)
       ? storedSettings.webSearchProvider
-      : DEFAULT_WEB_SEARCH_PROVIDER,
+      : DEFAULT_SETTINGS.webSearchProvider,
     webSearchProviderSettings,
     activeResponseMode: isResponseMode(storedSettings?.activeResponseMode)
       ? storedSettings.activeResponseMode

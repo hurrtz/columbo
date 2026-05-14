@@ -32,7 +32,10 @@ export function getProviderModelName(provider: Provider, modelId: string) {
 }
 
 export const PROVIDER_API_KEY_HINTS: Record<Provider, string> = Object.fromEntries(
-  PROVIDER_ORDER.map((provider) => [provider, PROVIDER_CONFIGS[provider].apiKeyHint]),
+  PROVIDER_ORDER.map((provider) => [
+    provider,
+    "Paste credentials for an external service you already use. Keys stay on this device and are used only for requests you start in the app.",
+  ]),
 ) as Record<Provider, string>;
 
 export const PROVIDER_API_KEY_PLACEHOLDERS: Record<Provider, string> =

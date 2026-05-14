@@ -11,7 +11,6 @@ import {
   createRuntimeProviderStringRecord,
 } from "./constants/providers/runtimeState";
 import {
-  DEFAULT_WEB_SEARCH_PROVIDER,
   DEFAULT_WEB_SEARCH_MODE,
   createDefaultWebSearchProviderSettings,
   type WebSearchProvider,
@@ -112,6 +111,7 @@ export interface Settings {
   responseLength: AssistantResponseLength;
   responseTone: AssistantResponseTone;
   showUsageStats: boolean;
+  showDebugLogButton: boolean;
   webSearchMode: WebSearchMode;
   webSearchProvider: WebSearchProvider | null;
   webSearchProviderSettings: Record<WebSearchProvider, WebSearchProviderSettings>;
@@ -184,7 +184,7 @@ export function getDefaultTtsListenLanguages(
 export const DEFAULT_SETTINGS: Settings = {
   inputMode: "toggle-to-talk",
   replyPlayback: "stream",
-  spokenRepliesEnabled: true,
+  spokenRepliesEnabled: false,
   activeResponseMode: "normal",
   responseModes: DEFAULT_RESPONSE_MODES,
   providerModels: PROVIDER_DEFAULT_MODELS,
@@ -195,18 +195,19 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: "system",
   setupGuideDismissed: false,
   lastProvider: DEFAULT_RUNTIME_PROVIDER_ID,
-  sttMode: "provider",
-  sttProvider: DEFAULT_RUNTIME_PROVIDER_ID,
-  ttsMode: "provider",
-  ttsProvider: DEFAULT_RUNTIME_PROVIDER_ID,
+  sttMode: "native",
+  sttProvider: null,
+  ttsMode: "native",
+  ttsProvider: null,
   ttsListenLanguages: getDefaultTtsListenLanguages("en"),
   localTtsVoices: LOCAL_TTS_DEFAULT_VOICES,
   assistantInstructions: getDefaultAssistantInstructions("en"),
   responseLength: "normal",
   responseTone: "professional",
   showUsageStats: false,
+  showDebugLogButton: false,
   webSearchMode: DEFAULT_WEB_SEARCH_MODE,
-  webSearchProvider: DEFAULT_WEB_SEARCH_PROVIDER,
+  webSearchProvider: null,
   webSearchProviderSettings: createDefaultWebSearchProviderSettings(),
   apiKeys: createRuntimeProviderStringRecord(),
 };
