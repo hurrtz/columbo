@@ -58,6 +58,8 @@ import {
 } from "../utils/responseModes";
 import { MainScreenTopBar } from "./main/MainScreenTopBar";
 import { MainScreenRouteCard } from "./main/MainScreenRouteCard";
+import { MainScreenStyleChip } from "./main/MainScreenStyleChip";
+import { StyleSheetModal } from "./main/StyleSheetModal";
 import {
   MainScreenStatusStrip,
   MainScreenVoiceStage,
@@ -124,6 +126,7 @@ export function MainScreen() {
     message: string;
     onRetry?: () => void;
   } | null>(null);
+  const [styleSheetVisible, setStyleSheetVisible] = useState(false);
   const [debugLogCaptureState, setDebugLogCaptureState] = useState(
     () => getDebugLogCaptureState(),
   );
@@ -1105,6 +1108,14 @@ export function MainScreen() {
                 webSearchReady={webSearchReady}
               />
 
+              {loaded && availableResponseModes.length > 0 ? (
+                <MainScreenStyleChip
+                  responseLength={settings.responseLength}
+                  responseTone={settings.responseTone}
+                  onPress={() => setStyleSheetVisible(true)}
+                />
+              ) : null}
+
               <View style={styles.landscapeStageArea}>
                 <MainScreenVoiceStage
                   circleSize={stageCircleSize}
@@ -1217,6 +1228,14 @@ export function MainScreen() {
                 webSearchReady={webSearchReady}
               />
 
+              {loaded && availableResponseModes.length > 0 ? (
+                <MainScreenStyleChip
+                  responseLength={settings.responseLength}
+                  responseTone={settings.responseTone}
+                  onPress={() => setStyleSheetVisible(true)}
+                />
+              ) : null}
+
               <MainScreenVoiceStage
                 circleSize={stageCircleSize}
                 colors={colors}
@@ -1259,6 +1278,14 @@ export function MainScreen() {
           </>
         )}
       </View>
+
+      <StyleSheetModal
+        visible={styleSheetVisible}
+        responseLength={settings.responseLength}
+        responseTone={settings.responseTone}
+        onChange={(partial) => updateSettings(partial)}
+        onClose={() => setStyleSheetVisible(false)}
+      />
 
       <StatusDetailsModal
         visible={statusDetailsVisible}

@@ -5,6 +5,10 @@ import { MainScreen } from "../../src/screens/MainScreen";
 import { DEFAULT_SETTINGS, type Settings } from "../../src/types";
 import { renderWithProviders } from "../test-utils/renderWithProviders";
 
+jest.mock("@expo/vector-icons", () => ({
+  Feather: ({ children }: { children?: React.ReactNode }) => children ?? null,
+}));
+
 jest.mock("react-native-safe-area-context", () => ({
   SafeAreaView: ({ children }: { children: React.ReactNode }) => {
     const React = require("react");
