@@ -9,7 +9,7 @@ export const de: TranslationDictionary = {
     settings: "Einstellungen",
     all: "Alle",
     firstRun: "Erster Start",
-    instructions: "Befehle",
+    instructions: "Anweisungen",
     providers: "Anbieter",
     webSearch: "Websuche",
     stt: "STT",
@@ -17,7 +17,7 @@ export const de: TranslationDictionary = {
     ui: "UI",
     settingsSectionApiKeys: "Zugangsdaten",
     settingsSectionApiKeysDescription:
-      "Füge Zugangsdaten fuer externe Dienste ein, die du bereits nutzt. Keys bleiben auf diesem Geraet.",
+      "Füge Zugangsdaten für externe Dienste ein, die du bereits nutzt. Keys bleiben auf diesem Gerät.",
     settingsSectionAiModels: "Verhalten & Routen",
     settingsSectionAiModelsDescription:
       "Lege Systemprompt, Antwortstil, Routing und optionale Web-Grundierung an einer Stelle fest.",
@@ -38,16 +38,16 @@ export const de: TranslationDictionary = {
     system: "System",
     languageCoverage: ({ note }) => `Sprachabdeckung: ${note}`,
     recordingLimits: ({ note }) => `Aufnahmelimits: ${note}`,
-    replyGenerationAction: "Erzeuge Antwort",
-    speechTranscriptionAction: "Transkribiere Sprache",
+    replyGenerationAction: "Antworterstellung",
+    speechTranscriptionAction: "Sprachtranskription",
     instructionsTabDescription:
-      "Definiere, was jeder Anfrage als Befehl an das Model vorangestellt wird.",
+      "Definiere die versteckte Anleitung, die den Assistenten steuert, bevor ein Anbieter die Anfrage sieht.",
     providersTabDescription:
-      "Speichere Zugangsdaten fuer externe Dienste auf dem Geraet und ordne jeder Gesprächskategorie nach der Konfiguration eine Route zu.",
+      "Speichere Zugangsdaten für externe Dienste auf dem Gerät und ordne jeder Gesprächskategorie nach der Konfiguration eine Route zu.",
     webSearchTabDescription:
       "Konfiguriere optionalen frischen Web-Kontext vor Antworten.",
     catalogOnlyProvidersHint: ({ count }) =>
-      `Hier werden ${count} zusaetzliche Anbieter nur aus dem Katalog fuer die UI-Pruefung angezeigt. Konfigurierbar und wirklich aufrufbar sind aktuell nur die verdrahteten Anbieter.`,
+      `Hier werden ${count} zusätzliche Anbieter nur aus dem Katalog für die UI-Prüfung angezeigt. Konfigurierbar und wirklich aufrufbar sind aktuell nur die verdrahteten Anbieter.`,
     openProviderCatalogDetails: ({ provider }) =>
       `Katalogdetails für ${provider} öffnen`,
     responseModes: "Gesprächskategorien",
@@ -83,7 +83,7 @@ export const de: TranslationDictionary = {
       "Sprich wie ein kluger Freund im Café. Entspannt, natürlich, gesprächig. Abkürzungen und kleine Abschweifungen sind völlig okay.",
     nerdy: "Nerdig",
     nerdyDescription:
-      "Sprich wie ein begeisterter Experte, der gerne in die Tiefe geht. Nutze Fachbegriffe frei und geh entspannt ins Detail.",
+      "Sprich wie ein begeisterter Experte, der gerne in die Tiefe geht. Nutze Fachbegriffe frei, geh entspannt ins Detail und setze voraus, dass dein Gegenüber mitkommt.",
     concise: "Prägnant",
     conciseDescription:
       "Sei so kurz wie möglich und trotzdem vollständig. Keine Einleitung, kein Fülltext, nur die Antwort. Telegramm-Stil.",
@@ -92,10 +92,10 @@ export const de: TranslationDictionary = {
       "Fordere das Denken heraus. Stelle Gegenfragen, biete alternative Perspektiven an und bestätige nicht einfach, was gesagt wurde.",
     eli5: "Einfach erklärt",
     eli5Description:
-      "Erkläre alles so einfach wie möglich. Nutze Analogien, Alltagssprache und verzichte auf Fachjargon.",
+      "Erkläre alles so einfach wie möglich. Nutze Analogien, Alltagssprache und verzichte auf Fachjargon. Setze bei keinem Thema Vorwissen voraus.",
     openProviderSettings: ({ provider }) => `${provider}-Einstellungen öffnen`,
     createProviderApiKey: ({ provider }) =>
-      `Zugangsdaten fuer ${provider} bearbeiten`,
+      `Zugangsdaten für ${provider} bearbeiten`,
     useProvider: ({ provider }) => `${provider} verwenden`,
     createApiKey: "Zugangsdaten",
     searchProviders: "Dienste suchen",
@@ -136,8 +136,8 @@ export const de: TranslationDictionary = {
     assistantInstructions: "Assistent-Anweisungen",
     systemPrompt: "Systemprompt",
     assistantInstructionsIntro:
-      "Definiere den versteckten Befehl, der jedem Modell vor jeder Antwort vorangestellt wird.",
-    baseInstructions: "Grundbefehle",
+      "Forme die versteckte Anleitung, die das Modell vor jeder Antwort erhält.",
+    baseInstructions: "Grundanweisungen",
     assistantInstructionsPlaceholder:
       "Definiere, wie sich der Assistent verhalten soll.",
     assistantInstructionsHint:
@@ -153,7 +153,7 @@ export const de: TranslationDictionary = {
       "Lass den Button während des Sprechens gedrückt und lass ihn los, wenn du fertig bist.",
     toggleToTalk: "Toggle to talk",
     toggleToTalkDescription:
-      "Button einmal drücken zum Losreden und dann noch einmal, wenn du fertig bist.",
+      "Button einmal drücken zum Losschnacken und dann noch einmal, wenn du fertig bist.",
     speechToText: "Sprache zu Text",
     appNative: "App-intern",
     nativeSttDescription:
@@ -161,7 +161,7 @@ export const de: TranslationDictionary = {
     provider: "Anbieter",
     webSearchProvider: "Websuche-Anbieter",
     webSearchProviderHint:
-      "Wähle den konfigurierten Dienst für Live-Websuchen. Die Zugangsdaten werden lokal auf dem Geraet gespeichert.",
+      "Wähle den konfigurierten Dienst für Live-Websuchen. Die Zugangsdaten werden lokal auf dem Gerät gespeichert.",
     webSearchProviderMissingHint:
       "Richte unter Zugangsdaten mindestens einen suchfähigen Dienst ein, damit Web-Grundierung hier verfügbar ist.",
     webSearchMode: "Websuche-Modus",
@@ -210,7 +210,7 @@ export const de: TranslationDictionary = {
     sttProviderEnabledHint:
       "Hier erscheinen nur aktivierte Anbieter mit Transkriptionsunterstützung.",
     sttProviderMissingHint:
-      "Füge Zugangsdaten fuer einen Dienst mit STT-Unterstuetzung hinzu, um ihn hier auszuwaehlen.",
+      "Füge Zugangsdaten für einen Dienst mit STT-Unterstützung hinzu, um ihn hier auszuwählen.",
     nativeSttHint:
       "Native STT nutzt die Spracherkennung des Geräts direkt und funktioniert unabhängig von deinen API-Keys.",
     replyPlayback: "Wiedergabe",
@@ -219,35 +219,35 @@ export const de: TranslationDictionary = {
       "Fange an Vorzulesen, sobald die ersten Daten angekommen sind.",
     fullReplyFirst: "Komplette Antwort zuerst",
     fullReplyFirstDescription:
-      "Warte erst ab, bis die Antwort komplett eingegangen ist, bevor der Vorleseonkel loslegt.",
+      "Warte erst ab, bis die Antwort komplett eingegangen ist, und lies sie dann am Stück vor.",
     textToSpeech: "Text zu Sprache",
     spokenReplies: "Gesprochene Antworten",
     spokenRepliesEnabledDescription:
       "Lies Antworten laut vor, sobald eine brauchbare Sprachroute verfügbar ist.",
     spokenRepliesDisabledDescription:
-      "Halte Antworten vorerst textbasiert. Deine bevorzugte TTS-Route bleibt fuer spaeter gespeichert.",
+      "Halte Antworten vorerst textbasiert. Deine bevorzugte TTS-Route bleibt für später gespeichert.",
     nativeTtsDescription:
       "Verwende die Sprachausgabe des Geräts für die Sprachausgabe.",
     voiceOutputDescription:
       "Wähle Sprachengine, Zielsprachen und Stimmvorschauen für die Sprachausgabe.",
     localTts: "Lokal",
     localTtsDescription:
-      "Nutze zuerst eine passende heruntergeladene lokale Stimme, dann falls verfuegbar den konfigurierten Dienst und danach die Systemstimme.",
+      "Nutze zuerst eine passende heruntergeladene lokale Stimme, dann falls verfügbar den konfigurierten Dienst und danach die Systemstimme.",
     providerTtsDescription:
-      "Nutze zuerst den ausgewaehlten konfigurierten Dienst, dann eine passende lokale Stimme und danach die Systemstimme.",
+      "Nutze zuerst den ausgewählten konfigurierten Dienst, dann eine passende lokale Stimme und danach die Systemstimme.",
     ttsProvider: "TTS-Anbieter",
     ttsProviderEnabledHint:
       "Hier erscheinen nur aktivierte Anbieter mit Sprachausgabe-Unterstützung.",
     ttsProviderMissingHint:
-      "Füge Zugangsdaten fuer einen Dienst mit TTS-Unterstuetzung hinzu, um ihn hier auszuwaehlen.",
+      "Füge Zugangsdaten für einen Dienst mit TTS-Unterstützung hinzu, um ihn hier auszuwählen.",
     localTtsOrderHint:
-      "Reihenfolge: passende lokale Stimme zuerst, dann der ausgewaehlte konfigurierte Dienst (falls vorhanden), dann die Systemstimme.",
+      "Reihenfolge: passende lokale Stimme zuerst, dann der ausgewählte konfigurierte Dienst (falls vorhanden), dann die Systemstimme.",
     providerTtsOrderHint:
-      "Reihenfolge: ausgewaehlter konfigurierter Dienst zuerst, dann eine passende lokale Stimme, dann die Systemstimme.",
+      "Reihenfolge: ausgewählter konfigurierter Dienst zuerst, dann eine passende lokale Stimme, dann die Systemstimme.",
     nativeTtsHint:
       "Native TTS nutzt die Systemstimmen des Geräts und benötigt keinen API-Key.",
     localTtsLanguageCoverageHint:
-      "Lokale Sprachpakete decken derzeit Englisch, Deutsch, vereinfachtes Chinesisch, Spanisch, Portugiesisch, Hindi, Französisch und Italienisch ab.",
+      "Lokale Sprachpakete decken derzeit Englisch, Deutsch, vereinfachtes Chinesisch, Spanisch, Portugiesisch, Hindi, Französisch und Italienisch ab. Japanisch fällt weiterhin automatisch zurück.",
     ttsVoice: "TTS-Stimme",
     providerDefaultVoiceHint:
       "Dieser Anbieter nutzt aktuell seine Standardstimme für Vorschau und Sprachausgabe.",
@@ -260,7 +260,7 @@ export const de: TranslationDictionary = {
     localVoiceForLanguage: ({ languageLabel }) => `Stimme für ${languageLabel}`,
     providerVoicePreviews: "Anbieter-Stimmvorschau",
     providerVoicePreviewsHint:
-      "Teste hier die aktuell ausgewaehlte TTS-Route mit einem separaten Vorschautext pro Antwortsprache.",
+      "Teste hier die aktuell ausgewählte TTS-Route mit einem separaten Vorschautext pro Antwortsprache.",
     nativeVoicePreviewSection: "Native Stimmvorschau",
     nativeVoicePreviewSectionHint:
       "Nutzt direkt die eingebaute Sprachsynthese des Geräts, damit du sie mit lokalen und Cloud-Stimmen vergleichen kannst.",
@@ -268,7 +268,7 @@ export const de: TranslationDictionary = {
       "Dieses Gerät hat keine nativen Systemstimmen für die Vorschau.",
     speechDiagnostics: "Letzte Aktivität",
     speechDiagnosticsHint:
-      "Zeigt die letzten Aktivitäten, das gewünschte Sprachsetting, die tatsächlich Sprachsetting und den jeweiligen Grund für einen Fallback.",
+      "Zeigt die letzten Sprachanfragen, die angefragte Route, die tatsächlich genutzte Route und den Grund für einen Fallback.",
     speechDiagnosticsEmpty:
       "Noch keine aktuellen Aktivitäten. Teste eine Stimme oder spiele eine Antwort ab, um hier Routing-Details zu sehen.",
     speechDiagnosticSourceConversation: "Antwort aus dem Schnack",
@@ -308,7 +308,7 @@ export const de: TranslationDictionary = {
     nothingToShareYet: "Noch nichts zum Teilen.",
     couldntShareText: "Der Text konnte nicht geteilt werden.",
     couldntReplayReply: "Die Antwort konnte nicht erneut abgespielt werden.",
-    messageCopied: "Schnack kopiert.",
+    messageCopied: "Nachricht kopiert.",
     noConversationToCopyYet: "Noch kein Schnack zum Kopieren.",
     noConversationToShareYet: "Noch kein Schnack zum Teilen.",
     noReplyToRepeatYet: "Noch keine Antwort zum Wiederholen.",
@@ -317,7 +317,7 @@ export const de: TranslationDictionary = {
     threadPinned: "Schnack angeheftet.",
     threadUnpinned: "Nicht mehr angeheftet.",
     addProviderKeyToUseProvider: ({ provider }) =>
-      `Füge in den Einstellungen Zugangsdaten fuer ${provider} hinzu, bevor du diese Route nutzt.`,
+      `Füge in den Einstellungen Zugangsdaten für ${provider} hinzu, bevor du diese Route nutzt.`,
     configureCredentialsBeforeVoiceSession:
       "Füge in den Einstellungen Zugangsdaten hinzu, bevor du eine Sprachsitzung startest.",
     endpointCredentialFormatInvalid: ({ provider }) =>
@@ -348,11 +348,11 @@ export const de: TranslationDictionary = {
     stopSessionBeforeReplay:
       "Beende die laufende Sprachsitzung, bevor du die letzte Antwort erneut abspielst.",
     couldntCatchThatTryAgain:
-      "Das wurde nicht richtig erkannt - versuch es noch einmal.",
+      "Das wurde nicht richtig erkannt – versuch es noch einmal.",
     couldntStartVoiceInput: "Schnack konnte nicht gestartet werden.",
     couldntProcessVoiceInput: "Schnack konnte nicht verarbeitet werden.",
     addProviderKeyToEnableProvider: ({ provider }) =>
-      `Füge in den Einstellungen Zugangsdaten fuer ${provider} hinzu, bevor du diese Route nutzt.`,
+      `Füge in den Einstellungen Zugangsdaten für ${provider} hinzu, bevor du diese Route nutzt.`,
     stopSessionBeforePreview:
       "Beende den laufenden Schnack, bevor du eine Stimme testest.",
     chooseTtsToPreviewVoices:
@@ -379,7 +379,7 @@ export const de: TranslationDictionary = {
     waitingForProvider: ({ provider }) => `Warte auf ${provider}`,
     preparingVoiceWithProvider: ({ provider }) =>
       `Bereite Stimme mit ${provider} vor`,
-    speakingBackToYou: "Antwort wird gesprochen",
+    speakingBackToYou: "Schnackt zurück",
     freshSession: "Neuer Schnack",
     messageCount: ({ count }) =>
       Number(count) === 1 ? "1 Nachricht" : `${count} Nachrichten`,
@@ -446,10 +446,10 @@ export const de: TranslationDictionary = {
     source: "Quelle",
     startWithGroq: "Zugangsdaten konfigurieren",
     groqStarterDescription:
-      "Füge Zugangsdaten fuer einen externen Dienst ein, den du bereits nutzt. Die App zeigt Routen erst nach der Konfiguration an.",
+      "Füge Zugangsdaten für einen externen Dienst ein, den du bereits nutzt. Die App zeigt Routen erst nach der Konfiguration an.",
     setupGuideConnectProviderTitle: "Zugangsdaten konfigurieren",
     setupGuideConnectProviderDescription:
-      "Füge Zugangsdaten in den Einstellungen hinzu und waehle danach die Routen aus, die du nutzen willst.",
+      "Füge Zugangsdaten in den Einstellungen hinzu und wähle danach die Routen aus, die du nutzen willst.",
     idle: "Bereit",
     yourConversationAppearsHere: "Dein Schnack erscheint hier",
     defaultTranscriptEmptyDescription:
@@ -465,22 +465,22 @@ export const de: TranslationDictionary = {
       "Sprich in der Hauptansicht los und SchnackAI erstellt automatisch einen Schnack.",
     setupGuideTitle: "App konfigurieren",
     setupGuideSubtitle:
-      "Füge Zugangsdaten hinzu und waehle Routen in den Einstellungen.",
+      "Füge Zugangsdaten hinzu und wähle Routen in den Einstellungen.",
     fastestStartPreset: "Minimales Setup",
     fastestStartDescription:
-      "Nutze Geraete-Sprache, wenn verfuegbar, und konfiguriere nur die Antwortroute, die du brauchst.",
+      "Nutze Geräte-Sprache, wenn verfügbar, und konfiguriere nur die Antwortroute, die du brauchst.",
     fullVoicePreset: "Konfigurierte Stimme",
     fullVoiceDescription:
-      "Nutze konfigurierte Dienste fuer Antworten, Transkription und Sprachausgabe, wenn du sie auswaehlst.",
+      "Nutze konfigurierte Dienste für Antworten, Transkription und Sprachausgabe, wenn du sie auswählst.",
     setupGuideNote:
       "Danach öffnen wir die Einstellungen, damit du Zugangsdaten einfügen und prüfen kannst.",
     useThisSetup: "Dieses Setup nutzen",
     notNow: "Jetzt nicht",
     setupGuideIntroTitle: "So funktioniert SchnackAI",
     setupGuideIntroBody:
-      "SchnackAI startet leer. Füge Zugangsdaten fuer externe Dienste ein, die du bereits nutzt, und waehle danach aus, wie Antworten, Spracheingabe, Sprachausgabe und optionaler Web-Kontext geroutet werden.",
+      "SchnackAI startet leer. Füge Zugangsdaten für externe Dienste ein, die du bereits nutzt, und wähle danach aus, wie Antworten, Spracheingabe, Sprachausgabe und optionaler Web-Kontext geroutet werden.",
     setupGuideIntroNote:
-      "Nach der Einrichtung startest und stoppst du Gespräche über die Sprachsteuerung auf der Hauptseite. Schnacks werden in der Seitenleiste gespeichert, und jede Route laesst sich spaeter in den Einstellungen aendern.",
+      "Nach der Einrichtung startest und stoppst du Gespräche über die Sprachsteuerung auf der Hauptseite. Schnacks werden in der Seitenleiste gespeichert, und jede Route lässt sich später in den Einstellungen ändern.",
     setupGuideProviderTitle: "Zugangsdaten hinzufügen",
     setupGuideProviderBody:
       "Wähle den externen Dienst, den du konfigurieren willst, und füge Zugangsdaten mit Antwortzugriff ein.",
@@ -494,7 +494,7 @@ export const de: TranslationDictionary = {
     setupGuideBack: "Zurück",
     setupGuideValidateKey: "Key prüfen",
     setupGuideProviderKeyNeedsLlmAccess: ({ provider }) =>
-      `Diese Zugangsdaten fuer ${provider} erlauben keine Antwortanfragen.`,
+      `Diese Zugangsdaten für ${provider} erlauben keine Antwortanfragen.`,
     setupGuideVoiceTestTitle: "Setup testen",
     setupGuideVoiceTestBody:
       "Sprich einen kurzen Satz. SchnackAI testet Mikrofonzugriff, Transkription, die konfigurierte Antwortroute und gesprochene Ausgabe, wenn eine brauchbare Sprachroute verfügbar ist.",
@@ -541,7 +541,7 @@ export const de: TranslationDictionary = {
     noMatchingConversations: "Keine passenden Schnacks",
     noMatchingConversationsDescription:
       "Versuch es mit einem anderen Titel, einer anderen Route, einem Modell oder einem Satz aus dem Transkript.",
-    memoryModalTitle: "Alle deine Schnacks",
+    memoryModalTitle: "Schnack-Erinnerung",
     memoryModalDescription:
       "Das ist die kompakte Zusammenfassung, die SchnackAI weiterträgt, sobald ein Schnack lang genug wird und ältere Beiträge zusammengefasst werden.",
     memorySummary: "Gespeicherte Zusammenfassung",
@@ -565,7 +565,7 @@ export const de: TranslationDictionary = {
     share: "Teilen",
     rename: "Umbenennen",
     pin: "Anheften",
-    unpin: "Lösen",
+    unpin: "Entheften",
     save: "Speichern",
     cancel: "Abbrechen",
     stop: "Stopp",
@@ -576,11 +576,11 @@ export const de: TranslationDictionary = {
     parsing: "Verarbeitet",
     webSearchAction: "Websuche",
     thinking: "Denkt nach",
-    speaking: "Spricht",
+    speaking: "Schnackt",
     speechPaused: "Sprachausgabe ist pausiert",
     pausePlaybackUnavailable:
       "Diese Sprachroute kann nicht pausiert werden. Stoppe sie oder wechsle zu Anbieter- oder lokaler Sprachausgabe.",
-    holdToSpeak: "Zum Sprechen halten",
+    holdToSpeak: "Zum Schnacken halten",
     tapToSpeak: "Bereit zum Losschnacken",
     waitingForReply: "Warte auf Antwort",
     parsingYourVoice: "Sprache wird verarbeitet",
@@ -637,7 +637,7 @@ export const de: TranslationDictionary = {
     sttTimeout: ({ provider }) =>
       `Die Sprachtranskription bei ${provider} hat zu lange gedauert.`,
     sttFileSizeLimitExceeded: ({ provider, model, limit }) =>
-      `${provider} ${model} akzeptiert nur Aufnahmen bis ${limit}. Nutze einen kuerzeren Clip oder wechsle das STT-Modell.`,
+      `${provider} ${model} akzeptiert nur Aufnahmen bis ${limit}. Nutze einen kürzeren Clip oder wechsle das STT-Modell.`,
     voiceInputCaptureIncomplete:
       "Die Spracheingabe konnte nicht sauber aufgenommen werden. Bitte versuch es noch einmal.",
     ttsDidNotReturnAudio: ({ provider }) =>
