@@ -144,6 +144,10 @@ export const de: TranslationDictionary = {
       "Dieser Text wird immer vor der gewählten Antwortlänge und dem Stil vorangestellt.",
     adaptiveLength: "Antwortlänge",
     responseTone: "Antwortstil",
+    homeStyleChipLabel: ({ tone, length }) => `Stil — ${tone} · ${length}`,
+    styleSheetTitle: "Stil & Länge",
+    styleSheetSubtitle: "Wie der Assistent dir antwortet.",
+    openStyleSheet: "Stil und Länge öffnen",
     inputMode: "Eingabemodus",
     voiceInput: "Spracheingabe",
     voiceInputDescription:

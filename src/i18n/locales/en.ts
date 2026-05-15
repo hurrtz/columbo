@@ -142,6 +142,10 @@ export const en: TranslationDictionary = {
       "This is always prepended before the selected response length and tone.",
     adaptiveLength: "Adaptive Length",
     responseTone: "Response Tone",
+    homeStyleChipLabel: ({ tone, length }) => `Style — ${tone} · ${length}`,
+    styleSheetTitle: "Style & Length",
+    styleSheetSubtitle: "How the assistant replies to you.",
+    openStyleSheet: "Open style and length",
     inputMode: "Input Mode",
     voiceInput: "Voice Input",
     voiceInputDescription:
