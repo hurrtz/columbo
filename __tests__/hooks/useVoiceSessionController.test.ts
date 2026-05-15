@@ -91,7 +91,7 @@ describe("useVoiceSessionController", () => {
     return { ...hook, params };
   }
 
-  it("shows a toast instead of starting when the provider key is missing", async () => {
+  it("shows a provider-specific toast instead of starting when the provider key is missing", async () => {
     const { result, params } = renderController({ providerApiKey: "" });
 
     await act(async () => {

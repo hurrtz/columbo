@@ -159,6 +159,11 @@ export function MainScreen() {
   const activeResponseRoute = settings.responseModes[activeResponseMode];
   const provider = activeResponseRoute.provider;
   const providerApiKey = settings.apiKeys[provider].trim();
+  const voiceInputDisabled = !hasProviderCredentialForCapability(
+    provider,
+    providerApiKey,
+    "llm",
+  );
   const model = activeResponseRoute.model;
   const availableResponseModes = getAvailableResponseModes(settings);
   const availableSttProviders = getEnabledSttProviders(settings);
@@ -1104,6 +1109,7 @@ export function MainScreen() {
                 <MainScreenVoiceStage
                   circleSize={stageCircleSize}
                   colors={colors}
+                  disabled={voiceInputDisabled}
                   inputMode={settings.inputMode}
                   isActive={isActive}
                   layout="landscape"
@@ -1214,6 +1220,7 @@ export function MainScreen() {
               <MainScreenVoiceStage
                 circleSize={stageCircleSize}
                 colors={colors}
+                disabled={voiceInputDisabled}
                 inputMode={settings.inputMode}
                 isActive={isActive}
                 metering={metering}

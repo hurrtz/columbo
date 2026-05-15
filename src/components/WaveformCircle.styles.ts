@@ -30,6 +30,9 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     overflow: "hidden",
   },
+  disabledCircleShell: {
+    opacity: 0.74,
+  },
   innerFrame: {
     position: "absolute",
     top: 14,

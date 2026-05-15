@@ -16,6 +16,7 @@ import { styles } from "./styles";
 interface MainScreenVoiceStageProps {
   circleSize?: number;
   colors: Colors;
+  disabled?: boolean;
   inputMode: InputMode;
   isActive: boolean;
   layout?: "portrait" | "landscape";
@@ -199,6 +200,7 @@ export function MainScreenStatusStrip({
 export function MainScreenVoiceStage({
   circleSize = 260,
   colors,
+  disabled = false,
   inputMode,
   isActive,
   layout = "portrait",
@@ -240,11 +242,13 @@ export function MainScreenVoiceStage({
             width: haloSize,
             height: haloSize,
             borderRadius: haloSize / 2,
-            backgroundColor: colors.glowStrong,
+            backgroundColor: disabled ? colors.borderStrong : colors.glowStrong,
+            opacity: disabled ? 0.55 : 1,
           },
         ]}
       />
       <WaveformCircle
+        disabled={disabled}
         metering={metering}
         levels={signalLevels}
         isActive={isActive}

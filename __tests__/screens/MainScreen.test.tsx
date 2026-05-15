@@ -187,10 +187,14 @@ jest.mock("../../src/screens/main/MainScreenRouteCard", () => ({
 }));
 
 jest.mock("../../src/screens/main/MainScreenVoiceStage", () => ({
-  MainScreenVoiceStage: () => {
+  MainScreenVoiceStage: ({ disabled }: { disabled?: boolean }) => {
     const React = require("react");
     const { Text } = require("react-native");
-    return React.createElement(Text, null, "voice-stage");
+    return React.createElement(
+      Text,
+      null,
+      disabled ? "voice-stage:disabled" : "voice-stage:enabled",
+    );
   },
 }));
 
@@ -326,9 +330,24 @@ describe("MainScreen", () => {
     const screen = renderWithProviders(<MainScreen />);
 
     expect(screen.getByText("route-card")).toBeTruthy();
-    expect(screen.getByText("voice-stage")).toBeTruthy();
+    expect(screen.getByText("voice-stage:disabled")).toBeTruthy();
     expect(screen.getByText("settings:closed")).toBeTruthy();
     expect(screen.getByText("drawer:closed")).toBeTruthy();
+  });
+
+  it("enables the voice stage when the active reply provider is configured", () => {
+    useSharedSettings.mockReturnValue(
+      createSharedSettingsValue({
+        apiKeys: {
+          ...DEFAULT_SETTINGS.apiKeys,
+          [DEFAULT_SETTINGS.responseModes.normal.provider]: "provider-key",
+        },
+      }),
+    );
+
+    const screen = renderWithProviders(<MainScreen />);
+
+    expect(screen.getByText("voice-stage:enabled")).toBeTruthy();
   });
 
   it("opens settings and the drawer from the top bar", () => {
