@@ -187,6 +187,7 @@ export function MainScreen() {
   const webSearchReady = !!webSearchProvider && !!webSearchApiKey;
   const webSearchActive = webSearchMode !== "off" && webSearchReady;
   const isLandscape = width > height;
+  const showStyleChip = loaded && availableResponseModes.length > 0;
   const stageCircleSize = isLandscape
     ? Math.max(172, Math.min(208, Math.round(Math.min(height * 0.44, width * 0.24))))
     : 260;
@@ -1108,7 +1109,7 @@ export function MainScreen() {
                 webSearchReady={webSearchReady}
               />
 
-              {loaded && availableResponseModes.length > 0 ? (
+              {showStyleChip ? (
                 <MainScreenStyleChip
                   responseLength={settings.responseLength}
                   responseTone={settings.responseTone}
@@ -1228,7 +1229,7 @@ export function MainScreen() {
                 webSearchReady={webSearchReady}
               />
 
-              {loaded && availableResponseModes.length > 0 ? (
+              {showStyleChip ? (
                 <MainScreenStyleChip
                   responseLength={settings.responseLength}
                   responseTone={settings.responseTone}
