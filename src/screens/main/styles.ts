@@ -554,4 +554,77 @@ export const styles = StyleSheet.create({
     fontFamily: fonts.body,
     flexShrink: 1,
   },
+  styleSheetOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    backgroundColor: "rgba(0,0,0,0.16)",
+  },
+  styleSheetCard: {
+    width: "100%",
+    alignSelf: "center",
+    borderRadius: 30,
+    borderWidth: 1,
+    padding: 20,
+    gap: 18,
+    shadowOffset: { width: 0, height: 18 },
+    shadowOpacity: 0.12,
+    shadowRadius: 30,
+    elevation: 12,
+  },
+  styleSheetHeader: {
+    gap: 4,
+  },
+  styleSheetTitle: {
+    fontSize: 22,
+    lineHeight: 26,
+    fontFamily: fonts.display,
+  },
+  styleSheetSubtitle: {
+    fontSize: 13,
+    lineHeight: 19,
+    fontFamily: fonts.body,
+  },
+  styleSheetGroup: {
+    gap: 8,
+  },
+  styleSheetGroupLabel: {
+    fontSize: 11,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    fontFamily: fonts.mono,
+  },
+  styleSheetPillRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  styleSheetPill: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  styleSheetPillText: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontFamily: fonts.body,
+  },
+  styleSheetDescription: {
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: fonts.body,
+    paddingHorizontal: 4,
+  },
+  styleSheetDoneButton: {
+    alignSelf: "stretch",
+    paddingVertical: 12,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  styleSheetDoneButtonText: {
+    fontSize: 14,
+    fontFamily: fonts.display,
+  },
 });

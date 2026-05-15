@@ -1,0 +1,213 @@
+import React from "react";
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import {
+  getResponseLengthOptions,
+  getResponseToneOptions,
+} from "../../components/settings/helpers";
+import { useLocalization } from "../../i18n";
+import { useTheme } from "../../theme/ThemeContext";
+import {
+  AssistantResponseLength,
+  AssistantResponseTone,
+} from "../../types";
+
+import { styles } from "./styles";
+
+interface StyleSheetModalProps {
+  visible: boolean;
+  responseLength: AssistantResponseLength;
+  responseTone: AssistantResponseTone;
+  onChange: (
+    partial:
+      | { responseLength: AssistantResponseLength }
+      | { responseTone: AssistantResponseTone },
+  ) => void;
+  onClose: () => void;
+}
+
+export function StyleSheetModal({
+  visible,
+  responseLength,
+  responseTone,
+  onChange,
+  onClose,
+}: StyleSheetModalProps) {
+  const { colors } = useTheme();
+  const { t } = useLocalization();
+  const { height, width } = useWindowDimensions();
+  const isLandscape = width > height;
+  const cardMaxWidth = isLandscape ? Math.min(width - 40, 760) : 520;
+
+  const lengthOptions = React.useMemo(() => getResponseLengthOptions(t), [t]);
+  const toneOptions = React.useMemo(() => getResponseToneOptions(t), [t]);
+  const activeLength = lengthOptions.find((o) => o.value === responseLength);
+  const activeTone = toneOptions.find((o) => o.value === responseTone);
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <SafeAreaView style={styles.styleSheetOverlay}>
+        <TouchableOpacity
+          style={StyleSheet.absoluteFill}
+          onPress={onClose}
+          activeOpacity={1}
+        />
+        <View
+          style={[
+            styles.styleSheetCard,
+            { maxWidth: cardMaxWidth },
+            {
+              backgroundColor: colors.surface,
+              borderColor: colors.border,
+              shadowColor: colors.glow,
+            },
+          ]}
+        >
+          <View style={styles.styleSheetHeader}>
+            <Text style={[styles.styleSheetTitle, { color: colors.text }]}>
+              {t("styleSheetTitle")}
+            </Text>
+            <Text
+              style={[
+                styles.styleSheetSubtitle,
+                { color: colors.textSecondary },
+              ]}
+            >
+              {t("styleSheetSubtitle")}
+            </Text>
+          </View>
+
+          <View style={styles.styleSheetGroup}>
+            <Text
+              style={[styles.styleSheetGroupLabel, { color: colors.textMuted }]}
+            >
+              {t("adaptiveLength")}
+            </Text>
+            <View style={styles.styleSheetPillRow}>
+              {lengthOptions.map((option) => {
+                const active = option.value === responseLength;
+                return (
+                  <Pressable
+                    key={option.value}
+                    style={[
+                      styles.styleSheetPill,
+                      {
+                        backgroundColor: active
+                          ? colors.accentSoft
+                          : colors.surfaceElevated,
+                        borderColor: active ? colors.accent : colors.border,
+                      },
+                    ]}
+                    onPress={() => onChange({ responseLength: option.value })}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                  >
+                    <Text
+                      style={[
+                        styles.styleSheetPillText,
+                        { color: active ? colors.text : colors.textSecondary },
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            {activeLength ? (
+              <Text
+                style={[
+                  styles.styleSheetDescription,
+                  { color: colors.textMuted },
+                ]}
+              >
+                {activeLength.description}
+              </Text>
+            ) : null}
+          </View>
+
+          <View style={styles.styleSheetGroup}>
+            <Text
+              style={[styles.styleSheetGroupLabel, { color: colors.textMuted }]}
+            >
+              {t("responseTone")}
+            </Text>
+            <View style={styles.styleSheetPillRow}>
+              {toneOptions.map((option) => {
+                const active = option.value === responseTone;
+                return (
+                  <Pressable
+                    key={option.value}
+                    style={[
+                      styles.styleSheetPill,
+                      {
+                        backgroundColor: active
+                          ? colors.accentSoft
+                          : colors.surfaceElevated,
+                        borderColor: active ? colors.accent : colors.border,
+                      },
+                    ]}
+                    onPress={() => onChange({ responseTone: option.value })}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                  >
+                    <Text
+                      style={[
+                        styles.styleSheetPillText,
+                        { color: active ? colors.text : colors.textSecondary },
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            {activeTone ? (
+              <Text
+                style={[
+                  styles.styleSheetDescription,
+                  { color: colors.textMuted },
+                ]}
+              >
+                {activeTone.description}
+              </Text>
+            ) : null}
+          </View>
+
+          <TouchableOpacity
+            style={[
+              styles.styleSheetDoneButton,
+              { backgroundColor: colors.accent },
+            ]}
+            onPress={onClose}
+            accessibilityRole="button"
+          >
+            <Text
+              style={[
+                styles.styleSheetDoneButtonText,
+                { color: colors.surface },
+              ]}
+            >
+              {t("setupGuideFinish")}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </Modal>
+  );
+}
