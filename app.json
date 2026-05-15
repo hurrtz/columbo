@@ -2,11 +2,11 @@
   "expo": {
     "name": "SchnackAI",
     "slug": "schnackai",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "orientation": "default",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "buildNumber": "4",
+      "buildNumber": "5",
       "supportsTablet": false,
       "bundleIdentifier": "com.tobiaswinkler.app.schnackai",
       "infoPlist": {
@@ -36,7 +36,7 @@
     "icon": "./assets/appIcon.png",
     "android": {
       "package": "com.tobiaswinkler.schnackai",
-      "versionCode": 4,
+      "versionCode": 5,
       "permissions": [
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS",
