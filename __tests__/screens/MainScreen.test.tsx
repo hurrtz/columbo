@@ -379,4 +379,25 @@ describe("MainScreen", () => {
 
     expect(screen.getByText("toggle-debug-log")).toBeTruthy();
   });
+
+  it("hides the style chip when no provider is configured", () => {
+    const screen = renderWithProviders(<MainScreen />);
+
+    expect(screen.queryByLabelText(/Open style and length/i)).toBeNull();
+  });
+
+  it("renders the style chip when a reply provider is configured", () => {
+    useSharedSettings.mockReturnValue(
+      createSharedSettingsValue({
+        apiKeys: {
+          ...DEFAULT_SETTINGS.apiKeys,
+          [DEFAULT_SETTINGS.responseModes.normal.provider]: "provider-key",
+        },
+      }),
+    );
+
+    const screen = renderWithProviders(<MainScreen />);
+
+    expect(screen.getByLabelText(/Open style and length/i)).toBeTruthy();
+  });
 });

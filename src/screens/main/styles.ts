@@ -529,6 +529,7 @@ export const styles = StyleSheet.create({
     fontFamily: fonts.mono,
   },
   styleChip: {
+    marginTop: 8,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
