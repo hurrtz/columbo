@@ -66,4 +66,10 @@ describe("StyleSheetModal", () => {
     fireEvent.press(getByText("Done"));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it("calls onClose when the backdrop is tapped", () => {
+    const { getByTestId, onClose } = setup();
+    fireEvent.press(getByTestId("styleSheetBackdrop"));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
 });

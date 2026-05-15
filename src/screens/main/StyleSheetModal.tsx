@@ -62,6 +62,7 @@ export function StyleSheetModal({
     >
       <SafeAreaView style={styles.styleSheetOverlay}>
         <TouchableOpacity
+          testID="styleSheetBackdrop"
           style={StyleSheet.absoluteFill}
           onPress={onClose}
           activeOpacity={1}
