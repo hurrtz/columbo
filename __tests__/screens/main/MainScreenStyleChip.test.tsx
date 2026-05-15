@@ -24,7 +24,7 @@ describe("MainScreenStyleChip", () => {
 
   it("calls onPress when tapped", () => {
     const onPress = jest.fn();
-    const { getByRole } = renderWithProviders(
+    const { getByLabelText } = renderWithProviders(
       <MainScreenStyleChip
         responseLength="thorough"
         responseTone="nerdy"
@@ -32,7 +32,7 @@ describe("MainScreenStyleChip", () => {
       />,
     );
 
-    fireEvent.press(getByRole("button"));
+    fireEvent.press(getByLabelText(/Open style and length/i));
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 

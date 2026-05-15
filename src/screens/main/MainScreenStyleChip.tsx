@@ -40,7 +40,7 @@ export function MainScreenStyleChip({
     tone: toneLabel,
     length: lengthLabel,
   });
-  const accessibilityLabel = `${t("openStyleSheet")}. ${toneLabel}. ${lengthLabel}.`;
+  const accessibilityLabel = `${t("openStyleSheet")}, ${toneLabel}, ${lengthLabel}`;
 
   return (
     <TouchableOpacity
