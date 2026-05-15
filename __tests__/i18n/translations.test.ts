@@ -13,8 +13,10 @@ describe("translations", () => {
       (lang) => {
         const value = translations[lang].homeStyleChipLabel;
         expect(typeof value).toBe("function");
-        if (typeof value !== "function") return;
-        const rendered = value({ tone: "Casual", length: "Brief" });
+        const rendered = (value as (params: { tone: string; length: string }) => string)({
+          tone: "Casual",
+          length: "Brief",
+        });
         expect(rendered).toContain("Casual");
         expect(rendered).toContain("Brief");
       },
