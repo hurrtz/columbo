@@ -23,6 +23,7 @@ import { getStatusDisplayData, getStatusIndicatorTone } from "./statusSelectors"
 import { TranslateFn } from "./shared";
 import { getConversationUsageDisplayData } from "./usageSelectors";
 import { getTtsListenLanguageLabel } from "../../constants/localTts";
+import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
 
 type LocalPackStateLike = {
   supported: boolean;
@@ -99,6 +100,13 @@ export function getMainScreenViewModel({
   const providerLabel = PROVIDER_LABELS[provider];
   const responseModeLabel = getResponseModeLabel(settings.activeResponseMode, t);
   const modelLabel = getProviderModelName(provider, model);
+  const routeModelLabel = hasProviderCredentialForCapability(
+    provider,
+    settings.apiKeys[provider],
+    "llm",
+  )
+    ? `${responseModeLabel} · ${providerLabel} · ${modelLabel}`
+    : t("noProviderYet");
   const sttStatusLabel =
     settings.sttMode === "native"
       ? t("appNative")
@@ -227,7 +235,7 @@ export function getMainScreenViewModel({
     lastAssistantReply,
     messages,
     metering,
-    routeModelLabel: `${responseModeLabel} · ${providerLabel} · ${modelLabel}`,
+    routeModelLabel,
     signalLevels,
     signalWaveformVariant,
     statusDisplay,

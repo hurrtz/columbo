@@ -43,6 +43,10 @@ describe("getMainScreenViewModel", () => {
         ...DEFAULT_SETTINGS.providerTtsVoices,
         openai: "alloy",
       },
+      apiKeys: {
+        ...DEFAULT_SETTINGS.apiKeys,
+        openai: "sk-test",
+      },
       ttsListenLanguages: ["en", "de"],
       showUsageStats: true,
     };
@@ -148,5 +152,40 @@ describe("getMainScreenViewModel", () => {
 
     expect(viewModel.visualPhase).toBe("speaking");
     expect(viewModel.isActive).toBe(true);
+  });
+
+  it("does not expose the default model route when no reply provider is configured", () => {
+    const viewModel = getMainScreenViewModel({
+      activeConversation: null,
+      availableTtsProviders: [],
+      isRecording: false,
+      language: "en",
+      localTtsPackStates: {},
+      model: DEFAULT_SETTINGS.responseModes.normal.model,
+      pipelinePhase: "idle",
+      player: {
+        isPlaybackPaused: false,
+        isPlaying: false,
+        meteringData: -160,
+        waveformData: undefined,
+        waveformVariant: "bars",
+      },
+      provider: DEFAULT_SETTINGS.responseModes.normal.provider,
+      recordingMetering: -160,
+      recordingLevels: undefined,
+      recordingWaveformVariant: "bars",
+      selectedSttModel: "",
+      selectedTtsModel: "",
+      selectedTtsVoice: "",
+      settings: DEFAULT_SETTINGS,
+      streamingText: "",
+      sttProvider: null,
+      t,
+      ttsApiKey: "",
+      ttsProvider: null,
+    });
+
+    expect(viewModel.routeModelLabel).toBe("noProviderYet");
+    expect(viewModel.routeModelLabel).not.toContain("Claude");
   });
 });
