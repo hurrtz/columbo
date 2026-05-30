@@ -6,6 +6,71 @@ export const llms = providerContext.defineLlms([
       "providerId": "xai",
       "providerName": "xAI",
       "service": "llm",
+      "modelId": "grok-4.3",
+      "publicName": "Grok 4.3",
+      "aliases": [
+        "grok-4.3-latest",
+        "grok-latest"
+      ],
+      "status": "Documented active/current",
+      "catalogScope": "Dynamic/non-exhaustive",
+      "pricingSummary": "$1.25 / 1M input tokens, $0.20 / 1M cached input tokens, $2.50 / 1M output tokens.",
+      "limitsSummary": "1,000,000 context window. Supports text and image input, text output, function calling, structured outputs, streaming, and configurable reasoning effort none/low/medium/high.",
+      "regionSummary": "Official docs list us-east-1 and eu-west-1 regional availability.",
+      "languagesSummary": "No official model-specific language matrix published; general-purpose multilingual LLM inferred, but no official count published.",
+      "notes": "Current flagship xAI picker entry. Official docs name the canonical model grok-4.3 and document grok-4.3-latest / grok-latest aliases. Older Grok aliases are intentionally not duplicated here because the local catalog still keeps historical picker entries for them.",
+      "officialSources": [
+        "https://docs.x.ai/developers/models/grok-4.3",
+        "https://docs.x.ai/developers/models",
+        "https://docs.x.ai/developers/model-capabilities/text/reasoning"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [
+        {
+          "amountUsd": 1.25,
+          "unit": "million_input_tokens",
+          "sourceText": "Input Tokens $1.25 / 1M tokens"
+        },
+        {
+          "amountUsd": 0.2,
+          "unit": "million_input_tokens",
+          "sourceText": "Cached tokens $0.20 / 1M tokens"
+        },
+        {
+          "amountUsd": 2.5,
+          "unit": "million_output_tokens",
+          "sourceText": "Output Tokens $2.50 / 1M tokens"
+        }
+      ],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 1000000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Context window 1,000,000"
+        }
+      ],
+      "languageSupport": {
+        "rawText": "No official model-specific language coverage table found.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": [
+          "inference: general multilingual support likely, but official count unknown"
+        ]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "providerId": "xai",
+      "providerName": "xAI",
+      "service": "llm",
       "modelId": "grok-4.20-reasoning",
       "publicName": "Grok 4.20 Reasoning",
       "aliases": [],

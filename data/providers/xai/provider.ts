@@ -13,6 +13,7 @@ export const providerDefinition = defineProviderDefinition(
     },
     "officialSources": [
       "https://docs.x.ai/developers/models",
+      "https://docs.x.ai/developers/models/grok-4.3",
       "https://docs.x.ai/developers/rest-api-reference",
       "https://docs.x.ai/developers/rest-api-reference/inference/models",
       "https://docs.x.ai/developers/model-capabilities/text/generate-text",
@@ -47,7 +48,7 @@ export const providerDefinition = defineProviderDefinition(
       "regionSplitRecommended": true
     },
     "summaries": {
-      "pricing": "LLMs are token-priced; current public official pricing pages highlight grok-4.20-reasoning at $2.00/1M input and $6.00/1M output, grok-4-1-fast-reasoning at $0.20/1M input and $0.50/1M output, Voice Agent at $0.05/min, and TTS at $4.20/1M characters. Batch discounts are 50% for text/language models.",
+      "pricing": "LLMs are token-priced; current public official pricing pages highlight grok-4.3 at $1.25/1M input and $2.50/1M output, Voice Agent at $0.05/min, and TTS at $4.20/1M characters. Batch discounts are 50% for text/language models.",
       "limits": "Voice Agent: 100 concurrent sessions/team, 30-minute max session. TTS: 600 RPM, 10 concurrent requests/team on the dedicated page; text input max 15,000 chars/request. Text streaming uses SSE. Image input for image-capable LLMs is capped at 20 MiB per image and jpg/jpeg/png.",
       "region": "Global endpoint https://api.x.ai routes automatically; regional endpoints are available, with docs explicitly showing eu-west-1 and noting regional failures fail closed rather than falling back. Voice/TTS pricing pages currently list us-east-1 availability.",
       "sttLanguages": "Unknown for a public standalone STT API. Voice Agent is multilingual in marketing language, but developer docs do not publish a standalone STT language matrix.",
@@ -65,6 +66,18 @@ export const providerDefinition = defineProviderDefinition(
           "pricing",
           "models",
           "limits"
+        ]
+      },
+      {
+        "url": "https://docs.x.ai/developers/models/grok-4.3",
+        "title": "Grok 4.3 | xAI Docs",
+        "type": "official",
+        "lastUpdated": null,
+        "usedFor": [
+          "models",
+          "pricing",
+          "limits",
+          "aliases"
         ]
       },
       {

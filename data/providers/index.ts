@@ -88,4 +88,4 @@ export const PROVIDER_DOCUMENTS = defineProviderDocuments([
   ZAiZhipuAiDocument,
 ]);
 
-export const PROVIDER_CATALOG_UPDATED_AT = "2026-04-21";
+export const PROVIDER_CATALOG_UPDATED_AT = "2026-05-30";

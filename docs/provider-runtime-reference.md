@@ -145,7 +145,7 @@ The current settled state is:
 - Catalog provider id: `anthropic`
 - Overall status: Fully enabled under curated picker policy
 - Search: not exposed
-- LLM: support `provider`, transport `anthropic`, models: `Claude Opus 4.6` (`claude-opus-4-6`), `Claude Sonnet 4.6` (`claude-sonnet-4-6`), `Claude Haiku 4.5` (`claude-haiku-4-5-20251001`), `Claude Opus 4.5` (`claude-opus-4-5-20251101`), `Claude Opus 4.1` (`claude-opus-4-1-20250805`), `Claude Opus 4` (`claude-opus-4-20250514`), `Claude Sonnet 4.5` (`claude-sonnet-4-5-20250929`), `Claude Sonnet 4` (`claude-sonnet-4-20250514`), `Claude 3 Haiku` (`claude-3-haiku-20240307`)
+- LLM: support `provider`, transport `anthropic`, models: `Claude Opus 4.8` (`claude-opus-4-8`), `Claude Opus 4.7` (`claude-opus-4-7`), `Claude Opus 4.6` (`claude-opus-4-6`), `Claude Sonnet 4.6` (`claude-sonnet-4-6`), `Claude Haiku 4.5` (`claude-haiku-4-5-20251001`), `Claude Opus 4.5` (`claude-opus-4-5-20251101`), `Claude Opus 4.1` (`claude-opus-4-1-20250805`), `Claude Opus 4` (`claude-opus-4-20250514`), `Claude Sonnet 4.5` (`claude-sonnet-4-5-20250929`), `Claude Sonnet 4` (`claude-sonnet-4-20250514`), `Claude 3 Haiku` (`claude-3-haiku-20240307`)
 - STT: support `none`, transport `none`, models: none
 - TTS: support `none`, transport `none`, models: none
 - Catalog delta: none
@@ -422,7 +422,7 @@ The current settled state is:
 - Catalog provider id: `xai`
 - Overall status: Fully enabled under curated picker policy
 - Search: not exposed
-- LLM: support `provider`, transport `openai-compatible`, models: `Grok 4.20 Reasoning` (`grok-4.20-reasoning`), `Grok 4.20 Non-Reasoning` (`grok-4.20-non-reasoning`), `Grok 4.1 Fast Reasoning` (`grok-4-1-fast-reasoning`), `Grok 4.1 Fast Non-Reasoning` (`grok-4-1-fast-non-reasoning`), `Grok 4` (`grok-4-0709`), `Grok 4 Fast` (`grok-4-fast-reasoning`), `Grok 4.20 Multi-Agent` (`grok-4.20-multi-agent-0309`)
+- LLM: support `provider`, transport `openai-compatible`, models: `Grok 4.3` (`grok-4.3`), `Grok 4.20 Reasoning` (`grok-4.20-reasoning`), `Grok 4.20 Non-Reasoning` (`grok-4.20-non-reasoning`), `Grok 4.1 Fast Reasoning` (`grok-4-1-fast-reasoning`), `Grok 4.1 Fast Non-Reasoning` (`grok-4-1-fast-non-reasoning`), `Grok 4` (`grok-4-0709`), `Grok 4 Fast` (`grok-4-fast-reasoning`), `Grok 4.20 Multi-Agent` (`grok-4.20-multi-agent-0309`)
 - STT: support `provider`, transport `xai-realtime`, models: `Voice Agent API (speech input inside realtime agent)` (`voice-agent-api`)
 - TTS: support `provider`, transport `binary`, models: `Text to Speech API` (`text-to-speech`)
 - TTS voices: static runtime list, default voice `ara`. Voices: `Eve · Energetic` (`eve`), `Ara · Warm` (`ara`), `Rex · Confident` (`rex`), `Sal · Balanced` (`sal`), `Leo · Authoritative` (`leo`)

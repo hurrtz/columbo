@@ -6,6 +6,92 @@ export const llms = providerContext.defineLlms([
       "providerId": "anthropic",
       "providerName": "Anthropic",
       "service": "llm",
+      "modelId": "claude-opus-4-8",
+      "publicName": "Claude Opus 4.8",
+      "aliases": [],
+      "status": "Documented active/current",
+      "catalogScope": "Mostly exhaustive",
+      "pricingSummary": "$5 / million input tokens, $25 / million output tokens. Batch API is 50% off. Fast mode preview is $10 / million input tokens and $50 / million output tokens.",
+      "limitsSummary": "1M context window, 128k max output. Standard request size limit 32 MB. Text streaming via SSE. Batch jobs can take up to 24 hours.",
+      "regionSummary": "Global default. US-only inference via inference_geo is documented at 1.1x pricing for Opus 4.6 and newer models.",
+      "languagesSummary": "Multilingual capability documented; no formal language matrix published.",
+      "notes": "Latest premium Anthropic picker entry. Supports text+image input, text output, vision, tools/function calling, structured outputs, adaptive thinking, SSE streaming, and Message Batches. Anthropic documents no beta header requirement for the model. No documented native speech input/output.",
+      "officialSources": [
+        "https://platform.claude.com/docs/en/about-claude/models/whats-new-claude-4-8",
+        "https://platform.claude.com/docs/en/about-claude/pricing",
+        "https://platform.claude.com/docs/en/about-claude/models/overview",
+        "https://platform.claude.com/docs/en/release-notes/overview",
+        "https://platform.claude.com/docs/en/api/openai-sdk"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": true,
+      "supportsBatch": true,
+      "priceMeasurements": [
+        {
+          "amountUsd": 5.0,
+          "unit": "million_input_tokens",
+          "sourceText": "$5 / input MTok"
+        },
+        {
+          "amountUsd": 25.0,
+          "unit": "million_output_tokens",
+          "sourceText": "$25 / output MTok"
+        },
+        {
+          "amountUsd": 10.0,
+          "unit": "million_input_tokens",
+          "sourceText": "Fast mode input pricing"
+        },
+        {
+          "amountUsd": 50.0,
+          "unit": "million_output_tokens",
+          "sourceText": "Fast mode output pricing"
+        }
+      ],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 1000000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Context window 1M tokens"
+        },
+        {
+          "metric": "other",
+          "comparator": "=",
+          "value": 128000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Max output 128k tokens"
+        },
+        {
+          "metric": "file_size_bytes",
+          "comparator": "<=",
+          "value": 33554432,
+          "unit": "bytes",
+          "scope": "general",
+          "sourceText": "Standard endpoints 32 MB"
+        }
+      ],
+      "languageSupport": {
+        "rawText": "Anthropic documents multilingual capabilities for current Claude models. No official exhaustive API language matrix was found.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": [
+          "no official exhaustive language matrix",
+          "text only; no native speech output"
+        ]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "providerId": "anthropic",
+      "providerName": "Anthropic",
+      "service": "llm",
       "modelId": "claude-opus-4-7",
       "publicName": "Claude Opus 4.7",
       "aliases": [],

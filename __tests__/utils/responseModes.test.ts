@@ -48,6 +48,7 @@ describe("response mode selectors", () => {
 
   it("uses the curated provider default instead of the first picker entry", () => {
     expect(getDefaultModelForProvider("anthropic")).toBe("claude-sonnet-4-6");
+    expect(getDefaultModelForProvider("xai")).toBe("grok-4.3");
   });
 
   it("requires Azure OpenAI credentials for Azure-backed response modes", () => {

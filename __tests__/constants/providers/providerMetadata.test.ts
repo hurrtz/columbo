@@ -21,12 +21,19 @@ describe("provider metadata constants", () => {
 
   it("uses direct catalog labels for known models even outside the curated picker list", () => {
     expect(getProviderModelName("xai", "grok-4")).toBe("Grok 4");
+    expect(getProviderModelName("xai", "grok-latest")).toBe("Grok 4.3");
   });
 
   it("surfaces newly added Anthropic picker models from the catalog", () => {
     expect(
-      PROVIDER_MODELS.anthropic.find((model) => model.id === "claude-opus-4-7")
+      PROVIDER_MODELS.anthropic.find((model) => model.id === "claude-opus-4-8")
         ?.name,
-    ).toBe("Claude Opus 4.7");
+    ).toBe("Claude Opus 4.8");
+  });
+
+  it("surfaces newly added xAI picker models from the catalog", () => {
+    expect(
+      PROVIDER_MODELS.xai.find((model) => model.id === "grok-4.3")?.name,
+    ).toBe("Grok 4.3");
   });
 });

@@ -1096,7 +1096,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.x.ai/v1/chat/completions",
-      defaultModel: "grok-4",
+      defaultModel: "grok-4.3",
       models: catalogModelSpecs("xai", "llm"),
     },
     stt: {
