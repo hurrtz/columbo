@@ -184,7 +184,7 @@ export function getDefaultTtsListenLanguages(
 export const DEFAULT_SETTINGS: Settings = {
   inputMode: "toggle-to-talk",
   replyPlayback: "stream",
-  spokenRepliesEnabled: false,
+  spokenRepliesEnabled: true,
   activeResponseMode: "normal",
   responseModes: DEFAULT_RESPONSE_MODES,
   providerModels: PROVIDER_DEFAULT_MODELS,

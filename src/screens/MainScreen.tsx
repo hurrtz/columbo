@@ -746,7 +746,13 @@ export function MainScreen() {
         pipelinePhase,
         provider,
         sttMode: settings.sttMode,
+        sttProvider,
+        sttModel: selectedSttModel,
         ttsMode: settings.ttsMode,
+        ttsProvider,
+        ttsModel: selectedTtsModel,
+        replyPlayback: settings.replyPlayback,
+        spokenRepliesEnabled: settings.spokenRepliesEnabled,
       });
       showToast(t("debugLogCaptureStarted"));
       return;
@@ -760,7 +766,13 @@ export function MainScreen() {
         pipelinePhase,
         provider,
         sttMode: settings.sttMode,
+        sttProvider,
+        sttModel: selectedSttModel,
         ttsMode: settings.ttsMode,
+        ttsProvider,
+        ttsModel: selectedTtsModel,
+        replyPlayback: settings.replyPlayback,
+        spokenRepliesEnabled: settings.spokenRepliesEnabled,
       });
 
       if (!result) {
@@ -799,11 +811,17 @@ export function MainScreen() {
     model,
     pipelinePhase,
     provider,
+    selectedSttModel,
+    selectedTtsModel,
+    settings.replyPlayback,
     settings.inputMode,
+    settings.spokenRepliesEnabled,
     settings.sttMode,
     settings.ttsMode,
     showToast,
+    sttProvider,
     t,
+    ttsProvider,
   ]);
 
   useEffect(() => {
