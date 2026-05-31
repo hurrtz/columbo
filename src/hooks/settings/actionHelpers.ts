@@ -1,4 +1,6 @@
 import type { Provider, ResponseMode, Settings } from "../../types";
+import { deriveResponseModesForProvider } from "../../utils/responseModes";
+import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
 import { persistApiKey, persistPublicSettings } from "./storage";
 
 type SetSettings = React.Dispatch<React.SetStateAction<Settings>>;
@@ -61,17 +63,48 @@ export function createResponseModeUpdater(setSettings: SetSettings) {
   };
 }
 
+function hasUsableResponseMode(settings: Settings): boolean {
+  return Object.values(settings.responseModes).some(
+    (route) =>
+      route.model.trim().length > 0 &&
+      hasProviderCredentialForCapability(
+        route.provider,
+        settings.apiKeys[route.provider],
+        "llm",
+      ),
+  );
+}
+
 export function createApiKeyUpdater(setSettings: SetSettings) {
   return (provider: Provider, value: string) => {
     const nextValue = value.trim();
 
-    setSettings((prev) => ({
-      ...prev,
-      apiKeys: {
+    setSettings((prev) => {
+      const nextApiKeys = {
         ...prev.apiKeys,
         [provider]: nextValue,
-      },
-    }));
+      };
+      const withKey: Settings = { ...prev, apiKeys: nextApiKeys };
+
+      // On the very first provider configuration the user has no response mode
+      // backed by a credentialed LLM provider yet. In that case derive all
+      // three modes from this provider so the modes become usable immediately.
+      // Once at least one usable mode exists we never auto-derive again, so we
+      // never clobber a setup the user already has (or has customized).
+      const shouldDerive =
+        hasProviderCredentialForCapability(provider, nextValue, "llm") &&
+        !hasUsableResponseMode(withKey);
+
+      const next: Settings = shouldDerive
+        ? {
+            ...withKey,
+            responseModes: deriveResponseModesForProvider(provider),
+          }
+        : withKey;
+
+      void persistPublicSettings(next);
+      return next;
+    });
 
     void persistApiKey(provider, nextValue);
   };
