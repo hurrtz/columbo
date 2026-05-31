@@ -1,9 +1,5 @@
 import type { Provider } from "../types";
 import {
-  parseAzureOpenAiCredentials,
-  parseAzureSpeechCredentials,
-} from "../services/azure";
-import {
   parseBytedanceArkCredentials,
   parseBytedanceSpeechCredentials,
 } from "../services/bytedance";
@@ -21,27 +17,20 @@ export function hasAnyProviderCredential(provider: Provider, apiKey: string) {
     return false;
   }
 
-  if (provider !== "microsoft-azure") {
-    if (provider === "gemini") {
-      return (
-        parseGoogleAiStudioCredentials(trimmedApiKey) !== null ||
-        parseGoogleCloudSpeechCredentials(trimmedApiKey) !== null
-      );
-    }
-
-    if (provider !== "bytedance-doubao-seed") {
-      return true;
-    }
-
+  if (provider === "gemini") {
     return (
-      parseBytedanceArkCredentials(trimmedApiKey) !== null ||
-      parseBytedanceSpeechCredentials(trimmedApiKey) !== null
+      parseGoogleAiStudioCredentials(trimmedApiKey) !== null ||
+      parseGoogleCloudSpeechCredentials(trimmedApiKey) !== null
     );
   }
 
+  if (provider !== "bytedance-doubao-seed") {
+    return true;
+  }
+
   return (
-    parseAzureOpenAiCredentials(trimmedApiKey) !== null ||
-    parseAzureSpeechCredentials(trimmedApiKey) !== null
+    parseBytedanceArkCredentials(trimmedApiKey) !== null ||
+    parseBytedanceSpeechCredentials(trimmedApiKey) !== null
   );
 }
 
@@ -56,40 +45,29 @@ export function hasProviderCredentialForCapability(
     return false;
   }
 
-  if (provider !== "microsoft-azure") {
-    if (provider === "gemini") {
-      switch (capability) {
-        case "llm":
-        case "tts":
-          return parseGoogleAiStudioCredentials(trimmedApiKey) !== null;
-        case "stt":
-          return parseGoogleCloudSpeechCredentials(trimmedApiKey) !== null;
-        case "search":
-          return false;
-      }
-    }
-
-    if (provider !== "bytedance-doubao-seed") {
-      return true;
-    }
-
+  if (provider === "gemini") {
     switch (capability) {
       case "llm":
-        return parseBytedanceArkCredentials(trimmedApiKey) !== null;
-      case "stt":
-        return parseBytedanceSpeechCredentials(trimmedApiKey) !== null;
       case "tts":
+        return parseGoogleAiStudioCredentials(trimmedApiKey) !== null;
+      case "stt":
+        return parseGoogleCloudSpeechCredentials(trimmedApiKey) !== null;
       case "search":
         return false;
     }
   }
 
+  if (provider !== "bytedance-doubao-seed") {
+    return true;
+  }
+
   switch (capability) {
     case "llm":
+      return parseBytedanceArkCredentials(trimmedApiKey) !== null;
     case "stt":
-    case "search":
-      return parseAzureOpenAiCredentials(trimmedApiKey) !== null;
+      return parseBytedanceSpeechCredentials(trimmedApiKey) !== null;
     case "tts":
-      return parseAzureSpeechCredentials(trimmedApiKey) !== null;
+    case "search":
+      return false;
   }
 }

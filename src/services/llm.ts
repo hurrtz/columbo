@@ -24,7 +24,6 @@ import {
   requestAzureOpenAiRealtimeChat,
   requestAzureOpenAiRealtimeChatStream,
 } from "./llm/providers/azureOpenAiRealtime";
-import { requestCohereChat } from "./llm/providers/cohere";
 import {
   requestOpenAICompatibleChat,
   requestOpenAICompatibleChatStream,
@@ -37,7 +36,6 @@ import {
   requestGeminiLiveChat,
   requestGeminiLiveChatStream,
 } from "./llm/providers/geminiLive";
-import { requestReplicateChat } from "./llm/providers/replicate";
 import {
   ChatMessage,
   getProviderLlmConfig,
@@ -168,27 +166,8 @@ const LLM_TEXT_REQUESTERS = {
       systemPrompt: params.systemPrompt,
       abortSignal: params.abortSignal,
     }),
-  replicate: async (params: LlmRequestParams) =>
-    requestReplicateChat({
-      provider: params.provider,
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      abortSignal: params.abortSignal,
-    }),
   anthropic: async (params: LlmRequestParams) =>
     requestAnthropicChat({
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      abortSignal: params.abortSignal,
-    }),
-  cohere: async (params: LlmRequestParams) =>
-    requestCohereChat({
       model: params.model,
       messages: params.messages,
       apiKey: params.apiKey,
@@ -296,12 +275,8 @@ async function requestChatText(params: {
       return LLM_TEXT_REQUESTERS["openai-realtime"](params);
     case "gemini-live":
       return LLM_TEXT_REQUESTERS["gemini-live"](params);
-    case "replicate":
-      return LLM_TEXT_REQUESTERS.replicate(params);
     case "anthropic":
       return LLM_TEXT_REQUESTERS.anthropic(params);
-    case "cohere":
-      return LLM_TEXT_REQUESTERS.cohere(params);
     default:
       throw buildProviderNotWiredUpError(params.provider, params.language);
   }
@@ -521,7 +496,6 @@ export async function streamChat({
             abortSignal,
           });
           break;
-        case "cohere":
         default:
           fullText = await requestChatText({
             messages,

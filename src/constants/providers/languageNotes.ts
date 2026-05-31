@@ -31,12 +31,8 @@ const GERMAN_PROVIDER_API_KEY_PLACEHOLDER_OVERRIDES: Partial<
   anthropic: "sk-ant-...",
   gemini: "AIza...|project-id|access-token|us",
   xai: "xai-...",
-  groq: "gsk_...",
   deepseek: "sk-...",
   mistral: "API-Schluessel eingeben",
-  cohere: "API-Schluessel eingeben",
-  together: "API-Schluessel eingeben",
-  nvidia: "nvapi-...",
 };
 
 const PROVIDER_API_KEY_PLACEHOLDERS_BY_LANGUAGE: Record<
@@ -78,12 +74,8 @@ const PROVIDER_STT_LANGUAGE_NOTES_BY_LANGUAGE: Partial<
   de: {
     openai:
       `OpenAI bietet aktuell gpt-4o-transcribe, gpt-4o-mini-transcribe und whisper-1 fuer Speech-to-Text an. Der von OpenAI veroeffentlichte Satz gut unterstuetzter Sprachen lautet: ${WHISPER_WELL_SUPPORTED_LANGUAGES}`,
-    groq:
-      `Die App nutzt hier whisper-large-v3-turbo. Groq dokumentiert das Modell als mehrsprachig. Fuer die Whisper-Familie ist dieser Satz gut unterstuetzter Sprachen veroeffentlicht: ${WHISPER_WELL_SUPPORTED_LANGUAGES} Wenn dir mehrsprachige Genauigkeit wichtiger ist als Geschwindigkeit, empfiehlt Groq whisper-large-v3 statt der Turbo-Variante.`,
     mistral:
       "Die aktuelle Voxtral-Transkriptionsroute ist fuer Englisch, Spanisch, Franzoesisch, Portugiesisch, Hindi, Deutsch, Niederlaendisch und Italienisch dokumentiert.",
-    together:
-      `Die aktuelle Integration nutzt openai/whisper-large-v3. Das Modell ist mehrsprachig und akzeptiert ISO-639-1-Sprachhinweise. Ein veroeffentlichter Satz gut unterstuetzter Whisper-Sprachen lautet: ${WHISPER_WELL_SUPPORTED_LANGUAGES}`,
   },
 };
 
@@ -104,8 +96,6 @@ const PROVIDER_TTS_LANGUAGE_NOTES_BY_LANGUAGE: Partial<
       "Gemini TTS unterstuetzt aktuell Arabisch, Bengalisch, Niederlaendisch, Englisch, Franzoesisch, Deutsch, Hindi, Indonesisch, Italienisch, Japanisch, Koreanisch, Mandarin, Polnisch, Portugiesisch, Rumaenisch, Russisch, Spanisch, Tamil, Telugu, Thai, Tuerkisch, Ukrainisch, Urdu und Vietnamesisch.",
     xai:
       "xAI TTS unterstuetzt aktuell Arabisch, Niederlaendisch, Englisch, Franzoesisch, Deutsch, Hindi, Indonesisch, Italienisch, Japanisch, Koreanisch, Polnisch, Portugiesisch, Russisch, Spanisch, Thai, Tuerkisch, Vietnamesisch und Chinesisch.",
-    together:
-      "Die aktuelle Together-TTS-Route ist fuer Englisch, Spanisch, Franzoesisch, Deutsch, Italienisch, Portugiesisch, Hindi, Japanisch, Koreanisch und Chinesisch konfiguriert. Die Verfuegbarkeit einzelner Stimmen haengt vom Modell ab.",
   },
 };
 

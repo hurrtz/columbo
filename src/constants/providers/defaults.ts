@@ -40,8 +40,8 @@ export const DEFAULT_PROVIDER_TTS_VOICES: ProviderTtsVoiceSelections =
 
 export const DEFAULT_RESPONSE_MODES: ResponseModeSelections = {
   quick: {
-    provider: "groq",
-    model: "llama-3.1-8b-instant",
+    provider: "gemini",
+    model: "gemini-2.5-flash",
   },
   normal: {
     provider: "anthropic",

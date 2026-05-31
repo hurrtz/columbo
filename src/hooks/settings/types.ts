@@ -37,12 +37,8 @@ export const LEGACY_MODEL_FIELD_KEYS: Partial<Record<
   openai: "openaiModel",
   anthropic: "anthropicModel",
   gemini: "geminiModel",
-  cohere: "cohereModel",
   deepseek: "deepseekModel",
-  groq: "groqModel",
   mistral: "mistralModel",
-  nvidia: "nvidiaModel",
-  together: "togetherModel",
   xai: "xaiModel",
 };
 
