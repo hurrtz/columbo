@@ -62,7 +62,7 @@ describe("useSettings", () => {
           "schnackai.provider_key.openai": "sk-openai",
           "schnackai.provider_key.anthropic": "sk-anthropic",
           "schnackai.provider_key.gemini": "AIza-test",
-          "schnackai.provider_key.nvidia": "nvapi-test",
+          "schnackai.provider_key.xai": "xai-test",
         };
 
         return Promise.resolve(values[key] ?? null);
@@ -76,7 +76,7 @@ describe("useSettings", () => {
       openai: "sk-openai",
       anthropic: "sk-anthropic",
       gemini: "AIza-test",
-      nvidia: "nvapi-test",
+      xai: "xai-test",
     });
     expect(result.current.settings.setupGuideDismissed).toBe(true);
   });
@@ -288,15 +288,15 @@ describe("useSettings", () => {
     await flushSettingsLoad();
 
     await act(async () => {
-      result.current.updateProviderModel("groq", "openai/gpt-oss-120b");
+      result.current.updateProviderModel("deepseek", "deepseek-chat");
     });
 
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
       "@schnackai/settings",
-      expect.stringContaining('"groq":"openai/gpt-oss-120b"'),
+      expect.stringContaining('"deepseek":"deepseek-chat"'),
     );
-    expect(result.current.settings.providerModels.groq).toBe(
-      "openai/gpt-oss-120b",
+    expect(result.current.settings.providerModels.deepseek).toBe(
+      "deepseek-chat",
     );
   });
 
@@ -396,11 +396,11 @@ describe("useSettings", () => {
     await flushSettingsLoad();
 
     await act(async () => {
-      result.current.updateApiKey("nvidia", "");
+      result.current.updateApiKey("deepseek", "");
     });
 
     expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith(
-      "schnackai.provider_key.nvidia",
+      "schnackai.provider_key.deepseek",
     );
   });
 });

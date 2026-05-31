@@ -12,7 +12,7 @@ describe("response mode selectors", () => {
       ...DEFAULT_SETTINGS,
       apiKeys: {
         ...DEFAULT_SETTINGS.apiKeys,
-        groq: "gsk_test",
+        gemini: "AIzaSyTestKey",
         openai: "sk-test",
       },
     };
@@ -51,33 +51,32 @@ describe("response mode selectors", () => {
     expect(getDefaultModelForProvider("xai")).toBe("grok-4.3");
   });
 
-  it("requires Azure OpenAI credentials for Azure-backed response modes", () => {
-    const speechOnlySettings = {
+  it("requires valid Google AI Studio credentials for Gemini-backed response modes", () => {
+    const invalidKeySettings = {
       ...DEFAULT_SETTINGS,
       responseModes: {
         ...DEFAULT_SETTINGS.responseModes,
         quick: {
-          provider: "microsoft-azure" as const,
-          model: "gpt-4.1-mini",
+          provider: "gemini" as const,
+          model: "gemini-2.5-flash",
         },
       },
       apiKeys: {
         ...DEFAULT_SETTINGS.apiKeys,
-        "microsoft-azure": "azure-speech-key|westeurope",
+        gemini: "not-a-google-key",
       },
     };
 
-    expect(isResponseModeReady(speechOnlySettings, "quick")).toBe(false);
+    expect(isResponseModeReady(invalidKeySettings, "quick")).toBe(false);
 
-    const azureOpenAiSettings = {
-      ...speechOnlySettings,
+    const validKeySettings = {
+      ...invalidKeySettings,
       apiKeys: {
-        ...speechOnlySettings.apiKeys,
-        "microsoft-azure":
-          "https://example-resource.openai.azure.com|azure-openai-key",
+        ...invalidKeySettings.apiKeys,
+        gemini: "AIzaSyValidLookingKey",
       },
     };
 
-    expect(isResponseModeReady(azureOpenAiSettings, "quick")).toBe(true);
+    expect(isResponseModeReady(validKeySettings, "quick")).toBe(true);
   });
 });
