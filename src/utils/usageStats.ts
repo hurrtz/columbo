@@ -9,15 +9,11 @@ import {
   estimateMessageTokens,
   estimateTextTokens,
 } from "../services/conversationContext";
-import { findPricingAssumption } from "../constants/usagePricing";
 
 export interface ConversationUsageTotals {
   promptTokens: number;
   completionTokens: number;
   totalTokens: number;
-  totalCostUsd: number;
-  pricedEntryCount: number;
-  unpricedEntryCount: number;
   replyCount: number;
   summaryCount: number;
 }
@@ -28,23 +24,7 @@ export interface ConversationUsageRouteTotals {
   promptTokens: number;
   completionTokens: number;
   totalTokens: number;
-  totalCostUsd: number;
-  pricedEntryCount: number;
-  unpricedEntryCount: number;
   entryCount: number;
-}
-
-function findPricing(provider: Provider, model: string) {
-  return findPricingAssumption(provider, model);
-}
-
-function tokensToUsd(tokens: number, usdPerMillion: number) {
-  return (tokens / 1_000_000) * usdPerMillion;
-}
-
-function roundTo(amount: number, decimals: number) {
-  const factor = 10 ** decimals;
-  return Math.round((amount + Number.EPSILON) * factor) / factor;
 }
 
 export function estimateChatUsage(params: {
@@ -69,13 +49,6 @@ export function estimateChatUsage(params: {
     0,
   );
   const totalTokens = promptTokens + completionTokens;
-  const pricing = findPricing(params.provider, params.model);
-  const inputCostUsd = pricing
-    ? tokensToUsd(promptTokens, pricing.inputUsdPerMillion)
-    : null;
-  const outputCostUsd = pricing
-    ? tokensToUsd(completionTokens, pricing.outputUsdPerMillion)
-    : null;
 
   return {
     kind: params.kind,
@@ -83,12 +56,6 @@ export function estimateChatUsage(params: {
     promptTokens,
     completionTokens,
     totalTokens,
-    inputCostUsd,
-    outputCostUsd,
-    totalCostUsd:
-      inputCostUsd !== null && outputCostUsd !== null
-        ? inputCostUsd + outputCostUsd
-        : null,
   };
 }
 
@@ -100,9 +67,6 @@ export function aggregateConversationUsage(
       promptTokens: 0,
       completionTokens: 0,
       totalTokens: 0,
-      totalCostUsd: 0,
-      pricedEntryCount: 0,
-      unpricedEntryCount: 0,
       replyCount: 0,
       summaryCount: 0,
     };
@@ -125,13 +89,6 @@ export function aggregateConversationUsage(
       total.completionTokens += usage.completionTokens;
       total.totalTokens += usage.totalTokens;
 
-      if (usage.totalCostUsd !== null) {
-        total.totalCostUsd += usage.totalCostUsd;
-        total.pricedEntryCount += 1;
-      } else {
-        total.unpricedEntryCount += 1;
-      }
-
       if (usage.kind === "reply") {
         total.replyCount += 1;
       } else if (usage.kind === "summary") {
@@ -144,9 +101,6 @@ export function aggregateConversationUsage(
       promptTokens: 0,
       completionTokens: 0,
       totalTokens: 0,
-      totalCostUsd: 0,
-      pricedEntryCount: 0,
-      unpricedEntryCount: 0,
       replyCount: 0,
       summaryCount: 0,
     },
@@ -188,9 +142,6 @@ export function aggregateConversationUsageByRoute(
       promptTokens: 0,
       completionTokens: 0,
       totalTokens: 0,
-      totalCostUsd: 0,
-      pricedEntryCount: 0,
-      unpricedEntryCount: 0,
       entryCount: 0,
     };
 
@@ -198,13 +149,6 @@ export function aggregateConversationUsageByRoute(
     existing.completionTokens += entry.usage.completionTokens;
     existing.totalTokens += entry.usage.totalTokens;
     existing.entryCount += 1;
-
-    if (entry.usage.totalCostUsd !== null) {
-      existing.totalCostUsd += entry.usage.totalCostUsd;
-      existing.pricedEntryCount += 1;
-    } else {
-      existing.unpricedEntryCount += 1;
-    }
 
     totalsByRoute.set(key, existing);
   }
@@ -218,20 +162,4 @@ export function formatTokenCount(count: number) {
   return new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 0,
   }).format(count);
-}
-
-export function formatUsd(amount: number) {
-  if (amount >= 1) {
-    return `$${roundTo(amount, 2).toFixed(2)}`;
-  }
-
-  if (amount >= 0.01) {
-    return `$${roundTo(amount, 3).toFixed(3)}`;
-  }
-
-  if (amount >= 0.001) {
-    return `$${roundTo(amount, 4).toFixed(4)}`;
-  }
-
-  return `$${roundTo(amount, 5).toFixed(5)}`;
 }

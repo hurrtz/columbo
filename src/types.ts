@@ -124,9 +124,6 @@ export interface UsageEstimate {
   promptTokens: number;
   completionTokens: number;
   totalTokens: number;
-  inputCostUsd: number | null;
-  outputCostUsd: number | null;
-  totalCostUsd: number | null;
 }
 
 export interface WebSearchSource {
