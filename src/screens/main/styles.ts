@@ -172,13 +172,6 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: fonts.display,
   },
-  webSearchProviderIcon: {
-    alignSelf: "center",
-    minWidth: 28,
-    minHeight: 28,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   eyebrow: {
     fontSize: 11,
     letterSpacing: 1.2,

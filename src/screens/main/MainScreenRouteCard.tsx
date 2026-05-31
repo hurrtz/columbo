@@ -11,7 +11,6 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
-import { ProviderIcon } from "../../components/ProviderIcon";
 import { ResponseModeToggle } from "../../components/ResponseModeToggle";
 import {
   getResponseLengthOptions,
@@ -232,17 +231,6 @@ export function MainScreenRouteCard({
               >
                 {webSearchTitle}
               </Text>
-              <View style={styles.webSearchProviderIcon}>
-                {webSearchOn && webSearchProvider ? (
-                  <ProviderIcon
-                    provider={webSearchProvider}
-                    color={colors.text}
-                    label={webSearchProviderLabel}
-                  />
-                ) : (
-                  <Feather name="search" size={18} color={colors.textMuted} />
-                )}
-              </View>
             </TouchableOpacity>
           ) : null}
         </View>
