@@ -24,11 +24,11 @@ describe("provider language notes", () => {
   it("falls back to the curated provider STT note when catalog language data is too generic", () => {
     expect(
       getProviderSttLanguageNoteForModel(
-        "groq",
-        "whisper-large-v3-turbo",
+        "alibaba-qwen-dashscope",
+        "qwen3-asr-flash",
         "en",
       ),
-    ).toContain("Whisper family");
+    ).toContain("DashScope STT is limited");
   });
 
   it("derives a TTS language note from exact catalog model metadata", () => {
@@ -53,9 +53,9 @@ describe("provider language notes", () => {
     ).toBe("File upload up to 25 MB.");
   });
 
-  it("builds an approximate tier-aware STT upload limit note when only rough limits exist", () => {
+  it("builds a tier-aware STT upload limit note from catalog constraints", () => {
     expect(
-      getProviderSttLimitNote("groq", "whisper-large-v3-turbo", "en"),
-    ).toBe("File upload up to 100 MiB.");
+      getProviderSttLimitNote("mistral", "voxtral-mini-latest", "en"),
+    ).toBe("File upload up to 512 MiB. Audio up to 3 hours.");
   });
 });
