@@ -225,9 +225,6 @@ describe("runVoicePipeline", () => {
         promptTokens: 90,
         completionTokens: 14,
         totalTokens: 104,
-        inputCostUsd: 0.0002,
-        outputCostUsd: 0.0003,
-        totalCostUsd: 0.0005,
       },
     });
     (streamChat as jest.Mock).mockImplementation(

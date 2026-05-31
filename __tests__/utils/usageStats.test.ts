@@ -3,11 +3,10 @@ import {
   aggregateConversationUsageByRoute,
   estimateChatUsage,
   formatTokenCount,
-  formatUsd,
 } from "../../src/utils/usageStats";
 
 describe("usageStats", () => {
-  it("estimates tokens and cost for priced models", () => {
+  it("estimates token usage for a reply", () => {
     const usage = estimateChatUsage({
       provider: "openai",
       model: "gpt-5.4",
@@ -24,65 +23,10 @@ describe("usageStats", () => {
     });
 
     expect(usage.kind).toBe("reply");
+    expect(usage.source).toBe("estimated");
     expect(usage.promptTokens).toBeGreaterThan(0);
     expect(usage.completionTokens).toBeGreaterThan(0);
     expect(usage.totalTokens).toBe(usage.promptTokens + usage.completionTokens);
-    expect(usage.totalCostUsd).not.toBeNull();
-  });
-
-  it("leaves cost empty for unpriced models", () => {
-    const usage = estimateChatUsage({
-      provider: "nvidia",
-      model: "nvidia/llama-3.3-nemotron-super-49b-v1.5",
-      kind: "reply",
-      systemPrompt: "You are helpful.",
-      messages: [
-        {
-          role: "user",
-          content: "Hello",
-        },
-      ],
-      completionText: "Hi.",
-    });
-
-    expect(usage.totalCostUsd).toBeNull();
-  });
-
-  it("uses exact catalog pricing for models outside the manual assumptions list", () => {
-    const usage = estimateChatUsage({
-      provider: "mistral",
-      model: "mistral-medium-2508",
-      kind: "reply",
-      systemPrompt: "You are helpful.",
-      messages: [
-        {
-          role: "user",
-          content: "Summarize orbital rendezvous in plain English.",
-        },
-      ],
-      completionText:
-        "Two spacecraft meet by carefully matching their orbit and timing.",
-    });
-
-    expect(usage.totalCostUsd).not.toBeNull();
-  });
-
-  it("keeps pricing for alias-based picker models via safe fallbacks", () => {
-    const usage = estimateChatUsage({
-      provider: "mistral",
-      model: "mistral-medium-latest",
-      kind: "reply",
-      systemPrompt: "You are helpful.",
-      messages: [
-        {
-          role: "user",
-          content: "What is a transfer orbit?",
-        },
-      ],
-      completionText: "It is a path used to move from one orbit to another.",
-    });
-
-    expect(usage.totalCostUsd).not.toBeNull();
   });
 
   it("aggregates message usage and summary events per conversation", () => {
@@ -101,9 +45,6 @@ describe("usageStats", () => {
             promptTokens: 100,
             completionTokens: 20,
             totalTokens: 120,
-            inputCostUsd: 0.00025,
-            outputCostUsd: 0.0003,
-            totalCostUsd: 0.00055,
           },
         },
       ],
@@ -120,9 +61,6 @@ describe("usageStats", () => {
             promptTokens: 80,
             completionTokens: 15,
             totalTokens: 95,
-            inputCostUsd: 0.0002,
-            outputCostUsd: 0.000225,
-            totalCostUsd: 0.000425,
           },
         },
       ],
@@ -133,8 +71,6 @@ describe("usageStats", () => {
     expect(totals.totalTokens).toBe(215);
     expect(totals.replyCount).toBe(1);
     expect(totals.summaryCount).toBe(1);
-    expect(totals.pricedEntryCount).toBe(2);
-    expect(totals.totalCostUsd).toBeCloseTo(0.000975, 8);
   });
 
   it("breaks conversation usage down by provider and model", () => {
@@ -153,9 +89,6 @@ describe("usageStats", () => {
             promptTokens: 100,
             completionTokens: 20,
             totalTokens: 120,
-            inputCostUsd: 0.00025,
-            outputCostUsd: 0.0003,
-            totalCostUsd: 0.00055,
           },
         },
         {
@@ -171,9 +104,6 @@ describe("usageStats", () => {
             promptTokens: 80,
             completionTokens: 18,
             totalTokens: 98,
-            inputCostUsd: 0.00024,
-            outputCostUsd: 0.00027,
-            totalCostUsd: 0.00051,
           },
         },
       ],
@@ -197,9 +127,7 @@ describe("usageStats", () => {
     );
   });
 
-  it("formats token counts and usd amounts for display", () => {
+  it("formats token counts for display", () => {
     expect(formatTokenCount(12345)).toBe("12,345");
-    expect(formatUsd(0.000975)).toBe("$0.00098");
-    expect(formatUsd(0.1234)).toBe("$0.123");
   });
 });

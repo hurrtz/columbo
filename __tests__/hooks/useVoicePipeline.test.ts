@@ -272,9 +272,6 @@ describe("useVoicePipeline", () => {
       promptTokens: 90,
       completionTokens: 12,
       totalTokens: 102,
-      inputCostUsd: 0.0001,
-      outputCostUsd: 0.0002,
-      totalCostUsd: 0.0003,
     };
     const replyUsage: UsageEstimate = {
       kind: "reply",
@@ -282,9 +279,6 @@ describe("useVoicePipeline", () => {
       promptTokens: 120,
       completionTokens: 40,
       totalTokens: 160,
-      inputCostUsd: 0.0002,
-      outputCostUsd: 0.0003,
-      totalCostUsd: 0.0005,
     };
     (runVoicePipeline as jest.Mock).mockImplementation(
       async ({ callbacks }: any) => {
