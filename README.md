@@ -1,6 +1,6 @@
 # SchnackAI
 
-SchnackAI is a voice-first mobile chat app built with Expo and React Native. It is designed around fast spoken interaction: hold or tap to record, transcribe speech, send the result to the selected LLM provider, and play the reply back with OpenAI TTS.
+SchnackAI is a voice-first mobile chat app built with Expo and React Native. It is designed around fast spoken interaction: hold or tap to record, transcribe speech, send the result to the selected LLM provider, and play the reply back as audio.
 
 The app is intentionally user-key driven. No provider API keys are shipped in the app bundle. Each user adds their own keys in Settings, and providers stay disabled until configured.
 
@@ -16,18 +16,26 @@ The app is intentionally user-key driven. No provider API keys are shipped in th
 
 ## Supported Providers
 
+Nine core LLM providers:
+
 - OpenAI
 - Anthropic
 - Google Gemini
 - xAI
-- Groq
-- DeepSeek
 - Mistral
-- Cohere
-- Together
-- NVIDIA
+- ByteDance Doubao Seed
+- DeepSeek
+- Alibaba Qwen (DashScope)
+- Moonshot AI Kimi
 
-Important: voice input, voice preview, and spoken replies currently depend on an OpenAI API key because transcription uses Whisper and playback uses OpenAI TTS.
+Plus dedicated web-search providers: Perplexity, Tavily, Brave, Exa, Firecrawl, and SerpApi.
+
+Voice input and spoken replies are not tied to any single provider:
+
+- Speech-to-text prefers the device's native system recognizer, with capability-gated provider STT (for example OpenAI, Gemini/Google Cloud Speech, Mistral, xAI, ByteDance, Qwen) as alternatives.
+- Text-to-speech uses the device's native voices, with capability-gated provider TTS (for example OpenAI, Gemini, xAI, Qwen) as alternatives.
+
+Each provider stays disabled until its key is configured, and STT/TTS routes only appear when a provider that supports them is set up.
 
 ## Stack
 
@@ -76,7 +84,7 @@ npm test
 - General settings are stored in AsyncStorage.
 - Providers without a configured key are hidden or disabled in the main experience.
 
-There is a legacy [src/config.example.ts](src/config.example.ts) file in the repo, but the app runtime is now centered around user-supplied keys in Settings rather than shipping secrets with the app.
+The app runtime is centered around user-supplied keys in Settings rather than shipping any secrets with the app.
 
 ## Conversation Behavior
 

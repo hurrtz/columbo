@@ -7,7 +7,7 @@ These notes are specific to this repository and supplement any parent-level inst
 - SchnackAI is a voice-first mobile chat app built with Expo, React Native, and Expo Router.
 - The real app entry is `app/index.tsx`, which renders `src/screens/MainScreen.tsx`.
 - `app/_layout.tsx` is the root wrapper and provides `SettingsProvider`, localization, theme, and gesture handling.
-- `App.tsx` is still the Expo template stub and is not the real runtime entry point for the app.
+- The Expo template stub (`App.tsx`) and the bare-workflow `index.ts` entry have been removed; the app resolves its entry through `expo-router/entry` (`package.json` `main`).
 
 ## Main Architecture
 
@@ -22,8 +22,8 @@ These notes are specific to this repository and supplement any parent-level inst
 - `src/hooks/useConversations.ts` handles conversation persistence and conversation metadata.
 - `src/services/llm.ts` contains provider request routing for text generation.
 - `src/services/whisper.ts` contains provider speech-to-text integrations.
-- `src/services/tts.ts` contains provider and local text-to-speech routing.
-- `src/services/speech/` and `src/services/localTts/` contain diagnostics and local speech support.
+- `src/services/tts.ts` contains text-to-speech routing across the native system voices and capability-gated provider TTS routes.
+- `src/services/speech/` contains native speech recognition and diagnostics support. Local/on-device TTS has been removed.
 
 ## State And Persistence
 
@@ -48,8 +48,11 @@ These notes are specific to this repository and supplement any parent-level inst
 
 ## Provider And Model Maintenance
 
-- The provider picker and provider capabilities are driven from `src/constants/models.ts`.
+- The app ships nine core LLM providers: `openai`, `anthropic`, `gemini`, `xai`, `mistral`, `bytedance-doubao-seed`, `deepseek`, `alibaba-qwen-dashscope`, and `moonshot-ai-kimi`. Dedicated web-search providers (`perplexity`, `tavily`, `brave`, `exa`, `firecrawl`, `serpapi`) are additionally wired for web search.
+- The runtime provider set, transports, models, and STT/TTS capabilities are driven from `src/constants/providers/runtimeManifest.ts`. `src/constants/models.ts` re-exposes provider order, labels, and picker helpers on top of it.
+- Pricing has been removed: there is no `src/constants/usagePricing.ts`, and usage is reported in tokens only.
 - When adding or changing a provider, audit all of:
+  - `src/constants/providers/runtimeManifest.ts`
   - `src/constants/models.ts`
   - `src/utils/providerCapabilities.ts`
   - `src/types.ts`
@@ -59,7 +62,6 @@ These notes are specific to this repository and supplement any parent-level inst
   - `src/services/llm.ts`
   - `src/services/whisper.ts`
   - `src/services/tts.ts`
-  - `src/constants/usagePricing.ts`
   - `src/components/ProviderIcon.tsx`
 - Model lists in `src/constants/models.ts` are user-facing pickers, not raw dumps of every possible provider SKU. Only add models that are actually usable with the app's current integration path.
 - For OpenAI, the app currently uses `v1/chat/completions` in `src/services/llm.ts`. Do not add specialized models that require a different API shape unless the service layer is updated too.
@@ -83,14 +85,15 @@ These notes are specific to this repository and supplement any parent-level inst
 
 - STT provider support is currently wired in `src/services/whisper.ts`.
 - TTS provider support is currently wired in `src/services/tts.ts`.
-- OpenAI, Gemini, Together, and xAI currently have provider TTS routes in code.
-- OpenAI, Groq, Gemini, Mistral, and Together currently have provider STT routes in code.
-- Local speech support relies on native dependencies including `react-native-sherpa-onnx` and `onnxruntime-react-native`.
+- Speech-to-text prefers the device's native system recognizer (`src/services/speech/`); provider STT is capability-gated. OpenAI, Gemini (Google Cloud Speech), Mistral, xAI, ByteDance Doubao, and Alibaba Qwen currently have provider STT routes in code.
+- Text-to-speech uses the device's native voices by default; provider TTS is capability-gated. OpenAI, Gemini, xAI, and Alibaba Qwen currently have provider TTS routes in code.
+- Local/on-device TTS has been removed. There are no more `react-native-sherpa-onnx` / `onnxruntime-react-native` ONNX/Sherpa dependencies in the voice pipeline.
+- The capability source of truth for which provider supports STT/TTS is `src/constants/providers/runtimeManifest.ts`.
 - Native speech changes often require `npx pod-install` and a fresh native rebuild, especially on iOS.
 
 ## UI And Copy
 
-- User-visible strings live in `src/i18n.tsx`. When changing visible copy, update both English and German entries.
+- User-visible strings live in `src/i18n/locales/en.ts` and `src/i18n/locales/de.ts`. When changing visible copy, update both English and German entries and keep the two locales structurally in sync.
 - Theme and color behavior live in `src/theme/`.
 - Settings UI work usually belongs in `src/components/SettingsModal.tsx`.
 - Home-screen interaction changes usually belong in `src/screens/MainScreen.tsx` and `src/components/ResponseModeToggle.tsx`.
