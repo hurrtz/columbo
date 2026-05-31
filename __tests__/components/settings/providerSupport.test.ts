@@ -2,21 +2,19 @@ import { DEFAULT_SETTINGS } from "../../../src/types";
 import { getProviderValidationTarget } from "../../../src/components/settings/providerSupport";
 
 describe("getProviderValidationTarget", () => {
-  it("uses TTS validation for speech-only providers without llm support", () => {
+  it("prefers llm validation for xAI once a key unlocks chat plus voice", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
       apiKeys: {
         ...DEFAULT_SETTINGS.apiKeys,
-        grok: "xai-test",
+        xai: "xai-test",
       },
     };
 
-    expect(getProviderValidationTarget(settings, "grok")).toEqual({
-      kind: "tts",
-      model: "grok-tts",
-      configKey: JSON.stringify({
-        voice: "ara",
-      }),
+    expect(getProviderValidationTarget(settings, "xai")).toEqual({
+      kind: "llm",
+      model: expect.any(String),
+      configKey: undefined,
     });
   });
 

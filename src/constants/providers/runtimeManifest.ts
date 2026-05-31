@@ -11,7 +11,6 @@ export type RuntimeAppProviderId =
   | "firecrawl"
   | "gemini"
   | "deepseek"
-  | "grok"
   | "mistral"
   | "moonshot-ai-kimi"
   | "perplexity"
@@ -288,7 +287,6 @@ export const RUNTIME_PROVIDER_ORDER = [
   "firecrawl",
   "gemini",
   "xai",
-  "grok",
   "deepseek",
   "mistral",
   "moonshot-ai-kimi",
@@ -617,55 +615,12 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     tts: {
       support: "provider",
       transport: "binary",
-      endpoint: "https://api.x.ai/v1/audio/speech",
-      requestFormat: "xai-speech",
-      defaultModel: "text-to-speech",
-      defaultVoice: "ara",
-      voiceFallback: "alloy",
-      models: catalogModelSpecs("xai", "tts"),
-      voiceOptions: [
-        voice("eve", "Eve · Energetic", { de: "Eve · Energetisch" }),
-        voice("ara", "Ara · Warm", { de: "Ara · Warm" }),
-        voice("rex", "Rex · Confident", { de: "Rex · Souveraen" }),
-        voice("sal", "Sal · Balanced", { de: "Sal · Ausgewogen" }),
-        voice("leo", "Leo · Authoritative", { de: "Leo · Autoritaer" }),
-      ],
-      languageNote:
-        "xAI TTS currently supports Arabic, Dutch, English, French, German, Hindi, Indonesian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Spanish, Thai, Turkish, Vietnamese, and Chinese.",
-    },
-  },
-  grok: {
-    appProvider: "grok",
-    catalogProviderId: "grok",
-    label: "Grok",
-    shortLabel: "GROK",
-    apiKeyPlaceholder: "xai-...",
-    apiKeyHint:
-      "Uses the same xAI Bearer key as the xAI provider. Unlocks the standalone Grok Speech-to-Text and Text-to-Speech endpoints.",
-    apiKeyUrl: "https://console.x.ai/team/default/api-keys",
-    llm: {
-      support: "none",
-      transport: "none",
-      models: [],
-    },
-    stt: {
-      support: "provider",
-      transport: "multipart",
-      endpoint: "https://api.x.ai/v1/stt",
-      defaultModel: "grok-stt",
-      models: catalogModelSpecs("grok", "stt"),
-      languageNote:
-        "Grok STT is a standalone batch endpoint (POST /v1/stt) with multipart audio upload. It supports 25 languages with speaker diarization, word-level timestamps, and multichannel input. A streaming WebSocket variant is documented at api.x.ai but is not wired in SchnackAI yet.",
-    },
-    tts: {
-      support: "provider",
-      transport: "binary",
       endpoint: "https://api.x.ai/v1/tts",
       requestFormat: "grok-speech",
       defaultModel: "grok-tts",
       defaultVoice: "ara",
       voiceFallback: "ara",
-      models: catalogModelSpecs("grok", "tts"),
+      models: catalogModelSpecs("xai", "tts"),
       voiceOptions: [
         voice("ara", "Ara · Warm", { de: "Ara · Warm" }),
         voice("eve", "Eve · Energetic", { de: "Eve · Energetisch" }),
@@ -674,7 +629,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         voice("sal", "Sal · Smooth", { de: "Sal · Sanft" }),
       ],
       languageNote:
-        "Grok TTS supports auto-detect plus 20 languages/locale variants including English, Arabic (EG/SA/AE), Bengali, Simplified Chinese, French, German, Hindi, Indonesian, Italian, Japanese, Korean, Portuguese (BR/PT), Russian, Spanish (MX/ES), Turkish, and Vietnamese. Inline expressive tags are supported: [laugh], [sigh], [pause], <whisper>.",
+        "xAI TTS supports auto-detect plus 20 languages/locale variants including English, Arabic (EG/SA/AE), Bengali, Simplified Chinese, French, German, Hindi, Indonesian, Italian, Japanese, Korean, Portuguese (BR/PT), Russian, Spanish (MX/ES), Turkish, and Vietnamese. Inline expressive tags are supported: [laugh], [sigh], [pause], <whisper>.",
     },
   },
   deepseek: {

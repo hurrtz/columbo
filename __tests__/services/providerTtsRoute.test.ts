@@ -68,29 +68,7 @@ describe("synthesizeProviderSpeech", () => {
     );
   });
 
-  it("uses the xAI binary speech route with provider-specific fields", async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      blob: () => Promise.resolve(new Blob(["fake-audio"])),
-    });
-
-    const result = await synthesizeProviderSpeech({
-      text: "Hello world",
-      voice: "Thomas",
-      provider: "xai",
-      apiKey: "xai-test",
-      language: "en",
-    });
-
-    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
-    const [, options] = (fetch as jest.Mock).mock.calls[0];
-    const body = JSON.parse(options.body);
-    expect(body.text).toBe("Hello world");
-    expect(body.voice_id).toBe("Thomas");
-    expect(body.output_format.codec).toBe("mp3");
-  });
-
-  it("uses the grok binary speech route with the documented payload", async () => {
+  it("uses the merged xAI grok-speech route with the documented payload", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       blob: () => Promise.resolve(new Blob(["fake-audio"])),
@@ -99,16 +77,18 @@ describe("synthesizeProviderSpeech", () => {
     const result = await synthesizeProviderSpeech({
       text: "Hello world",
       voice: "Eve",
-      provider: "grok",
+      provider: "xai",
       apiKey: "xai-test",
       language: "en",
     });
 
     expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
-    const [, options] = (fetch as jest.Mock).mock.calls[0];
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.x.ai/v1/tts");
     const body = JSON.parse(options.body);
     expect(body.text).toBe("Hello world");
     expect(body.voice_id).toBe("Eve");
     expect(body.language).toBe("auto");
+    expect(body.output_format).toBeUndefined();
   });
 });

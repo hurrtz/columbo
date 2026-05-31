@@ -315,7 +315,7 @@ describe("synthesizeSpeech", () => {
     ).rejects.toThrow("provider failure");
   });
 
-  it("calls xAI TTS with provider-specific fields", async () => {
+  it("calls the merged xAI grok-speech TTS route with provider-specific fields", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       blob: () => Promise.resolve(new Blob(["fake-audio"])),
@@ -332,11 +332,12 @@ describe("synthesizeSpeech", () => {
 
     expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
     const [url, options] = (fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe("https://api.x.ai/v1/audio/speech");
+    expect(url).toBe("https://api.x.ai/v1/tts");
     const body = JSON.parse(options.body);
-    expect(body.model).toBe("text-to-speech");
+    expect(body.text).toBe("Hello world");
     expect(body.voice_id).toBe("leo");
-    expect(body.output_format.codec).toBe("mp3");
+    expect(body.language).toBe("auto");
+    expect(body.output_format).toBeUndefined();
   });
 
   it("splits long provider speech into multiple synthesis requests", async () => {

@@ -19,7 +19,6 @@ const PROVIDER_ICON_ASSETS: Record<string, number> = {
   "google-vertex-ai-studio": require(
     "../../assets/providers/google-vertex-ai-studio.svg"
   ),
-  grok: require("../../assets/providers/grok.svg"),
   mistral: require("../../assets/providers/mistral-ai.svg"),
   "mistral-ai": require("../../assets/providers/mistral-ai.svg"),
   "moonshot-ai-kimi": require("../../assets/providers/moonshot-ai-kimi.svg"),
@@ -36,7 +35,6 @@ const PROVIDER_ICON_SIZES: Record<string, { width: number; height: number }> = {
   gemini: { width: 24, height: 24 },
   "google-vertex-ai-studio": { width: 24, height: 24 },
   deepseek: { width: 24, height: 24 },
-  grok: { width: 24, height: 24 },
   mistral: { width: 24, height: 24 },
   "mistral-ai": { width: 24, height: 24 },
   xai: { width: 24, height: 24 },
