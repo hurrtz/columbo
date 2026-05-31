@@ -7,7 +7,6 @@ import AnthropicDocument from "./anthropic";
 import BytedanceDoubaoSeedDocument from "./bytedance-doubao-seed";
 import DeepseekDocument from "./deepseek";
 import GoogleVertexAiStudioDocument from "./google-vertex-ai-studio";
-import GrokDocument from "./grok";
 import MistralAiDocument from "./mistral-ai";
 import MoonshotAiKimiDocument from "./moonshot-ai-kimi";
 import OpenaiDocument from "./openai";
@@ -20,7 +19,6 @@ export const PROVIDER_DOCUMENTS = defineProviderDocuments([
   BytedanceDoubaoSeedDocument,
   DeepseekDocument,
   GoogleVertexAiStudioDocument,
-  GrokDocument,
   MistralAiDocument,
   MoonshotAiKimiDocument,
   OpenaiDocument,

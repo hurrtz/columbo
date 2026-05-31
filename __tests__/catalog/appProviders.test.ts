@@ -29,7 +29,6 @@ describe("app provider catalog bridge", () => {
       firecrawl: "firecrawl",
       gemini: "google-vertex-ai-studio",
       deepseek: "deepseek",
-      grok: "grok",
       mistral: "mistral-ai",
       "moonshot-ai-kimi": "moonshot-ai-kimi",
       perplexity: "perplexity",
@@ -63,14 +62,14 @@ describe("app provider catalog bridge", () => {
       "native",
     );
     expect(getCatalogVerifiedServiceStateForAppProvider("xai", "stt")).toBe(
-      "partial",
+      "native",
     );
     expect(getCatalogVerifiedServiceStateForAppProvider("mistral", "stt")).toBe(
       "native",
     );
 
     expect(PROVIDER_CATALOG_VERIFIED_SUPPORT.openai.tts).toBe("native");
-    expect(PROVIDER_CATALOG_VERIFIED_SUPPORT.xai.stt).toBe("partial");
+    expect(PROVIDER_CATALOG_VERIFIED_SUPPORT.xai.stt).toBe("native");
   });
 
   it("exposes provider-level discovery hints and model accessors", () => {

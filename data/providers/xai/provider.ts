@@ -8,7 +8,7 @@ export const providerDefinition = defineProviderDefinition(
     "hq": "Palo Alto, California, USA",
     "verifiedSupport": {
       "llm": "native",
-      "stt": "partial",
+      "stt": "native",
       "tts": "native"
     },
     "officialSources": [
