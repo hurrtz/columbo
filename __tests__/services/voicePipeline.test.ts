@@ -461,7 +461,7 @@ describe("runVoicePipeline", () => {
     expect(callbacks.onSpeechTextReady).not.toHaveBeenCalled();
   });
 
-  it("sticks to local fallback after the first provider TTS failure in stream mode", async () => {
+  it("speaks each provider TTS chunk and notifies once on fallback in stream mode", async () => {
     (streamChat as jest.Mock).mockImplementation(
       async ({
         onChunk,
@@ -484,10 +484,10 @@ describe("runVoicePipeline", () => {
           onProviderFallback?: (error: Error) => void;
         }) => {
           onProviderFallback?.(new Error("Google quota exceeded"));
-          return "/tmp/local-fallback-1.wav";
+          return "/tmp/provider-1.wav";
         },
       )
-      .mockResolvedValueOnce("/tmp/local-fallback-2.wav");
+      .mockResolvedValueOnce("/tmp/provider-2.wav");
 
     const callbacks = {
       onTranscription: jest.fn(),
@@ -533,103 +533,14 @@ describe("runVoicePipeline", () => {
       2,
       expect.objectContaining({
         text: "Sentence two.",
-        mode: "local",
-        provider: undefined,
-        providerModel: undefined,
-        apiKey: undefined,
+        mode: "provider",
+        provider: "gemini",
+        providerModel: "gemini-2.5-flash-preview-tts",
+        apiKey: "gemini-test",
       }),
     );
     expect(callbacks.onTtsFallback).toHaveBeenCalledTimes(1);
     expect(callbacks.onAudioReady).toHaveBeenCalledTimes(2);
-    expect(callbacks.onSpeechTextReady).not.toHaveBeenCalled();
-  });
-
-  it("batches local TTS until the full reply is done even in stream mode", async () => {
-    (streamChat as jest.Mock).mockImplementation(
-      async ({
-        onChunk,
-        onDone,
-      }: {
-        onChunk: (text: string) => void;
-        onDone: (text: string) => Promise<void>;
-      }) => {
-        onChunk("Sentence one. Sentence two.");
-        await Promise.resolve();
-        expect(synthesizeSpeech).not.toHaveBeenCalled();
-        await onDone("Sentence one. Sentence two.");
-      },
-    );
-
-    (synthesizeSpeech as jest.Mock).mockResolvedValueOnce(
-      "/tmp/local-tts-1.wav",
-    );
-
-    const callbacks = {
-      onTranscription: jest.fn(),
-      onChunk: jest.fn(),
-      onResponseDone: jest.fn(),
-      onAudioReady: jest.fn(),
-      onSpeechTextReady: jest.fn(),
-      onError: jest.fn(),
-    };
-
-    await runVoicePipeline({
-      transcriptionOverride: "Explain glass.",
-      messages: [],
-      model: "gpt-5.4",
-      provider: "openai",
-      providerApiKey: "sk-test",
-      sttMode: "native",
-      ttsMode: "local",
-      ttsVoice: "alloy",
-      ttsListenLanguages: ["en"],
-      localTtsVoices: {
-        en: "af_bella",
-        de: "thorsten-medium",
-        zh: "zf_xiaobei",
-        es: "vits-piper-es_ES-davefx-medium",
-        pt: "vits-piper-pt_BR-faber-medium",
-        hi: "vits-piper-hi_IN-priyamvada-medium",
-        fr: "vits-piper-fr_FR-siwis-medium",
-        it: "vits-piper-it_IT-paola-medium",
-        ja: "",
-      },
-      replyPlayback: "stream",
-      assistantInstructions: "You are a voice assistant.",
-      responseLength: "normal",
-      responseTone: "professional",
-      language: "en",
-      callbacks,
-    });
-
-    expect(synthesizeSpeech).toHaveBeenCalledTimes(1);
-    expect(synthesizeSpeech).toHaveBeenCalledWith(
-      expect.objectContaining({
-        text: "Sentence one. Sentence two.",
-        voice: "alloy",
-        mode: "local",
-        provider: undefined,
-        apiKey: undefined,
-        language: "en",
-        listenLanguages: ["en"],
-        localVoices: {
-          en: "af_bella",
-          de: "thorsten-medium",
-          zh: "zf_xiaobei",
-          es: "vits-piper-es_ES-davefx-medium",
-          pt: "vits-piper-pt_BR-faber-medium",
-          hi: "vits-piper-hi_IN-priyamvada-medium",
-          fr: "vits-piper-fr_FR-siwis-medium",
-          it: "vits-piper-it_IT-paola-medium",
-          ja: "",
-        },
-        diagnostics: expect.objectContaining({
-          source: "conversation",
-          requestId: expect.any(String),
-        }),
-      }),
-    );
-    expect(callbacks.onAudioReady).toHaveBeenCalledTimes(1);
     expect(callbacks.onSpeechTextReady).not.toHaveBeenCalled();
   });
 

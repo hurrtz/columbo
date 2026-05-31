@@ -1,7 +1,6 @@
 import { createSpeechRequestId } from "../speech/diagnostics";
 import type { SpeechDiagnosticSource } from "../speech/diagnostics";
 import {
-  LOCAL_TTS_MAX_INPUT_CHARS,
   PROVIDER_TTS_MAX_INPUT_CHARS,
   splitTextForTts,
   synthesizeSpeech,
@@ -14,7 +13,6 @@ interface CreateVoicePipelineTtsQueueParams {
   callbacks: RunVoicePipelineParams["callbacks"];
   diagnosticsSource?: SpeechDiagnosticSource;
   language: RunVoicePipelineParams["language"];
-  localTtsVoices?: RunVoicePipelineParams["localTtsVoices"];
   replyPlayback: RunVoicePipelineParams["replyPlayback"];
   spokenRepliesEnabled?: RunVoicePipelineParams["spokenRepliesEnabled"];
   ttsApiKey?: string;
@@ -30,7 +28,6 @@ export function createVoicePipelineTtsQueue({
   callbacks,
   diagnosticsSource = "conversation",
   language,
-  localTtsVoices,
   replyPlayback,
   spokenRepliesEnabled = true,
   ttsApiKey,
@@ -47,9 +44,8 @@ export function createVoicePipelineTtsQueue({
   let ttsChain = Promise.resolve();
   const ttsQueue: Promise<void>[] = [];
   let hasQueuedSpeech = false;
-  let providerFallbackActivated = false;
   let fallbackNotified = false;
-  const effectiveReplyPlayback = ttsMode === "local" ? "wait" : replyPlayback;
+  const effectiveReplyPlayback = replyPlayback;
   const speechDiagnostics = {
     requestId: createSpeechRequestId(diagnosticsSource),
     source: diagnosticsSource,
@@ -87,29 +83,18 @@ export function createVoicePipelineTtsQueue({
         return;
       }
 
-      const shouldUseProviderRoute =
-        ttsMode === "provider" && !providerFallbackActivated;
-      const mode =
-        shouldUseProviderRoute
-          ? "provider"
-          : ttsMode === "provider"
-            ? "local"
-            : ttsMode;
-
       try {
         const audio = await synthesizeSpeech({
           text: trimmed,
           voice: ttsVoice,
-          mode,
-          provider: shouldUseProviderRoute ? ttsProvider : undefined,
-          providerModel: shouldUseProviderRoute ? ttsModel : undefined,
-          apiKey: shouldUseProviderRoute ? ttsApiKey : undefined,
+          mode: "provider",
+          provider: ttsProvider,
+          providerModel: ttsModel,
+          apiKey: ttsApiKey,
           language,
           listenLanguages: ttsListenLanguages,
-          localVoices: localTtsVoices,
           diagnostics: speechDiagnostics,
           onProviderFallback: (error) => {
-            providerFallbackActivated = true;
             notifyTtsFallback(error);
           },
         });
@@ -120,10 +105,6 @@ export function createVoicePipelineTtsQueue({
       } catch (error) {
         const normalizedError =
           error instanceof Error ? error : new Error(String(error));
-
-        if (shouldUseProviderRoute) {
-          providerFallbackActivated = true;
-        }
 
         notifyTtsFallback(normalizedError);
 
@@ -153,12 +134,7 @@ export function createVoicePipelineTtsQueue({
 
     const segments = splitTextForTts(
       text,
-      ttsMode === "local"
-        ? LOCAL_TTS_MAX_INPUT_CHARS
-        : Math.min(
-            PROVIDER_TTS_MAX_INPUT_CHARS,
-            PROVIDER_TTS_TARGET_CHUNK_CHARS,
-          ),
+      Math.min(PROVIDER_TTS_MAX_INPUT_CHARS, PROVIDER_TTS_TARGET_CHUNK_CHARS),
     );
 
     if (segments.length === 0) {

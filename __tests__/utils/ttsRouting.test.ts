@@ -1,7 +1,4 @@
-import {
-  resolveTtsListenLanguage,
-  supportsLocalTtsLanguage,
-} from "../../src/utils/ttsRouting";
+import { resolveTtsListenLanguage } from "../../src/utils/ttsRouting";
 
 describe("resolveTtsListenLanguage", () => {
   it("uses the only selected language", () => {
@@ -62,19 +59,5 @@ describe("resolveTtsListenLanguage", () => {
         appLanguage: "en",
       })
     ).toBe("pt");
-  });
-});
-
-describe("supportsLocalTtsLanguage", () => {
-  it("currently supports every configured local language except Japanese", () => {
-    expect(supportsLocalTtsLanguage("en")).toBe(true);
-    expect(supportsLocalTtsLanguage("de")).toBe(true);
-    expect(supportsLocalTtsLanguage("zh")).toBe(true);
-    expect(supportsLocalTtsLanguage("es")).toBe(true);
-    expect(supportsLocalTtsLanguage("pt")).toBe(true);
-    expect(supportsLocalTtsLanguage("hi")).toBe(true);
-    expect(supportsLocalTtsLanguage("fr")).toBe(true);
-    expect(supportsLocalTtsLanguage("it")).toBe(true);
-    expect(supportsLocalTtsLanguage("ja")).toBe(false);
   });
 });

@@ -1,4 +1,3 @@
-import { LOCAL_TTS_SUPPORTED_LANGUAGES } from "../constants/localTts";
 import { AppLanguage, TtsListenLanguage } from "../types";
 
 function detectScriptLanguage(text: string): TtsListenLanguage | null {
@@ -175,8 +174,4 @@ export function resolveTtsListenLanguage(params: {
   }
 
   return preferredLanguages[0];
-}
-
-export function supportsLocalTtsLanguage(language: TtsListenLanguage) {
-  return LOCAL_TTS_SUPPORTED_LANGUAGES.includes(language);
 }

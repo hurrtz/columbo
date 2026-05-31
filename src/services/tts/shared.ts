@@ -14,7 +14,6 @@ import { AppLanguage, Provider } from "../../types";
 import { extractProviderErrorMessage } from "../providerErrors";
 
 export const PROVIDER_TTS_MAX_INPUT_CHARS = 3500;
-export const LOCAL_TTS_MAX_INPUT_CHARS = 420;
 export const PROVIDER_TTS_TIMEOUT_MS = 12000;
 export const PROVIDER_TTS_TIMEOUT_MS_PER_CHAR = 8;
 export const PROVIDER_TTS_MAX_TIMEOUT_MS = 40000;

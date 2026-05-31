@@ -7,7 +7,6 @@ import type {
   AppLanguage,
   AssistantResponseLength,
   AssistantResponseTone,
-  LocalTtsVoiceSelections,
   Message,
   MessageMetadata,
   Provider,
@@ -65,7 +64,6 @@ export interface RunVoicePipelineParams {
   ttsModel?: string;
   ttsVoice: string;
   ttsListenLanguages?: TtsListenLanguage[];
-  localTtsVoices?: LocalTtsVoiceSelections;
   replyPlayback: ReplyPlayback;
   spokenRepliesEnabled?: boolean;
   contextSummary?: string;

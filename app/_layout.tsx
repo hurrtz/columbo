@@ -3,9 +3,6 @@ import { Stack } from "expo-router";
 import { SettingsProvider, useSharedSettings } from "../src/context/SettingsContext";
 import { LocalizationProvider } from "../src/i18n";
 import { ThemeProvider } from "../src/theme/ThemeContext";
-import { installLocalTtsBackgroundReleaseGuard } from "../src/services/localTts";
-
-installLocalTtsBackgroundReleaseGuard();
 
 function RootLayoutInner() {
   const { settings } = useSharedSettings();
