@@ -22,6 +22,10 @@ jest.mock("expo-speech-recognition", () => ({
   },
 }));
 
+jest.mock("../../src/services/debugLogCapture", () => ({
+  recordDebugLogEvent: jest.fn(),
+}));
+
 import { usePlaybackSession } from "../../src/hooks/audioPlayer/usePlaybackSession";
 
 describe("usePlaybackSession", () => {

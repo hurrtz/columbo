@@ -24,6 +24,7 @@ import { useAudioRecorder } from "../hooks/useAudioRecorder";
 import { useNativeSpeechRecognizer } from "../hooks/useNativeSpeechRecognizer";
 import { useConversations } from "../hooks/useConversations";
 import { useVoicePipeline } from "../hooks/useVoicePipeline";
+import { useBatteryDiagnostics } from "../hooks/useBatteryDiagnostics";
 import { useLocalization } from "../i18n";
 import {
   getDebugLogCaptureState,
@@ -641,6 +642,15 @@ export function MainScreen() {
     t,
     ttsApiKey,
     ttsProvider,
+  });
+
+  useBatteryDiagnostics({
+    isActive,
+    isRecording,
+    pipelinePhase,
+    playerIsPlaying: player.isPlaying,
+    playerPaused: player.isPlaybackPaused,
+    spokenRepliesEnabled: settings.spokenRepliesEnabled,
   });
 
   useEffect(() => {

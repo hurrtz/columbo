@@ -3,6 +3,8 @@ import { Platform } from "react-native";
 import { setAudioModeAsync, setIsAudioActiveAsync } from "expo-audio";
 import { ExpoSpeechRecognitionModule } from "expo-speech-recognition";
 
+import { recordDebugLogEvent } from "../../services/debugLogCapture";
+
 function ensureIosPlaybackMode() {
   if (
     Platform.OS !== "ios" ||
@@ -27,6 +29,7 @@ export function usePlaybackSession() {
   const resetPlaybackSession = useCallback(() => {
     audioSessionReadyRef.current = false;
     audioSessionPromiseRef.current = null;
+    recordDebugLogEvent({ event: "diag-audio-session-deactivate" });
     void setIsAudioActiveAsync(false).catch(() => {
       // Ignore audio-session teardown failures; the next playback attempt will re-prime it.
     });
@@ -52,6 +55,7 @@ export function usePlaybackSession() {
         })
         .then(() => {
           audioSessionReadyRef.current = true;
+          recordDebugLogEvent({ event: "diag-audio-session-activate" });
         })
         .finally(() => {
           audioSessionPromiseRef.current = null;
