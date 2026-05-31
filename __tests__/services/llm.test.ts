@@ -145,9 +145,9 @@ describe("streamChat", () => {
 
     await streamChat({
       messages: mockMessages,
-      model: "gpt-oss-120b",
-      provider: "cerebras",
-      apiKey: "cerebras-test-key",
+      model: "deepseek-chat",
+      provider: "deepseek",
+      apiKey: "deepseek-test-key",
       assistantInstructions: "",
       responseLength: "normal",
       responseTone: "professional",
@@ -159,91 +159,11 @@ describe("streamChat", () => {
 
     expect(chunks).toEqual(["Hi"]);
     expect((fetch as jest.Mock).mock.calls[0][0]).toBe(
-      "https://api.cerebras.ai/v1/chat/completions",
+      "https://api.deepseek.com/chat/completions",
     );
   });
 
-  it("uses Azure OpenAI chat completions with the api-key header", async () => {
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(
-          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
-        );
-        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-        controller.close();
-      },
-    });
-    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
-    const chunks: string[] = [];
 
-    await streamChat({
-      messages: mockMessages,
-      model: "gpt-4.1-mini",
-      provider: "microsoft-azure",
-      apiKey: "https://example-resource.openai.azure.com|azure-openai-key",
-      assistantInstructions: "",
-      responseLength: "normal",
-      responseTone: "professional",
-      language: "en",
-      onChunk: (text) => chunks.push(text),
-      onDone: () => {},
-      onError: () => {},
-    });
-
-    expect(chunks).toEqual(["Hi"]);
-    const [url, options] = (fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe(
-      "https://example-resource.openai.azure.com/openai/v1/chat/completions",
-    );
-    expect(options.headers["api-key"]).toBe("azure-openai-key");
-    expect(options.headers.Authorization).toBeUndefined();
-    expect(JSON.parse(options.body)).toMatchObject({
-      model: "gpt-4.1-mini",
-      stream: true,
-    });
-  });
-
-  it("uses the Azure OpenAI realtime socket for Azure realtime models", async () => {
-    const chunks: string[] = [];
-    const promise = streamChat({
-      messages: mockMessages,
-      model: "gpt-realtime-1.5",
-      provider: "microsoft-azure",
-      apiKey: "https://example-resource.openai.azure.com|azure-openai-key",
-      assistantInstructions: "",
-      responseLength: "normal",
-      responseTone: "professional",
-      language: "en",
-      onChunk: (text) => chunks.push(text),
-      onDone: () => {},
-      onError: () => {},
-    });
-
-    const socket = MockWebSocket.instances[0];
-    expect(socket.url).toBe(
-      "wss://example-resource.openai.azure.com/openai/v1/realtime?model=gpt-realtime-1.5",
-    );
-    expect(socket.options.headers["api-key"]).toBe("azure-openai-key");
-    expect(socket.options.headers.Authorization).toBeUndefined();
-    expect(socket.options.headers["OpenAI-Beta"]).toBeUndefined();
-
-    socket.emitOpen();
-    expect(JSON.parse(socket.sent[0])).toMatchObject({
-      type: "conversation.item.create",
-    });
-    expect(JSON.parse(socket.sent[1])).toMatchObject({
-      type: "response.create",
-      response: { modalities: ["text"] },
-    });
-
-    socket.emitMessage({ type: "response.text.delta", delta: "Hi" });
-    socket.emitMessage({ type: "response.done" });
-
-    await promise;
-    expect(chunks).toEqual(["Hi"]);
-    expect(fetch).not.toHaveBeenCalled();
-  });
 
 
   it("uses the OpenAI realtime socket for realtime models", async () => {
@@ -357,9 +277,9 @@ describe("streamChat", () => {
 
     await streamChat({
       messages: mockMessages,
-      model: "openai/gpt-oss-20b",
-      provider: "hugging-face-inference-api",
-      apiKey: "hf-test-key",
+      model: "kimi-k2.5",
+      provider: "moonshot-ai-kimi",
+      apiKey: "kimi-test-key",
       assistantInstructions: "",
       responseLength: "normal",
       responseTone: "professional",
@@ -371,70 +291,10 @@ describe("streamChat", () => {
 
     expect(chunks).toEqual(["Hi"]);
     const [url, options] = (fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe("https://router.huggingface.co/v1/chat/completions");
-    expect(JSON.parse(options.body).model).toBe("openai/gpt-oss-20b");
+    expect(url).toBe("https://api.moonshot.ai/v1/chat/completions");
+    expect(JSON.parse(options.body).model).toBe("kimi-k2.5");
   });
 
-  it("uses Replicate predictions for official LLM models", async () => {
-    (fetch as jest.Mock)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          latest_version: {
-            id: "replicate-version-1",
-            openapi_schema: {
-              components: {
-                schemas: {
-                  Input: {
-                    properties: {
-                      prompt: { type: "string" },
-                      instructions: { type: "string" },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          status: "succeeded",
-          output: ["Hi from Replicate"],
-        }),
-      });
-
-    const chunks: string[] = [];
-
-    await streamChat({
-      messages: mockMessages,
-      model: "openai/gpt-5-mini",
-      provider: "replicate",
-      apiKey: "replicate-test-key",
-      assistantInstructions: "",
-      responseLength: "normal",
-      responseTone: "professional",
-      language: "en",
-      onChunk: (text) => chunks.push(text),
-      onDone: () => {},
-      onError: () => {},
-    });
-
-    expect(chunks).toEqual(["Hi from Replicate"]);
-    expect((fetch as jest.Mock).mock.calls[0][0]).toBe(
-      "https://api.replicate.com/v1/models/openai/gpt-5-mini",
-    );
-    const [predictionUrl, predictionOptions] = (fetch as jest.Mock).mock.calls[1];
-    expect(predictionUrl).toBe("https://api.replicate.com/v1/predictions");
-    expect(JSON.parse(predictionOptions.body)).toEqual({
-      version: "replicate-version-1",
-      input: expect.objectContaining({
-        prompt: expect.stringContaining("User: Hello"),
-        instructions: expect.any(String),
-      }),
-    });
-  });
 
   it("uses the Sonar chat-completions compatibility endpoint for Perplexity", async () => {
     const encoder = new TextEncoder();
@@ -504,175 +364,10 @@ describe("streamChat", () => {
     expect(JSON.parse(options.body).model).toBe("doubao-seed-2-0-lite-260215");
   });
 
-  it("uses the Yi chat-completions compatibility endpoint for 01.AI", async () => {
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(
-          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
-        );
-        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-        controller.close();
-      },
-    });
-    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
-    const chunks: string[] = [];
 
-    await streamChat({
-      messages: mockMessages,
-      model: "yi-lightning",
-      provider: "01-ai-yi",
-      apiKey: "yi-test-key",
-      assistantInstructions: "",
-      responseLength: "normal",
-      responseTone: "professional",
-      language: "en",
-      onChunk: (text) => chunks.push(text),
-      onDone: () => {},
-      onError: () => {},
-    });
 
-    expect(chunks).toEqual(["Hi"]);
-    const [url, options] = (fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe("https://api.lingyiwanwu.com/v1/chat/completions");
-    expect(JSON.parse(options.body).model).toBe("yi-lightning");
-  });
 
-  it("uses the Xiaomi MiMo chat-completions endpoint", async () => {
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(
-          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
-        );
-        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-        controller.close();
-      },
-    });
-    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
-    const chunks: string[] = [];
 
-    await streamChat({
-      messages: mockMessages,
-      model: "mimo-v2-flash",
-      provider: "xiaomi-mimo",
-      apiKey: "mimo-test-key",
-      assistantInstructions: "",
-      responseLength: "normal",
-      responseTone: "professional",
-      language: "en",
-      onChunk: (text) => chunks.push(text),
-      onDone: () => {},
-      onError: () => {},
-    });
-
-    expect(chunks).toEqual(["Hi"]);
-    const [url, options] = (fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe("https://api.xiaomimimo.com/v1/chat/completions");
-    expect(JSON.parse(options.body).model).toBe("mimo-v2-flash");
-  });
-
-  it("uses the Qianfan chat-completions compatibility endpoint for Baidu", async () => {
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(
-          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
-        );
-        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-        controller.close();
-      },
-    });
-    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
-    const chunks: string[] = [];
-
-    await streamChat({
-      messages: mockMessages,
-      model: "ernie-5.0",
-      provider: "baidu-ernie-qianfan",
-      apiKey: "baidu-test-key",
-      assistantInstructions: "",
-      responseLength: "normal",
-      responseTone: "professional",
-      language: "en",
-      onChunk: (text) => chunks.push(text),
-      onDone: () => {},
-      onError: () => {},
-    });
-
-    expect(chunks).toEqual(["Hi"]);
-    const [url, options] = (fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe("https://qianfan.baidubce.com/v2/chat/completions");
-    expect(JSON.parse(options.body).model).toBe("ernie-5.0");
-  });
-
-  it("uses the hosted Jamba chat-completions endpoint for AI21", async () => {
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(
-          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
-        );
-        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-        controller.close();
-      },
-    });
-    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
-    const chunks: string[] = [];
-
-    await streamChat({
-      messages: mockMessages,
-      model: "jamba-mini-2-2026-01",
-      provider: "ai21-labs",
-      apiKey: "ai21-test-key",
-      assistantInstructions: "",
-      responseLength: "normal",
-      responseTone: "professional",
-      language: "en",
-      onChunk: (text) => chunks.push(text),
-      onDone: () => {},
-      onError: () => {},
-    });
-
-    expect(chunks).toEqual(["Hi"]);
-    const [url, options] = (fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe("https://api.ai21.com/studio/v1/chat/completions");
-    expect(JSON.parse(options.body).model).toBe("jamba-mini-2-2026-01");
-  });
-
-  it("uses the AssemblyAI LLM Gateway chat-completions endpoint", async () => {
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(
-          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
-        );
-        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-        controller.close();
-      },
-    });
-    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
-    const chunks: string[] = [];
-
-    await streamChat({
-      messages: mockMessages,
-      model: "claude-sonnet-4-6",
-      provider: "assemblyai",
-      apiKey: "assemblyai-test-key",
-      assistantInstructions: "",
-      responseLength: "normal",
-      responseTone: "professional",
-      language: "en",
-      onChunk: (text) => chunks.push(text),
-      onDone: () => {},
-      onError: () => {},
-    });
-
-    expect(chunks).toEqual(["Hi"]);
-    const [url, options] = (fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe("https://llm-gateway.assemblyai.com/v1/chat/completions");
-    expect(JSON.parse(options.body).model).toBe("claude-sonnet-4-6");
-  });
 
   it("emits a chunk when openai-compatible streaming falls back to a full response", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
@@ -710,46 +405,19 @@ describe("streamChat", () => {
     expect(chunks).toEqual(["Hi there."]);
   });
 
-  it("falls back to a non-streaming transport for cohere", async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        message: {
-          content: [{ text: "Hi from Cohere." }],
-        },
-      }),
-    });
-
-    const chunks: string[] = [];
-    await streamChat({
-      messages: mockMessages,
-      model: "command-a-03-2025",
-      provider: "cohere",
-      apiKey: "cohere-test-key",
-      assistantInstructions: "",
-      responseLength: "normal",
-      responseTone: "professional",
-      language: "en",
-      onChunk: (text) => chunks.push(text),
-      onDone: () => {},
-      onError: () => {},
-    });
-
-    expect(chunks).toEqual(["Hi from Cohere."]);
-    expect((fetch as jest.Mock).mock.calls[0][0]).toBe(
-      "https://api.cohere.com/v2/chat",
-    );
-  });
 
   it("waits for async onDone work before resolving", async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        message: {
-          content: [{ text: "Hi from Cohere." }],
-        },
-      }),
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
     });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
 
     let markOnDoneStarted: (() => void) | null = null;
     const onDoneStarted = new Promise<void>((resolve) => {
@@ -763,9 +431,9 @@ describe("streamChat", () => {
 
     const streamPromise = streamChat({
       messages: mockMessages,
-      model: "command-a-03-2025",
-      provider: "cohere",
-      apiKey: "cohere-test-key",
+      model: "gpt-4o",
+      provider: "openai",
+      apiKey: "sk-test-key",
       assistantInstructions: "",
       responseLength: "normal",
       responseTone: "professional",
