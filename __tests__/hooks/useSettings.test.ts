@@ -246,6 +246,63 @@ describe("useSettings", () => {
     expect(result.current.settings.apiKeys.xai).toBe("xai-legacy-key");
   });
 
+  it("resets stored stt/tts providers that are no longer supported and keeps key access safe", async () => {
+    const stored = {
+      ...DEFAULT_SETTINGS,
+      ttsProvider: "elevenlabs",
+      sttProvider: "azure",
+      sttMode: "provider",
+    };
+
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
+      JSON.stringify(stored),
+    );
+
+    const { result } = renderHook(() => useSettings());
+
+    await expect(flushSettingsLoad()).resolves.not.toThrow();
+
+    const { settings } = result.current;
+    expect(settings.ttsProvider).toBeNull();
+    expect(settings.sttProvider).toBeNull();
+
+    // Accessing apiKeys with the (now null) providers must be safe, mirroring
+    // the render-time access in MainScreen that previously crashed.
+    const ttsApiKey = settings.ttsProvider
+      ? settings.apiKeys[settings.ttsProvider].trim()
+      : "";
+    const sttApiKey = settings.sttProvider
+      ? settings.apiKeys[settings.sttProvider].trim()
+      : "";
+    expect(ttsApiKey).toBe("");
+    expect(sttApiKey).toBe("");
+  });
+
+  it("does not derive response modes from a search-only provider key", async () => {
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    await act(async () => {
+      result.current.updateApiKey("brave", "brave-search-key");
+    });
+
+    expect(result.current.settings.responseModes).toEqual(
+      DEFAULT_SETTINGS.responseModes,
+    );
+    expect(getAvailableResponseModes(result.current.settings)).toEqual([]);
+
+    // A real LLM provider key still derives usable modes afterwards.
+    await act(async () => {
+      result.current.updateApiKey("openai", "sk-real-llm");
+    });
+
+    expect(getAvailableResponseModes(result.current.settings)).toEqual([
+      "quick",
+      "normal",
+      "deep",
+    ]);
+  });
+
   it("migrates legacy webSearchEnabled into webSearchMode", async () => {
     const legacyStored: Record<string, unknown> = { ...DEFAULT_SETTINGS };
     delete legacyStored.webSearchMode;

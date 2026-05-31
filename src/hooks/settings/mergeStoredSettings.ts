@@ -46,6 +46,13 @@ function isProvider(value: unknown): value is Provider {
   return isRuntimeProviderId(value);
 }
 
+function validateStoredProvider(
+  value: unknown,
+  fallback: Provider | null,
+): Provider | null {
+  return isProvider(value) ? value : fallback;
+}
+
 const LEGACY_PROVIDER_ALIASES: Record<string, Provider> = {
   grok: "xai",
 };
@@ -449,6 +456,14 @@ export function mergeSettings(
           ? "on"
           : "off"
         : DEFAULT_SETTINGS.webSearchMode,
+    sttProvider: validateStoredProvider(
+      storedSettings?.sttProvider,
+      DEFAULT_SETTINGS.sttProvider,
+    ),
+    ttsProvider: validateStoredProvider(
+      storedSettings?.ttsProvider,
+      DEFAULT_SETTINGS.ttsProvider,
+    ),
     webSearchProvider: isWebSearchProvider(storedSettings?.webSearchProvider)
       ? storedSettings.webSearchProvider
       : DEFAULT_SETTINGS.webSearchProvider,
