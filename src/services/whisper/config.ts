@@ -18,28 +18,6 @@ export type OpenAiAudioInputTranscriptionConfig = {
   defaultModel: string;
 };
 
-export type AzureOpenAiAudioInputTranscriptionConfig = {
-  kind: "azure-openai-audio-input";
-  defaultModel: string;
-};
-
-export type BaiduShortSpeechTranscriptionConfig = {
-  kind: "baidu-short-speech";
-  defaultModel: string;
-};
-
-export type AssemblyAiPreRecordedTranscriptionConfig = {
-  kind: "assemblyai-pre-recorded";
-  endpointBase: string;
-  defaultModel: string;
-};
-
-export type AssemblyAiRealtimeTranscriptionConfig = {
-  kind: "assemblyai-realtime";
-  endpoint: string;
-  defaultModel: string;
-};
-
 export type BytedanceBigmodelFlashTranscriptionConfig = {
   kind: "bytedance-bigmodel-flash";
   endpoint: string;
@@ -51,89 +29,17 @@ export type GoogleCloudSpeechV2TranscriptionConfig = {
   defaultModel: string;
 };
 
-export type DeepgramPreRecordedTranscriptionConfig = {
-  kind: "deepgram-pre-recorded";
-  endpointBase: string;
-  defaultModel: string;
-};
-
-export type DeepInfraInferenceTranscriptionConfig = {
-  kind: "deepinfra-inference";
-  endpointBase: string;
-  defaultModel: string;
-};
-
-export type FireworksPreRecordedTranscriptionConfig = {
-  kind: "fireworks-pre-recorded";
-  defaultModel: string;
-};
-
-export type FireworksStreamingTranscriptionConfig = {
-  kind: "fireworks-streaming";
-  endpoint: string;
-  defaultModel: string;
-};
-
-export type FishAudioTranscriptionConfig = {
-  kind: "fish-audio";
-  endpoint: string;
-  defaultModel: string;
-};
-
-export type HuggingFaceJsonTranscriptionConfig = {
-  kind: "huggingface-json";
-  endpointBase: string;
-  defaultModel: string;
-};
-
-export type NovitaJsonTranscriptionConfig = {
-  kind: "novita-json";
-  endpoint: string;
-  defaultModel: string;
-};
-
-export type ElevenLabsTranscriptionConfig = {
-  kind: "elevenlabs";
-  endpoint: string;
-  defaultModel: string;
-};
-
-export type ElevenLabsRealtimeTranscriptionConfig = {
-  kind: "elevenlabs-realtime";
-  endpoint: string;
-  defaultModel: string;
-};
-
 export type XaiRealtimeTranscriptionConfig = {
   kind: "xai-realtime";
   endpoint: string;
   defaultModel: string;
 };
 
-export type ReplicateTranscriptionConfig = {
-  kind: "replicate";
-  defaultModel: string;
-};
-
 export type ProviderSttConfig =
   | MultipartTranscriptionConfig
   | OpenAiAudioInputTranscriptionConfig
-  | AzureOpenAiAudioInputTranscriptionConfig
-  | BaiduShortSpeechTranscriptionConfig
-  | AssemblyAiPreRecordedTranscriptionConfig
-  | AssemblyAiRealtimeTranscriptionConfig
   | BytedanceBigmodelFlashTranscriptionConfig
   | GoogleCloudSpeechV2TranscriptionConfig
-  | DeepgramPreRecordedTranscriptionConfig
-  | DeepInfraInferenceTranscriptionConfig
-  | FireworksPreRecordedTranscriptionConfig
-  | FireworksStreamingTranscriptionConfig
-  | FishAudioTranscriptionConfig
-  | HuggingFaceJsonTranscriptionConfig
-  | NovitaJsonTranscriptionConfig
-  | ReplicateTranscriptionConfig
-  | ElevenLabsTranscriptionConfig
-  | ElevenLabsRealtimeTranscriptionConfig
   | XaiRealtimeTranscriptionConfig;
 
 export const STT_TIMEOUT_MS = 60000;
@@ -179,27 +85,6 @@ function buildConfigForTransport(params: {
               : {}),
           }
         : null;
-    case "azure-openai-audio-input":
-      return {
-        kind: "azure-openai-audio-input",
-        defaultModel: params.defaultModel,
-      };
-    case "assemblyai-pre-recorded":
-      return params.endpointBase
-        ? {
-            kind: "assemblyai-pre-recorded",
-            endpointBase: params.endpointBase,
-            defaultModel: params.defaultModel,
-          }
-        : null;
-    case "assemblyai-realtime":
-      return params.endpoint
-        ? {
-            kind: "assemblyai-realtime",
-            endpoint: params.endpoint,
-            defaultModel: params.defaultModel,
-          }
-        : null;
     case "bytedance-bigmodel-flash":
       return params.endpoint
         ? {
@@ -213,80 +98,6 @@ function buildConfigForTransport(params: {
         kind: "google-cloud-speech-v2",
         defaultModel: params.defaultModel,
       };
-    case "baidu-short-speech":
-      return {
-        kind: "baidu-short-speech",
-        defaultModel: params.defaultModel,
-      };
-    case "deepgram-pre-recorded":
-      return params.endpointBase
-        ? {
-            kind: "deepgram-pre-recorded",
-            endpointBase: params.endpointBase,
-            defaultModel: params.defaultModel,
-          }
-        : null;
-    case "deepinfra-inference":
-      return params.endpointBase
-        ? {
-            kind: "deepinfra-inference",
-            endpointBase: params.endpointBase,
-            defaultModel: params.defaultModel,
-          }
-        : null;
-    case "elevenlabs":
-      return params.endpoint
-        ? {
-            kind: "elevenlabs",
-            endpoint: params.endpoint,
-            defaultModel: params.defaultModel,
-          }
-        : null;
-    case "elevenlabs-realtime":
-      return params.endpoint
-        ? {
-            kind: "elevenlabs-realtime",
-            endpoint: params.endpoint,
-            defaultModel: params.defaultModel,
-          }
-        : null;
-    case "fireworks-pre-recorded":
-      return {
-        kind: "fireworks-pre-recorded",
-        defaultModel: params.defaultModel,
-      };
-    case "fireworks-streaming":
-      return params.endpoint
-        ? {
-            kind: "fireworks-streaming",
-            endpoint: params.endpoint,
-            defaultModel: params.defaultModel,
-          }
-        : null;
-    case "fish-audio":
-      return params.endpoint
-        ? {
-            kind: "fish-audio",
-            endpoint: params.endpoint,
-            defaultModel: params.defaultModel,
-          }
-        : null;
-    case "huggingface-json":
-      return params.endpointBase
-        ? {
-            kind: "huggingface-json",
-            endpointBase: params.endpointBase,
-            defaultModel: params.defaultModel,
-          }
-        : null;
-    case "novita-json":
-      return params.endpoint
-        ? {
-            kind: "novita-json",
-            endpoint: params.endpoint,
-            defaultModel: params.defaultModel,
-          }
-        : null;
     case "openai-audio-input":
       return params.endpoint
         ? {
@@ -295,11 +106,6 @@ function buildConfigForTransport(params: {
             defaultModel: params.defaultModel,
           }
         : null;
-    case "replicate":
-      return {
-        kind: "replicate",
-        defaultModel: params.defaultModel,
-      };
     case "xai-realtime":
       return params.endpoint
         ? {

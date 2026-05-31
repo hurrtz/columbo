@@ -32,48 +32,19 @@ export type RuntimeLlmTransport =
 export type RuntimeSttTransport =
   | "none"
   | "multipart"
-  | "azure-openai-audio-input"
-  | "assemblyai-realtime"
   | "bytedance-bigmodel-flash"
   | "google-cloud-speech-v2"
-  | "deepinfra-inference"
   | "openai-audio-input"
-  | "baidu-short-speech"
-  | "assemblyai-pre-recorded"
-  | "deepgram-pre-recorded"
-  | "elevenlabs-realtime"
-  | "fireworks-streaming"
-  | "fireworks-pre-recorded"
-  | "fish-audio"
-  | "huggingface-json"
-  | "novita-json"
-  | "elevenlabs"
-  | "xai-realtime"
-  | "replicate";
+  | "xai-realtime";
 export type RuntimeTtsTransport =
   | "none"
   | "binary"
-  | "azure-speech"
-  | "baidu"
   | "gemini"
-  | "dashscope"
-  | "deepinfra"
-  | "deepgram"
-  | "fish-audio"
-  | "hyperbolic"
-  | "minimax"
-  | "novita"
-  | "elevenlabs"
-  | "replicate";
+  | "dashscope";
 export type RuntimeTtsBinaryRequestFormat =
   | "openai-speech"
-  | "together-speech"
   | "xai-speech"
-  | "grok-speech"
-  | "groq-speech"
-  | "siliconflow-speech"
-  | "novita-glm-speech"
-  | "zai-speech";
+  | "grok-speech";
 export type RuntimeLanguageHintKey = "mistral-stt-language-code";
 
 export interface RuntimeModelSpec {

@@ -58,19 +58,6 @@ type BinaryTtsConfig = {
   voiceFallback: string;
 };
 
-type AzureSpeechTtsConfig = {
-  kind: "azure-speech";
-  defaultModel: string;
-  voiceFallback: string;
-};
-
-type BaiduTtsConfig = {
-  kind: "baidu";
-  endpoint: string;
-  defaultModel: string;
-  voiceFallback: string;
-};
-
 type GeminiTtsConfig = {
   kind: "gemini";
   endpointBase: string;
@@ -85,74 +72,10 @@ type DashScopeTtsConfig = {
   voiceFallback: string;
 };
 
-type DeepgramTtsConfig = {
-  kind: "deepgram";
-  endpointBase: string;
-  defaultModel: string;
-  voiceFallback: string;
-};
-
-type DeepInfraTtsConfig = {
-  kind: "deepinfra";
-  endpointBase: string;
-  defaultModel: string;
-  voiceFallback: string;
-};
-
-type FishAudioTtsConfig = {
-  kind: "fish-audio";
-  endpoint: string;
-  defaultModel: string;
-};
-
-type HyperbolicTtsConfig = {
-  kind: "hyperbolic";
-  endpoint: string;
-  defaultModel: string;
-  voiceFallback: string;
-};
-
-type MinimaxTtsConfig = {
-  kind: "minimax";
-  endpoint: string;
-  defaultModel: string;
-  voiceFallback: string;
-};
-
-type NovitaTtsConfig = {
-  kind: "novita";
-  endpointBase: string;
-  defaultModel: string;
-  voiceFallback: string;
-};
-
-type ReplicateTtsConfig = {
-  kind: "replicate";
-  defaultModel: string;
-  voiceFallback: string;
-};
-
-type ElevenLabsTtsConfig = {
-  kind: "elevenlabs";
-  endpointBase: string;
-  defaultModel: string;
-  voiceFallback: string;
-};
-
 export type ProviderTtsConfig =
   | BinaryTtsConfig
-  | AzureSpeechTtsConfig
-  | BaiduTtsConfig
   | GeminiTtsConfig
-  | DashScopeTtsConfig
-  | DeepInfraTtsConfig
-  | DeepgramTtsConfig
-  | FishAudioTtsConfig
-  | HyperbolicTtsConfig
-  | MinimaxTtsConfig
-  | NovitaTtsConfig
-  | ReplicateTtsConfig
-  | ElevenLabsTtsConfig;
+  | DashScopeTtsConfig;
 
 const ttsProviderConfigEntries: Array<[Provider, ProviderTtsConfig]> = [];
 
@@ -179,38 +102,6 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
   }
 
   if (
-    manifest.tts.transport === "azure-speech" &&
-    manifest.tts.defaultModel &&
-    manifest.tts.voiceFallback
-  ) {
-    ttsProviderConfigEntries.push([
-      provider,
-      {
-        kind: "azure-speech",
-        defaultModel: manifest.tts.defaultModel,
-        voiceFallback: manifest.tts.voiceFallback,
-      },
-    ]);
-  }
-
-  if (
-    manifest.tts.transport === "baidu" &&
-    manifest.tts.endpoint &&
-    manifest.tts.defaultModel &&
-    manifest.tts.voiceFallback
-  ) {
-    ttsProviderConfigEntries.push([
-      provider,
-      {
-        kind: "baidu",
-        endpoint: manifest.tts.endpoint,
-        defaultModel: manifest.tts.defaultModel,
-        voiceFallback: manifest.tts.voiceFallback,
-      },
-    ]);
-  }
-
-  if (
     manifest.tts.transport === "dashscope" &&
     manifest.tts.endpoint &&
     manifest.tts.defaultModel &&
@@ -221,138 +112,6 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
       {
         kind: "dashscope",
         endpoint: manifest.tts.endpoint,
-        defaultModel: manifest.tts.defaultModel,
-        voiceFallback: manifest.tts.voiceFallback,
-      },
-    ]);
-  }
-
-  if (
-    manifest.tts.transport === "deepinfra" &&
-    manifest.tts.endpointBase &&
-    manifest.tts.defaultModel &&
-    manifest.tts.voiceFallback
-  ) {
-    ttsProviderConfigEntries.push([
-      provider,
-      {
-        kind: "deepinfra",
-        endpointBase: manifest.tts.endpointBase,
-        defaultModel: manifest.tts.defaultModel,
-        voiceFallback: manifest.tts.voiceFallback,
-      },
-    ]);
-  }
-
-  if (
-    manifest.tts.transport === "deepgram" &&
-    manifest.tts.endpointBase &&
-    manifest.tts.defaultModel &&
-    manifest.tts.voiceFallback
-  ) {
-    ttsProviderConfigEntries.push([
-      provider,
-      {
-        kind: "deepgram",
-        endpointBase: manifest.tts.endpointBase,
-        defaultModel: manifest.tts.defaultModel,
-        voiceFallback: manifest.tts.voiceFallback,
-      },
-    ]);
-  }
-
-  if (
-    manifest.tts.transport === "fish-audio" &&
-    manifest.tts.endpoint &&
-    manifest.tts.defaultModel
-  ) {
-    ttsProviderConfigEntries.push([
-      provider,
-      {
-        kind: "fish-audio",
-        endpoint: manifest.tts.endpoint,
-        defaultModel: manifest.tts.defaultModel,
-      },
-    ]);
-  }
-
-  if (
-    manifest.tts.transport === "hyperbolic" &&
-    manifest.tts.endpoint &&
-    manifest.tts.defaultModel &&
-    manifest.tts.voiceFallback
-  ) {
-    ttsProviderConfigEntries.push([
-      provider,
-      {
-        kind: "hyperbolic",
-        endpoint: manifest.tts.endpoint,
-        defaultModel: manifest.tts.defaultModel,
-        voiceFallback: manifest.tts.voiceFallback,
-      },
-    ]);
-  }
-
-  if (
-    manifest.tts.transport === "minimax" &&
-    manifest.tts.endpoint &&
-    manifest.tts.defaultModel &&
-    manifest.tts.voiceFallback
-  ) {
-    ttsProviderConfigEntries.push([
-      provider,
-      {
-        kind: "minimax",
-        endpoint: manifest.tts.endpoint,
-        defaultModel: manifest.tts.defaultModel,
-        voiceFallback: manifest.tts.voiceFallback,
-      },
-    ]);
-  }
-
-  if (
-    manifest.tts.transport === "novita" &&
-    manifest.tts.endpointBase &&
-    manifest.tts.defaultModel &&
-    manifest.tts.voiceFallback
-  ) {
-    ttsProviderConfigEntries.push([
-      provider,
-      {
-        kind: "novita",
-        endpointBase: manifest.tts.endpointBase,
-        defaultModel: manifest.tts.defaultModel,
-        voiceFallback: manifest.tts.voiceFallback,
-      },
-    ]);
-  }
-
-  if (
-    manifest.tts.transport === "replicate" &&
-    manifest.tts.defaultModel &&
-    manifest.tts.voiceFallback
-  ) {
-    ttsProviderConfigEntries.push([
-      provider,
-      {
-        kind: "replicate",
-        defaultModel: manifest.tts.defaultModel,
-        voiceFallback: manifest.tts.voiceFallback,
-      },
-    ]);
-  }
-
-  if (
-    manifest.tts.transport === "elevenlabs" &&
-    manifest.tts.endpointBase &&
-    manifest.tts.defaultModel &&
-    manifest.tts.voiceFallback
-  ) {
-    ttsProviderConfigEntries.push([
-      provider,
-      {
-        kind: "elevenlabs",
-        endpointBase: manifest.tts.endpointBase,
         defaultModel: manifest.tts.defaultModel,
         voiceFallback: manifest.tts.voiceFallback,
       },

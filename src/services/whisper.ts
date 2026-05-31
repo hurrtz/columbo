@@ -9,28 +9,12 @@ import { AppLanguage, Provider, SttBackendMode } from "../types";
 import { getProviderSttConfig } from "./whisper/config";
 import { waitForRecordedFileReady } from "./whisper/recordedFileReady";
 import {
-  transcribeWithAssemblyAiPreRecordedProvider,
-  transcribeWithBaiduShortSpeechProvider,
   transcribeWithBytedanceBigmodelFlashProvider,
-  transcribeWithDeepgramPreRecordedProvider,
-  transcribeWithDeepInfraInferenceProvider,
-  transcribeWithElevenLabsProvider,
-  transcribeWithAzureOpenAiAudioInputProvider,
-  transcribeWithFireworksPreRecordedProvider,
-  transcribeWithFishAudioProvider,
   transcribeWithGoogleCloudSpeechV2Provider,
-  transcribeWithHuggingFaceJsonProvider,
   transcribeWithMultipartProvider,
-  transcribeWithNovitaJsonProvider,
   transcribeWithOpenAiAudioInputProvider,
-  transcribeWithReplicateProvider,
 } from "./whisper/providers";
-import {
-  transcribeWithAssemblyAiRealtimeProvider,
-  transcribeWithElevenLabsRealtimeProvider,
-  transcribeWithFireworksStreamingProvider,
-  transcribeWithXaiRealtimeProvider,
-} from "./whisper/realtimeProviders";
+import { transcribeWithXaiRealtimeProvider } from "./whisper/realtimeProviders";
 
 function isRemoteAudioSource(fileUri: string) {
   return /^(https?:\/\/|oss:\/\/)/i.test(fileUri);
@@ -140,18 +124,6 @@ export async function transcribeAudio(params: {
     });
   }
 
-  if (config.kind === "assemblyai-realtime") {
-    return transcribeWithAssemblyAiRealtimeProvider({
-      abortSignal,
-      apiKey,
-      config,
-      fileUri,
-      language,
-      provider,
-      providerModel: resolvedModel,
-    });
-  }
-
   if (config.kind === "openai-audio-input") {
     return transcribeWithOpenAiAudioInputProvider({
       abortSignal,
@@ -161,30 +133,6 @@ export async function transcribeAudio(params: {
       language,
       provider,
       providerModel: resolvedModel,
-    });
-  }
-
-  if (config.kind === "azure-openai-audio-input") {
-    return transcribeWithAzureOpenAiAudioInputProvider({
-      abortSignal,
-      apiKey,
-      config,
-      fileUri,
-      language,
-      provider,
-      providerModel: resolvedModel,
-    });
-  }
-
-  if (config.kind === "baidu-short-speech") {
-    return transcribeWithBaiduShortSpeechProvider({
-      abortSignal,
-      apiKey,
-      config,
-      fileUri,
-      language,
-      provider,
-      providerModel: selectedModel,
     });
   }
 
@@ -212,140 +160,8 @@ export async function transcribeAudio(params: {
     });
   }
 
-  if (config.kind === "assemblyai-pre-recorded") {
-    return transcribeWithAssemblyAiPreRecordedProvider({
-      abortSignal,
-      apiKey,
-      config,
-      fileUri,
-      language,
-      provider,
-      providerModel: selectedModel,
-    });
-  }
-
-  if (config.kind === "deepgram-pre-recorded") {
-    return transcribeWithDeepgramPreRecordedProvider({
-      abortSignal,
-      apiKey,
-      config,
-      fileUri,
-      language,
-      provider,
-      providerModel: selectedModel,
-    });
-  }
-
-  if (config.kind === "deepinfra-inference") {
-    return transcribeWithDeepInfraInferenceProvider({
-      abortSignal,
-      apiKey,
-      config,
-      fileUri,
-      language,
-      provider,
-      providerModel: resolvedModel,
-    });
-  }
-
-  if (config.kind === "elevenlabs-realtime") {
-    return transcribeWithElevenLabsRealtimeProvider({
-      abortSignal,
-      apiKey,
-      config,
-      fileUri,
-      language,
-      provider,
-      providerModel: resolvedModel,
-    });
-  }
-
   if (config.kind === "xai-realtime") {
     return transcribeWithXaiRealtimeProvider({
-      abortSignal,
-      apiKey,
-      config,
-      fileUri,
-      language,
-      provider,
-      providerModel: resolvedModel,
-    });
-  }
-
-  if (config.kind === "fireworks-pre-recorded") {
-    return transcribeWithFireworksPreRecordedProvider({
-      abortSignal,
-      apiKey,
-      config,
-      fileUri,
-      language,
-      provider,
-      providerModel: resolvedModel,
-    });
-  }
-
-  if (config.kind === "fireworks-streaming") {
-    return transcribeWithFireworksStreamingProvider({
-      abortSignal,
-      apiKey,
-      config,
-      fileUri,
-      language,
-      provider,
-      providerModel: resolvedModel,
-    });
-  }
-
-  if (config.kind === "fish-audio") {
-    return transcribeWithFishAudioProvider({
-      abortSignal,
-      apiKey,
-      config,
-      fileUri,
-      language,
-      provider,
-      providerModel: resolvedModel,
-    });
-  }
-
-  if (config.kind === "huggingface-json") {
-    return transcribeWithHuggingFaceJsonProvider({
-      abortSignal,
-      apiKey,
-      config,
-      fileUri,
-      language,
-      provider,
-      providerModel: resolvedModel,
-    });
-  }
-
-  if (config.kind === "novita-json") {
-    return transcribeWithNovitaJsonProvider({
-      abortSignal,
-      apiKey,
-      config,
-      fileUri,
-      language,
-      provider,
-      providerModel: resolvedModel,
-    });
-  }
-
-  if (config.kind === "replicate") {
-    return transcribeWithReplicateProvider({
-      abortSignal,
-      apiKey,
-      config,
-      fileUri,
-      language,
-      provider,
-      providerModel: resolvedModel,
-    });
-  }
-
-  if (config.kind === "elevenlabs") {
-    return transcribeWithElevenLabsProvider({
       abortSignal,
       apiKey,
       config,
