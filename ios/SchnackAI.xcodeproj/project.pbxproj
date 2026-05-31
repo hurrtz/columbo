@@ -12,7 +12,6 @@
 		5537CA547A095C86D2D27B28 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 64F9FFC99FC7060C97837358 /* PrivacyInfo.xcprivacy */; };
 		6BBAA95B51D3F6322E30BD0D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52F9AF8602F178C80F51B50 /* ExpoModulesProvider.swift */; };
 		7C4A2D4D5A9E4A6FB6500101 /* SchnackNativeAudioQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C4A2D4D5A9E4A6FB6500001 /* SchnackNativeAudioQueue.m */; };
-		7C4A2D4D5A9E4A6FB6500102 /* SchnackNativeLocalTts.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7C4A2D4D5A9E4A6FB6500002 /* SchnackNativeLocalTts.mm */; };
 		7C4A2D4D5A9E4A6FB6500103 /* SchnackNativeWaveform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C4A2D4D5A9E4A6FB6500003 /* SchnackNativeWaveform.swift */; };
 		7C4A2D4D5A9E4A6FB6500104 /* SchnackNativeWaveformBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C4A2D4D5A9E4A6FB6500004 /* SchnackNativeWaveformBridge.m */; };
 		7C4A2D4D5A9E4A6FB6500105 /* SchnackNativeWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C4A2D4D5A9E4A6FB6500005 /* SchnackNativeWaveformView.swift */; };
@@ -26,9 +25,6 @@
 		7C4A2D4D5A9E4A6FB650010D /* SchnackWaveformAudioSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C4A2D4D5A9E4A6FB650000E /* SchnackWaveformAudioSession.swift */; };
 		7C4A2D4D5A9E4A6FB650010E /* SchnackWaveformRollingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C4A2D4D5A9E4A6FB650000F /* SchnackWaveformRollingBuffer.swift */; };
 		7C4A2D4D5A9E4A6FB650010F /* SchnackWaveformLevelEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C4A2D4D5A9E4A6FB6500010 /* SchnackWaveformLevelEmitter.swift */; };
-		8A5C26011111111111111111 /* SchnackLocalTtsConfigBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8A5C26011111111111111121 /* SchnackLocalTtsConfigBuilder.mm */; };
-		8A5C26011111111111111112 /* SchnackLocalTtsFileWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8A5C26011111111111111122 /* SchnackLocalTtsFileWriter.mm */; };
-		8A5C26011111111111111113 /* SchnackLocalTtsSession.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8A5C26011111111111111123 /* SchnackLocalTtsSession.mm */; };
 		8A5C26011111111111111114 /* SchnackAudioQueueSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A5C26011111111111111124 /* SchnackAudioQueueSession.m */; };
 		8A5C26011111111111111115 /* SchnackAudioQueueCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A5C26011111111111111125 /* SchnackAudioQueueCoordinator.m */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
@@ -44,7 +40,6 @@
 		6248A357DF5BC319044A9D16 /* Pods-SchnackAI.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SchnackAI.release.xcconfig"; path = "Target Support Files/Pods-SchnackAI/Pods-SchnackAI.release.xcconfig"; sourceTree = "<group>"; };
 		64F9FFC99FC7060C97837358 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = SchnackAI/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		7C4A2D4D5A9E4A6FB6500001 /* SchnackNativeAudioQueue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SchnackNativeAudioQueue.m; path = SchnackAI/SchnackNativeAudioQueue.m; sourceTree = "<group>"; };
-		7C4A2D4D5A9E4A6FB6500002 /* SchnackNativeLocalTts.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = SchnackNativeLocalTts.mm; path = SchnackAI/SchnackNativeLocalTts.mm; sourceTree = "<group>"; };
 		7C4A2D4D5A9E4A6FB6500003 /* SchnackNativeWaveform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SchnackNativeWaveform.swift; path = SchnackAI/SchnackNativeWaveform.swift; sourceTree = "<group>"; };
 		7C4A2D4D5A9E4A6FB6500004 /* SchnackNativeWaveformBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SchnackNativeWaveformBridge.m; path = SchnackAI/SchnackNativeWaveformBridge.m; sourceTree = "<group>"; };
 		7C4A2D4D5A9E4A6FB6500005 /* SchnackNativeWaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SchnackNativeWaveformView.swift; path = SchnackAI/SchnackNativeWaveformView.swift; sourceTree = "<group>"; };
@@ -58,9 +53,6 @@
 		7C4A2D4D5A9E4A6FB650000E /* SchnackWaveformAudioSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchnackWaveformAudioSession.swift; sourceTree = "<group>"; };
 		7C4A2D4D5A9E4A6FB650000F /* SchnackWaveformRollingBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchnackWaveformRollingBuffer.swift; sourceTree = "<group>"; };
 		7C4A2D4D5A9E4A6FB6500010 /* SchnackWaveformLevelEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchnackWaveformLevelEmitter.swift; sourceTree = "<group>"; };
-		8A5C26011111111111111121 /* SchnackLocalTtsConfigBuilder.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = SchnackLocalTtsConfigBuilder.mm; path = SchnackAI/SchnackLocalTtsConfigBuilder.mm; sourceTree = "<group>"; };
-		8A5C26011111111111111122 /* SchnackLocalTtsFileWriter.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = SchnackLocalTtsFileWriter.mm; path = SchnackAI/SchnackLocalTtsFileWriter.mm; sourceTree = "<group>"; };
-		8A5C26011111111111111123 /* SchnackLocalTtsSession.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = SchnackLocalTtsSession.mm; path = SchnackAI/SchnackLocalTtsSession.mm; sourceTree = "<group>"; };
 		8A5C26011111111111111124 /* SchnackAudioQueueSession.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SchnackAudioQueueSession.m; path = SchnackAI/SchnackAudioQueueSession.m; sourceTree = "<group>"; };
 		8A5C26011111111111111125 /* SchnackAudioQueueCoordinator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SchnackAudioQueueCoordinator.m; path = SchnackAI/SchnackAudioQueueCoordinator.m; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = SchnackAI/SplashScreen.storyboard; sourceTree = "<group>"; };
@@ -89,12 +81,8 @@
 			children = (
 				F11748412D0307B40044C1D9 /* AppDelegate.swift */,
 				7C4A2D4D5A9E4A6FB6500001 /* SchnackNativeAudioQueue.m */,
-				7C4A2D4D5A9E4A6FB6500002 /* SchnackNativeLocalTts.mm */,
 				8A5C26011111111111111124 /* SchnackAudioQueueSession.m */,
 				8A5C26011111111111111125 /* SchnackAudioQueueCoordinator.m */,
-				8A5C26011111111111111121 /* SchnackLocalTtsConfigBuilder.mm */,
-				8A5C26011111111111111122 /* SchnackLocalTtsFileWriter.mm */,
-				8A5C26011111111111111123 /* SchnackLocalTtsSession.mm */,
 				7C4A2D4D5A9E4A6FB6500003 /* SchnackNativeWaveform.swift */,
 				7C4A2D4D5A9E4A6FB6500004 /* SchnackNativeWaveformBridge.m */,
 				7C4A2D4D5A9E4A6FB6500005 /* SchnackNativeWaveformView.swift */,
@@ -424,11 +412,7 @@
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
 				8A5C26011111111111111114 /* SchnackAudioQueueSession.m in Sources */,
 				8A5C26011111111111111115 /* SchnackAudioQueueCoordinator.m in Sources */,
-				8A5C26011111111111111111 /* SchnackLocalTtsConfigBuilder.mm in Sources */,
-				8A5C26011111111111111112 /* SchnackLocalTtsFileWriter.mm in Sources */,
-				8A5C26011111111111111113 /* SchnackLocalTtsSession.mm in Sources */,
 				7C4A2D4D5A9E4A6FB6500101 /* SchnackNativeAudioQueue.m in Sources */,
-				7C4A2D4D5A9E4A6FB6500102 /* SchnackNativeLocalTts.mm in Sources */,
 				7C4A2D4D5A9E4A6FB6500103 /* SchnackNativeWaveform.swift in Sources */,
 				7C4A2D4D5A9E4A6FB6500104 /* SchnackNativeWaveformBridge.m in Sources */,
 				7C4A2D4D5A9E4A6FB6500105 /* SchnackNativeWaveformView.swift in Sources */,
@@ -468,17 +452,7 @@
 					"FB_SONARKIT_ENABLED=1",
 					"FMT_USE_CONSTEVAL=0",
 				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios/archive",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios/model_detect",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios/online_stt",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios/stt",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios/tts",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios/Frameworks/sherpa_onnx.xcframework/ios-arm64/Headers",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios/Frameworks/sherpa_onnx.xcframework/ios-arm64_x86_64-simulator/Headers",
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = SchnackAI/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Schnack AI";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
@@ -526,17 +500,7 @@
 					"$(inherited)",
 					"FMT_USE_CONSTEVAL=0",
 				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios/archive",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios/model_detect",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios/online_stt",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios/stt",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios/tts",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios/Frameworks/sherpa_onnx.xcframework/ios-arm64/Headers",
-					"$(SRCROOT)/../node_modules/react-native-sherpa-onnx/ios/Frameworks/sherpa_onnx.xcframework/ios-arm64_x86_64-simulator/Headers",
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = SchnackAI/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Schnack AI";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
