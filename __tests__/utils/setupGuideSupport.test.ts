@@ -1,11 +1,3 @@
-jest.mock("../../src/services/tts/localRoute", () => ({
-  getResolvedLocalTtsSelection: jest.fn(() => ({
-    resolvedLanguage: "en",
-    localVoice: "af_heart",
-    canUseLocal: true,
-  })),
-}));
-
 import { DEFAULT_SETTINGS } from "../../src/types";
 import {
   getCurrentSetupGuideValidationState,
@@ -30,7 +22,6 @@ describe("setupGuideSupport", () => {
       provider: "openai",
       settings,
       nativeSttAvailable: true,
-      localTtsPackStates: {},
     });
 
     expect(routes.llm.enabled).toBe(true);
@@ -47,7 +38,7 @@ describe("setupGuideSupport", () => {
     );
   });
 
-  it("falls back to local TTS when the provider key does not unlock provider speech", () => {
+  it("disables TTS when the provider key does not unlock provider speech", () => {
     const settings = createSettings();
     settings.apiKeys["microsoft-azure"] =
       "https://example.openai.azure.com|test-openai-key";
@@ -56,24 +47,13 @@ describe("setupGuideSupport", () => {
       provider: "microsoft-azure",
       settings,
       nativeSttAvailable: false,
-      localTtsPackStates: {
-        en: {
-          supported: true,
-          downloaded: true,
-          verified: true,
-          installed: true,
-          downloading: false,
-          progress: 0,
-          error: null,
-        },
-      },
     });
 
     expect(routes.llm.enabled).toBe(true);
     expect(routes.tts).toEqual(
       expect.objectContaining({
-        enabled: true,
-        kind: "local",
+        enabled: false,
+        kind: "disabled",
       }),
     );
   });

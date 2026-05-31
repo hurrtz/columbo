@@ -29,10 +29,6 @@ jest.mock("../../../src/services/tts/providerRoute", () => ({
   synthesizeProviderSpeech: jest.fn(async () => "file://speech.wav"),
 }));
 
-jest.mock("../../../src/services/localTts", () => ({
-  synthesizeLocalSpeech: jest.fn(async () => "file://speech.wav"),
-}));
-
 jest.mock("../../../src/services/whisper", () => ({
   transcribeAudio: jest.fn(async () => "transcript"),
 }));

@@ -50,7 +50,6 @@ export function useVoiceCaptureHandler({
   handleRepeatLastReply,
   language,
   lastCompletedReplyRef,
-  localTtsVoices,
   model,
   player,
   provider,
@@ -153,7 +152,6 @@ export function useVoiceCaptureHandler({
           ttsModel: selectedTtsModel,
           ttsVoice: selectedTtsVoice,
           ttsListenLanguages,
-          localTtsVoices,
           replyPlayback,
           spokenRepliesEnabled,
           assistantInstructions,
@@ -326,10 +324,7 @@ export function useVoiceCaptureHandler({
               });
             },
             onTtsFallback: (error) => {
-              const noticeMessage =
-                ttsMode === "local"
-                  ? t("localVoiceFallback")
-                  : t("providerVoiceFallback");
+              const noticeMessage = t("providerVoiceFallback");
               const notice: MessagePipelineNotice = {
                 stage: "tts",
                 level: "warning",
@@ -499,7 +494,6 @@ export function useVoiceCaptureHandler({
       handleRepeatLastReply,
       language,
       lastCompletedReplyRef,
-      localTtsVoices,
       model,
       player,
       provider,

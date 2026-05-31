@@ -127,7 +127,6 @@ function createParams(
     selectedTtsModel: "gpt-4o-mini-tts",
     selectedTtsVoice: "alloy",
     ttsListenLanguages: DEFAULT_SETTINGS.ttsListenLanguages,
-    localTtsVoices: DEFAULT_SETTINGS.localTtsVoices,
     replyPlayback: DEFAULT_SETTINGS.replyPlayback,
     spokenRepliesEnabled: true,
     assistantInstructions: DEFAULT_SETTINGS.assistantInstructions,
@@ -188,11 +187,11 @@ describe("useVoicePipeline", () => {
 
   it("falls back to native speech when replay synthesis fails", async () => {
     const params = createParams({
-      ttsMode: "local",
+      ttsMode: "provider",
       player: createPlayer(),
     });
     (synthesizeSpeech as jest.Mock).mockRejectedValue(
-      new Error("Local TTS unavailable"),
+      new Error("Provider TTS unavailable"),
     );
 
     const { result } = renderHook(() => useVoicePipeline(params));
@@ -211,7 +210,7 @@ describe("useVoicePipeline", () => {
       }),
     );
     expect(params.showToast).toHaveBeenCalledWith(
-      `${translate("en", "localVoiceFallback")} Local TTS unavailable`,
+      `${translate("en", "providerVoiceFallback")} Provider TTS unavailable`,
     );
     expect(result.current.replayPhase).toBe("idle");
     expect(result.current.activeReplayMessageId).toBeNull();
@@ -245,7 +244,6 @@ describe("useVoicePipeline", () => {
         apiKey: "sk-tts",
         language: "en",
         listenLanguages: DEFAULT_SETTINGS.ttsListenLanguages,
-        localVoices: DEFAULT_SETTINGS.localTtsVoices,
         diagnostics: expect.objectContaining({
           requestId: "speech-request-1",
           source: "repeat",

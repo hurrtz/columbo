@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createSpeechRequestId } from "../../services/speech/diagnostics";
 import { streamChat } from "../../services/llm";
 import { synthesizeProviderSpeech } from "../../services/tts/providerRoute";
-import { synthesizeLocalSpeech } from "../../services/localTts";
 import { transcribeAudio } from "../../services/whisper";
 import type { Settings } from "../../types";
 import { useAudioPlayer } from "../../hooks/useAudioPlayer";
@@ -264,22 +263,15 @@ export function useSetupGuideVoiceTest(params: {
 
     setPhase("synthesizing");
 
-    const audioUri =
-      routes.tts.kind === "provider"
-        ? await synthesizeProviderSpeech({
-            text: trimmedReply,
-            voice: routes.tts.voice,
-            provider: routes.tts.provider,
-            providerModel: routes.tts.model,
-            apiKey: settings.apiKeys[routes.tts.provider].trim(),
-            language: settings.language,
-            abortSignal: abortController.signal,
-          })
-        : await synthesizeLocalSpeech({
-            text: trimmedReply,
-            language: routes.tts.language,
-            voice: routes.tts.voice,
-          });
+    const audioUri = await synthesizeProviderSpeech({
+      text: trimmedReply,
+      voice: routes.tts.voice,
+      provider: routes.tts.provider,
+      providerModel: routes.tts.model,
+      apiKey: settings.apiKeys[routes.tts.provider].trim(),
+      language: settings.language,
+      abortSignal: abortController.signal,
+    });
 
     if (abortController.signal.aborted) {
       throw buildAbortError();
@@ -289,8 +281,8 @@ export function useSetupGuideVoiceTest(params: {
     player.enqueueAudio(audioUri, {
       requestId: createSpeechRequestId("setup"),
       source: "preview",
-      provider: routes.tts.kind === "provider" ? routes.tts.provider : null,
-      providerModel: routes.tts.kind === "provider" ? routes.tts.model : null,
+      provider: routes.tts.provider,
+      providerModel: routes.tts.model,
     });
     setPhase("speaking");
     await player.waitForDrain();

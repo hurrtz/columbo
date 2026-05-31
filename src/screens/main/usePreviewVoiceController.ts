@@ -3,16 +3,12 @@ import { useCallback, useRef } from "react";
 import { recordDebugLogEvent } from "../../services/debugLogCapture";
 import type { SpeechDiagnosticsContext } from "../../services/speech/diagnostics";
 import { createSpeechRequestId } from "../../services/speech/diagnostics";
-import { getLocalTtsInstallStatus } from "../../services/localTts";
 import { synthesizeSpeech } from "../../services/tts";
 import {
   AppLanguage,
-  Provider,
   Settings,
-  TtsListenLanguage,
   VoicePreviewRequest,
 } from "../../types";
-import { getTtsListenLanguageLabel } from "../../constants/localTts";
 import { PROVIDER_DEFAULT_TTS_MODELS } from "../../constants/models";
 
 import { ShowToastFn, TranslateFn } from "./shared";
@@ -34,11 +30,9 @@ interface UsePreviewVoiceControllerParams {
   isRecording: boolean;
   language: AppLanguage;
   player: PreviewPlayer;
-  refreshLocalTtsPackStates: () => Promise<void>;
-  settings: Pick<Settings, "apiKeys" | "localTtsVoices" | "providerTtsModels">;
+  settings: Pick<Settings, "apiKeys" | "providerTtsModels">;
   showToast: ShowToastFn;
   t: TranslateFn;
-  ttsProvider: Provider | null;
 }
 
 export function usePreviewVoiceController({
@@ -46,11 +40,9 @@ export function usePreviewVoiceController({
   isRecording,
   language,
   player,
-  refreshLocalTtsPackStates,
   settings,
   showToast,
   t,
-  ttsProvider,
 }: UsePreviewVoiceControllerParams) {
   const previewSessionRef = useRef(0);
   const previewAbortRef = useRef<AbortController | null>(null);
@@ -74,11 +66,7 @@ export function usePreviewVoiceController({
       }
 
       const previewLanguage =
-        request.mode === "provider"
-          ? request.previewLanguage
-          : request.mode === "local"
-            ? request.localLanguage
-            : null;
+        request.mode === "provider" ? request.previewLanguage : null;
 
       recordDebugLogEvent({
         event: "voice-preview-requested",
@@ -178,68 +166,9 @@ export function usePreviewVoiceController({
           });
           return;
         }
-
-        if (!request.voice) {
-          showToast(t("chooseTtsToPreviewVoices"));
-          return;
-        }
-
-        const localStatus = await getLocalTtsInstallStatus({
-          language: request.localLanguage,
-          voice: request.voice,
-        });
-
-        if (!localStatus.downloaded) {
-          showToast(
-            t("downloadSelectedLocalVoiceFirst", {
-              languageLabel: getTtsListenLanguageLabel(
-                request.localLanguage,
-                language,
-              ),
-            }),
-          );
-          return;
-        }
-
-        const audioUri = await synthesizeSpeech({
-          text: trimmed,
-          voice: request.voice,
-          mode: "local",
-          providerModel:
-            ttsProvider && settings.providerTtsModels[ttsProvider]
-              ? settings.providerTtsModels[ttsProvider]
-              : ttsProvider
-                ? PROVIDER_DEFAULT_TTS_MODELS[ttsProvider] || ""
-                : undefined,
-          language,
-          listenLanguages: [request.localLanguage],
-          localVoices: {
-            ...settings.localTtsVoices,
-            [request.localLanguage]: request.voice,
-          },
-          diagnostics: speechDiagnostics,
-          strictLocalVoice: true,
-          abortSignal: previewAbortController.signal,
-        });
-
-        ensurePreviewActive();
-        player.enqueueAudio(audioUri, speechDiagnostics);
-        callbacks?.onPlaybackStarted?.();
-        await player.waitForDrain();
-        recordDebugLogEvent({
-          event: "voice-preview-finished",
-          payload: {
-            mode: request.mode,
-            route: "local-audio",
-          },
-        });
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
           return;
-        }
-
-        if (request.mode === "local") {
-          await refreshLocalTtsPackStates();
         }
 
         const message =
@@ -264,13 +193,10 @@ export function usePreviewVoiceController({
       isRecording,
       language,
       player,
-      refreshLocalTtsPackStates,
       settings.apiKeys,
-      settings.localTtsVoices,
       settings.providerTtsModels,
       showToast,
       t,
-      ttsProvider,
     ],
   );
 

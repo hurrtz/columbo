@@ -111,14 +111,6 @@ jest.mock("../../src/hooks/useAudioPlayer", () => ({
   })),
 }));
 
-jest.mock("../../src/hooks/useLocalTtsPacks", () => ({
-  useLocalTtsPacks: jest.fn(() => ({
-    packStates: {},
-    installLanguagePack: jest.fn(async () => undefined),
-    refreshPackStates: jest.fn(async () => undefined),
-  })),
-}));
-
 jest.mock("../../src/hooks/useVoicePipeline", () => ({
   useVoicePipeline: jest.fn(() => ({
     pipelinePhase: "idle",

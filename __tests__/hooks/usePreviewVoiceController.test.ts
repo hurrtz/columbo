@@ -3,7 +3,6 @@ import { act, renderHook } from "@testing-library/react-native";
 import { usePreviewVoiceController } from "../../src/screens/main/usePreviewVoiceController";
 
 const mockSynthesizeSpeech = jest.fn();
-const mockGetLocalTtsInstallStatus = jest.fn();
 
 jest.mock("expo-clipboard", () => ({
   setStringAsync: jest.fn(async () => undefined),
@@ -24,16 +23,10 @@ jest.mock("../../src/services/tts", () => ({
   synthesizeSpeech: (...args: unknown[]) => mockSynthesizeSpeech(...args),
 }));
 
-jest.mock("../../src/services/localTts", () => ({
-  getLocalTtsInstallStatus: (...args: unknown[]) =>
-    mockGetLocalTtsInstallStatus(...args),
-}));
-
 describe("usePreviewVoiceController", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockSynthesizeSpeech.mockResolvedValue("file://preview.m4a");
-    mockGetLocalTtsInstallStatus.mockResolvedValue({ downloaded: true });
   });
 
   it("blocks provider previews when the provider key is missing", async () => {
@@ -52,10 +45,8 @@ describe("usePreviewVoiceController", () => {
         isRecording: false,
         language: "en",
         player,
-        refreshLocalTtsPackStates: jest.fn(async () => undefined),
         settings: {
           apiKeys: { openai: "" } as never,
-          localTtsVoices: {} as never,
           providerTtsModels: { openai: "gpt-4o-mini-tts" } as never,
         },
         showToast,
@@ -63,7 +54,6 @@ describe("usePreviewVoiceController", () => {
           ({
             chooseTtsToPreviewVoices: "Choose TTS first",
           }[key] ?? key),
-        ttsProvider: "openai",
       }),
     );
 
@@ -97,15 +87,12 @@ describe("usePreviewVoiceController", () => {
         isRecording: false,
         language: "en",
         player,
-        refreshLocalTtsPackStates: jest.fn(async () => undefined),
         settings: {
           apiKeys: {} as never,
-          localTtsVoices: {} as never,
           providerTtsModels: {} as never,
         },
         showToast: jest.fn(),
         t: (key) => key,
-        ttsProvider: null,
       }),
     );
 

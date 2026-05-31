@@ -22,14 +22,7 @@ import {
 import { getStatusDisplayData, getStatusIndicatorTone } from "./statusSelectors";
 import { TranslateFn } from "./shared";
 import { getConversationUsageDisplayData } from "./usageSelectors";
-import { getTtsListenLanguageLabel } from "../../constants/localTts";
 import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
-
-type LocalPackStateLike = {
-  supported: boolean;
-  downloaded: boolean;
-  verified: boolean;
-};
 
 interface AudioSignalState {
   isPlaybackPaused: boolean;
@@ -44,7 +37,6 @@ interface GetMainScreenViewModelParams {
   availableTtsProviders: Provider[];
   isRecording: boolean;
   language: AppLanguage;
-  localTtsPackStates: Partial<Record<TtsListenLanguage, LocalPackStateLike>>;
   model: string;
   pipelinePhase: PipelinePhase;
   player: AudioSignalState;
@@ -79,7 +71,6 @@ export function getMainScreenViewModel({
   availableTtsProviders,
   isRecording,
   language,
-  localTtsPackStates,
   model,
   pipelinePhase,
   player,
@@ -124,47 +115,21 @@ export function getMainScreenViewModel({
       ? t("spokenRepliesOff")
       : settings.ttsMode === "native"
         ? t("systemVoice")
-        : settings.ttsMode === "local"
-          ? `${t("localTts")} · ${settings.ttsListenLanguages
-              .map((entry) => getTtsListenLanguageLabel(entry, language))
-              .join(", ")}`
-          : ttsProvider
-            ? `${PROVIDER_LABELS[ttsProvider]}${
-                getProviderTtsModelOptions(ttsProvider).length > 1 &&
-                selectedTtsModel
-                  ? ` · ${getTtsModelLabel(ttsProvider, selectedTtsModel)}`
-                  : ""
-              } · ${getTtsVoiceLabel(ttsProvider, selectedTtsVoice, language)}`
-            : t("noTtsProvider");
+        : ttsProvider
+          ? `${PROVIDER_LABELS[ttsProvider]}${
+              getProviderTtsModelOptions(ttsProvider).length > 1 &&
+              selectedTtsModel
+                ? ` · ${getTtsModelLabel(ttsProvider, selectedTtsModel)}`
+                : ""
+            } · ${getTtsVoiceLabel(ttsProvider, selectedTtsVoice, language)}`
+          : t("noTtsProvider");
 
-  const readyLocalFallbackLanguages = settings.ttsListenLanguages.filter(
-    (entry) =>
-      localTtsPackStates[entry]?.supported &&
-      localTtsPackStates[entry]?.downloaded &&
-      localTtsPackStates[entry]?.verified,
-  );
-  const localFallbackStatusLabel =
-    readyLocalFallbackLanguages.length > 0
-      ? `${t("localTts")} · ${readyLocalFallbackLanguages
-          .map((entry) => getTtsListenLanguageLabel(entry, language))
-          .join(", ")}`
-      : null;
-  const providerFallbackStatusLabel =
-    ttsProvider && availableTtsProviders.includes(ttsProvider) && ttsApiKey
-      ? `${PROVIDER_LABELS[ttsProvider]}${
-          getProviderTtsModelOptions(ttsProvider).length > 1 && selectedTtsModel
-            ? ` · ${getTtsModelLabel(ttsProvider, selectedTtsModel)}`
-            : ""
-        } · ${getTtsVoiceLabel(ttsProvider, selectedTtsVoice, language)}`
-      : null;
   const fallbackTtsStatusLabel =
     !settings.spokenRepliesEnabled
       ? null
-      : settings.ttsMode === "local"
-        ? providerFallbackStatusLabel
-        : settings.ttsMode === "provider"
-          ? localFallbackStatusLabel
-          : null;
+      : settings.ttsMode === "provider"
+        ? t("systemVoice")
+        : null;
 
   const visualPhase: VoiceVisualPhase = isRecording
     ? "recording"

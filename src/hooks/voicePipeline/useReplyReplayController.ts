@@ -22,7 +22,6 @@ type ReplayControllerParams = Pick<
   UseVoicePipelineParams,
   | "isRecording"
   | "language"
-  | "localTtsVoices"
   | "selectedTtsModel"
   | "selectedTtsVoice"
   | "showToast"
@@ -44,7 +43,6 @@ export function useReplyReplayController({
   isRecording,
   language,
   lastCompletedReplyRef,
-  localTtsVoices,
   player,
   selectedTtsModel,
   selectedTtsVoice,
@@ -152,12 +150,7 @@ export function useReplyReplayController({
 
               fallbackToastShown = true;
               showToast(
-                formatFallbackToast(
-                  ttsMode === "local"
-                    ? t("localVoiceFallback")
-                    : t("providerVoiceFallback"),
-                  error,
-                ),
+                formatFallbackToast(t("providerVoiceFallback"), error),
               );
             },
             onError: (error) => {
@@ -173,7 +166,6 @@ export function useReplyReplayController({
           },
           diagnosticsSource: "repeat",
           language,
-          localTtsVoices,
           replyPlayback,
           ttsApiKey,
           ttsListenLanguages,
@@ -205,7 +197,6 @@ export function useReplyReplayController({
     },
     [
       language,
-      localTtsVoices,
       player,
       selectedTtsModel,
       selectedTtsVoice,

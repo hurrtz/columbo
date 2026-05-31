@@ -1,4 +1,3 @@
-import type { LocalTtsPackStates } from "../../components/settings/types";
 import {
   PROVIDER_DEFAULT_TTS_MODELS,
   PROVIDER_DEFAULT_TTS_VOICES,
@@ -12,12 +11,10 @@ import {
   WEB_SEARCH_PROVIDER_IDS,
   type WebSearchProvider,
 } from "../../constants/webSearch";
-import { getResolvedLocalTtsSelection } from "../../services/tts/localRoute";
 import type {
   Provider,
   ResponseModeSelections,
   Settings,
-  TtsListenLanguage,
 } from "../../types";
 import { getDefaultModelForProvider, getProviderValidationModel } from "../../utils/responseModes";
 import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
@@ -64,12 +61,6 @@ export interface SetupGuideResolvedRoutes {
         kind: "provider";
         provider: Provider;
         model: string;
-        voice: string;
-      }
-    | {
-        enabled: true;
-        kind: "local";
-        language: TtsListenLanguage;
         voice: string;
       }
     | {
@@ -149,9 +140,8 @@ export function resolveSetupGuideRoutes(params: {
   provider: Provider;
   settings: Settings;
   nativeSttAvailable: boolean;
-  localTtsPackStates: LocalTtsPackStates;
 }): SetupGuideResolvedRoutes {
-  const { localTtsPackStates, nativeSttAvailable, provider, settings } = params;
+  const { nativeSttAvailable, provider, settings } = params;
   const apiKey = settings.apiKeys[provider].trim();
   const llmModel = getSetupGuideValidationModel(settings, provider);
   const providerSttModel = settings.providerSttModels[provider]?.trim() || "";
@@ -176,20 +166,6 @@ export function resolveSetupGuideRoutes(params: {
   const searchEnabled =
     providerSupportsCapability(provider, "search") &&
     hasProviderCredentialForCapability(provider, apiKey, "search");
-
-  const localSelection = getResolvedLocalTtsSelection({
-    text: settings.language === "de" ? "Hallo" : "Hello",
-    language: settings.language,
-    listenLanguages: settings.ttsListenLanguages,
-    localVoices: settings.localTtsVoices,
-  });
-  const localPackState = localTtsPackStates[localSelection.resolvedLanguage];
-  const localTtsEnabled = Boolean(
-    localSelection.canUseLocal &&
-      localSelection.localVoice &&
-      localPackState?.installed &&
-      localPackState?.verified,
-  );
 
   return {
     llm: {
@@ -221,17 +197,10 @@ export function resolveSetupGuideRoutes(params: {
           model: providerTtsModel,
           voice: providerTtsVoice,
         }
-      : localTtsEnabled
-        ? {
-            enabled: true,
-            kind: "local",
-            language: localSelection.resolvedLanguage,
-            voice: localSelection.localVoice,
-          }
-        : {
-            enabled: false,
-            kind: "disabled",
-          },
+      : {
+          enabled: false,
+          kind: "disabled",
+        },
     webSearch: {
       available: searchEnabled,
       provider: searchEnabled ? (provider as WebSearchProvider) : null,

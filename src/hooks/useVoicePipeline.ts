@@ -31,7 +31,6 @@ export function useVoicePipeline(
     isRecording: params.isRecording,
     language: params.language,
     lastCompletedReplyRef,
-    localTtsVoices: params.localTtsVoices,
     player: params.player,
     selectedTtsModel: params.selectedTtsModel,
     selectedTtsVoice: params.selectedTtsVoice,

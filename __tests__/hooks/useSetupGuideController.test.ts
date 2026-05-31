@@ -10,14 +10,6 @@ jest.mock("../../src/services/llm", () => ({
   validateProviderConnection: jest.fn(),
 }));
 
-jest.mock("../../src/services/tts/localRoute", () => ({
-  getResolvedLocalTtsSelection: jest.fn(() => ({
-    resolvedLanguage: "en",
-    localVoice: "af_heart",
-    canUseLocal: true,
-  })),
-}));
-
 jest.mock("../../src/screens/main/useSetupGuideVoiceTest", () => ({
   useSetupGuideVoiceTest: jest.fn(() => ({
     phase: "idle",
@@ -71,7 +63,6 @@ function createControllerParams() {
     settings: createSettings(),
     updateSettings: jest.fn(),
     updateApiKey: jest.fn(),
-    localTtsPackStates: {},
     player: {
       isPlaybackPaused: false,
       isPlaying: false,

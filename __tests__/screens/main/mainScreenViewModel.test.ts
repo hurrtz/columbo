@@ -18,7 +18,7 @@ function t(key: any, params?: Record<string, string | number | undefined>) {
 }
 
 describe("getMainScreenViewModel", () => {
-  it("builds local and fallback route labels plus streaming transcript state", () => {
+  it("builds provider and fallback route labels plus streaming transcript state", () => {
     const settings: Settings = {
       ...DEFAULT_SETTINGS,
       activeResponseMode: "quick",
@@ -32,7 +32,7 @@ describe("getMainScreenViewModel", () => {
         ...DEFAULT_SETTINGS.providerSttModels,
         openai: "gpt-4o-mini-transcribe",
       },
-      ttsMode: "local",
+      ttsMode: "provider",
       spokenRepliesEnabled: true,
       ttsProvider: "openai",
       providerTtsModels: {
@@ -72,18 +72,6 @@ describe("getMainScreenViewModel", () => {
       availableTtsProviders: ["openai"],
       isRecording: false,
       language: "en",
-      localTtsPackStates: {
-        en: {
-          supported: true,
-          downloaded: true,
-          verified: true,
-        },
-        de: {
-          supported: true,
-          downloaded: false,
-          verified: false,
-        },
-      },
       model: "gpt-5.4",
       pipelinePhase: "thinking",
       player: {
@@ -113,8 +101,8 @@ describe("getMainScreenViewModel", () => {
     expect(viewModel.messages).toHaveLength(2);
     expect(viewModel.lastAssistantReply).toBe("Stored reply");
     expect(viewModel.sttStatusLabel).toContain("OpenAI");
-    expect(viewModel.ttsStatusLabel).toContain("localTts");
-    expect(viewModel.fallbackTtsStatusLabel).toContain("OpenAI");
+    expect(viewModel.ttsStatusLabel).toContain("OpenAI");
+    expect(viewModel.fallbackTtsStatusLabel).toBe("systemVoice");
     expect(viewModel.routeModelLabel).toContain("GPT-5.4");
     expect(viewModel.activeConversationTitle).toBe("Planning");
   });
@@ -125,7 +113,6 @@ describe("getMainScreenViewModel", () => {
       availableTtsProviders: ["openai"],
       isRecording: false,
       language: "en",
-      localTtsPackStates: {},
       model: "gpt-5.4",
       pipelinePhase: "speaking",
       player: {
@@ -160,7 +147,6 @@ describe("getMainScreenViewModel", () => {
       availableTtsProviders: [],
       isRecording: false,
       language: "en",
-      localTtsPackStates: {},
       model: DEFAULT_SETTINGS.responseModes.normal.model,
       pipelinePhase: "idle",
       player: {

@@ -126,10 +126,6 @@ function getTtsRouteCopy(
     });
   }
 
-  if (routes.tts.kind === "local") {
-    return t("setupGuideRouteLocalTts");
-  }
-
   return t("setupGuideRouteOff");
 }
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { LocalTtsPackStates, SettingsTab } from "../../components/settings/types";
+import type { SettingsTab } from "../../components/settings/types";
 import { PROVIDER_LABELS } from "../../constants/models";
 import type { useAudioPlayer } from "../../hooks/useAudioPlayer";
 import type { useAudioRecorder } from "../../hooks/useAudioRecorder";
@@ -31,7 +31,6 @@ interface UseSetupGuideControllerParams {
   settings: Settings;
   updateSettings: (partial: Partial<Settings>) => void;
   updateApiKey: (provider: Provider, apiKey: string) => void;
-  localTtsPackStates: LocalTtsPackStates;
   player: ReturnType<typeof useAudioPlayer>;
   recorder: ReturnType<typeof useAudioRecorder>;
   nativeStt: ReturnType<typeof useNativeSpeechRecognizer>;
@@ -39,7 +38,6 @@ interface UseSetupGuideControllerParams {
 
 export function useSetupGuideController({
   loaded,
-  localTtsPackStates,
   nativeStt,
   openSettings,
   player,
@@ -101,9 +99,8 @@ export function useSetupGuideController({
         provider: routeProvider,
         settings,
         nativeSttAvailable: nativeStt.isAvailable,
-        localTtsPackStates,
       }),
-    [localTtsPackStates, nativeStt.isAvailable, routeProvider, settings],
+    [nativeStt.isAvailable, routeProvider, settings],
   );
 
   const voiceTest = useSetupGuideVoiceTest({
@@ -288,12 +285,7 @@ export function useSetupGuideController({
             ttsMode: "provider" as const,
             ttsProvider: selectedProvider,
           }
-        : resolvedRoutes.tts.kind === "local"
-          ? {
-              ttsMode: "local" as const,
-              ttsProvider: null,
-            }
-          : {}),
+        : {}),
       webSearchMode: "off",
       webSearchProvider: resolvedRoutes.webSearch.provider,
     });

@@ -3,7 +3,6 @@ import type { MutableRefObject } from "react";
 import { AppState } from "react-native";
 
 import { PipelinePhase } from "../../../hooks/useVoicePipeline";
-import { releaseLocalTtsResources } from "../../../services/localTts";
 
 import type {
   AudioRecorderController,
@@ -53,14 +52,11 @@ export function useVoiceSessionAppState({
         } catch {
           // Ignore background-stop failures.
         }
-
-        await releaseLocalTtsResources();
       })();
     });
 
     return () => {
       subscription.remove();
-      void releaseLocalTtsResources();
     };
   }, [
     abortRef,

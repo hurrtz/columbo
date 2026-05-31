@@ -3,14 +3,8 @@ import { AppState } from "react-native";
 
 import { useVoiceSessionController } from "../../src/screens/main/useVoiceSessionController";
 
-const mockReleaseLocalTtsResources = jest.fn(async () => undefined);
-
 jest.mock("../../src/services/debugLogCapture", () => ({
   recordDebugLogEvent: jest.fn(),
-}));
-
-jest.mock("../../src/services/localTts", () => ({
-  releaseLocalTtsResources: () => mockReleaseLocalTtsResources(),
 }));
 
 describe("useVoiceSessionController", () => {

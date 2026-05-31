@@ -12,7 +12,6 @@ import { SettingsModal } from "../components/SettingsModal";
 import { SetupGuideModal } from "../components/SetupGuideModal";
 import { Toast } from "../components/Toast";
 import { type WebSearchProvider } from "../constants/webSearch";
-import { getTtsListenLanguageLabel } from "../constants/localTts";
 import {
   PROVIDER_DEFAULT_STT_MODELS,
   PROVIDER_DEFAULT_TTS_MODELS,
@@ -21,7 +20,6 @@ import {
 } from "../constants/models";
 import { useSharedSettings } from "../context/SettingsContext";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
-import { useLocalTtsPacks } from "../hooks/useLocalTtsPacks";
 import { useAudioRecorder } from "../hooks/useAudioRecorder";
 import { useDynamicProviderTtsVoiceCatalog } from "../hooks/useDynamicProviderTtsVoiceCatalog";
 import { useNativeSpeechRecognizer } from "../hooks/useNativeSpeechRecognizer";
@@ -44,7 +42,6 @@ import { useTheme } from "../theme/ThemeContext";
 import {
   Provider,
   ResponseMode,
-  TtsListenLanguage,
   WaveformVisualizationVariant,
 } from "../types";
 import {
@@ -90,7 +87,6 @@ export function MainScreen() {
     updateProviderSttModel,
     updateProviderTtsModel,
     updateProviderTtsVoice,
-    updateLocalTtsVoice,
     updateApiKey,
     loaded,
   } = useSharedSettings();
@@ -116,11 +112,6 @@ export function MainScreen() {
   const recorder = useAudioRecorder();
   const nativeStt = useNativeSpeechRecognizer();
   const player = useAudioPlayer();
-  const {
-    packStates: localTtsPackStates,
-    installLanguagePack,
-    refreshPackStates: refreshLocalTtsPackStates,
-  } = useLocalTtsPacks(settings);
 
   const [toast, setToast] = useState<{
     message: string;
@@ -282,7 +273,6 @@ export function MainScreen() {
     ttsApiKey,
     selectedTtsVoice,
     ttsListenLanguages: settings.ttsListenLanguages,
-    localTtsVoices: settings.localTtsVoices,
     replyPlayback: settings.replyPlayback,
     spokenRepliesEnabled: settings.spokenRepliesEnabled,
     assistantInstructions: settings.assistantInstructions,
@@ -299,60 +289,6 @@ export function MainScreen() {
   });
 
   const isBusy = pipelinePhase !== "idle";
-
-  const handleInstallLocalTtsLanguage = useCallback(
-    async (languageCode: TtsListenLanguage) => {
-      recordDebugLogEvent({
-        event: "local-tts-pack-install-requested",
-        payload: {
-          languageCode,
-        },
-      });
-
-      try {
-        const status = await installLanguagePack(languageCode);
-        const languageLabel = getTtsListenLanguageLabel(languageCode, language);
-
-        if (status?.downloaded && !status.verified) {
-          recordDebugLogEvent({
-            event: "local-tts-pack-install-invalid",
-            level: "warn",
-            payload: {
-              languageCode,
-              verificationError: status.verificationError || null,
-            },
-          });
-          showToast(status.verificationError || t("localTtsPackBroken"));
-          return;
-        }
-
-        recordDebugLogEvent({
-          event: "local-tts-pack-install-succeeded",
-          payload: {
-            downloaded: status?.downloaded ?? false,
-            languageCode,
-            verified: status?.verified ?? false,
-          },
-        });
-        showToast(t("localTtsPackInstalled", { languageLabel }));
-      } catch (error) {
-        recordDebugLogEvent({
-          event: "local-tts-pack-install-failed",
-          level: "error",
-          payload: {
-            languageCode,
-            message: error instanceof Error ? error.message : String(error),
-          },
-        });
-        showToast(
-          error instanceof Error
-            ? error.message
-            : t("localTtsPackInstallFailed"),
-        );
-      }
-    },
-    [installLanguagePack, language, showToast, t],
-  );
 
   const handleRepeatMessage = useCallback(
     async (message: { id: string; content: string }) => {
@@ -433,7 +369,6 @@ export function MainScreen() {
     voiceTest: setupGuideVoiceTest,
   } = useSetupGuideController({
     loaded,
-    localTtsPackStates,
     nativeStt,
     openSettings,
     player,
@@ -566,11 +501,9 @@ export function MainScreen() {
     isRecording,
     language,
     player,
-    refreshLocalTtsPackStates,
     settings,
     showToast,
     t,
-    ttsProvider,
   });
 
   const handleValidateProvider = useCallback(
@@ -698,7 +631,6 @@ export function MainScreen() {
     availableTtsProviders,
     isRecording,
     language,
-    localTtsPackStates,
     model,
     pipelinePhase,
     player,
@@ -1378,10 +1310,7 @@ export function MainScreen() {
         onUpdateProviderSttModel={updateProviderSttModel}
         onUpdateProviderTtsModel={updateProviderTtsModel}
         onUpdateProviderTtsVoice={updateProviderTtsVoice}
-        onUpdateLocalTtsVoice={updateLocalTtsVoice}
         onUpdateApiKey={updateApiKey}
-        localTtsPackStates={localTtsPackStates}
-        onInstallLocalTtsLanguagePack={handleInstallLocalTtsLanguage}
         onPreviewVoice={handlePreviewVoice}
         onStopPreviewVoice={stopPreviewVoice}
         onValidateProvider={handleValidateProvider}
