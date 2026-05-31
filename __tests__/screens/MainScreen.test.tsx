@@ -3,6 +3,7 @@ import { fireEvent } from "@testing-library/react-native";
 
 import { MainScreen } from "../../src/screens/MainScreen";
 import { DEFAULT_SETTINGS, type Settings } from "../../src/types";
+import { getDefaultModelForProvider } from "../../src/utils/responseModes";
 import { renderWithProviders } from "../test-utils/renderWithProviders";
 
 jest.mock("@expo/vector-icons", () => ({
@@ -379,8 +380,20 @@ describe("MainScreen", () => {
   });
 
   it("renders the style chip when a reply provider is configured", () => {
+    const route = {
+      provider: DEFAULT_SETTINGS.responseModes.normal.provider,
+      model: getDefaultModelForProvider(
+        DEFAULT_SETTINGS.responseModes.normal.provider,
+      ),
+    };
+
     useSharedSettings.mockReturnValue(
       createSharedSettingsValue({
+        responseModes: {
+          quick: route,
+          normal: route,
+          deep: route,
+        },
         apiKeys: {
           ...DEFAULT_SETTINGS.apiKeys,
           [DEFAULT_SETTINGS.responseModes.normal.provider]: "provider-key",

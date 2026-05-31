@@ -62,6 +62,24 @@ describe("response mode selectors", () => {
     expect(getDefaultModelForProvider("xai")).toBe("grok-4.3");
   });
 
+  it("does not treat a search-only provider with an empty model as a usable response mode", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      responseModes: {
+        quick: { provider: "brave" as const, model: "" },
+        normal: { provider: "brave" as const, model: "" },
+        deep: { provider: "brave" as const, model: "" },
+      },
+      apiKeys: {
+        ...DEFAULT_SETTINGS.apiKeys,
+        brave: "brave-search-key",
+      },
+    };
+
+    expect(isResponseModeReady(settings, "quick")).toBe(false);
+    expect(getAvailableResponseModes(settings)).toEqual([]);
+  });
+
   it("requires valid Google AI Studio credentials for Gemini-backed response modes", () => {
     const invalidKeySettings = {
       ...DEFAULT_SETTINGS,

@@ -57,10 +57,13 @@ export function isResponseModeReady(
   mode: ResponseMode,
 ): boolean {
   const route = getResponseModeRoute(settings, mode);
-  return hasProviderCredentialForCapability(
-    route.provider,
-    settings.apiKeys[route.provider],
-    "llm",
+  return (
+    route.model.trim().length > 0 &&
+    hasProviderCredentialForCapability(
+      route.provider,
+      settings.apiKeys[route.provider],
+      "llm",
+    )
   );
 }
 

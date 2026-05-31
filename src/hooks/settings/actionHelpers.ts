@@ -1,4 +1,5 @@
 import type { Provider, ResponseMode, Settings } from "../../types";
+import { PROVIDER_LLM_SUPPORT } from "../../constants/models";
 import { deriveResponseModesForProvider } from "../../utils/responseModes";
 import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
 import { persistApiKey, persistPublicSettings } from "./storage";
@@ -92,6 +93,7 @@ export function createApiKeyUpdater(setSettings: SetSettings) {
       // Once at least one usable mode exists we never auto-derive again, so we
       // never clobber a setup the user already has (or has customized).
       const shouldDerive =
+        PROVIDER_LLM_SUPPORT[provider] === "provider" &&
         hasProviderCredentialForCapability(provider, nextValue, "llm") &&
         !hasUsableResponseMode(withKey);
 
