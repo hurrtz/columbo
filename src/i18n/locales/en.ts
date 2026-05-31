@@ -169,6 +169,7 @@ export const en: TranslationDictionary = {
       "Configure at least one search-capable service in Credentials to enable web grounding here.",
     webSearchMode: "Web Search Mode",
     webSearchBehavior: "When to search",
+    webSearchOffLabel: "Web Search · Off",
     webSearchModeOff: "Off",
     webSearchModeAuto: "Auto",
     webSearchModeOn: "On",

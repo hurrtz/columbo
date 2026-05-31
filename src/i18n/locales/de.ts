@@ -171,6 +171,7 @@ export const de: TranslationDictionary = {
       "Richte unter Zugangsdaten mindestens einen suchfähigen Dienst ein, damit Web-Grundierung hier verfügbar ist.",
     webSearchMode: "Websuche-Modus",
     webSearchBehavior: "Wann gesucht wird",
+    webSearchOffLabel: "Websuche · Aus",
     webSearchModeOff: "Aus",
     webSearchModeAuto: "Auto",
     webSearchModeOn: "An",
