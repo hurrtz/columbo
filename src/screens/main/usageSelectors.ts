@@ -20,7 +20,6 @@ export interface ConversationUsageDisplayData {
   promptTokensLabel: string;
   replyTokensLabel: string;
   totalTokensLabel: string;
-  totalCostLabel: string | null;
   routes: ConversationUsageRouteDisplay[];
 }
 
@@ -76,7 +75,6 @@ export function getConversationUsageDisplayData(params: {
     totalTokensLabel: t("estimatedTotalTokens", {
       count: formatTokenCount(totals.totalTokens),
     }),
-    totalCostLabel: null,
     routes: routes.length > 1 ? routes : [],
   };
 }

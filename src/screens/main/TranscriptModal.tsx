@@ -181,16 +181,6 @@ export function TranscriptModal({
         >
           {usageDisplay.totalTokensLabel}
         </Text>
-        {usageDisplay.totalCostLabel ? (
-          <Text
-            style={[
-              styles.usageSummaryMetricStrong,
-              { color: colors.text },
-            ]}
-          >
-            {usageDisplay.totalCostLabel}
-          </Text>
-        ) : null}
       </View>
       {usageDisplay.routes.length > 0 ? (
         <View style={styles.usageRouteList}>
