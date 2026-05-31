@@ -20,14 +20,10 @@ export type RuntimeAppProviderId =
 
 export type RuntimeLlmTransport =
   | "none"
-  | "azure-openai"
-  | "azure-openai-realtime"
   | "openai-compatible"
   | "openai-realtime"
   | "gemini-live"
-  | "anthropic"
-  | "cohere"
-  | "replicate";
+  | "anthropic";
 export type RuntimeSttTransport =
   | "none"
   | "multipart"
@@ -42,7 +38,6 @@ export type RuntimeTtsTransport =
   | "dashscope";
 export type RuntimeTtsBinaryRequestFormat =
   | "openai-speech"
-  | "xai-speech"
   | "grok-speech";
 export type RuntimeLanguageHintKey = "mistral-stt-language-code";
 

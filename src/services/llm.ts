@@ -17,14 +17,6 @@ import {
 } from "./llm/prompts";
 import { requestAnthropicChat, requestAnthropicChatStream } from "./llm/providers/anthropic";
 import {
-  requestAzureOpenAiChat,
-  requestAzureOpenAiChatStream,
-} from "./llm/providers/azureOpenAi";
-import {
-  requestAzureOpenAiRealtimeChat,
-  requestAzureOpenAiRealtimeChatStream,
-} from "./llm/providers/azureOpenAiRealtime";
-import {
   requestOpenAICompatibleChat,
   requestOpenAICompatibleChatStream,
 } from "./llm/providers/openaiCompatible";
@@ -112,26 +104,6 @@ function getLlmProviderConfigOrThrow(
 }
 
 const LLM_TEXT_REQUESTERS = {
-  "azure-openai": async (params: LlmRequestParams) =>
-    requestAzureOpenAiChat({
-      provider: params.provider,
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      abortSignal: params.abortSignal,
-    }),
-  "azure-openai-realtime": async (params: LlmRequestParams) =>
-    requestAzureOpenAiRealtimeChat({
-      provider: params.provider,
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      abortSignal: params.abortSignal,
-    }),
   "openai-compatible": async (
     params: LlmRequestParams,
     config: Extract<ProviderLlmConfig, { transport: "openai-compatible" }>,
@@ -178,28 +150,6 @@ const LLM_TEXT_REQUESTERS = {
 } as const;
 
 const LLM_STREAM_REQUESTERS = {
-  "azure-openai": async (params: StreamingLlmRequestParams) =>
-    requestAzureOpenAiChatStream({
-      provider: params.provider,
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      onChunk: params.onChunk,
-      abortSignal: params.abortSignal,
-    }),
-  "azure-openai-realtime": async (params: StreamingLlmRequestParams) =>
-    requestAzureOpenAiRealtimeChatStream({
-      provider: params.provider,
-      model: params.model,
-      messages: params.messages,
-      apiKey: params.apiKey,
-      language: params.language,
-      systemPrompt: params.systemPrompt,
-      onChunk: params.onChunk,
-      abortSignal: params.abortSignal,
-    }),
   "openai-compatible": async (
     params: StreamingLlmRequestParams,
     config: Extract<ProviderLlmConfig, { transport: "openai-compatible" }>,
@@ -265,10 +215,6 @@ async function requestChatText(params: {
   );
 
   switch (config.transport) {
-    case "azure-openai":
-      return LLM_TEXT_REQUESTERS["azure-openai"](params);
-    case "azure-openai-realtime":
-      return LLM_TEXT_REQUESTERS["azure-openai-realtime"](params);
     case "openai-compatible":
       return LLM_TEXT_REQUESTERS["openai-compatible"](params, config);
     case "openai-realtime":
@@ -421,30 +367,6 @@ export async function streamChat({
       let fullText = "";
 
       switch (config.transport) {
-        case "azure-openai":
-          fullText = await LLM_STREAM_REQUESTERS["azure-openai"]({
-            messages,
-            model,
-            provider,
-            apiKey,
-            language,
-            systemPrompt,
-            onChunk: onChunkWithTimeout,
-            abortSignal,
-          });
-          break;
-        case "azure-openai-realtime":
-          fullText = await LLM_STREAM_REQUESTERS["azure-openai-realtime"]({
-            messages,
-            model,
-            provider,
-            apiKey,
-            language,
-            systemPrompt,
-            onChunk: onChunkWithTimeout,
-            abortSignal,
-          });
-          break;
         case "openai-compatible":
           fullText = await LLM_STREAM_REQUESTERS["openai-compatible"](
             {

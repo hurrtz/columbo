@@ -60,18 +60,6 @@ function buildBinaryTtsRequestBody(params: {
   text: string;
 }) {
   switch (params.requestFormat) {
-    case "xai-speech":
-      return {
-        model: params.selectedModel,
-        text: params.text,
-        voice_id: params.selectedVoice,
-        language: "auto",
-        output_format: {
-          codec: "mp3",
-          sample_rate: 24000,
-          bit_rate: 128000,
-        },
-      };
     case "grok-speech":
       return {
         text: params.text,

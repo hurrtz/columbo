@@ -16,14 +16,6 @@ type OpenAiCompatibleLlmConfig = {
   endpoint: string;
 };
 
-type AzureOpenAiLlmConfig = {
-  transport: "azure-openai";
-};
-
-type AzureOpenAiRealtimeLlmConfig = {
-  transport: "azure-openai-realtime";
-};
-
 type OpenAiRealtimeLlmConfig = {
   transport: "openai-realtime";
 };
@@ -32,27 +24,18 @@ type GeminiLiveLlmConfig = {
   transport: "gemini-live";
 };
 
-type ReplicateLlmConfig = {
-  transport: "replicate";
-};
-
 type TransportOnlyLlmConfig = {
   transport: Exclude<
     RuntimeLlmTransport,
-    | "azure-openai-realtime"
     | "openai-compatible"
     | "openai-realtime"
-    | "replicate"
   >;
 };
 
 export type ProviderLlmConfig =
-  | AzureOpenAiLlmConfig
-  | AzureOpenAiRealtimeLlmConfig
   | OpenAiCompatibleLlmConfig
   | OpenAiRealtimeLlmConfig
   | GeminiLiveLlmConfig
-  | ReplicateLlmConfig
   | TransportOnlyLlmConfig;
 
 export function getProviderLlmConfig(
@@ -69,16 +52,6 @@ export function getProviderLlmConfig(
   const realtimeTransport = manifest.llm.realtimeTransport;
 
   switch (manifest.llm.transport) {
-    case "azure-openai":
-      if (isRealtimeModel && realtimeTransport === "azure-openai-realtime") {
-        return {
-          transport: "azure-openai-realtime",
-        };
-      }
-
-      return {
-        transport: "azure-openai",
-      };
     case "openai-compatible":
       if (isRealtimeModel) {
         if (realtimeTransport === "gemini-live") {
@@ -100,12 +73,7 @@ export function getProviderLlmConfig(
         transport: "openai-compatible",
         endpoint: manifest.llm.endpoint,
       };
-    case "replicate":
-      return {
-        transport: "replicate",
-      };
     case "anthropic":
-    case "cohere":
       return {
         transport: manifest.llm.transport,
       };
