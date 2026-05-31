@@ -172,46 +172,6 @@ export const styles = StyleSheet.create({
     marginTop: 10,
     fontFamily: fonts.body,
   },
-  pricingSectionHint: {
-    marginTop: 0,
-    marginBottom: 12,
-  },
-  pricingAssumptionList: {
-    gap: 10,
-  },
-  pricingAssumptionRow: {
-    borderRadius: 18,
-    borderWidth: 1,
-    padding: 12,
-    gap: 10,
-  },
-  pricingAssumptionCopy: {
-    gap: 4,
-  },
-  pricingAssumptionTitle: {
-    fontSize: 13,
-    lineHeight: 18,
-    fontFamily: fonts.display,
-  },
-  pricingAssumptionMeta: {
-    fontSize: 11,
-    lineHeight: 16,
-    fontFamily: fonts.mono,
-  },
-  pricingSourceButton: {
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  pricingSourceButtonText: {
-    fontSize: 12,
-    fontFamily: fonts.body,
-  },
   responseModeList: {
     marginBottom: 14,
   },

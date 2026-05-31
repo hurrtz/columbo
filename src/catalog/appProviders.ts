@@ -11,7 +11,6 @@ import type {
   CatalogLanguageSupport,
   CatalogModelDocument,
   CatalogProviderId,
-  CatalogPriceMeasurement,
   CatalogService,
   CatalogSupportState,
 } from "./types";
@@ -82,14 +81,6 @@ export function getCatalogModelForAppProvider(
     modelId,
     service,
   );
-}
-
-export function getCatalogPriceMeasurementsForAppProvider(
-  provider: Provider,
-  modelId: string,
-  service?: CatalogService,
-): CatalogPriceMeasurement[] {
-  return getCatalogModelForAppProvider(provider, modelId, service)?.priceMeasurements ?? [];
 }
 
 export function getCatalogConstraintsForAppProvider(

@@ -406,9 +406,9 @@ export const en: TranslationDictionary = {
     transcriptSelectionHint:
       "Select any message text directly, or share and copy individual messages below.",
     usageStatsHiddenDescription:
-      "Keep token and cost estimates out of the transcript UI.",
+      "Keep token estimates out of the transcript UI.",
     usageStatsVisibleDescription:
-      "Show estimated token usage and estimated cost for replies and conversation totals.",
+      "Show estimated token usage for replies and conversation totals.",
     debugLogButton: "Debug Log Button",
     debugLogButtonHiddenDescription:
       "Keep the home-screen LOG button hidden unless a capture is already running.",
@@ -422,8 +422,6 @@ export const en: TranslationDictionary = {
     estimatedPromptTokens: ({ count }) => `Prompt: ${count}`,
     estimatedReplyTokens: ({ count }) => `Reply: ${count}`,
     estimatedTotalTokens: ({ count }) => `Total: ${count}`,
-    estimatedCost: ({ cost }) => `Cost: ${cost}`,
-    estimatedCostPartial: ({ cost }) => `Cost: ${cost} partial`,
     estimatedUsageInline: ({ prompt, completion, total }) =>
       `Est. ${prompt} in · ${completion} out · ${total} total`,
     usedWebSearch: "Used web search",
@@ -434,14 +432,6 @@ export const en: TranslationDictionary = {
       `${tokens} tokens · ${cost} partial`,
     estimatedRouteUsageTokensOnly: ({ tokens }) => `${tokens} tokens`,
     unknownUsageRoute: "Unknown route",
-    pricingAssumptions: "Pricing Assumptions",
-    pricingAssumptionsHint: ({ date }) =>
-      `Last reviewed ${date}. Costs are only shown when the active model matches one of these source-backed assumptions.`,
-    pricingAssumptionRates: ({ input, output }) =>
-      `$${input}/1M input · $${output}/1M output`,
-    pricingAssumptionCheckedAt: ({ date }) => `Checked: ${date}`,
-    openPricingSource: ({ source }) => `Open pricing source: ${source}`,
-    source: "Source",
     startWithGroq: "Configure credentials",
     groqStarterDescription:
       "Add credentials for an external service you already use. The app will only show routes after credentials are configured.",

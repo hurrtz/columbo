@@ -412,9 +412,9 @@ export const de: TranslationDictionary = {
     transcriptSelectionHint:
       "Du kannst Text direkt markieren oder einzelne Nachrichten unten teilen und kopieren.",
     usageStatsHiddenDescription:
-      "Blende Token- und Kostenschätzungen im Transkript aus.",
+      "Blende Token-Schätzungen im Transkript aus.",
     usageStatsVisibleDescription:
-      "Zeige geschätzte Token-Nutzung und geschätzte Kosten pro Antwort sowie für den gesamten Schnack.",
+      "Zeige geschätzte Token-Nutzung pro Antwort sowie für den gesamten Schnack.",
     debugLogButton: "Debug-Log-Button",
     debugLogButtonHiddenDescription:
       "Blende den LOG-Button auf der Hauptseite aus, solange kein Mitschnitt läuft.",
@@ -428,8 +428,6 @@ export const de: TranslationDictionary = {
     estimatedPromptTokens: ({ count }) => `Prompt: ${count}`,
     estimatedReplyTokens: ({ count }) => `Antwort: ${count}`,
     estimatedTotalTokens: ({ count }) => `Gesamt: ${count}`,
-    estimatedCost: ({ cost }) => `Kosten: ${cost}`,
-    estimatedCostPartial: ({ cost }) => `Kosten: ${cost} teilweise`,
     estimatedUsageInline: ({ prompt, completion, total }) =>
       `Geschätzt: ${prompt} rein · ${completion} raus · ${total} gesamt`,
     usedWebSearch: "Mit Websuche",
@@ -440,14 +438,6 @@ export const de: TranslationDictionary = {
       `${tokens} Token · ${cost} teilweise`,
     estimatedRouteUsageTokensOnly: ({ tokens }) => `${tokens} Token`,
     unknownUsageRoute: "Unbekannte Route",
-    pricingAssumptions: "Preisannahmen",
-    pricingAssumptionsHint: ({ date }) =>
-      `Zuletzt geprüft am ${date}. Kosten werden nur gezeigt, wenn das aktive Modell zu einer dieser quellenbasierten Annahmen passt.`,
-    pricingAssumptionRates: ({ input, output }) =>
-      `$${input}/1M Input · $${output}/1M Output`,
-    pricingAssumptionCheckedAt: ({ date }) => `Geprüft: ${date}`,
-    openPricingSource: ({ source }) => `Preisquelle öffnen: ${source}`,
-    source: "Quelle",
     startWithGroq: "Zugangsdaten konfigurieren",
     groqStarterDescription:
       "Füge Zugangsdaten für einen externen Dienst ein, den du bereits nutzt. Die App zeigt Routen erst nach der Konfiguration an.",
