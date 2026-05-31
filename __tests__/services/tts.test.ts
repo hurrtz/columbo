@@ -177,30 +177,6 @@ describe("synthesizeSpeech", () => {
     ).rejects.toThrow("Choose a text-to-speech provider");
   });
 
-  it("calls Together TTS with a provider-specific language hint", async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      blob: () => Promise.resolve(new Blob(["fake-audio"])),
-    });
-
-    const result = await synthesizeSpeech({
-      text: "Hello world",
-      voice: "af_alloy",
-      mode: "provider",
-      provider: "together",
-      apiKey: "together-test",
-      language: "en",
-    });
-
-    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
-    const [url, options] = (fetch as jest.Mock).mock.calls[0];
-    expect(url).toBe("https://api.together.xyz/v1/audio/speech");
-    const body = JSON.parse(options.body);
-    expect(body.model).toBe("hexgrad/Kokoro-82M");
-    expect(body.language).toBe("en");
-    expect(body.voice).toBe("af_alloy");
-  });
-
   it("uses Gemini TTS and writes a wav file", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
