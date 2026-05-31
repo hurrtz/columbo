@@ -109,6 +109,56 @@ export function getStatusDisplayData(params: {
   };
 }
 
+/**
+ * Phases that run long enough to justify showing an elapsed-seconds counter
+ * and a reassurance line. The app trades latency for answer quality, so the
+ * wait must feel intentional rather than stalled.
+ */
+const LONG_RUNNING_PHASES: ReadonlySet<PipelinePhase> = new Set([
+  "thinking",
+  "searching",
+  "synthesizing",
+]);
+
+export function isLongRunningPhase(phase: PipelinePhase): boolean {
+  return LONG_RUNNING_PHASES.has(phase);
+}
+
+/**
+ * Augments a base status-detail line with an elapsed-seconds counter and,
+ * after a threshold, a reassurance line. Pure so it can be unit-tested and
+ * reused regardless of which component owns the timer.
+ *
+ * @param reassureAfterSeconds threshold (inclusive) after which the
+ *   reassurance line is appended. Defaults to 8s.
+ */
+export function formatThinkingStatus(params: {
+  baseDetail: string;
+  elapsedSeconds: number;
+  reassurance: string;
+  withElapsed: (detail: string, seconds: number) => string;
+  reassureAfterSeconds?: number;
+}): string {
+  const {
+    baseDetail,
+    elapsedSeconds,
+    reassurance,
+    withElapsed,
+    reassureAfterSeconds = 8,
+  } = params;
+
+  if (elapsedSeconds <= 0) {
+    return baseDetail;
+  }
+
+  const withSeconds = withElapsed(baseDetail, elapsedSeconds);
+  if (elapsedSeconds >= reassureAfterSeconds) {
+    return `${withSeconds}\n${reassurance}`;
+  }
+
+  return withSeconds;
+}
+
 export function getStatusIndicatorTone(
   visualPhase: VoiceVisualPhase,
   pipelinePhase: PipelinePhase,

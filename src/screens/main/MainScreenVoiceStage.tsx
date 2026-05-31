@@ -4,6 +4,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 import { WaveformCircle } from "../../components/WaveformCircle";
+import { PipelinePhase } from "../../hooks/useVoicePipeline";
 import { Colors } from "../../theme/colors";
 import {
   InputMode,
@@ -11,7 +12,35 @@ import {
   WaveformVisualizationVariant,
 } from "../../types";
 
+import { formatThinkingStatus, isLongRunningPhase } from "./statusSelectors";
+import { TranslateFn } from "./shared";
 import { styles } from "./styles";
+
+/**
+ * Tracks how many whole seconds the pipeline has spent in a long-running phase
+ * (thinking/searching/synthesizing). Resets to 0 whenever the phase leaves the
+ * long-running set, and the interval is cleared on unmount.
+ */
+function useLongRunningElapsedSeconds(pipelinePhase: PipelinePhase): number {
+  const [elapsedSeconds, setElapsedSeconds] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!isLongRunningPhase(pipelinePhase)) {
+      setElapsedSeconds(0);
+      return;
+    }
+
+    setElapsedSeconds(0);
+    const startedAt = Date.now();
+    const interval = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [pipelinePhase]);
+
+  return elapsedSeconds;
+}
 
 interface MainScreenVoiceStageProps {
   circleSize?: number;
@@ -29,6 +58,7 @@ interface MainScreenVoiceStageProps {
   onResumePlayback?: () => void | Promise<void>;
   onStopPlayback?: () => void | Promise<void>;
   pausePlaybackLabel?: string;
+  pipelinePhase: PipelinePhase;
   playbackActive?: boolean;
   playbackPaused?: boolean;
   providerLabel: string;
@@ -40,6 +70,7 @@ interface MainScreenVoiceStageProps {
   statusIndicatorTone: string;
   statusTitle: string;
   stopPlaybackLabel?: string;
+  t: TranslateFn;
   visualPhase: VoiceVisualPhase;
 }
 
@@ -67,6 +98,7 @@ interface MainScreenStatusStripProps {
   onResumePlayback?: () => void | Promise<void>;
   onStopPlayback?: () => void | Promise<void>;
   pausePlaybackLabel?: string;
+  pipelinePhase: PipelinePhase;
   playbackActive?: boolean;
   playbackPaused?: boolean;
   resumePlaybackLabel?: string;
@@ -74,6 +106,7 @@ interface MainScreenStatusStripProps {
   statusIndicatorTone: string;
   statusTitle: string;
   stopPlaybackLabel?: string;
+  t: TranslateFn;
 }
 
 export function MainScreenStatusStrip({
@@ -85,6 +118,7 @@ export function MainScreenStatusStrip({
   onResumePlayback,
   onStopPlayback,
   pausePlaybackLabel = "Pause",
+  pipelinePhase,
   playbackActive = false,
   playbackPaused = false,
   resumePlaybackLabel = "Resume",
@@ -92,7 +126,16 @@ export function MainScreenStatusStrip({
   statusIndicatorTone,
   statusTitle,
   stopPlaybackLabel = "Stop",
+  t,
 }: MainScreenStatusStripProps) {
+  const elapsedSeconds = useLongRunningElapsedSeconds(pipelinePhase);
+  const displayedDetail = formatThinkingStatus({
+    baseDetail: statusDetail,
+    elapsedSeconds,
+    reassurance: t("deepThinkingReassurance"),
+    withElapsed: (detail, seconds) =>
+      t("thinkingElapsed", { detail, seconds }),
+  });
   const statusStripMaxWidth = fullWidth
     ? undefined
     : layout === "landscape"
@@ -133,7 +176,7 @@ export function MainScreenStatusStrip({
         <Text
           style={[styles.statusStripDetail, { color: colors.textSecondary }]}
         >
-          {statusDetail}
+          {displayedDetail}
         </Text>
       </View>
       <View style={styles.statusStripActions}>
@@ -213,6 +256,7 @@ export function MainScreenVoiceStage({
   onResumePlayback,
   onStopPlayback,
   pausePlaybackLabel,
+  pipelinePhase,
   playbackActive = false,
   playbackPaused = false,
   providerLabel,
@@ -224,6 +268,7 @@ export function MainScreenVoiceStage({
   statusIndicatorTone,
   statusTitle,
   stopPlaybackLabel,
+  t,
   visualPhase,
 }: MainScreenVoiceStageProps) {
   const haloSize = Math.round(circleSize * 1.08);
@@ -270,6 +315,7 @@ export function MainScreenVoiceStage({
           onResumePlayback={onResumePlayback}
           onStopPlayback={onStopPlayback}
           pausePlaybackLabel={pausePlaybackLabel}
+          pipelinePhase={pipelinePhase}
           playbackActive={playbackActive}
           playbackPaused={playbackPaused}
           resumePlaybackLabel={resumePlaybackLabel}
@@ -277,6 +323,7 @@ export function MainScreenVoiceStage({
           statusIndicatorTone={statusIndicatorTone}
           statusTitle={statusTitle}
           stopPlaybackLabel={stopPlaybackLabel}
+          t={t}
         />
       ) : null}
     </View>

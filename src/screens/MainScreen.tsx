@@ -1078,6 +1078,7 @@ export function MainScreen() {
                   onResumePlayback={handleResumePlayback}
                   onStopPlayback={handleStopPlayback}
                   pausePlaybackLabel={t("pause")}
+                  pipelinePhase={pipelinePhase}
                   playbackActive={player.isPlaying}
                   playbackPaused={player.isPlaybackPaused}
                   providerLabel={providerLabel}
@@ -1089,6 +1090,7 @@ export function MainScreen() {
                   statusIndicatorTone={statusIndicatorTone}
                   statusTitle={statusDisplay.actionLabel}
                   stopPlaybackLabel={t("stop")}
+                  t={t}
                   visualPhase={visualPhase}
                 />
               </View>
@@ -1104,6 +1106,7 @@ export function MainScreen() {
                 onResumePlayback={handleResumePlayback}
                 onStopPlayback={handleStopPlayback}
                 pausePlaybackLabel={t("pause")}
+                pipelinePhase={pipelinePhase}
                 playbackActive={player.isPlaying}
                 playbackPaused={player.isPlaybackPaused}
                 resumePlaybackLabel={t("resume")}
@@ -1111,6 +1114,7 @@ export function MainScreen() {
                 statusIndicatorTone={statusIndicatorTone}
                 statusTitle={statusDisplay.actionLabel}
                 stopPlaybackLabel={t("stop")}
+                t={t}
               />
 
               <TranscriptPreviewCard
@@ -1196,6 +1200,7 @@ export function MainScreen() {
                 onResumePlayback={handleResumePlayback}
                 onStopPlayback={handleStopPlayback}
                 pausePlaybackLabel={t("pause")}
+                pipelinePhase={pipelinePhase}
                 playbackActive={player.isPlaying}
                 playbackPaused={player.isPlaybackPaused}
                 providerLabel={providerLabel}
@@ -1206,6 +1211,7 @@ export function MainScreen() {
                 statusIndicatorTone={statusIndicatorTone}
                 statusTitle={statusDisplay.actionLabel}
                 stopPlaybackLabel={t("stop")}
+                t={t}
                 visualPhase={visualPhase}
               />
 

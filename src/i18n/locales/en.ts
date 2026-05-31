@@ -373,6 +373,8 @@ export const en: TranslationDictionary = {
     waitingForProvider: ({ provider }) => `Waiting for ${provider}`,
     preparingVoiceWithProvider: ({ provider }) =>
       `Preparing voice with ${provider}`,
+    deepThinkingReassurance: "Good answers take a moment…",
+    thinkingElapsed: ({ detail, seconds }) => `${detail} · ${seconds}s`,
     speakingBackToYou: "Speaking back to you",
     freshSession: "Fresh session",
     messageCount: ({ count }) =>

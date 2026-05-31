@@ -1,7 +1,12 @@
 import {
+  formatThinkingStatus,
   getStatusDisplayData,
   getStatusIndicatorTone,
+  isLongRunningPhase,
 } from "../../../src/screens/main/statusSelectors";
+
+const withElapsed = (detail: string, seconds: number) =>
+  `${detail} · ${seconds}s`;
 
 describe("statusSelectors", () => {
   it("builds idle state labels from message count and input mode", () => {
@@ -54,5 +59,50 @@ describe("statusSelectors", () => {
     expect(getStatusIndicatorTone("searching", "searching")).toBe("muted");
     expect(getStatusIndicatorTone("thinking", "thinking")).toBe("muted");
     expect(getStatusIndicatorTone("idle", "idle")).toBe("accentWarm");
+  });
+
+  it("treats thinking, searching, and synthesizing as long-running", () => {
+    expect(isLongRunningPhase("thinking")).toBe(true);
+    expect(isLongRunningPhase("searching")).toBe(true);
+    expect(isLongRunningPhase("synthesizing")).toBe(true);
+    expect(isLongRunningPhase("idle")).toBe(false);
+    expect(isLongRunningPhase("transcribing")).toBe(false);
+    expect(isLongRunningPhase("speaking")).toBe(false);
+  });
+
+  describe("formatThinkingStatus", () => {
+    const base = {
+      baseDetail: "Waiting for OpenAI",
+      reassurance: "Good answers take a moment…",
+      withElapsed,
+    };
+
+    it("returns the base detail before any time has elapsed", () => {
+      expect(formatThinkingStatus({ ...base, elapsedSeconds: 0 })).toBe(
+        "Waiting for OpenAI",
+      );
+    });
+
+    it("appends an elapsed-seconds counter once time has passed", () => {
+      expect(formatThinkingStatus({ ...base, elapsedSeconds: 3 })).toBe(
+        "Waiting for OpenAI · 3s",
+      );
+    });
+
+    it("adds the reassurance line at the threshold", () => {
+      expect(formatThinkingStatus({ ...base, elapsedSeconds: 8 })).toBe(
+        "Waiting for OpenAI · 8s\nGood answers take a moment…",
+      );
+    });
+
+    it("respects a custom reassurance threshold", () => {
+      expect(
+        formatThinkingStatus({
+          ...base,
+          elapsedSeconds: 5,
+          reassureAfterSeconds: 5,
+        }),
+      ).toBe("Waiting for OpenAI · 5s\nGood answers take a moment…");
+    });
   });
 });
