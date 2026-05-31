@@ -13,13 +13,19 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import { ProviderIcon } from "../../components/ProviderIcon";
 import { ResponseModeToggle } from "../../components/ResponseModeToggle";
-import { PROVIDER_LABELS } from "../../constants/models";
 import {
-  type WebSearchMode,
-  type WebSearchProvider,
-} from "../../constants/webSearch";
+  getResponseLengthOptions,
+  getResponseToneOptions,
+} from "../../components/settings/helpers";
+import { PROVIDER_LABELS } from "../../constants/models";
+import { type WebSearchProvider } from "../../constants/webSearch";
 import { Colors } from "../../theme/colors";
-import { ResponseMode, ResponseModeRoute } from "../../types";
+import {
+  AssistantResponseLength,
+  AssistantResponseTone,
+  ResponseMode,
+  ResponseModeRoute,
+} from "../../types";
 
 import { TranslateFn } from "./shared";
 import { styles } from "./styles";
@@ -31,13 +37,16 @@ interface MainScreenRouteCardProps {
   compactResponseModes?: boolean;
   colors: Colors;
   onOpenSetupGuide: () => void;
+  onOpenStyleSheet: () => void;
   onSelectResponseMode: (mode: ResponseMode) => void;
   onToggleWebSearchEnabled: () => void;
+  responseLength: AssistantResponseLength;
   responseModes: Record<ResponseMode, ResponseModeRoute>;
+  responseTone: AssistantResponseTone;
+  showStyleChip: boolean;
   style?: StyleProp<ViewStyle>;
   t: TranslateFn;
   webSearchEnabled: boolean;
-  webSearchMode: WebSearchMode;
   webSearchProvider: WebSearchProvider | null;
   webSearchReady: boolean;
 }
@@ -48,22 +57,24 @@ export function MainScreenRouteCard({
   compactResponseModes = false,
   colors,
   onOpenSetupGuide,
+  onOpenStyleSheet,
   onSelectResponseMode,
   onToggleWebSearchEnabled,
+  responseLength,
   responseModes,
+  responseTone,
+  showStyleChip,
   style,
   t,
   webSearchEnabled,
-  webSearchMode,
   webSearchProvider,
   webSearchReady,
 }: MainScreenRouteCardProps) {
   // The toggle only reflects an active web-search route when it is switched
-  // on AND a search-capable provider is configured and ready. Otherwise we
-  // present an honest "off" state with no provider logo.
+  // on AND a search-capable provider is configured and ready. Web search is
+  // only shown at all when a provider is ready.
   const webSearchDisplay = getWebSearchToggleDisplay({
     webSearchEnabled,
-    webSearchMode,
     webSearchProvider,
     webSearchReady,
     providerLabels: PROVIDER_LABELS,
@@ -72,6 +83,21 @@ export function MainScreenRouteCard({
   const webSearchOn = webSearchDisplay.active;
   const webSearchProviderLabel = webSearchDisplay.providerLabel ?? undefined;
   const webSearchTitle = webSearchDisplay.title;
+
+  const toneLabel =
+    getResponseToneOptions(t).find((o) => o.value === responseTone)?.label ??
+    responseTone;
+  const lengthLabel =
+    getResponseLengthOptions(t).find((o) => o.value === responseLength)
+      ?.label ?? responseLength;
+  // When web search shares the row, the style pill needs a compact label so
+  // both controls fit; otherwise it spans the row with the fuller label.
+  const styleChipLabel = webSearchReady
+    ? `${toneLabel} · ${lengthLabel}`
+    : t("homeStyleChipLabel", { tone: toneLabel, length: lengthLabel });
+  const styleChipAccessibilityLabel = `${t("openStyleSheet")}, ${toneLabel}, ${lengthLabel}`;
+
+  const showControlsRow = showStyleChip || webSearchReady;
 
   return (
     <View
@@ -136,53 +162,91 @@ export function MainScreenRouteCard({
         </TouchableOpacity>
       )}
 
-      <TouchableOpacity
-        style={[
-          styles.webSearchToggle,
-          {
-            backgroundColor: webSearchOn
-              ? colors.accentSoft
-              : colors.surfaceElevated,
-            borderColor: webSearchOn ? colors.borderStrong : colors.border,
-          },
-        ]}
-        onPress={onToggleWebSearchEnabled}
-        activeOpacity={0.9}
-        accessibilityRole="button"
-        accessibilityLabel={
-          webSearchProviderLabel
-            ? `${webSearchTitle}. ${webSearchProviderLabel}`
-            : webSearchTitle
-        }
-      >
-        <View style={styles.webSearchToggleCopy}>
-          <View style={styles.webSearchToggleHeader}>
-            <Switch
-              value={webSearchOn}
-              onValueChange={() => onToggleWebSearchEnabled()}
-              trackColor={{
-                false: colors.border,
-                true: colors.accent,
-              }}
-              thumbColor={colors.surface}
-            />
-            <Text style={[styles.webSearchToggleTitle, { color: colors.text }]}>
-              {webSearchTitle}
-            </Text>
-          </View>
+      {showControlsRow ? (
+        <View style={styles.routeControlsRow}>
+          {showStyleChip ? (
+            <TouchableOpacity
+              style={[
+                styles.routeStyleChip,
+                {
+                  backgroundColor: colors.surfaceElevated,
+                  borderColor: colors.border,
+                },
+              ]}
+              onPress={onOpenStyleSheet}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel={styleChipAccessibilityLabel}
+            >
+              <View style={styles.styleChipLabelRow}>
+                <Feather
+                  name="sliders"
+                  size={16}
+                  color={colors.textSecondary}
+                />
+                <Text
+                  style={[styles.styleChipLabel, { color: colors.text }]}
+                  numberOfLines={1}
+                >
+                  {styleChipLabel}
+                </Text>
+              </View>
+              <Feather name="chevron-right" size={18} color={colors.textMuted} />
+            </TouchableOpacity>
+          ) : null}
+
+          {webSearchReady ? (
+            <TouchableOpacity
+              style={[
+                styles.routeWebSearchToggle,
+                {
+                  backgroundColor: webSearchOn
+                    ? colors.accentSoft
+                    : colors.surfaceElevated,
+                  borderColor: webSearchOn
+                    ? colors.borderStrong
+                    : colors.border,
+                },
+              ]}
+              onPress={onToggleWebSearchEnabled}
+              activeOpacity={0.9}
+              accessibilityRole="button"
+              accessibilityLabel={
+                webSearchProviderLabel
+                  ? `${webSearchTitle}. ${webSearchProviderLabel}`
+                  : webSearchTitle
+              }
+            >
+              <Switch
+                value={webSearchOn}
+                onValueChange={() => onToggleWebSearchEnabled()}
+                trackColor={{
+                  false: colors.border,
+                  true: colors.accent,
+                }}
+                thumbColor={colors.surface}
+              />
+              <Text
+                style={[styles.webSearchToggleTitle, { color: colors.text }]}
+                numberOfLines={1}
+              >
+                {webSearchTitle}
+              </Text>
+              <View style={styles.webSearchProviderIcon}>
+                {webSearchOn && webSearchProvider ? (
+                  <ProviderIcon
+                    provider={webSearchProvider}
+                    color={colors.text}
+                    label={webSearchProviderLabel}
+                  />
+                ) : (
+                  <Feather name="search" size={18} color={colors.textMuted} />
+                )}
+              </View>
+            </TouchableOpacity>
+          ) : null}
         </View>
-        <View style={styles.webSearchProviderIcon}>
-          {webSearchOn && webSearchProvider ? (
-            <ProviderIcon
-              provider={webSearchProvider}
-              color={colors.text}
-              label={webSearchProviderLabel}
-            />
-          ) : (
-            <Feather name="search" size={18} color={colors.textMuted} />
-          )}
-        </View>
-      </TouchableOpacity>
+      ) : null}
     </View>
   );
 }

@@ -176,10 +176,14 @@ jest.mock("../../src/screens/main/MainScreenTopBar", () => ({
 }));
 
 jest.mock("../../src/screens/main/MainScreenRouteCard", () => ({
-  MainScreenRouteCard: () => {
+  MainScreenRouteCard: ({ showStyleChip }: { showStyleChip?: boolean }) => {
     const React = require("react");
     const { Text } = require("react-native");
-    return React.createElement(Text, null, "route-card");
+    return React.createElement(
+      Text,
+      null,
+      showStyleChip ? "route-card-with-style-chip" : "route-card",
+    );
   },
 }));
 
@@ -376,7 +380,8 @@ describe("MainScreen", () => {
   it("hides the style chip when no provider is configured", () => {
     const screen = renderWithProviders(<MainScreen />);
 
-    expect(screen.queryByLabelText(/Open style and length/i)).toBeNull();
+    expect(screen.queryByText("route-card-with-style-chip")).toBeNull();
+    expect(screen.getByText("route-card")).toBeTruthy();
   });
 
   it("renders the style chip when a reply provider is configured", () => {
@@ -403,6 +408,6 @@ describe("MainScreen", () => {
 
     const screen = renderWithProviders(<MainScreen />);
 
-    expect(screen.getByLabelText(/Open style and length/i)).toBeTruthy();
+    expect(screen.getByText("route-card-with-style-chip")).toBeTruthy();
   });
 });

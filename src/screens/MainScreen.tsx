@@ -55,7 +55,6 @@ import {
 } from "../utils/responseModes";
 import { MainScreenTopBar } from "./main/MainScreenTopBar";
 import { MainScreenRouteCard } from "./main/MainScreenRouteCard";
-import { MainScreenStyleChip } from "./main/MainScreenStyleChip";
 import { StyleSheetModal } from "./main/StyleSheetModal";
 import {
   MainScreenStatusStrip,
@@ -176,6 +175,7 @@ export function MainScreen() {
     ? settings.webSearchProviderSettings[webSearchProvider]
     : undefined;
   const webSearchReady = !!webSearchProvider && !!webSearchApiKey;
+  const webSearchOn = webSearchMode === "on";
   const webSearchActive = webSearchMode !== "off" && webSearchReady;
   const isLandscape = width > height;
   const showStyleChip = loaded && availableResponseModes.length > 0;
@@ -1043,33 +1043,23 @@ export function MainScreen() {
                 compactResponseModes
                 colors={colors}
                 onOpenSetupGuide={() => openSettings(undefined, "providers")}
+                onOpenStyleSheet={() => setStyleSheetVisible(true)}
                 onSelectResponseMode={handleResponseModeChange}
                 onToggleWebSearchEnabled={() => {
-                  if (!webSearchActive && !webSearchReady) {
-                    openSettings(undefined, "web");
-                    return;
-                  }
-
                   updateSettings({
-                    webSearchMode: webSearchActive ? "off" : "auto",
+                    webSearchMode: webSearchOn ? "off" : "on",
                   });
                 }}
+                responseLength={settings.responseLength}
                 responseModes={settings.responseModes}
+                responseTone={settings.responseTone}
+                showStyleChip={showStyleChip}
                 style={styles.heroCardLandscape}
                 t={t}
                 webSearchEnabled={webSearchActive}
-                webSearchMode={webSearchMode}
                 webSearchProvider={webSearchProvider}
                 webSearchReady={webSearchReady}
               />
-
-              {showStyleChip ? (
-                <MainScreenStyleChip
-                  responseLength={settings.responseLength}
-                  responseTone={settings.responseTone}
-                  onPress={() => setStyleSheetVisible(true)}
-                />
-              ) : null}
 
               <View style={styles.landscapeStageArea}>
                 <MainScreenVoiceStage
@@ -1168,32 +1158,22 @@ export function MainScreen() {
                 availableResponseModes={loaded ? availableResponseModes : []}
                 colors={colors}
                 onOpenSetupGuide={() => openSettings(undefined, "providers")}
+                onOpenStyleSheet={() => setStyleSheetVisible(true)}
                 onSelectResponseMode={handleResponseModeChange}
                 onToggleWebSearchEnabled={() => {
-                  if (!webSearchActive && !webSearchReady) {
-                    openSettings(undefined, "web");
-                    return;
-                  }
-
                   updateSettings({
-                    webSearchMode: webSearchActive ? "off" : "auto",
+                    webSearchMode: webSearchOn ? "off" : "on",
                   });
                 }}
+                responseLength={settings.responseLength}
                 responseModes={settings.responseModes}
+                responseTone={settings.responseTone}
+                showStyleChip={showStyleChip}
                 t={t}
                 webSearchEnabled={webSearchActive}
-                webSearchMode={webSearchMode}
                 webSearchProvider={webSearchProvider}
                 webSearchReady={webSearchReady}
               />
-
-              {showStyleChip ? (
-                <MainScreenStyleChip
-                  responseLength={settings.responseLength}
-                  responseTone={settings.responseTone}
-                  onPress={() => setStyleSheetVisible(true)}
-                />
-              ) : null}
 
               <MainScreenVoiceStage
                 circleSize={stageCircleSize}
