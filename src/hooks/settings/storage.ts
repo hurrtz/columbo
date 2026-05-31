@@ -34,7 +34,20 @@ export async function loadStoredApiKeys(): Promise<ProviderApiKeys> {
     }),
   );
 
-  return Object.fromEntries(apiKeyEntries) as ProviderApiKeys;
+  const apiKeys = Object.fromEntries(apiKeyEntries) as ProviderApiKeys;
+
+  // Migrate a legacy standalone Grok voice key onto the merged xAI provider.
+  if (!apiKeys.xai) {
+    const legacyGrokKey = await SecureStore.getItemAsync(
+      `${API_KEY_STORAGE_PREFIX}.grok`,
+    );
+
+    if (legacyGrokKey?.trim()) {
+      apiKeys.xai = legacyGrokKey.trim();
+    }
+  }
+
+  return apiKeys;
 }
 
 export async function loadStoredSettingsSnapshot(): Promise<SettingsLoadResult> {

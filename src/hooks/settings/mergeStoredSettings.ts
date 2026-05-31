@@ -46,6 +46,99 @@ function isProvider(value: unknown): value is Provider {
   return isRuntimeProviderId(value);
 }
 
+const LEGACY_PROVIDER_ALIASES: Record<string, Provider> = {
+  grok: "xai",
+};
+
+function migrateLegacyProviderId(value: unknown): unknown {
+  return typeof value === "string" && value in LEGACY_PROVIDER_ALIASES
+    ? LEGACY_PROVIDER_ALIASES[value]
+    : value;
+}
+
+function migrateLegacyProviderRecord<T>(
+  record: Partial<Record<string, T>> | undefined,
+): Partial<Record<string, T>> | undefined {
+  if (!record || typeof record !== "object") {
+    return record;
+  }
+
+  let migrated: Partial<Record<string, T>> | undefined;
+
+  for (const [legacyId, canonicalId] of Object.entries(LEGACY_PROVIDER_ALIASES)) {
+    if (!(legacyId in record)) {
+      continue;
+    }
+
+    migrated = migrated ?? { ...record };
+    const legacyValue = migrated[legacyId];
+    // Prefer an existing canonical value if both are present.
+    if (migrated[canonicalId] === undefined && legacyValue !== undefined) {
+      migrated[canonicalId] = legacyValue;
+    }
+    delete migrated[legacyId];
+  }
+
+  return migrated ?? record;
+}
+
+function migrateLegacyProviders(
+  storedSettings?: LegacyStoredSettings,
+  storedApiKeys?: Partial<ProviderApiKeys>,
+): {
+  storedSettings?: LegacyStoredSettings;
+  storedApiKeys?: Partial<ProviderApiKeys>;
+} {
+  const migratedApiKeys = migrateLegacyProviderRecord(
+    storedApiKeys as Partial<Record<string, string>> | undefined,
+  ) as Partial<ProviderApiKeys> | undefined;
+
+  if (!storedSettings) {
+    return { storedSettings, storedApiKeys: migratedApiKeys };
+  }
+
+  return {
+    storedSettings: {
+      ...storedSettings,
+      ttsProvider: migrateLegacyProviderId(storedSettings.ttsProvider) as
+        | Provider
+        | null
+        | undefined,
+      sttProvider: migrateLegacyProviderId(storedSettings.sttProvider) as
+        | Provider
+        | null
+        | undefined,
+      lastProvider: migrateLegacyProviderId(storedSettings.lastProvider) as
+        | Provider
+        | undefined,
+      apiKeys: migrateLegacyProviderRecord(
+        storedSettings.apiKeys as Partial<Record<string, string>> | undefined,
+      ) as LegacyStoredSettings["apiKeys"],
+      providerTtsVoices: migrateLegacyProviderRecord(
+        storedSettings.providerTtsVoices as
+          | Partial<Record<string, string>>
+          | undefined,
+      ) as LegacyStoredSettings["providerTtsVoices"],
+      providerTtsModels: migrateLegacyProviderRecord(
+        storedSettings.providerTtsModels as
+          | Partial<Record<string, string>>
+          | undefined,
+      ) as LegacyStoredSettings["providerTtsModels"],
+      providerSttModels: migrateLegacyProviderRecord(
+        storedSettings.providerSttModels as
+          | Partial<Record<string, string>>
+          | undefined,
+      ) as LegacyStoredSettings["providerSttModels"],
+      providerModels: migrateLegacyProviderRecord(
+        storedSettings.providerModels as
+          | Partial<Record<string, string>>
+          | undefined,
+      ) as LegacyStoredSettings["providerModels"],
+    },
+    storedApiKeys: migratedApiKeys,
+  };
+}
+
 function isResponseMode(value: unknown): value is ResponseMode {
   return typeof value === "string" && RESPONSE_MODE_ORDER.includes(value as ResponseMode);
 }
@@ -231,9 +324,13 @@ function extractStoredWebSearchProviderSettings(
 }
 
 export function mergeSettings(
-  storedSettings?: LegacyStoredSettings,
-  storedApiKeys?: Partial<ProviderApiKeys>,
+  rawStoredSettings?: LegacyStoredSettings,
+  rawStoredApiKeys?: Partial<ProviderApiKeys>,
 ): Settings {
+  const { storedSettings, storedApiKeys } = migrateLegacyProviders(
+    rawStoredSettings,
+    rawStoredApiKeys,
+  );
   const replyPlayback =
     storedSettings?.replyPlayback ??
     storedSettings?.ttsPlayback ??

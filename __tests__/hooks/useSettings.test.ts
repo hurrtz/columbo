@@ -210,6 +210,40 @@ describe("useSettings", () => {
     );
   });
 
+  it("migrates a stored grok voice provider id onto xai", async () => {
+    const legacyStored: Record<string, unknown> = {
+      ...DEFAULT_SETTINGS,
+      ttsProvider: "grok",
+      sttProvider: "grok",
+      providerTtsVoices: {
+        ...DEFAULT_SETTINGS.providerTtsVoices,
+        grok: "ara",
+      },
+    };
+
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
+      JSON.stringify(legacyStored),
+    );
+    (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) => {
+      const values: Record<string, string | null> = {
+        "schnackai.provider_key.grok": "xai-legacy-key",
+      };
+
+      return Promise.resolve(values[key] ?? null);
+    });
+
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    expect(result.current.settings.ttsProvider).toBe("xai");
+    expect(result.current.settings.sttProvider).toBe("xai");
+    expect(result.current.settings.providerTtsVoices.xai).toBe("ara");
+    expect(
+      (result.current.settings.providerTtsVoices as Record<string, unknown>).grok,
+    ).toBeUndefined();
+    expect(result.current.settings.apiKeys.xai).toBe("xai-legacy-key");
+  });
+
   it("migrates legacy webSearchEnabled into webSearchMode", async () => {
     const legacyStored: Record<string, unknown> = { ...DEFAULT_SETTINGS };
     delete legacyStored.webSearchMode;
