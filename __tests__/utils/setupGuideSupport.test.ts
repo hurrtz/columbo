@@ -40,11 +40,10 @@ describe("setupGuideSupport", () => {
 
   it("disables TTS when the provider key does not unlock provider speech", () => {
     const settings = createSettings();
-    settings.apiKeys["microsoft-azure"] =
-      "https://example.openai.azure.com|test-openai-key";
+    settings.apiKeys.deepseek = "sk-deepseek-test";
 
     const routes = resolveSetupGuideRoutes({
-      provider: "microsoft-azure",
+      provider: "deepseek",
       settings,
       nativeSttAvailable: false,
     });

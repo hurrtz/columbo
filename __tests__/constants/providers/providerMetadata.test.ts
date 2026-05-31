@@ -2,17 +2,17 @@ import { getProviderModelName, PROVIDER_MODELS } from "../../../src/constants/mo
 
 describe("provider metadata constants", () => {
   it("uses catalog-backed labels for runtime model pickers when the catalog knows the model", () => {
-    expect(getProviderModelName("cohere", "command-a-03-2025")).toBe(
-      "Command A",
+    expect(getProviderModelName("anthropic", "claude-opus-4-8")).toBe(
+      "Claude Opus 4.8",
     );
-    expect(getProviderModelName("cohere", "command-r-plus-08-2024")).toBe(
-      "Command R+",
+    expect(getProviderModelName("anthropic", "claude-sonnet-4-6")).toBe(
+      "Claude Sonnet 4.6",
     );
   });
 
   it("keeps the configured label when the catalog does not expose that exact runtime model id", () => {
-    expect(getProviderModelName("together", "openai/gpt-oss-20b")).toBe(
-      "GPT-OSS 20B",
+    expect(getProviderModelName("deepseek", "deepseek-coder")).toBe(
+      "DeepSeek Coder (legacy alias)",
     );
     expect(
       PROVIDER_MODELS.xai.find((model) => model.id === "grok-4-0709")?.name,
