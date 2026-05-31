@@ -37,7 +37,6 @@ export function useSettings() {
     updateResponseModeRoute,
     updateActiveResponseMode,
     updateProviderTtsVoice,
-    updateLocalTtsVoice,
     updateApiKey,
   } = useSettingsActions({ setSettings });
 
@@ -50,7 +49,6 @@ export function useSettings() {
     updateResponseModeRoute,
     updateActiveResponseMode,
     updateProviderTtsVoice,
-    updateLocalTtsVoice,
     updateApiKey,
     loaded,
   };

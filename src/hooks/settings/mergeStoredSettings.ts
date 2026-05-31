@@ -17,7 +17,6 @@ import {
   normalizeWebSearchProviderSettings,
 } from "../../constants/webSearch";
 import {
-  type LocalTtsVoiceSelections,
   type Provider,
   type ProviderApiKeys,
   type ProviderModelSelections,
@@ -131,25 +130,6 @@ function extractStoredProviderSttModels(
   return extractRuntimeProviderStringRecord(
     storedSettings?.providerSttModels,
   ) as Partial<ProviderSttModelSelections>;
-}
-
-function extractStoredLocalTtsVoices(
-  storedSettings?: LegacyStoredSettings,
-): Partial<LocalTtsVoiceSelections> {
-  if (!storedSettings?.localTtsVoices) {
-    return {};
-  }
-
-  return Object.entries(storedSettings.localTtsVoices).reduce(
-    (accumulator, [language, value]) => {
-      if (typeof value === "string" && value.trim()) {
-        accumulator[language as keyof LocalTtsVoiceSelections] = value.trim();
-      }
-
-      return accumulator;
-    },
-    {} as Partial<LocalTtsVoiceSelections>,
-  );
 }
 
 function getLegacyResponseModeRoute(
@@ -340,10 +320,19 @@ export function mergeSettings(
   const hasConfiguredKeys = Object.values(mergedApiKeys).some(
     (apiKey) => apiKey.trim().length > 0,
   );
+  const ttsMode: Settings["ttsMode"] =
+    storedSettings?.ttsMode === "provider" ? "provider" : "native";
+  const sanitizedStoredSettings = storedSettings
+    ? (() => {
+        const { localTtsVoices: _localTtsVoices, ...rest } = storedSettings;
+        return rest;
+      })()
+    : storedSettings;
 
   return {
     ...DEFAULT_SETTINGS,
-    ...storedSettings,
+    ...sanitizedStoredSettings,
+    ttsMode,
     language,
     replyPlayback,
     spokenRepliesEnabled,
@@ -389,10 +378,6 @@ export function mergeSettings(
     providerTtsVoices: {
       ...DEFAULT_SETTINGS.providerTtsVoices,
       ...extractStoredProviderTtsVoices(storedSettings),
-    },
-    localTtsVoices: {
-      ...DEFAULT_SETTINGS.localTtsVoices,
-      ...extractStoredLocalTtsVoices(storedSettings),
     },
     apiKeys: mergedApiKeys,
   };

@@ -1,4 +1,3 @@
-import { LOCAL_TTS_DEFAULT_VOICES } from "./constants/localTts";
 import {
   DEFAULT_PROVIDER_STT_MODELS,
   DEFAULT_PROVIDER_TTS_MODELS,
@@ -37,7 +36,7 @@ export type TtsListenLanguage =
   | "it"
   | "ja";
 export type SttBackendMode = "native" | "provider";
-export type TtsBackendMode = "native" | "provider" | "local";
+export type TtsBackendMode = "native" | "provider";
 export type AssistantResponseLength = "brief" | "normal" | "thorough";
 export type AssistantResponseTone =
   | "professional"
@@ -55,7 +54,6 @@ export type ProviderModelSelections = Record<Provider, string>;
 export type ProviderSttModelSelections = Record<Provider, string>;
 export type ProviderTtsVoiceSelections = Record<Provider, string>;
 export type ProviderTtsModelSelections = Record<Provider, string>;
-export type LocalTtsVoiceSelections = Record<TtsListenLanguage, string>;
 export type ResponseModeSelections = Record<ResponseMode, ResponseModeRoute>;
 export type UsageEstimateKind = "reply" | "summary";
 export type VoicePreviewRequest =
@@ -70,12 +68,6 @@ export type VoicePreviewRequest =
       provider: Provider;
       voice: string;
       previewLanguage: TtsListenLanguage;
-    }
-  | {
-      text: string;
-      mode: "local";
-      localLanguage: TtsListenLanguage;
-      voice: string;
     };
 export type VoiceVisualPhase =
   | "idle"
@@ -106,7 +98,6 @@ export interface Settings {
   ttsMode: TtsBackendMode;
   ttsProvider: Provider | null;
   ttsListenLanguages: TtsListenLanguage[];
-  localTtsVoices: LocalTtsVoiceSelections;
   assistantInstructions: string;
   responseLength: AssistantResponseLength;
   responseTone: AssistantResponseTone;
@@ -197,7 +188,6 @@ export const DEFAULT_SETTINGS: Settings = {
   ttsMode: "native",
   ttsProvider: null,
   ttsListenLanguages: getDefaultTtsListenLanguages("en"),
-  localTtsVoices: LOCAL_TTS_DEFAULT_VOICES,
   assistantInstructions: getDefaultAssistantInstructions("en"),
   responseLength: "normal",
   responseTone: "professional",

@@ -23,7 +23,6 @@ export function SettingsProvider({
       value.updateResponseModeRoute,
       value.updateActiveResponseMode,
       value.updateProviderTtsVoice,
-      value.updateLocalTtsVoice,
       value.updateApiKey,
     ],
   );

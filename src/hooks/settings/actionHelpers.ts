@@ -1,4 +1,4 @@
-import type { LocalTtsVoiceSelections, Provider, ResponseMode, Settings } from "../../types";
+import type { Provider, ResponseMode, Settings } from "../../types";
 import { persistApiKey, persistPublicSettings } from "./storage";
 
 type SetSettings = React.Dispatch<React.SetStateAction<Settings>>;
@@ -44,12 +44,6 @@ export function createProviderModelUpdater(
 ) {
   return (provider: Provider, value: string) => {
     updateNestedSettingsRecord(setSettings, key, provider, value);
-  };
-}
-
-export function createLocalTtsVoiceUpdater(setSettings: SetSettings) {
-  return (language: keyof LocalTtsVoiceSelections, value: string) => {
-    updateNestedSettingsRecord(setSettings, "localTtsVoices", language, value);
   };
 }
 

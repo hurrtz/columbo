@@ -12,10 +12,12 @@ export const API_KEY_STORAGE_PREFIX = "schnackai.provider_key";
 export type PublicSettings = Omit<Settings, "apiKeys">;
 export type SettingsUpdate = Partial<Omit<Settings, "apiKeys" | "providerModels">>;
 
-export type LegacyStoredSettings = Partial<Settings> & {
+export type LegacyStoredSettings = Omit<Partial<Settings>, "ttsMode"> & {
   webSearchEnabled?: boolean;
   ttsPlayback?: ReplyPlayback;
   ttsVoice?: string;
+  ttsMode?: Settings["ttsMode"] | "local";
+  localTtsVoices?: unknown;
   openaiModel?: string;
   anthropicModel?: string;
   geminiModel?: string;

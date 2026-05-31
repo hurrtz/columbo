@@ -1,7 +1,5 @@
 import { useCallback } from "react";
 import type {
-  LocalTtsVoiceSelections,
-  Provider,
   ResponseMode,
   ResponseModeRoute,
   Settings,
@@ -13,7 +11,6 @@ import {
 } from "../../types";
 import {
   createApiKeyUpdater,
-  createLocalTtsVoiceUpdater,
   createProviderModelUpdater,
   createResponseModeUpdater,
   updateTopLevelSettingsValue,
@@ -92,11 +89,6 @@ export function useSettingsActions({ setSettings }: UseSettingsActionsParams) {
     [setSettings],
   );
 
-  const updateLocalTtsVoice = useCallback(
-    createLocalTtsVoiceUpdater(setSettings),
-    [setSettings],
-  );
-
   const updateApiKey = useCallback(createApiKeyUpdater(setSettings), [setSettings]);
 
   return {
@@ -107,7 +99,6 @@ export function useSettingsActions({ setSettings }: UseSettingsActionsParams) {
     updateResponseModeRoute,
     updateActiveResponseMode,
     updateProviderTtsVoice,
-    updateLocalTtsVoice,
     updateApiKey,
   };
 }
