@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { getLocalTtsVoiceOptions } from "../../constants/localTts";
 import {
   PROVIDER_DEFAULT_TTS_VOICES,
   getProviderTtsVoiceOptions,
@@ -8,7 +7,6 @@ import {
 import { AppLanguage, Provider, Settings, TtsListenLanguage } from "../../types";
 
 import {
-  LocalPreviewTexts,
   PreviewButtonPhase,
   ProviderPreviewTexts,
   SettingsModalProps,
@@ -19,7 +17,6 @@ export function useVoicePreviewState(params: {
   settings: Settings;
   language: AppLanguage;
   providerPreviewTexts: ProviderPreviewTexts;
-  localPreviewTexts: LocalPreviewTexts;
   nativePreviewText: string;
   selectedNativeVoice: string;
   onPreviewVoice: SettingsModalProps["onPreviewVoice"];
@@ -30,7 +27,6 @@ export function useVoicePreviewState(params: {
     settings,
     language,
     providerPreviewTexts,
-    localPreviewTexts,
     nativePreviewText,
     selectedNativeVoice,
     onPreviewVoice,
@@ -94,23 +90,6 @@ export function useVoicePreviewState(params: {
     [activePreview, onPreviewVoice, onStopPreviewVoice],
   );
 
-  const handlePreviewLocalVoice = useCallback(
-    async (selectedLanguage: TtsListenLanguage) => {
-      const selectedVoice =
-        settings.localTtsVoices[selectedLanguage] ||
-        getLocalTtsVoiceOptions(selectedLanguage)[0]?.value ||
-        "";
-
-      await handleExactPreview(`local:${selectedLanguage}`, {
-        text: localPreviewTexts[selectedLanguage],
-        mode: "local",
-        localLanguage: selectedLanguage,
-        voice: selectedVoice,
-      });
-    },
-    [handleExactPreview, localPreviewTexts, settings.localTtsVoices],
-  );
-
   const handlePreviewProviderVoice = useCallback(
     async (provider: Provider, previewLanguage: TtsListenLanguage) => {
       const selectedVoice =
@@ -145,7 +124,6 @@ export function useVoicePreviewState(params: {
 
   return {
     activePreview,
-    handlePreviewLocalVoice,
     handlePreviewProviderVoice,
     handlePreviewNativeVoice,
   };

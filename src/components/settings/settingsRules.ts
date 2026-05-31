@@ -1,7 +1,4 @@
 import {
-  getLocalTtsVoiceOptions,
-} from "../../constants/localTts";
-import {
   PROVIDER_DEFAULT_TTS_MODELS,
   PROVIDER_DEFAULT_TTS_VOICES,
   getProviderSttModelOptions,
@@ -191,27 +188,4 @@ export function getNormalizedProviderTtsVoices(
   }
 
   return changed ? nextProviderTtsVoices : null;
-}
-
-export function getNormalizedLocalTtsVoices(settings: Settings) {
-  const nextLocalTtsVoices = { ...settings.localTtsVoices };
-  let changed = false;
-
-  for (const selectedLanguage of settings.ttsListenLanguages) {
-    const voiceOptions = getLocalTtsVoiceOptions(selectedLanguage);
-
-    if (voiceOptions.length === 0) {
-      continue;
-    }
-
-    const currentVoice = nextLocalTtsVoices[selectedLanguage];
-    const isValid = voiceOptions.some((option) => option.value === currentVoice);
-
-    if (!isValid) {
-      nextLocalTtsVoices[selectedLanguage] = voiceOptions[0].value;
-      changed = true;
-    }
-  }
-
-  return changed ? nextLocalTtsVoices : null;
 }

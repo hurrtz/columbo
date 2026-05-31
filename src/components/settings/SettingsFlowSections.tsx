@@ -40,7 +40,6 @@ import type {
   AssistantResponseLength,
   AssistantResponseTone,
   InputMode,
-  LocalTtsVoiceSelections,
   Provider,
   ReplyPlayback,
   ResponseMode,
@@ -70,13 +69,10 @@ import {
 } from "./providerSupport";
 import { ResponseModesSection } from "./ProvidersSections";
 import {
-  LocalPackSection,
   NativeVoicePreviewSection,
   ProviderVoicePreviewSection,
 } from "./TtsSections";
 import type {
-  LocalPreviewTexts,
-  LocalTtsPackStates,
   PreviewButtonPhase,
   ProviderHealthState,
   ProviderPreviewTexts,
@@ -995,9 +991,7 @@ export function VoiceSection({
   selectedPreviewProviderModelOptions,
   selectedPreviewProviderModel,
   providerPreviewTexts,
-  localPreviewTexts,
   activePreview,
-  localTtsPackStates,
   nativeVoiceOptions,
   selectedNativeVoice,
   nativePreviewText,
@@ -1006,14 +1000,10 @@ export function VoiceSection({
   onUpdateProviderSttModel,
   onUpdateProviderTtsModel,
   onUpdateProviderTtsVoice,
-  onUpdateLocalTtsVoice,
-  onInstallLocalTtsLanguagePack,
   onStopPreviewVoice,
   onSetProviderPreviewText,
-  onSetLocalPreviewText,
   onSetNativePreviewText,
   onPreviewProviderVoice,
-  onPreviewLocalVoice,
   onPreviewNativeVoice,
   onSelectNativeVoice,
   onTextInputFocus,
@@ -1031,9 +1021,7 @@ export function VoiceSection({
   selectedPreviewProviderModelOptions: { id: string; name: string }[];
   selectedPreviewProviderModel: string;
   providerPreviewTexts: ProviderPreviewTexts;
-  localPreviewTexts: LocalPreviewTexts;
   activePreview: { id: string; phase: PreviewButtonPhase } | null;
-  localTtsPackStates: LocalTtsPackStates;
   nativeVoiceOptions: { value: string; label: string }[];
   selectedNativeVoice: string;
   nativePreviewText: string;
@@ -1044,24 +1032,17 @@ export function VoiceSection({
   onUpdateProviderSttModel: (provider: Provider, model: string) => void;
   onUpdateProviderTtsModel: (provider: Provider, model: string) => void;
   onUpdateProviderTtsVoice: (provider: Provider, voice: string) => void;
-  onUpdateLocalTtsVoice: (
-    language: keyof LocalTtsVoiceSelections,
-    voice: string,
-  ) => void;
-  onInstallLocalTtsLanguagePack: (language: TtsListenLanguage) => Promise<void>;
   onStopPreviewVoice: () => Promise<void>;
   onSetProviderPreviewText: (
     provider: Provider,
     language: TtsListenLanguage,
     text: string,
   ) => void;
-  onSetLocalPreviewText: (language: TtsListenLanguage, text: string) => void;
   onSetNativePreviewText: (text: string) => void;
   onPreviewProviderVoice: (
     provider: Provider,
     previewLanguage: TtsListenLanguage,
   ) => Promise<void>;
-  onPreviewLocalVoice: (language: TtsListenLanguage) => Promise<void>;
   onPreviewNativeVoice: () => Promise<void>;
   onSelectNativeVoice: (voiceId: string) => void;
   onTextInputFocus: TextInputFocusHandler;
@@ -1228,11 +1209,6 @@ export function VoiceSection({
               description: t("nativeTtsDescription"),
             },
             {
-              value: "local",
-              label: t("localTts"),
-              description: t("localTtsDescription"),
-            },
-            {
               value: "provider",
               label: t("provider"),
               description: t("providerTtsDescription"),
@@ -1286,21 +1262,6 @@ export function VoiceSection({
               onTextInputFocus={onTextInputFocus}
             />
           </>
-        ) : null}
-
-        {settings.ttsMode === "local" ? (
-          <LocalPackSection
-            settings={settings}
-            packStates={localTtsPackStates}
-            onUpdateLocalTtsVoice={onUpdateLocalTtsVoice}
-            onInstallLocalTtsLanguagePack={onInstallLocalTtsLanguagePack}
-            localPreviewTexts={localPreviewTexts}
-            activePreview={activePreview}
-            onSetLocalPreviewText={onSetLocalPreviewText}
-            onPreviewLocalVoice={onPreviewLocalVoice}
-            onStopPreview={onStopPreviewVoice}
-            onTextInputFocus={onTextInputFocus}
-          />
         ) : null}
 
         {settings.ttsMode === "native" ? (

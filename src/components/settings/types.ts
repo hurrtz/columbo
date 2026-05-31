@@ -5,7 +5,6 @@ import { TextInput } from "react-native";
 import type { CatalogProviderId } from "../../catalog/types";
 import type { WebSearchProvider } from "../../constants/webSearch";
 import {
-  LocalTtsVoiceSelections,
   Provider,
   ResponseMode,
   ResponseModeRoute,
@@ -30,13 +29,7 @@ export interface SettingsModalProps {
   onUpdateProviderSttModel: (provider: Provider, model: string) => void;
   onUpdateProviderTtsModel: (provider: Provider, model: string) => void;
   onUpdateProviderTtsVoice: (provider: Provider, voice: string) => void;
-  onUpdateLocalTtsVoice: (
-    language: keyof LocalTtsVoiceSelections,
-    voice: string,
-  ) => void;
   onUpdateApiKey: (provider: Provider, apiKey: string) => void;
-  localTtsPackStates: LocalTtsPackStates;
-  onInstallLocalTtsLanguagePack: (language: TtsListenLanguage) => Promise<void>;
   onPreviewVoice: (
     request: VoicePreviewRequest,
     callbacks?: {
@@ -87,23 +80,6 @@ export type ProviderPreviewTexts = Record<
   Record<TtsListenLanguage, string>
 >;
 
-export type LocalPreviewTexts = Record<TtsListenLanguage, string>;
-
 export type NativeSpeechVoice = Awaited<
   ReturnType<typeof Speech.getAvailableVoicesAsync>
 >[number];
-
-export type LocalTtsPackStates = Partial<
-  Record<
-    TtsListenLanguage,
-    {
-      supported: boolean;
-      downloaded: boolean;
-      verified: boolean;
-      installed: boolean;
-      downloading: boolean;
-      progress: number;
-      error: string | null;
-    }
-  >
->;

@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { AppLanguage } from "../../types";
 
 import {
-  getNormalizedLocalTtsVoices,
   getNormalizedProviderSttModels,
   getNormalizedProviderTtsModels,
   getNormalizedProviderTtsVoices,
@@ -77,7 +76,6 @@ export function useSettingsNormalization(params: {
       enabledTtsProviders,
       language,
     );
-    const nextLocalTtsVoices = getNormalizedLocalTtsVoices(settings);
 
     if (shouldPromoteSttMode) {
       patch.sttMode = "provider";
@@ -117,10 +115,6 @@ export function useSettingsNormalization(params: {
 
     if (nextProviderTtsVoices) {
       patch.providerTtsVoices = nextProviderTtsVoices;
-    }
-
-    if (nextLocalTtsVoices) {
-      patch.localTtsVoices = nextLocalTtsVoices;
     }
 
     if (Object.keys(patch).length > 0) {

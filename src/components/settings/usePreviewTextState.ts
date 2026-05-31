@@ -4,11 +4,10 @@ import { TTS_LISTEN_LANGUAGE_OPTIONS } from "../../constants/localTts";
 import { AppLanguage, Provider, Settings, TtsListenLanguage } from "../../types";
 
 import {
-  getLocalPreviewSampleText,
   getNativePreviewSampleText,
   getProviderPreviewSampleText,
 } from "./helpers";
-import { LocalPreviewTexts, ProviderPreviewTexts } from "./types";
+import { ProviderPreviewTexts } from "./types";
 
 function buildProviderPreviewTexts(settings: Settings): ProviderPreviewTexts {
   return Object.fromEntries(
@@ -24,15 +23,6 @@ function buildProviderPreviewTexts(settings: Settings): ProviderPreviewTexts {
   ) as ProviderPreviewTexts;
 }
 
-function buildLocalPreviewTexts(): LocalPreviewTexts {
-  return Object.fromEntries(
-    TTS_LISTEN_LANGUAGE_OPTIONS.map((entry) => [
-      entry,
-      getLocalPreviewSampleText(entry),
-    ]),
-  ) as LocalPreviewTexts;
-}
-
 export function usePreviewTextState(params: {
   settings: Settings;
   language: AppLanguage;
@@ -40,9 +30,6 @@ export function usePreviewTextState(params: {
   const { settings, language } = params;
   const [providerPreviewTexts, setProviderPreviewTexts] =
     useState<ProviderPreviewTexts>(() => buildProviderPreviewTexts(settings));
-  const [localPreviewTexts, setLocalPreviewTexts] = useState<LocalPreviewTexts>(
-    () => buildLocalPreviewTexts(),
-  );
   const [nativePreviewText, setNativePreviewText] = useState(() =>
     getNativePreviewSampleText(language),
   );
@@ -71,22 +58,10 @@ export function usePreviewTextState(params: {
     [],
   );
 
-  const setLocalPreviewText = useCallback(
-    (previewLanguage: TtsListenLanguage, text: string) => {
-      setLocalPreviewTexts((previous) => ({
-        ...previous,
-        [previewLanguage]: text,
-      }));
-    },
-    [],
-  );
-
   return {
     providerPreviewTexts,
-    localPreviewTexts,
     nativePreviewText,
     setProviderPreviewText,
-    setLocalPreviewText,
     setNativePreviewText,
   };
 }

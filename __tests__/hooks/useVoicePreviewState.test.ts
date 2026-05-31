@@ -15,12 +15,6 @@ function buildProviderPreviewTexts() {
   ) as Record<Provider, Record<TtsListenLanguage, string>>;
 }
 
-function buildLocalPreviewTexts() {
-  return Object.fromEntries(
-    TTS_LISTEN_LANGUAGE_OPTIONS.map((entry) => [entry, `local-${entry}`]),
-  ) as Record<TtsListenLanguage, string>;
-}
-
 describe("useVoicePreviewState", () => {
   it("stops the active preview when the same preview is requested again", async () => {
     let resolvePreview: (() => void) | null = null;
@@ -44,7 +38,6 @@ describe("useVoicePreviewState", () => {
         settings: DEFAULT_SETTINGS,
         language: "en",
         providerPreviewTexts: buildProviderPreviewTexts(),
-        localPreviewTexts: buildLocalPreviewTexts(),
         nativePreviewText: "Native preview",
         selectedNativeVoice: "Samantha",
         onPreviewVoice,
@@ -97,7 +90,6 @@ describe("useVoicePreviewState", () => {
         settings: DEFAULT_SETTINGS,
         language: "en",
         providerPreviewTexts: buildProviderPreviewTexts(),
-        localPreviewTexts: buildLocalPreviewTexts(),
         nativePreviewText: "Native preview",
         selectedNativeVoice: "Samantha",
         onPreviewVoice,
@@ -111,7 +103,7 @@ describe("useVoicePreviewState", () => {
     });
 
     await act(async () => {
-      await hook.result.current.handlePreviewLocalVoice("en");
+      await hook.result.current.handlePreviewProviderVoice("openai", "en");
     });
 
     expect(onPreviewVoice).toHaveBeenCalledTimes(1);

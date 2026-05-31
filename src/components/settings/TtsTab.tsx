@@ -1,13 +1,9 @@
 import React from "react";
 import { Text } from "react-native";
 
-import {
-  getTtsListenLanguageLabel,
-} from "../../constants/localTts";
 import { useLocalization } from "../../i18n";
 import { type SpeechDiagnosticRequestSummary } from "../../services/speech/diagnostics";
 import {
-  LocalTtsVoiceSelections,
   Provider,
   ReplyPlayback,
   Settings,
@@ -26,14 +22,11 @@ import {
 } from "./shared";
 import { styles } from "./styles";
 import {
-  LocalPreviewTexts,
-  LocalTtsPackStates,
   PreviewButtonPhase,
   ProviderPreviewTexts,
   TextInputFocusHandler,
 } from "./types";
 import {
-  LocalPackSection,
   NativeVoicePreviewSection,
   ProviderVoicePreviewSection,
 } from "./TtsSections";
@@ -47,9 +40,7 @@ interface TtsTabProps {
   selectedPreviewProviderModelOptions: { id: string; name: string }[];
   selectedPreviewProviderModel: string;
   providerPreviewTexts: ProviderPreviewTexts;
-  localPreviewTexts: LocalPreviewTexts;
   activePreview: { id: string; phase: PreviewButtonPhase } | null;
-  localTtsPackStates: LocalTtsPackStates;
   nativeVoiceOptions: { value: string; label: string }[];
   selectedNativeVoice: string;
   nativePreviewText: string;
@@ -59,24 +50,17 @@ interface TtsTabProps {
   ) => void;
   onUpdateProviderTtsModel: (provider: Provider, model: string) => void;
   onUpdateProviderTtsVoice: (provider: Provider, voice: string) => void;
-  onUpdateLocalTtsVoice: (
-    language: keyof LocalTtsVoiceSelections,
-    voice: string,
-  ) => void;
-  onInstallLocalTtsLanguagePack: (language: TtsListenLanguage) => Promise<void>;
   onStopPreviewVoice: () => Promise<void>;
   onSetProviderPreviewText: (
     provider: Provider,
     language: TtsListenLanguage,
     text: string,
   ) => void;
-  onSetLocalPreviewText: (language: TtsListenLanguage, text: string) => void;
   onSetNativePreviewText: (text: string) => void;
   onPreviewProviderVoice: (
     provider: Provider,
     previewLanguage: TtsListenLanguage,
   ) => Promise<void>;
-  onPreviewLocalVoice: (language: TtsListenLanguage) => Promise<void>;
   onPreviewNativeVoice: () => Promise<void>;
   onSelectNativeVoice: (voiceId: string) => void;
   onTextInputFocus: TextInputFocusHandler;
@@ -92,9 +76,7 @@ export function TtsTab({
   selectedPreviewProviderModelOptions,
   selectedPreviewProviderModel,
   providerPreviewTexts,
-  localPreviewTexts,
   activePreview,
-  localTtsPackStates,
   nativeVoiceOptions,
   selectedNativeVoice,
   nativePreviewText,
@@ -102,14 +84,10 @@ export function TtsTab({
   onUpdate,
   onUpdateProviderTtsModel,
   onUpdateProviderTtsVoice,
-  onUpdateLocalTtsVoice,
-  onInstallLocalTtsLanguagePack,
   onStopPreviewVoice,
   onSetProviderPreviewText,
-  onSetLocalPreviewText,
   onSetNativePreviewText,
   onPreviewProviderVoice,
-  onPreviewLocalVoice,
   onPreviewNativeVoice,
   onSelectNativeVoice,
   onTextInputFocus,
@@ -145,11 +123,6 @@ export function TtsTab({
             value: "native",
             label: t("appNative"),
             description: t("nativeTtsDescription"),
-          },
-          {
-            value: "local",
-            label: t("localTts"),
-            description: t("localTtsDescription"),
           },
           {
             value: "provider",
@@ -193,19 +166,11 @@ export function TtsTab({
             ? enabledTtsProviders.length > 0
               ? t("ttsProviderEnabledHint")
               : t("ttsProviderMissingHint")
-            : settings.ttsMode === "local"
-              ? enabledTtsProviders.length > 0
-                ? t("ttsProviderEnabledHint")
-                : t("ttsProviderMissingHint")
-              : t("nativeTtsHint")}
+            : t("nativeTtsHint")}
         </Text>
         {settings.ttsMode === "provider" ? (
           <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
             {t("providerTtsOrderHint")}
-          </Text>
-        ) : settings.ttsMode === "local" ? (
-          <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
-            {t("localTtsOrderHint")}
           </Text>
         ) : null}
         {ttsLanguageNote ? (
@@ -225,18 +190,6 @@ export function TtsTab({
         onPreviewProvider={onPreviewProviderVoice}
         onStopPreview={onStopPreviewVoice}
         onUpdateProviderTtsVoice={onUpdateProviderTtsVoice}
-        onTextInputFocus={onTextInputFocus}
-      />
-      <LocalPackSection
-        settings={settings}
-        packStates={localTtsPackStates}
-        onUpdateLocalTtsVoice={onUpdateLocalTtsVoice}
-        onInstallLocalTtsLanguagePack={onInstallLocalTtsLanguagePack}
-        localPreviewTexts={localPreviewTexts}
-        activePreview={activePreview}
-        onSetLocalPreviewText={onSetLocalPreviewText}
-        onPreviewLocalVoice={onPreviewLocalVoice}
-        onStopPreview={onStopPreviewVoice}
         onTextInputFocus={onTextInputFocus}
       />
       <NativeVoicePreviewSection

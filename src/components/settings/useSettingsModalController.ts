@@ -95,10 +95,8 @@ export function useSettingsModalController({
   const speechDiagnostics = useSpeechDiagnostics(6);
   const {
     providerPreviewTexts,
-    localPreviewTexts,
     nativePreviewText,
     setProviderPreviewText,
-    setLocalPreviewText,
     setNativePreviewText,
   } = usePreviewTextState({
     settings,
@@ -189,7 +187,6 @@ export function useSettingsModalController({
   );
   const {
     activePreview,
-    handlePreviewLocalVoice,
     handlePreviewProviderVoice,
     handlePreviewNativeVoice,
   } = useVoicePreviewState({
@@ -197,7 +194,6 @@ export function useSettingsModalController({
     settings,
     language,
     providerPreviewTexts,
-    localPreviewTexts,
     nativePreviewText,
     selectedNativeVoice,
     onPreviewVoice,
@@ -266,15 +262,13 @@ export function useSettingsModalController({
   const ttsLanguageNote =
     settings.ttsMode === "native"
       ? getNativeTtsLanguageNote(language)
-      : settings.ttsMode === "local"
-        ? t("localTtsLanguageCoverageHint")
-        : selectedPreviewProvider && selectedPreviewProviderModel
-          ? getProviderTtsLanguageNoteForModel(
-              selectedPreviewProvider,
-              selectedPreviewProviderModel,
-              language,
-            )
-          : null;
+      : selectedPreviewProvider && selectedPreviewProviderModel
+        ? getProviderTtsLanguageNoteForModel(
+            selectedPreviewProvider,
+            selectedPreviewProviderModel,
+            language,
+          )
+        : null;
   const toggleListenLanguage = (value: TtsListenLanguage) => {
     const exists = settings.ttsListenLanguages.includes(value);
 
@@ -295,8 +289,6 @@ export function useSettingsModalController({
     contentScrollRef,
     providerPreviewTexts,
     setProviderPreviewText,
-    localPreviewTexts,
-    setLocalPreviewText,
     nativePreviewText,
     setNativePreviewText,
     activePreview,
@@ -307,7 +299,6 @@ export function useSettingsModalController({
     enabledTtsProviders,
     modalAnimStyle,
     handleTextInputFocus,
-    handlePreviewLocalVoice,
     handlePreviewProviderVoice,
     handlePreviewNativeVoice,
     providerPickerDisabled,

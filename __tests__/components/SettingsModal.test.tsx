@@ -83,10 +83,7 @@ function renderSettingsModal(overrideProps: Partial<React.ComponentProps<typeof 
           onUpdateProviderSttModel={jest.fn()}
           onUpdateProviderTtsModel={jest.fn()}
           onUpdateProviderTtsVoice={jest.fn()}
-          onUpdateLocalTtsVoice={jest.fn()}
           onUpdateApiKey={jest.fn()}
-          localTtsPackStates={{}}
-          onInstallLocalTtsLanguagePack={jest.fn(async () => undefined)}
           onPreviewVoice={jest.fn(async () => undefined)}
           onStopPreviewVoice={jest.fn(async () => undefined)}
           onValidateProvider={jest.fn(async () => undefined)}

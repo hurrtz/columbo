@@ -78,10 +78,6 @@ describe("useSettingsNormalization", () => {
         ...DEFAULT_SETTINGS.providerTtsVoices,
         openai: "invalid-voice",
       },
-      localTtsVoices: {
-        ...DEFAULT_SETTINGS.localTtsVoices,
-        en: "",
-      },
       responseModes: {
         quick: { provider: "anthropic", model: "claude-sonnet-4-6" },
         normal: { provider: "anthropic", model: "claude-sonnet-4-6" },
@@ -117,9 +113,6 @@ describe("useSettingsNormalization", () => {
         }),
         providerTtsVoices: expect.objectContaining({
           openai: "alloy",
-        }),
-        localTtsVoices: expect.objectContaining({
-          en: "af_heart",
         }),
         responseModes: {
           quick: { provider: "openai", model: "gpt-5.5" },

@@ -1,6 +1,5 @@
 import { DEFAULT_SETTINGS } from "../../src/types";
 import {
-  getNormalizedLocalTtsVoices,
   getNormalizedProviderTtsVoices,
   getNormalizedResponseModes,
   getNormalizedSttProvider,
@@ -45,16 +44,12 @@ describe("settingsRules", () => {
     });
   });
 
-  it("repairs invalid provider and local voice selections", () => {
+  it("repairs invalid provider voice selections", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
       providerTtsVoices: {
         ...DEFAULT_SETTINGS.providerTtsVoices,
         openai: "not-a-real-voice",
-      },
-      localTtsVoices: {
-        ...DEFAULT_SETTINGS.localTtsVoices,
-        en: "not-a-real-local-voice",
       },
       ttsListenLanguages: ["en"] as const,
     };
@@ -64,10 +59,8 @@ describe("settingsRules", () => {
       ["openai"],
       "en",
     );
-    const nextLocalVoices = getNormalizedLocalTtsVoices(settings);
 
     expect(nextProviderVoices?.openai).toBe("alloy");
-    expect(nextLocalVoices?.en).not.toBe("not-a-real-local-voice");
   });
 
   it("preserves a custom ElevenLabs voice id before the dynamic catalog is loaded", () => {

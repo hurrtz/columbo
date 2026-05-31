@@ -40,10 +40,7 @@ export function SettingsModal(props: SettingsModalProps) {
     onUpdateProviderSttModel,
     onUpdateProviderTtsModel,
     onUpdateProviderTtsVoice,
-    onUpdateLocalTtsVoice,
     onUpdateApiKey,
-    localTtsPackStates,
-    onInstallLocalTtsLanguagePack,
     onPreviewVoice,
     onStopPreviewVoice,
     onValidateProvider,
@@ -62,8 +59,6 @@ export function SettingsModal(props: SettingsModalProps) {
     contentScrollRef,
     providerPreviewTexts,
     setProviderPreviewText,
-    localPreviewTexts,
-    setLocalPreviewText,
     nativePreviewText,
     setNativePreviewText,
     activePreview,
@@ -71,7 +66,6 @@ export function SettingsModal(props: SettingsModalProps) {
     speechDiagnostics,
     modalAnimStyle,
     handleTextInputFocus,
-    handlePreviewLocalVoice,
     handlePreviewProviderVoice,
     handlePreviewNativeVoice,
     selectedSttProviderModelOptions,
@@ -181,9 +175,7 @@ export function SettingsModal(props: SettingsModalProps) {
             }
             selectedPreviewProviderModel={selectedPreviewProviderModel}
             providerPreviewTexts={providerPreviewTexts}
-            localPreviewTexts={localPreviewTexts}
             activePreview={activePreview}
-            localTtsPackStates={localTtsPackStates}
             nativeVoiceOptions={nativeVoiceOptions}
             selectedNativeVoice={selectedNativeVoice}
             nativePreviewText={nativePreviewText}
@@ -192,18 +184,14 @@ export function SettingsModal(props: SettingsModalProps) {
             onUpdateProviderSttModel={onUpdateProviderSttModel}
             onUpdateProviderTtsModel={onUpdateProviderTtsModel}
             onUpdateProviderTtsVoice={onUpdateProviderTtsVoice}
-            onUpdateLocalTtsVoice={onUpdateLocalTtsVoice}
-            onInstallLocalTtsLanguagePack={onInstallLocalTtsLanguagePack}
             onStopPreviewVoice={onStopPreviewVoice}
             onSetProviderPreviewText={(
               provider: Provider,
               language: TtsListenLanguage,
               text: string,
             ) => setProviderPreviewText(provider, language, text)}
-            onSetLocalPreviewText={setLocalPreviewText}
             onSetNativePreviewText={setNativePreviewText}
             onPreviewProviderVoice={handlePreviewProviderVoice}
-            onPreviewLocalVoice={handlePreviewLocalVoice}
             onPreviewNativeVoice={handlePreviewNativeVoice}
             onSelectNativeVoice={setSelectedNativeVoice}
             onTextInputFocus={handleTextInputFocus}
