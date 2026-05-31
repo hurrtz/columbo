@@ -14,7 +14,6 @@ import {
   getWebSearchProviderControlSupport,
   getWebSearchProviderModel,
   type WebSearchDepth,
-  type WebSearchMode,
   type WebSearchProvider,
   type WebSearchSearchMode,
   WEB_SEARCH_PROVIDER_IDS,
@@ -28,7 +27,7 @@ import {
   ProviderApiKeyCard,
   ProviderSelectionGrid,
 } from "./ProvidersSections";
-import { PickerSection, RadioGroup } from "./SettingsSectionPrimitives";
+import { PickerSection } from "./SettingsSectionPrimitives";
 import { styles } from "./styles";
 import { ProviderValidationState, TextInputFocusHandler } from "./types";
 
@@ -51,27 +50,6 @@ export function WebSearchTab({
 }: WebSearchTabProps) {
   const { colors } = useTheme();
   const { t } = useLocalization();
-  const webSearchModeOptions: {
-    value: WebSearchMode;
-    label: string;
-    description: string;
-  }[] = [
-    {
-      value: "off",
-      label: t("webSearchModeOff"),
-      description: t("webSearchModeOffDescription"),
-    },
-    {
-      value: "auto",
-      label: t("webSearchModeAuto"),
-      description: t("webSearchModeAutoDescription"),
-    },
-    {
-      value: "on",
-      label: t("webSearchModeOn"),
-      description: t("webSearchModeOnDescription"),
-    },
-  ];
   const [selectedCatalogProviderId, setSelectedCatalogProviderId] = React.useState(
     getCatalogProviderIdForAppProvider(
       settings.webSearchProvider ?? DEFAULT_WEB_SEARCH_PROVIDER,
@@ -232,13 +210,6 @@ export function WebSearchTab({
 
   return (
     <>
-      <RadioGroup
-        label={t("webSearchMode")}
-        options={webSearchModeOptions}
-        value={settings.webSearchMode}
-        onChange={(value) => onUpdate({ webSearchMode: value })}
-      />
-
       <View
         style={[
           styles.sectionCard,

@@ -167,23 +167,10 @@ export const en: TranslationDictionary = {
       "Choose the configured service that performs live web lookups. Its credentials are stored on-device.",
     webSearchProviderMissingHint:
       "Configure at least one search-capable service in Credentials to enable web grounding here.",
-    webSearchMode: "Web Search Mode",
-    webSearchBehavior: "When to search",
-    webSearchOffLabel: "Web Search · Off",
-    webSearchModeOff: "Off",
-    webSearchModeAuto: "Auto",
-    webSearchModeOn: "On",
-    webSearchModeAlways: "Always",
-    webSearchModeOffDescription:
-      "Never run a web lookup before the assistant reply.",
-    webSearchModeAutoDescription:
-      "Only search when the request looks freshness-sensitive or follows a grounded answer.",
-    webSearchModeOnDescription:
-      "Always search the web before the assistant reply when a search service is configured.",
     webSearchModelHint: ({ model }) =>
       `Uses ${model} behind the scenes for live web grounding.`,
     webSearchHomeHint:
-      "Use the home-screen control to switch web grounding off, auto, or always on for this thread.",
+      "Use the home-screen toggle to switch web grounding on or off for this thread.",
     settingsWebSearchCompactHint:
       "Optionally prepend fresh web context before the main model replies.",
     webSearchAdvanced: "Advanced Search Controls",

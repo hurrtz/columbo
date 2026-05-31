@@ -702,7 +702,6 @@ export function AiModelsSection({
     settings.webSearchProvider ??
     selectableSearchProviders[0] ??
     null;
-  const webSearchEnabled = settings.webSearchMode !== "off";
   const webSearchPickerOptions = buildProviderPickerOptions(
     selectableSearchProviders,
     selectedWebSearchProvider,
@@ -804,59 +803,17 @@ export function AiModelsSection({
           },
         ]}
       >
-        <View style={styles.inlineSwitchRow}>
-          <View style={styles.inlineSwitchCopy}>
-            <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
-              {t("webSearch")}
-            </Text>
-            <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
-              {t("settingsWebSearchCompactHint")}
-            </Text>
-          </View>
-          <Switch
-            value={webSearchEnabled}
-            onValueChange={(nextValue) => {
-              if (!nextValue) {
-                onUpdate({ webSearchMode: "off" });
-                return;
-              }
-
-              onUpdate({
-                webSearchMode: settings.webSearchMode === "on" ? "on" : "auto",
-                webSearchProvider:
-                  selectableSearchProviders[0] ??
-                  settings.webSearchProvider ??
-                  null,
-              });
-            }}
-            trackColor={{
-              false: colors.border,
-              true: colors.accent,
-            }}
-            thumbColor={colors.surface}
-          />
+        <View style={styles.inlineSwitchCopy}>
+          <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
+            {t("webSearch")}
+          </Text>
+          <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
+            {t("settingsWebSearchCompactHint")}
+          </Text>
         </View>
 
-        {webSearchEnabled ? (
+        {selectableSearchProviders.length > 0 ? (
           <>
-            <RadioGroup<"auto" | "on">
-              label={t("webSearchBehavior")}
-              options={[
-                {
-                  value: "auto",
-                  label: t("webSearchModeAuto"),
-                  description: t("webSearchModeAutoDescription"),
-                },
-                {
-                  value: "on",
-                  label: t("webSearchModeOn"),
-                  description: t("webSearchModeOnDescription"),
-                },
-              ]}
-              value={settings.webSearchMode === "on" ? "on" : "auto"}
-              onChange={(value) => onUpdate({ webSearchMode: value })}
-            />
-
             {selectedWebSearchProvider ? (
               <Picker
                 label={t("webSearchProvider")}

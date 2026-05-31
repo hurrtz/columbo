@@ -169,23 +169,10 @@ export const de: TranslationDictionary = {
       "Wähle den konfigurierten Dienst für Live-Websuchen. Die Zugangsdaten werden lokal auf dem Gerät gespeichert.",
     webSearchProviderMissingHint:
       "Richte unter Zugangsdaten mindestens einen suchfähigen Dienst ein, damit Web-Grundierung hier verfügbar ist.",
-    webSearchMode: "Websuche-Modus",
-    webSearchBehavior: "Wann gesucht wird",
-    webSearchOffLabel: "Websuche · Aus",
-    webSearchModeOff: "Aus",
-    webSearchModeAuto: "Auto",
-    webSearchModeOn: "An",
-    webSearchModeAlways: "Immer",
-    webSearchModeOffDescription:
-      "Vor der Antwort wird niemals eine Websuche ausgeführt.",
-    webSearchModeAutoDescription:
-      "Nur suchen, wenn die Anfrage nach aktuellem Wissen aussieht oder an eine bereits geerdete Antwort anknüpft.",
-    webSearchModeOnDescription:
-      "Vor jeder Antwort suchen, sobald ein Suchdienst korrekt konfiguriert ist.",
     webSearchModelHint: ({ model }) =>
       `Verwendet im Hintergrund ${model} für die Live-Webrecherche.`,
     webSearchHomeHint:
-      "Nutze den Homescreen-Schalter, um Web-Grundierung für diesen Schnack auszuschalten, automatisch zu steuern oder immer zu erzwingen.",
+      "Nutze den Homescreen-Schalter, um Web-Grundierung für diesen Schnack ein- oder auszuschalten.",
     settingsWebSearchCompactHint:
       "Optional wird vor der eigentlichen Antwort frischer Web-Kontext eingefügt.",
     webSearchAdvanced: "Erweiterte Suchregler",
