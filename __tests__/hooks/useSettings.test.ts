@@ -189,7 +189,7 @@ describe("useSettings", () => {
 
     await act(async () => {
       result.current.updateSettings({
-        webSearchMode: "auto",
+        webSearchMode: "on",
         webSearchProvider: "openai",
         webSearchProviderSettings: {
           ...result.current.settings.webSearchProviderSettings,
@@ -201,15 +201,30 @@ describe("useSettings", () => {
       });
     });
 
-    expect(result.current.settings.webSearchMode).toBe("auto");
+    expect(result.current.settings.webSearchMode).toBe("on");
     expect(result.current.settings.webSearchProvider).toBe("openai");
     expect(result.current.settings.webSearchProviderSettings.openai.searchMode).toBe(
       "deep",
     );
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
       "@schnackai/settings",
-      expect.stringContaining('"webSearchMode":"auto"'),
+      expect.stringContaining('"webSearchMode":"on"'),
     );
+  });
+
+  it("migrates a stored web search mode of auto to on", async () => {
+    const legacyStored: Record<string, unknown> = {
+      ...DEFAULT_SETTINGS,
+      webSearchMode: "auto",
+    };
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
+      JSON.stringify(legacyStored),
+    );
+
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    expect(result.current.settings.webSearchMode).toBe("on");
   });
 
   it("migrates a stored grok voice provider id onto xai", async () => {

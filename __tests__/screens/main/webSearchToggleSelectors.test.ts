@@ -14,18 +14,12 @@ const providerLabels = {
 const t = ((key: string) =>
   ({
     webSearch: "Web Search",
-    webSearchOffLabel: "Web Search · Off",
-    webSearchModeAuto: "Auto",
-    webSearchModeAlways: "Always",
-  }[key] ?? key)) as Parameters<
-  typeof getWebSearchToggleDisplay
->[0]["t"];
+  }[key] ?? key)) as Parameters<typeof getWebSearchToggleDisplay>[0]["t"];
 
 describe("getWebSearchToggleDisplay", () => {
-  it("shows the honest off label with no provider when disabled", () => {
+  it("is inactive with no provider when disabled", () => {
     const display = getWebSearchToggleDisplay({
       webSearchEnabled: false,
-      webSearchMode: "auto",
       webSearchProvider: "tavily",
       webSearchReady: true,
       providerLabels,
@@ -34,15 +28,14 @@ describe("getWebSearchToggleDisplay", () => {
 
     expect(display).toEqual({
       active: false,
-      title: "Web Search · Off",
+      title: "Web Search",
       providerLabel: null,
     });
   });
 
-  it("shows the off label when enabled but no provider is configured", () => {
+  it("is inactive when enabled but no provider is configured", () => {
     const display = getWebSearchToggleDisplay({
       webSearchEnabled: true,
-      webSearchMode: "auto",
       webSearchProvider: null,
       webSearchReady: false,
       providerLabels,
@@ -51,15 +44,14 @@ describe("getWebSearchToggleDisplay", () => {
 
     expect(display).toEqual({
       active: false,
-      title: "Web Search · Off",
+      title: "Web Search",
       providerLabel: null,
     });
   });
 
-  it("shows the off label when enabled with a provider that is not ready", () => {
+  it("is inactive when enabled with a provider that is not ready", () => {
     const display = getWebSearchToggleDisplay({
       webSearchEnabled: true,
-      webSearchMode: "auto",
       webSearchProvider: "tavily",
       webSearchReady: false,
       providerLabels,
@@ -67,14 +59,13 @@ describe("getWebSearchToggleDisplay", () => {
     });
 
     expect(display.active).toBe(false);
-    expect(display.title).toBe("Web Search · Off");
+    expect(display.title).toBe("Web Search");
     expect(display.providerLabel).toBeNull();
   });
 
-  it("surfaces the provider and Auto suffix when on and configured", () => {
+  it("surfaces the provider when on and configured", () => {
     const display = getWebSearchToggleDisplay({
       webSearchEnabled: true,
-      webSearchMode: "auto",
       webSearchProvider: "tavily",
       webSearchReady: true,
       providerLabels,
@@ -83,22 +74,8 @@ describe("getWebSearchToggleDisplay", () => {
 
     expect(display).toEqual({
       active: true,
-      title: "Web Search (Auto)",
+      title: "Web Search",
       providerLabel: "Tavily",
     });
-  });
-
-  it("uses the Always suffix for the on mode", () => {
-    const display = getWebSearchToggleDisplay({
-      webSearchEnabled: true,
-      webSearchMode: "on",
-      webSearchProvider: "perplexity",
-      webSearchReady: true,
-      providerLabels,
-      t,
-    });
-
-    expect(display.title).toBe("Web Search (Always)");
-    expect(display.providerLabel).toBe("Perplexity");
   });
 });

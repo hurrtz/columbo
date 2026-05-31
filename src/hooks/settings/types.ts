@@ -12,8 +12,13 @@ export const API_KEY_STORAGE_PREFIX = "schnackai.provider_key";
 export type PublicSettings = Omit<Settings, "apiKeys">;
 export type SettingsUpdate = Partial<Omit<Settings, "apiKeys" | "providerModels">>;
 
-export type LegacyStoredSettings = Omit<Partial<Settings>, "ttsMode"> & {
+export type LegacyStoredSettings = Omit<
+  Partial<Settings>,
+  "ttsMode" | "webSearchMode"
+> & {
   webSearchEnabled?: boolean;
+  /** Legacy "auto" mode is migrated to "on". */
+  webSearchMode?: Settings["webSearchMode"] | "auto";
   ttsPlayback?: ReplyPlayback;
   ttsVoice?: string;
   ttsMode?: Settings["ttsMode"] | "local";

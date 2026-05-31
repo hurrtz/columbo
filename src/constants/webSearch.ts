@@ -9,7 +9,7 @@ export const WEB_SEARCH_PROVIDER_IDS = [
 ] as const;
 export type WebSearchProvider = (typeof WEB_SEARCH_PROVIDER_IDS)[number];
 
-export type WebSearchMode = "off" | "auto" | "on";
+export type WebSearchMode = "off" | "on";
 export type WebSearchDepth = "standard" | "deep";
 export type WebSearchSearchMode = "quick" | "balanced" | "deep";
 export type WebSearchResultLimit = 3 | 5 | 8;
@@ -187,7 +187,7 @@ export function isWebSearchProvider(value: unknown): value is WebSearchProvider 
 }
 
 export function isWebSearchMode(value: unknown): value is WebSearchMode {
-  return value === "off" || value === "auto" || value === "on";
+  return value === "off" || value === "on";
 }
 
 export function isWebSearchResultLimit(

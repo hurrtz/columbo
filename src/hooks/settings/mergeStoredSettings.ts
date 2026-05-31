@@ -426,6 +426,11 @@ export function mergeSettings(
   );
   const ttsMode: Settings["ttsMode"] =
     storedSettings?.ttsMode === "provider" ? "provider" : "native";
+  // "auto" was a legacy enabled state; coerce it to "on".
+  const rawWebSearchMode =
+    storedSettings?.webSearchMode === "auto"
+      ? "on"
+      : storedSettings?.webSearchMode;
   const sanitizedStoredSettings = storedSettings
     ? (() => {
         const { localTtsVoices: _localTtsVoices, ...rest } = storedSettings;
@@ -449,8 +454,8 @@ export function mergeSettings(
         ? storedSettings.setupGuideDismissed
         : hasConfiguredKeys,
     assistantInstructions,
-    webSearchMode: isWebSearchMode(storedSettings?.webSearchMode)
-      ? storedSettings.webSearchMode
+    webSearchMode: isWebSearchMode(rawWebSearchMode)
+      ? rawWebSearchMode
       : typeof storedSettings?.webSearchEnabled === "boolean"
         ? storedSettings.webSearchEnabled
           ? "on"

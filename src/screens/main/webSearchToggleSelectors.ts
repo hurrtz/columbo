@@ -1,7 +1,4 @@
-import {
-  type WebSearchMode,
-  type WebSearchProvider,
-} from "../../constants/webSearch";
+import { type WebSearchProvider } from "../../constants/webSearch";
 
 import { TranslateFn } from "./shared";
 
@@ -17,43 +14,26 @@ export interface WebSearchToggleDisplay {
 /**
  * Derives the home-screen web-search toggle display state. The toggle is only
  * "active" when it is switched on AND a search-capable provider is configured
- * and ready; otherwise it shows an honest "off" label with no provider logo.
+ * and ready.
  */
 export function getWebSearchToggleDisplay(params: {
   webSearchEnabled: boolean;
-  webSearchMode: WebSearchMode;
   webSearchProvider: WebSearchProvider | null;
   webSearchReady: boolean;
   providerLabels: Record<WebSearchProvider, string>;
   t: TranslateFn;
 }): WebSearchToggleDisplay {
-  const {
-    webSearchEnabled,
-    webSearchMode,
-    webSearchProvider,
-    webSearchReady,
-    providerLabels,
-    t,
-  } = params;
+  const { webSearchEnabled, webSearchProvider, webSearchReady, providerLabels, t } =
+    params;
 
   const active =
     webSearchEnabled && webSearchProvider !== null && webSearchReady;
 
-  if (!active || webSearchProvider === null) {
-    return {
-      active: false,
-      title: t("webSearchOffLabel"),
-      providerLabel: null,
-    };
-  }
-
-  const modeLabel = t(
-    webSearchMode === "on" ? "webSearchModeAlways" : "webSearchModeAuto",
-  );
-
   return {
-    active: true,
-    title: `${t("webSearch")} (${modeLabel})`,
-    providerLabel: providerLabels[webSearchProvider],
+    active,
+    title: t("webSearch"),
+    providerLabel: active && webSearchProvider !== null
+      ? providerLabels[webSearchProvider]
+      : null,
   };
 }

@@ -877,7 +877,7 @@ describe("runVoicePipeline", () => {
     expect((streamChat as jest.Mock).mock.calls[0][0].webSearchContext).toBeUndefined();
   });
 
-  it("runs web search automatically when the query looks freshness-sensitive", async () => {
+  it("runs web search whenever the mode is on and a provider is ready", async () => {
     (searchWeb as jest.Mock).mockResolvedValueOnce({
       context: "Fresh web context",
       model: "gpt-4.1-mini",
@@ -905,7 +905,7 @@ describe("runVoicePipeline", () => {
       responseLength: "normal",
       responseTone: "professional",
       language: "en",
-      webSearchMode: "auto",
+      webSearchMode: "on",
       webSearchProvider: "openai",
       webSearchApiKey: "sk-openai",
       callbacks: {
@@ -921,7 +921,7 @@ describe("runVoicePipeline", () => {
     expect(searchWeb).toHaveBeenCalledTimes(1);
   });
 
-  it("skips web search in auto mode for stable prompts", async () => {
+  it("skips web search when the mode is off even for fresh prompts", async () => {
     (streamChat as jest.Mock).mockImplementation(
       async ({ onDone }: { onDone: (text: string) => Promise<void> }) => {
         await onDone("Photosynthesis turns light into energy.");
@@ -929,7 +929,7 @@ describe("runVoicePipeline", () => {
     );
 
     await runVoicePipeline({
-      transcriptionOverride: "Explain photosynthesis.",
+      transcriptionOverride: "What is the latest Claude release?",
       messages: [],
       model: "claude-opus-4-6",
       provider: "anthropic",
@@ -942,7 +942,7 @@ describe("runVoicePipeline", () => {
       responseLength: "normal",
       responseTone: "professional",
       language: "en",
-      webSearchMode: "auto",
+      webSearchMode: "off",
       webSearchProvider: "openai",
       webSearchApiKey: "sk-openai",
       callbacks: {
