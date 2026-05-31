@@ -323,12 +323,6 @@ export const en: TranslationDictionary = {
       "Add credentials in Settings before starting a voice session.",
     endpointCredentialFormatInvalid: ({ provider }) =>
       `For ${provider}, enter the provider base URL and API key as https://your-endpoint.example.com|your-api-key.`,
-    azureCredentialFormatInvalid: ({ provider }) =>
-      `For ${provider}, enter Azure OpenAI as https://your-resource.openai.azure.com|your-api-key, or combine it with Azure Speech as https://your-resource.openai.azure.com|your-api-key|your-speech-key|your-region.`,
-    awsCredentialFormatInvalid: ({ provider }) =>
-      `For ${provider}, enter the AWS region, access key ID, secret access key, and optional session token as us-east-1|access-key-id|secret-access-key|session-token.`,
-    ibmCredentialFormatInvalid: ({ provider }) =>
-      `For ${provider}, enter watsonx URL, watsonx API key, project ID, Speech to Text URL, Speech to Text API key, Text to Speech URL, and Text to Speech API key separated by |.`,
     speechRecognitionUnavailableOnDevice:
       "Speech recognition is unavailable on this device.",
     debugLogLabel: "LOG",
@@ -427,14 +421,8 @@ export const en: TranslationDictionary = {
     usedWebSearch: "Used web search",
     sources: "Sources",
     openSourceLink: ({ source }) => `Open source: ${source}`,
-    estimatedRouteUsage: ({ tokens, cost }) => `${tokens} tokens · ${cost}`,
-    estimatedRouteUsagePartial: ({ tokens, cost }) =>
-      `${tokens} tokens · ${cost} partial`,
     estimatedRouteUsageTokensOnly: ({ tokens }) => `${tokens} tokens`,
     unknownUsageRoute: "Unknown route",
-    startWithGroq: "Configure credentials",
-    groqStarterDescription:
-      "Add credentials for an external service you already use. The app will only show routes after credentials are configured.",
     setupGuideConnectProviderTitle: "Configure credentials",
     setupGuideConnectProviderDescription:
       "Add credentials in Settings, then choose the routes you want to use.",

@@ -326,12 +326,6 @@ export const de: TranslationDictionary = {
       "Füge in den Einstellungen Zugangsdaten hinzu, bevor du eine Sprachsitzung startest.",
     endpointCredentialFormatInvalid: ({ provider }) =>
       `Gib für ${provider} die Basis-URL des Anbieters und den API-Schlüssel als https://dein-endpunkt.example.com|dein-api-schluessel ein.`,
-    azureCredentialFormatInvalid: ({ provider }) =>
-      `Gib für ${provider} Azure OpenAI als https://your-resource.openai.azure.com|dein-api-schluessel ein oder kombiniere es mit Azure Speech als https://your-resource.openai.azure.com|dein-api-schluessel|dein-speech-schluessel|deine-region.`,
-    awsCredentialFormatInvalid: ({ provider }) =>
-      `Gib für ${provider} AWS-Region, Access Key ID, Secret Access Key und optional Session-Token als us-east-1|access-key-id|secret-access-key|session-token ein.`,
-    ibmCredentialFormatInvalid: ({ provider }) =>
-      `Gib für ${provider} watsonx-URL, watsonx-API-Schlüssel, Projekt-ID, Speech-to-Text-URL, Speech-to-Text-API-Schlüssel, Text-to-Speech-URL und Text-to-Speech-API-Schlüssel getrennt durch | ein.`,
     speechRecognitionUnavailableOnDevice:
       "Spracherkennung ist auf diesem Gerät nicht verfügbar.",
     debugLogLabel: "LOG",
@@ -433,14 +427,8 @@ export const de: TranslationDictionary = {
     usedWebSearch: "Mit Websuche",
     sources: "Quellen",
     openSourceLink: ({ source }) => `Quelle öffnen: ${source}`,
-    estimatedRouteUsage: ({ tokens, cost }) => `${tokens} Token · ${cost}`,
-    estimatedRouteUsagePartial: ({ tokens, cost }) =>
-      `${tokens} Token · ${cost} teilweise`,
     estimatedRouteUsageTokensOnly: ({ tokens }) => `${tokens} Token`,
     unknownUsageRoute: "Unbekannte Route",
-    startWithGroq: "Zugangsdaten konfigurieren",
-    groqStarterDescription:
-      "Füge Zugangsdaten für einen externen Dienst ein, den du bereits nutzt. Die App zeigt Routen erst nach der Konfiguration an.",
     setupGuideConnectProviderTitle: "Zugangsdaten konfigurieren",
     setupGuideConnectProviderDescription:
       "Füge Zugangsdaten in den Einstellungen hinzu und wähle danach die Routen aus, die du nutzen willst.",
