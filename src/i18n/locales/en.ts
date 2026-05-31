@@ -53,8 +53,9 @@ export const en: TranslationDictionary = {
     responseModes: "Response Modes",
     responseModesNoConfiguredProviders:
       "Add credentials first. Route controls stay hidden until at least one compatible service is configured.",
-    quickAndShallow: "Quick",
-    deepThinking: "Deep",
+    quickAndShallow: "Chat",
+    deepThinking: "Research",
+    responseModeReason: "Reason",
     quickModeDescription:
       "Use this for fast answers where speed matters more than nuance.",
     normalModeDescription:

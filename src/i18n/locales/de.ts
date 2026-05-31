@@ -53,8 +53,9 @@ export const de: TranslationDictionary = {
     responseModes: "Gesprächskategorien",
     responseModesNoConfiguredProviders:
       "Füge zuerst Zugangsdaten hinzu. Routen bleiben ausgeblendet, bis mindestens ein kompatibler Dienst konfiguriert ist.",
-    quickAndShallow: "Zackig",
-    deepThinking: "Tiefgründig",
+    quickAndShallow: "Chat",
+    deepThinking: "Recherche",
+    responseModeReason: "Reason",
     quickModeDescription:
       "Nutze das für schnelle Antworten, wenn Tempo wichtiger ist als Nuancen.",
     normalModeDescription:

@@ -60,7 +60,7 @@ function getResponseModeLabel(mode: ResponseMode, t: TranslateFn) {
     case "quick":
       return t("quickAndShallow");
     case "normal":
-      return t("normal");
+      return t("responseModeReason");
     case "deep":
       return t("deepThinking");
   }
