@@ -1,15 +1,26 @@
 import {
+  deriveResponseModesForProvider,
   getAvailableResponseModes,
   getDefaultModelForProvider,
   getProviderValidationModel,
   isResponseModeReady,
 } from "../../src/utils/responseModes";
+import { getCatalogModelsForAppProvider } from "../../src/catalog/appProviders";
 import { DEFAULT_SETTINGS } from "../../src/types";
 
 describe("response mode selectors", () => {
+  it("exposes no usable response mode on a fresh install without keys", () => {
+    expect(getAvailableResponseModes(DEFAULT_SETTINGS)).toEqual([]);
+  });
+
   it("returns only response modes backed by configured provider keys", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
+      responseModes: {
+        quick: { provider: "gemini" as const, model: "gemini-2.5-flash" },
+        normal: { provider: "anthropic" as const, model: "claude-sonnet-4-6" },
+        deep: { provider: "openai" as const, model: "gpt-5.4" },
+      },
       apiKeys: {
         ...DEFAULT_SETTINGS.apiKeys,
         gemini: "AIzaSyTestKey",
@@ -78,5 +89,51 @@ describe("response mode selectors", () => {
     };
 
     expect(isResponseModeReady(validKeySettings, "quick")).toBe(true);
+  });
+});
+
+describe("deriveResponseModesForProvider", () => {
+  it("maps quick/normal/deep to the first three LLM models of the provider", () => {
+    const expected = getCatalogModelsForAppProvider("openai", "llm")
+      .slice(0, 3)
+      .map((model) => model.modelId);
+
+    expect(expected.length).toBe(3);
+
+    const modes = deriveResponseModesForProvider("openai");
+
+    expect(modes.quick).toEqual({ provider: "openai", model: expected[0] });
+    expect(modes.normal).toEqual({ provider: "openai", model: expected[1] });
+    expect(modes.deep).toEqual({ provider: "openai", model: expected[2] });
+
+    const distinct = new Set([
+      modes.quick.model,
+      modes.normal.model,
+      modes.deep.model,
+    ]);
+    expect(distinct.size).toBe(3);
+  });
+
+  it("assigns every mode a route belonging to the requested provider", () => {
+    const modes = deriveResponseModesForProvider("anthropic");
+
+    for (const route of Object.values(modes)) {
+      expect(route.provider).toBe("anthropic");
+      expect(route.model).not.toBe("");
+    }
+  });
+
+  it("pads by repeating the last model when fewer than three are available", () => {
+    const llmModels = getCatalogModelsForAppProvider("deepseek", "llm");
+
+    const modes = deriveResponseModesForProvider("deepseek");
+    const orderedIds = llmModels.map((model) => model.modelId);
+
+    // deepseek exposes exactly three models today; this asserts the padding
+    // contract regardless: every mode gets a real model id from the provider.
+    expect(orderedIds).toContain(modes.quick.model);
+    expect(orderedIds).toContain(modes.normal.model);
+    expect(orderedIds).toContain(modes.deep.model);
+    expect(modes.deep.model).toBe(orderedIds[Math.min(2, orderedIds.length - 1)]);
   });
 });

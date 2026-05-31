@@ -6,6 +6,8 @@ import {
   DEFAULT_SETTINGS,
   DEFAULT_ASSISTANT_INSTRUCTIONS_BY_LANGUAGE,
 } from "../../src/types";
+import { getAvailableResponseModes } from "../../src/utils/responseModes";
+import { getCatalogModelsForAppProvider } from "../../src/catalog/appProviders";
 
 jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn(() => Promise.resolve(null)),
@@ -423,6 +425,57 @@ describe("useSettings", () => {
       "AIza-live-key",
     );
     expect(result.current.settings.apiKeys.gemini).toBe("AIza-live-key");
+  });
+
+  it("exposes no usable response mode on a fresh install without keys", async () => {
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    expect(getAvailableResponseModes(result.current.settings)).toEqual([]);
+  });
+
+  it("derives all three response modes from the first configured provider", async () => {
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    await act(async () => {
+      result.current.updateApiKey("openai", "sk-first-provider");
+    });
+
+    const expected = getCatalogModelsForAppProvider("openai", "llm")
+      .slice(0, 3)
+      .map((model) => model.modelId);
+
+    expect(result.current.settings.responseModes).toEqual({
+      quick: { provider: "openai", model: expected[0] },
+      normal: { provider: "openai", model: expected[1] },
+      deep: { provider: "openai", model: expected[2] },
+    });
+    expect(getAvailableResponseModes(result.current.settings)).toEqual([
+      "quick",
+      "normal",
+      "deep",
+    ]);
+  });
+
+  it("does not overwrite derived modes when a second provider key is added", async () => {
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    await act(async () => {
+      result.current.updateApiKey("openai", "sk-first-provider");
+    });
+
+    const derived = result.current.settings.responseModes;
+
+    await act(async () => {
+      result.current.updateApiKey("anthropic", "sk-second-provider");
+    });
+
+    expect(result.current.settings.responseModes).toEqual(derived);
+    for (const route of Object.values(result.current.settings.responseModes)) {
+      expect(route.provider).toBe("openai");
+    }
   });
 
   it("removes provider api keys when cleared", async () => {
