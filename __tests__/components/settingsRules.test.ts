@@ -18,7 +18,7 @@ describe("settingsRules", () => {
       sttProvider: "openai" as const,
     };
 
-    expect(getNormalizedSttProvider(settings, ["groq"])).toBe("groq");
+    expect(getNormalizedSttProvider(settings, ["xai"])).toBe("xai");
   });
 
   it("repairs response modes that point to disabled providers", () => {
@@ -31,16 +31,16 @@ describe("settingsRules", () => {
       },
       providerModels: {
         ...DEFAULT_SETTINGS.providerModels,
-        groq: "llama-3.3-70b-versatile",
+        deepseek: "deepseek-chat",
       },
     };
 
-    const next = getNormalizedResponseModes(settings, ["groq"]);
+    const next = getNormalizedResponseModes(settings, ["deepseek"]);
 
     expect(next).toEqual({
-      quick: { provider: "groq", model: "llama-3.3-70b-versatile" },
-      normal: { provider: "groq", model: "llama-3.3-70b-versatile" },
-      deep: { provider: "groq", model: "llama-3.3-70b-versatile" },
+      quick: { provider: "deepseek", model: "deepseek-chat" },
+      normal: { provider: "deepseek", model: "deepseek-chat" },
+      deep: { provider: "deepseek", model: "deepseek-chat" },
     });
   });
 
@@ -63,18 +63,19 @@ describe("settingsRules", () => {
     expect(nextProviderVoices?.openai).toBe("alloy");
   });
 
-  it("preserves a custom ElevenLabs voice id before the dynamic catalog is loaded", () => {
+  it("leaves a valid provider voice selection untouched", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
       providerTtsVoices: {
         ...DEFAULT_SETTINGS.providerTtsVoices,
-        elevenlabs: "21m00Tcm4TlvDq8ikWAM",
+        openai: "alloy",
       },
+      ttsListenLanguages: ["en"] as const,
     };
 
     const nextProviderVoices = getNormalizedProviderTtsVoices(
       settings,
-      ["elevenlabs"],
+      ["openai"],
       "en",
     );
 
