@@ -4,13 +4,8 @@ import {
   getNormalizedResponseModes,
   getNormalizedSttProvider,
 } from "../../src/components/settings/settingsRules";
-import { clearProviderTtsVoiceCatalogCache } from "../../src/services/tts/voiceCatalog";
 
 describe("settingsRules", () => {
-  beforeEach(() => {
-    clearProviderTtsVoiceCatalogCache();
-  });
-
   it("repairs an invalid provider STT selection", () => {
     const settings = {
       ...DEFAULT_SETTINGS,

@@ -18,11 +18,6 @@ import {
   isValidModelForProvider,
   RESPONSE_MODE_ORDER,
 } from "../../utils/responseModes";
-import {
-  hasLoadedDynamicProviderTtsVoiceOptions,
-  providerHasDynamicTtsVoiceCatalog,
-} from "../../services/tts/voiceCatalog";
-
 export function getNormalizedSttProvider(
   settings: Settings,
   enabledSttProviders: Provider[],
@@ -158,27 +153,14 @@ export function getNormalizedProviderTtsVoices(
 
   for (const provider of enabledTtsProviders) {
     const supportedVoices = getProviderTtsVoiceOptions(provider, language);
-    const prefersDynamicDefault =
-      providerHasDynamicTtsVoiceCatalog(provider) &&
-      hasLoadedDynamicProviderTtsVoiceOptions(provider);
     const defaultVoice =
-      (prefersDynamicDefault
-        ? supportedVoices[0]?.id
-        : PROVIDER_DEFAULT_TTS_VOICES[provider]) || supportedVoices[0]?.id;
+      PROVIDER_DEFAULT_TTS_VOICES[provider] || supportedVoices[0]?.id;
 
     if (!supportedVoices.length || !defaultVoice) {
       continue;
     }
 
     const currentVoice = nextProviderTtsVoices[provider];
-    if (
-      providerHasDynamicTtsVoiceCatalog(provider) &&
-      currentVoice &&
-      !hasLoadedDynamicProviderTtsVoiceOptions(provider)
-    ) {
-      continue;
-    }
-
     const isValid = supportedVoices.some((voice) => voice.id === currentVoice);
 
     if (!isValid) {

@@ -6,10 +6,6 @@ import {
   type RuntimeVoiceOption,
 } from "./runtimeManifest";
 import type { ModelInfo, TtsVoiceOption } from "./types";
-import {
-  getDynamicProviderTtsVoiceOptions,
-  hasLoadedDynamicProviderTtsVoiceOptions,
-} from "../../services/tts/voiceCatalog";
 
 function getCatalogSpeechModelLabel(
   provider: Provider,
@@ -129,10 +125,6 @@ export function getProviderTtsVoiceOptions(
   provider: Provider,
   language: AppLanguage,
 ) {
-  if (hasLoadedDynamicProviderTtsVoiceOptions(provider)) {
-    return getDynamicProviderTtsVoiceOptions(provider);
-  }
-
   return localizeVoiceOptions(
     RUNTIME_PROVIDER_MANIFEST[provider].tts.voiceOptions,
     language,

@@ -13,7 +13,6 @@ import {
   getProviderTtsLanguageNoteForModel,
   getProviderTtsModelOptions,
 } from "../../constants/models";
-import { useDynamicProviderTtsVoiceCatalog } from "../../hooks/useDynamicProviderTtsVoiceCatalog";
 import { useSpeechDiagnostics } from "../../hooks/useSpeechDiagnostics";
 import { useLocalization } from "../../i18n";
 import { TtsListenLanguage } from "../../types";
@@ -240,15 +239,6 @@ export function useSettingsModalController({
     settings.ttsProvider && enabledTtsProviders.includes(settings.ttsProvider)
       ? settings.ttsProvider
       : null;
-  useDynamicProviderTtsVoiceCatalog({
-    provider: selectedPreviewProvider,
-    apiKey:
-      selectedPreviewProvider &&
-      settings.apiKeys[selectedPreviewProvider]?.trim()
-        ? settings.apiKeys[selectedPreviewProvider]
-        : "",
-    enabled: visible && activeTab === "voice",
-  });
   const selectedPreviewProviderModelOptions = selectedPreviewProvider
     ? getProviderTtsModelOptions(selectedPreviewProvider)
     : [];

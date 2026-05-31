@@ -21,7 +21,6 @@ import {
 import { useSharedSettings } from "../context/SettingsContext";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { useAudioRecorder } from "../hooks/useAudioRecorder";
-import { useDynamicProviderTtsVoiceCatalog } from "../hooks/useDynamicProviderTtsVoiceCatalog";
 import { useNativeSpeechRecognizer } from "../hooks/useNativeSpeechRecognizer";
 import { useConversations } from "../hooks/useConversations";
 import { useVoicePipeline } from "../hooks/useVoicePipeline";
@@ -197,11 +196,6 @@ export function MainScreen() {
       PROVIDER_DEFAULT_TTS_MODELS[ttsProvider] ||
       ""
     : "";
-  useDynamicProviderTtsVoiceCatalog({
-    provider: ttsProvider,
-    apiKey: ttsApiKey,
-    enabled: Boolean(ttsProvider && ttsApiKey),
-  });
   const providerLabel = PROVIDER_LABELS[provider];
   const isRecording =
     settings.sttMode === "native"
