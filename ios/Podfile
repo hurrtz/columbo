@@ -36,6 +36,43 @@ def configure_fmt_build_settings!(build_configuration)
     )
 end
 
+# fmt 11.0.2 enables compile-time format-string checking via `consteval`
+# (FMT_CONSTEVAL) whenever the compiler reports __cpp_consteval. Apple clang 21
+# (Xcode 26+) tightened constant-evaluation and rejects fmt's FMT_STRING
+# machinery ("call to consteval function ... is not a constant expression"),
+# breaking the build of fmt/src/format.cc. fmt's base.h redefines
+# FMT_USE_CONSTEVAL UNCONDITIONALLY (no #ifndef guard), so a -DFMT_USE_CONSTEVAL=0
+# build flag is ignored, and the c++17 escape hatch does not apply because RN
+# compiles all pods as c++20. We therefore patch the vendored header to force
+# FMT_USE_CONSTEVAL to 0 (falls back to runtime format-string checking). Runs on
+# every `pod install`; idempotent.
+def patch_fmt_consteval!(installer)
+  base_h = File.join(installer.sandbox.root.to_s, 'fmt', 'include', 'fmt', 'base.h')
+  return unless File.exist?(base_h)
+
+  contents = File.read(base_h)
+  return if contents.include?('SchnackAI: force-disable consteval')
+
+  marker = "#if FMT_USE_CONSTEVAL\n#  define FMT_CONSTEVAL consteval"
+  override = "// SchnackAI: force-disable consteval (broken under Apple clang 21 / Xcode 26)\n" \
+             "#undef FMT_USE_CONSTEVAL\n" \
+             "#define FMT_USE_CONSTEVAL 0\n" \
+             "#if FMT_USE_CONSTEVAL\n#  define FMT_CONSTEVAL consteval"
+
+  unless contents.include?(marker)
+    Pod::UI.warn '[fmt] Could not find consteval marker to patch; build may fail under Apple clang 21.'
+    return
+  end
+
+  begin
+    File.chmod(0o644, base_h)
+    File.write(base_h, contents.sub(marker, override))
+    Pod::UI.message '[fmt] Patched base.h to disable consteval (Apple clang 21 workaround).'
+  rescue => e
+    Pod::UI.warn "[fmt] Failed to patch base.h (#{e.message}); build may fail under Apple clang 21."
+  end
+end
+
 def ccache_enabled?(podfile_properties)
   # Environment variable takes precedence
   return ENV['USE_CCACHE'] == '1' if ENV['USE_CCACHE']
@@ -91,6 +128,8 @@ target 'SchnackAI' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => ccache_enabled?(podfile_properties),
     )
+
+    patch_fmt_consteval!(installer)
 
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |build_configuration|
