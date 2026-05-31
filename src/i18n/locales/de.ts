@@ -373,7 +373,7 @@ export const de: TranslationDictionary = {
     voiceOutput: "Sprachausgabe",
     currentSetup: "Aktuelles Setup",
     listeningToYourVoice: "Ich höre dir zu",
-    parsingYourVoiceInput: "Dein Schnack wird verarbeitet",
+    parsingYourVoiceInput: "Wandle deine Stimme in Text um",
     searchingTheWeb: "Suche im Web nach frischem Kontext",
     waitingForProvider: ({ provider }) => `Warte auf ${provider}`,
     preparingVoiceWithProvider: ({ provider }) =>
@@ -556,7 +556,7 @@ export const de: TranslationDictionary = {
     resume: "Fortsetzen",
     paused: "Pausiert",
     listening: "Hört zu",
-    parsing: "Verarbeitet",
+    parsing: "Transkribiere",
     webSearchAction: "Websuche",
     thinking: "Denkt nach",
     speaking: "Schnackt",

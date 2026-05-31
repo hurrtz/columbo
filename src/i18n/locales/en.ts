@@ -368,7 +368,7 @@ export const en: TranslationDictionary = {
     voiceOutput: "Voice Output",
     currentSetup: "Current Setup",
     listeningToYourVoice: "Listening to your voice",
-    parsingYourVoiceInput: "Parsing your voice input",
+    parsingYourVoiceInput: "Turning your voice into text",
     searchingTheWeb: "Searching the web for fresh context",
     waitingForProvider: ({ provider }) => `Waiting for ${provider}`,
     preparingVoiceWithProvider: ({ provider }) =>
@@ -545,7 +545,7 @@ export const en: TranslationDictionary = {
     resume: "Resume",
     paused: "Paused",
     listening: "Listening",
-    parsing: "Parsing",
+    parsing: "Transcribing",
     webSearchAction: "web search",
     thinking: "Thinking",
     speaking: "Speaking",
