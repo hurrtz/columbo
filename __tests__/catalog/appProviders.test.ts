@@ -20,78 +20,46 @@ import {
 describe("app provider catalog bridge", () => {
   it("maps every runtime provider to a catalog provider", () => {
     expect(PROVIDER_CATALOG_IDS).toEqual({
-      "01-ai-yi": "01-ai-yi",
       openai: "openai",
-      "microsoft-azure": "microsoft-azure",
       anthropic: "anthropic",
-      assemblyai: "assemblyai",
-      "ai21-labs": "ai21-labs",
       "alibaba-qwen-dashscope": "alibaba-qwen-dashscope",
-      baichuan: "baichuan",
-      "baidu-ernie-qianfan": "baidu-ernie-qianfan",
       brave: "brave",
       "bytedance-doubao-seed": "bytedance-doubao-seed",
-      deepgram: "deepgram",
-      elevenlabs: "elevenlabs",
       exa: "exa",
       firecrawl: "firecrawl",
-      "fish-audio": "fish-audio",
       gemini: "google-vertex-ai-studio",
-      cerebras: "cerebras",
-      cohere: "cohere",
-      deepinfra: "deepinfra",
       deepseek: "deepseek",
-      "fireworks-ai": "fireworks-ai",
       grok: "grok",
-      groq: "groq",
-      "hugging-face-inference-api": "hugging-face-inference-api",
-      hyperbolic: "hyperbolic",
       mistral: "mistral-ai",
-      minimax: "minimax",
       "moonshot-ai-kimi": "moonshot-ai-kimi",
-      nvidia: "nvidia-nim",
-      "novita-ai": "novita-ai",
       perplexity: "perplexity",
-      replicate: "replicate",
-      sambanova: "sambanova",
       serpapi: "serpapi",
-      siliconflow: "siliconflow",
-      stepfun: "stepfun",
       tavily: "tavily",
-      together: "together-ai",
       xai: "xai",
-      "xiaomi-mimo": "xiaomi-mimo",
-      "z-ai-zhipu-ai": "z-ai-zhipu-ai",
     });
 
-    expect(getCatalogProviderIdForAppProvider("01-ai-yi")).toBe("01-ai-yi");
+    expect(getCatalogProviderIdForAppProvider("openai")).toBe("openai");
     expect(getCatalogProviderIdForAppProvider("gemini")).toBe(
       "google-vertex-ai-studio",
     );
-    expect(getAppProviderForCatalogProviderId("01-ai-yi")).toBe("01-ai-yi");
     expect(getAppProviderForCatalogProviderId("openai")).toBe("openai");
-    expect(getAppProviderForCatalogProviderId("microsoft-azure")).toBe(
-      "microsoft-azure",
+    expect(getAppProviderForCatalogProviderId("anthropic")).toBe("anthropic");
+    expect(getAppProviderForCatalogProviderId("google-vertex-ai-studio")).toBe(
+      "gemini",
     );
-    expect(getAppProviderForCatalogProviderId("assemblyai")).toBe("assemblyai");
-    expect(getAppProviderForCatalogProviderId("baidu-ernie-qianfan")).toBe(
-      "baidu-ernie-qianfan",
-    );
-    expect(getAppProviderForCatalogProviderId("deepgram")).toBe("deepgram");
-    expect(getAppProviderForCatalogProviderId("elevenlabs")).toBe("elevenlabs");
-    expect(getAppProviderForCatalogProviderId("fish-audio")).toBe("fish-audio");
-    expect(getAppProviderForCatalogProviderId("replicate")).toBe("replicate");
-    expect(getAppProviderForCatalogProviderId("xiaomi-mimo")).toBe("xiaomi-mimo");
+    expect(getAppProviderForCatalogProviderId("mistral-ai")).toBe("mistral");
+    expect(getAppProviderForCatalogProviderId("deepseek")).toBe("deepseek");
+    expect(getAppProviderForCatalogProviderId("xai")).toBe("xai");
     expect(isCatalogProviderId("google-vertex-ai-studio")).toBe(true);
     expect(isCatalogProviderId("not-a-provider")).toBe(false);
-    expect(listCatalogProviderIds()).toContain("xiaomi-mimo");
-    expect(listCatalogProviderIds()).toContain("z-ai-zhipu-ai");
-    expect(listCatalogProviderIds()).toContain("ibm-watsonx");
-    expect(listCatalogProviderIds()).toContain("lepton-ai");
+    expect(listCatalogProviderIds()).toContain("openai");
+    expect(listCatalogProviderIds()).toContain("anthropic");
+    expect(listCatalogProviderIds()).toContain("mistral-ai");
+    expect(listCatalogProviderIds()).toContain("perplexity");
   });
 
   it("reads verified support states from the catalog without changing runtime support flags", () => {
-    expect(getCatalogVerifiedServiceStateForAppProvider("groq", "tts")).toBe(
+    expect(getCatalogVerifiedServiceStateForAppProvider("openai", "tts")).toBe(
       "native",
     );
     expect(getCatalogVerifiedServiceStateForAppProvider("xai", "stt")).toBe(
@@ -101,12 +69,12 @@ describe("app provider catalog bridge", () => {
       "native",
     );
 
-    expect(PROVIDER_CATALOG_VERIFIED_SUPPORT.groq.tts).toBe("native");
+    expect(PROVIDER_CATALOG_VERIFIED_SUPPORT.openai.tts).toBe("native");
     expect(PROVIDER_CATALOG_VERIFIED_SUPPORT.xai.stt).toBe("partial");
   });
 
   it("exposes provider-level discovery hints and model accessors", () => {
-    expect(PROVIDER_NEEDS_LIVE_MODEL_DISCOVERY.groq).toBe(true);
+    expect(PROVIDER_NEEDS_LIVE_MODEL_DISCOVERY.deepseek).toBe(true);
     expect(PROVIDER_NEEDS_LIVE_MODEL_DISCOVERY.openai).toBe(true);
 
     expect(getCatalogProviderForAppProvider("openai")?.providerName).toBe(
@@ -153,7 +121,7 @@ describe("app provider catalog bridge", () => {
 
   it("supports broad capability checks for future picker and safeguard work", () => {
     expect(isCatalogServiceSupportedForAppProvider("anthropic", "tts")).toBe(false);
-    expect(isCatalogServiceSupportedForAppProvider("together", "tts")).toBe(true);
-    expect(isCatalogServiceSupportedForAppProvider("nvidia", "stt")).toBe(true);
+    expect(isCatalogServiceSupportedForAppProvider("bytedance-doubao-seed", "tts")).toBe(true);
+    expect(isCatalogServiceSupportedForAppProvider("mistral", "stt")).toBe(true);
   });
 });

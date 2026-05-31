@@ -13,18 +13,18 @@ import {
 describe("provider catalog", () => {
   it("matches the normalized provider and model counts in the flattened catalog", () => {
     expect(getCatalogStats()).toEqual({
-      providerCount: 41,
-      modelCount: 461,
+      providerCount: 11,
+      modelCount: 114,
       serviceCounts: {
-        llm: 298,
-        stt: 72,
-        tts: 91,
+        llm: 86,
+        stt: 15,
+        tts: 13,
       },
     });
   });
 
   it("exposes one typed provider document per provider with grouped model arrays", () => {
-    expect(PROVIDER_CATALOG.providerDocuments).toHaveLength(41);
+    expect(PROVIDER_CATALOG.providerDocuments).toHaveLength(11);
     expect(
       PROVIDER_CATALOG.providerDocuments.every(
         (document) =>
@@ -55,7 +55,7 @@ describe("provider catalog", () => {
       );
     });
 
-    expect(providerEntries).toHaveLength(41);
+    expect(providerEntries).toHaveLength(11);
     expect(
       fs.existsSync(
         path.join(process.cwd(), "data", "providers", "definitions.ts"),
@@ -128,29 +128,25 @@ describe("provider catalog", () => {
   });
 
   it("stores compatibility and dynamic-catalog hints from the supplemental report", () => {
-    const groq = getCatalogProvider("groq");
+    const openai = getCatalogProvider("openai");
 
-    expect(groq?.integration.hasDynamicCatalog).toBe(true);
-    expect(groq?.integration.needsLiveDiscovery).toBe(true);
-    expect(isCatalogProviderOpenAiCompatible("groq")).toBe(true);
+    expect(openai?.integration.hasDynamicCatalog).toBe(true);
+    expect(openai?.integration.needsLiveDiscovery).toBe(true);
+    expect(isCatalogProviderOpenAiCompatible("openai")).toBe(true);
   });
 
   it("normalizes price and language metadata on representative models", () => {
-    const groqTts = getCatalogModel(
-      "groq",
-      "canopylabs/orpheus-v1-english",
-      "tts",
-    );
+    const xaiTts = getCatalogModel("xai", "text-to-speech", "tts");
     const openaiStt = getCatalogModel(
       "openai",
       "gpt-4o-mini-transcribe",
       "stt",
     );
 
-    expect(groqTts?.priceMeasurements).toEqual(
+    expect(xaiTts?.priceMeasurements).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          amountUsd: 22,
+          amountUsd: 4.2,
           unit: "million_characters",
         }),
       ]),
