@@ -72,8 +72,10 @@ describe("ProviderSelectionGrid", () => {
       ).toBeNull();
     }
 
-    fireEvent.press(screen.getByText("Z.ai / Zhipu AI"));
-    expect(onSelectCatalogProvider).toHaveBeenCalledWith("z-ai-zhipu-ai");
+    // After the v1 scope reduction every catalog provider is also a wired
+    // runtime provider, so selecting any tile reports its catalog id.
+    fireEvent.press(screen.getByText("OpenAI"));
+    expect(onSelectCatalogProvider).toHaveBeenCalledWith("openai");
   });
 
   it("can render the narrowed web-search provider matrix without catalog-only entries", () => {
