@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
@@ -48,6 +48,7 @@ import {
   getEnabledTtsProviders,
 } from "../utils/providerCapabilities";
 import { hasProviderCredentialForCapability } from "../utils/providerCredentials";
+import { getMaxRecordingMs } from "../utils/recordingLimits";
 import {
   getAvailableResponseModes,
   getProviderValidationModel,
@@ -201,6 +202,17 @@ export function MainScreen() {
     settings.sttMode === "native"
       ? nativeStt.isRecording
       : recorder.isRecording;
+  // Auto-send cap for the current STT model — drives the "glass filling" fill on
+  // the voice circle so the user can see how long until a long turn auto-sends.
+  const maxRecordingMs = useMemo(
+    () =>
+      getMaxRecordingMs({
+        sttMode: settings.sttMode,
+        sttProvider,
+        sttModel: selectedSttModel,
+      }),
+    [settings.sttMode, sttProvider, selectedSttModel],
+  );
 
   const showToast = useCallback((message: string, onRetry?: () => void) => {
     recordDebugLogEvent({
@@ -1050,6 +1062,7 @@ export function MainScreen() {
                   inputMode={settings.inputMode}
                   isActive={isActive}
                   layout="landscape"
+                  maxRecordingMs={maxRecordingMs}
                   onOpenStatusDetails={openStatusDetails}
                   onPausePlayback={handlePausePlayback}
                   onPress={handleTogglePress}
@@ -1159,6 +1172,7 @@ export function MainScreen() {
                 disabled={voiceInputDisabled}
                 inputMode={settings.inputMode}
                 isActive={isActive}
+                maxRecordingMs={maxRecordingMs}
                 onOpenStatusDetails={openStatusDetails}
                 onPausePlayback={handlePausePlayback}
                 onPress={handleTogglePress}

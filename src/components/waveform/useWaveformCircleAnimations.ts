@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import Animated, {
   Easing,
   cancelAnimation,
+  interpolate,
+  interpolateColor,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
@@ -25,20 +27,24 @@ import {
 import { useGradientTransition } from "./animations/useGradientTransition";
 
 export function useWaveformCircleAnimations(params: {
+  fillHeight: number;
   gradientColors: [string, string, string];
   intensity: number;
   isRecording: boolean;
   isSpeaking: boolean;
+  maxRecordingMs?: number;
   phase: VoiceVisualPhase;
   richMotion: boolean;
   shouldAnimate: boolean;
   usesPreciseWaveform: boolean;
 }) {
   const {
+    fillHeight,
     gradientColors,
     intensity,
     isRecording,
     isSpeaking,
+    maxRecordingMs,
     phase,
     richMotion,
     shouldAnimate,
@@ -48,6 +54,8 @@ export function useWaveformCircleAnimations(params: {
   const orbit = useSharedValue(0);
   const spin = useSharedValue(0);
   const energy = useSharedValue(intensity);
+  // 0 → 1 over the recording cap; drives the "glass filling" auto-send timer.
+  const recordingFill = useSharedValue(0);
   const { backgroundGradientFade, previousGradientColors } =
     useGradientTransition(gradientColors);
 
@@ -94,6 +102,45 @@ export function useWaveformCircleAnimations(params: {
       easing: Easing.out(Easing.ease),
     });
   }, [energy, intensity, shouldAnimate]);
+
+  useEffect(() => {
+    // While recording, the circle "fills up like a glass" from empty to the rim
+    // over the auto-send cap, giving a calm sense of how much time is left. A
+    // single linear timing value — no per-frame work. Resets when not recording.
+    if (!isRecording || !maxRecordingMs || maxRecordingMs <= 0) {
+      cancelAnimation(recordingFill);
+      recordingFill.value = 0;
+      return;
+    }
+
+    recordingFill.value = 0;
+    recordingFill.value = withTiming(1, {
+      duration: maxRecordingMs,
+      easing: Easing.linear,
+    });
+
+    return () => {
+      cancelAnimation(recordingFill);
+    };
+  }, [isRecording, maxRecordingMs, recordingFill]);
+
+  const recordingFillStyle = useAnimatedStyle(() => ({
+    // Anchored to the bottom of the circle; translate up as it fills.
+    transform: [{ translateY: (1 - recordingFill.value) * fillHeight }],
+    // Calm translucent level most of the way; warms to amber → red near the rim
+    // so the imminent auto-send reads clearly.
+    backgroundColor: interpolateColor(
+      recordingFill.value,
+      [0, 0.85, 0.93, 1],
+      [
+        "rgba(255, 255, 255, 0.16)",
+        "rgba(255, 255, 255, 0.16)",
+        "rgba(255, 176, 92, 0.5)",
+        "rgba(255, 96, 86, 0.62)",
+      ],
+    ),
+    opacity: interpolate(recordingFill.value, [0, 0.04, 1], [0, 1, 1]),
+  }));
 
   useEffect(() => {
     if (!shouldAnimate) {
@@ -385,6 +432,7 @@ export function useWaveformCircleAnimations(params: {
     innerRingStyle,
     previousBackgroundGradientStyle,
     previousGradientColors,
+    recordingFillStyle,
     sheenStyle,
     topAuraStyle,
     waveformStyle,

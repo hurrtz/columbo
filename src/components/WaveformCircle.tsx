@@ -26,6 +26,8 @@ interface WaveformCircleProps {
   providerLabel: string;
   size?: number;
   inputMode: InputMode;
+  /** Auto-send cap (ms) for the current recording; drives the "glass filling" fill. */
+  maxRecordingMs?: number;
   onPressIn?: (e: GestureResponderEvent) => void;
   onPressOut?: (e: GestureResponderEvent) => void;
   onPress?: () => void;
@@ -49,6 +51,7 @@ export function WaveformCircle({
   providerLabel: _providerLabel,
   size = BASE_SIZE,
   inputMode,
+  maxRecordingMs,
   onPressIn,
   onPressOut,
   onPress,
@@ -62,10 +65,12 @@ export function WaveformCircle({
     waveformVariant,
   });
   const animations = useWaveformCircleAnimations({
+    fillHeight: scaleBy(size, 188),
     gradientColors: disabled ? DISABLED_GRADIENT_COLORS : state.gradientColors,
     intensity: state.intensity,
     isRecording: state.isRecording,
     isSpeaking: state.isSpeaking,
+    maxRecordingMs: disabled ? undefined : maxRecordingMs,
     phase: state.phase,
     richMotion: state.richMotion,
     shouldAnimate: state.shouldAnimate,
@@ -250,6 +255,10 @@ export function WaveformCircle({
                 />
               </Animated.View>
             ) : null}
+            <Animated.View
+              pointerEvents="none"
+              style={[styles.recordingFill, animations.recordingFillStyle]}
+            />
             <Animated.View
               style={[
                 styles.coreAura,

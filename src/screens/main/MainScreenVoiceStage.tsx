@@ -48,6 +48,7 @@ interface MainScreenVoiceStageProps {
   inputMode: InputMode;
   isActive: boolean;
   layout?: "portrait" | "landscape";
+  maxRecordingMs?: number;
   onOpenStatusDetails: () => void;
   onPausePlayback?: () => void | Promise<void>;
   onPress: () => void;
@@ -242,6 +243,7 @@ export function MainScreenVoiceStage({
   inputMode,
   isActive,
   layout = "portrait",
+  maxRecordingMs,
   onOpenStatusDetails,
   onPausePlayback,
   onPress,
@@ -291,6 +293,7 @@ export function MainScreenVoiceStage({
         providerLabel={providerLabel}
         size={circleSize}
         inputMode={inputMode}
+        maxRecordingMs={maxRecordingMs}
         onPressIn={onPressIn}
         onPressOut={onPressOut}
         onPress={onPress}
