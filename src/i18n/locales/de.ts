@@ -338,6 +338,8 @@ export const de: TranslationDictionary = {
       "Das wurde nicht richtig erkannt – versuch es noch einmal.",
     couldntStartVoiceInput: "Schnack konnte nicht gestartet werden.",
     couldntProcessVoiceInput: "Schnack konnte nicht verarbeitet werden.",
+    maxRecordingLengthReached:
+      "Maximale Aufnahmelänge erreicht – ich sende, was ich habe.",
     addProviderKeyToEnableProvider: ({ provider }) =>
       `Füge in den Einstellungen Zugangsdaten für ${provider} hinzu, bevor du diese Route nutzt.`,
     stopSessionBeforePreview:

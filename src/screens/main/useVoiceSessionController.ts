@@ -71,7 +71,9 @@ export function useVoiceSessionController<Snapshot>({
     player,
     processCapturedVoiceTurn,
     recorder,
+    showToast,
     sttMode: settings.sttMode,
+    t,
   });
 
   useVoiceSessionAppState({

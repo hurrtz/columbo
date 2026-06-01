@@ -334,6 +334,8 @@ export const en: TranslationDictionary = {
     couldntCatchThatTryAgain: "Couldn't catch that, try again.",
     couldntStartVoiceInput: "Couldn't start voice input.",
     couldntProcessVoiceInput: "Couldn't process voice input.",
+    maxRecordingLengthReached:
+      "Maximum recording length reached — sending what I have.",
     addProviderKeyToEnableProvider: ({ provider }) =>
       `Add credentials for ${provider} in Settings before using this route.`,
     stopSessionBeforePreview:
