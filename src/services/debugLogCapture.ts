@@ -48,6 +48,11 @@ export interface RecoveredDebugLogCaptureResult {
 const listeners = new Set<() => void>();
 const ACTIVE_CAPTURE_FILE_NAME = "debug-log-active.log";
 const FLUSH_DELAY_MS = 250;
+// Per-frame events that would flood a capture (tens of thousands of lines) and,
+// because every recorded entry notifies listeners (re-rendering the screen),
+// would perturb the very re-render/battery signal a capture is meant to measure.
+// Dropped from capture entirely.
+const HIGH_FREQUENCY_EVENTS = new Set<string>(["native-waveform-event"]);
 
 let activeSession: ActiveDebugLogSession | null = null;
 let lastExportPath: string | null = null;
@@ -138,6 +143,10 @@ function formatDebugLogSession(
 
 function recordEntry(entry: Omit<DebugLogEntry, "elapsedMs" | "timestamp">) {
   if (!activeSession) {
+    return;
+  }
+
+  if (HIGH_FREQUENCY_EVENTS.has(entry.event)) {
     return;
   }
 
