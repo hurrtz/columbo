@@ -141,6 +141,12 @@ export function useWaveformCircleState(params: {
   const controlIconName: React.ComponentProps<typeof Feather>["name"] =
     getWaveformControlIconName(phase);
   const controlIconSize = 40;
+  const shouldAnimate = appState === "active" && isActive;
+  // Only run the heavy continuous motion (orbit/spin + the spin-driven
+  // gradient/aura/sheen movement) during recording and speaking. The waiting
+  // phases (transcribing/searching/thinking/synthesizing) keep just the gentle
+  // pulse so the circle still breathes while staying cheap.
+  const richMotion = shouldAnimate && (isRecording || isSpeaking);
 
   return {
     activityOverlayColors,
@@ -157,10 +163,11 @@ export function useWaveformCircleState(params: {
     isSpeaking,
     nativeWaveformChannel,
     phase,
+    richMotion,
     ringBorderColor,
     ringColor,
     shellShadowColor,
-    shouldAnimate: appState === "active" && isActive,
+    shouldAnimate,
     showsOutputBars,
     showsStaticControlState,
     usesPreciseWaveform,

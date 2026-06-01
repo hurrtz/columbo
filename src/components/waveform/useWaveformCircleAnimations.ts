@@ -30,6 +30,7 @@ export function useWaveformCircleAnimations(params: {
   isRecording: boolean;
   isSpeaking: boolean;
   phase: VoiceVisualPhase;
+  richMotion: boolean;
   shouldAnimate: boolean;
   usesPreciseWaveform: boolean;
 }) {
@@ -39,6 +40,7 @@ export function useWaveformCircleAnimations(params: {
     isRecording,
     isSpeaking,
     phase,
+    richMotion,
     shouldAnimate,
     usesPreciseWaveform,
   } = params;
@@ -50,7 +52,10 @@ export function useWaveformCircleAnimations(params: {
     useGradientTransition(gradientColors);
 
   useEffect(() => {
-    if (!shouldAnimate) {
+    // Orbit drives the aura motion; only run it during the rich (recording /
+    // speaking) phases. During the waiting phases it settles to a static
+    // position so the aura/sheen stop moving.
+    if (!richMotion) {
       cancelAnimation(orbit);
       orbit.value = 0;
       return;
@@ -61,10 +66,13 @@ export function useWaveformCircleAnimations(params: {
       -1,
       true,
     );
-  }, [orbit, shouldAnimate]);
+  }, [orbit, richMotion]);
 
   useEffect(() => {
-    if (!shouldAnimate) {
+    // Spin drives the gradient/activity-overlay/sheen rotation; only run it
+    // during the rich phases so the waiting phases stay cheap (no per-frame
+    // gradient transforms).
+    if (!richMotion) {
       cancelAnimation(spin);
       spin.value = 0;
       return;
@@ -78,7 +86,7 @@ export function useWaveformCircleAnimations(params: {
       -1,
       false,
     );
-  }, [isRecording, isSpeaking, shouldAnimate, spin]);
+  }, [isRecording, isSpeaking, richMotion, spin]);
 
   useEffect(() => {
     energy.value = withTiming(shouldAnimate ? intensity : 0, {

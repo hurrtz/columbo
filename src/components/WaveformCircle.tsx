@@ -72,6 +72,7 @@ export function WaveformCircle({
     isRecording: state.isRecording,
     isSpeaking: state.isSpeaking,
     phase: state.phase,
+    richMotion: state.richMotion,
     shouldAnimate: state.shouldAnimate,
     usesPreciseWaveform: state.usesPreciseWaveform,
   });
