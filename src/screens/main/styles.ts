@@ -218,7 +218,6 @@ export const styles = StyleSheet.create({
   },
   statusStrip: {
     width: "100%",
-    maxWidth: 360,
     marginTop: 36,
     borderRadius: 24,
     borderWidth: 1,

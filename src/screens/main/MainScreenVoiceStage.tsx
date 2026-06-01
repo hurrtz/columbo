@@ -136,11 +136,10 @@ export function MainScreenStatusStrip({
     withElapsed: (detail, seconds) =>
       t("thinkingElapsed", { detail, seconds }),
   });
-  const statusStripMaxWidth = fullWidth
-    ? undefined
-    : layout === "landscape"
-      ? 320
-      : 360;
+  // Portrait: let the status strip stretch to the full content width so it
+  // lines up with the route card above. Landscape keeps a tighter cap.
+  const statusStripMaxWidth =
+    !fullWidth && layout === "landscape" ? 320 : undefined;
 
   return (
     <View
