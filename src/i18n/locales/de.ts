@@ -340,6 +340,8 @@ export const de: TranslationDictionary = {
     couldntProcessVoiceInput: "Schnack konnte nicht verarbeitet werden.",
     maxRecordingLengthReached:
       "Maximale Aufnahmelänge erreicht – ich sende, was ich habe.",
+    sttRecordingTooLarge: ({ provider, limit }) =>
+      `Diese Aufnahme ist zu lang für die Spr-zu-Text-Funktion von ${provider} (max. ${limit}). Probier eine kürzere Nachricht oder stell Sprache-zu-Text auf App-intern um.`,
     addProviderKeyToEnableProvider: ({ provider }) =>
       `Füge in den Einstellungen Zugangsdaten für ${provider} hinzu, bevor du diese Route nutzt.`,
     stopSessionBeforePreview:

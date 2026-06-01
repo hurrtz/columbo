@@ -400,7 +400,7 @@ describe("transcribeAudio", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it("rejects uploads that exceed an exact catalog file-size limit", async () => {
+  it("rejects uploads that exceed an exact catalog file-size limit before any upload", async () => {
     (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({
       exists: true,
       size: 26_000_000,
@@ -414,9 +414,7 @@ describe("transcribeAudio", () => {
         apiKey: "sk-test",
         language: "en",
       })
-    ).rejects.toThrow(
-      "OpenAI GPT-4o mini Transcribe only accepts recordings up to 25 MB. Use a shorter clip or switch STT models."
-    );
+    ).rejects.toThrow(/too long for .* speech-to-text \(max 25 MB\)/);
 
     expect(fetch).not.toHaveBeenCalled();
   });

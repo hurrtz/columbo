@@ -33,6 +33,33 @@ export function createRecordedFileNotReadyError(language: AppLanguage) {
   return new Error(translate(language, "voiceInputCaptureIncomplete"));
 }
 
+export function formatByteLimit(bytes: number) {
+  if (bytes >= 1_000_000) {
+    return `${(bytes / 1_000_000).toFixed(1).replace(/\.0$/, "")} MB`;
+  }
+
+  if (bytes >= 1_000) {
+    return `${(bytes / 1_000).toFixed(1).replace(/\.0$/, "")} KB`;
+  }
+
+  return `${bytes} B`;
+}
+
+export function createSttRecordingTooLargeError(params: {
+  provider: Provider;
+  model: string;
+  maxBytes: number;
+  language: AppLanguage;
+}) {
+  return new Error(
+    translate(params.language, "sttRecordingTooLarge", {
+      provider: PROVIDER_LABELS[params.provider],
+      model: params.model,
+      limit: formatByteLimit(params.maxBytes),
+    }),
+  );
+}
+
 export function extractTextFromGeminiResponse(data: any) {
   const parts = data?.candidates?.[0]?.content?.parts;
 

@@ -336,6 +336,8 @@ export const en: TranslationDictionary = {
     couldntProcessVoiceInput: "Couldn't process voice input.",
     maxRecordingLengthReached:
       "Maximum recording length reached — sending what I have.",
+    sttRecordingTooLarge: ({ provider, limit }) =>
+      `That recording is too long for ${provider} speech-to-text (max ${limit}). Try a shorter message, or switch Speech-to-Text to App Native.`,
     addProviderKeyToEnableProvider: ({ provider }) =>
       `Add credentials for ${provider} in Settings before using this route.`,
     stopSessionBeforePreview:

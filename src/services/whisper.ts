@@ -7,6 +7,7 @@ import { PROVIDER_LABELS, getSttModelLabel } from "../constants/models";
 import { translate } from "../i18n";
 import { AppLanguage, Provider, SttBackendMode } from "../types";
 import { getProviderSttConfig } from "./whisper/config";
+import { createSttRecordingTooLargeError } from "./whisper/errors";
 import { waitForRecordedFileReady } from "./whisper/recordedFileReady";
 import {
   transcribeWithBytedanceBigmodelFlashProvider,
@@ -18,18 +19,6 @@ import { transcribeWithXaiRealtimeProvider } from "./whisper/realtimeProviders";
 
 function isRemoteAudioSource(fileUri: string) {
   return /^(https?:\/\/|oss:\/\/)/i.test(fileUri);
-}
-
-function formatByteLimit(bytes: number) {
-  if (bytes >= 1_000_000) {
-    return `${(bytes / 1_000_000).toFixed(1).replace(/\.0$/, "")} MB`;
-  }
-
-  if (bytes >= 1_000) {
-    return `${(bytes / 1_000).toFixed(1).replace(/\.0$/, "")} KB`;
-  }
-
-  return `${bytes} B`;
 }
 
 async function assertSttUploadFitsCatalogLimits(params: {
@@ -60,13 +49,12 @@ async function assertSttUploadFitsCatalogLimits(params: {
     return;
   }
 
-  throw new Error(
-    translate(params.language, "sttFileSizeLimitExceeded", {
-      provider: PROVIDER_LABELS[params.provider],
-      model: getSttModelLabel(params.provider, params.modelId),
-      limit: formatByteLimit(fileSizeLimit.value),
-    }),
-  );
+  throw createSttRecordingTooLargeError({
+    provider: params.provider,
+    model: getSttModelLabel(params.provider, params.modelId),
+    maxBytes: fileSizeLimit.value,
+    language: params.language,
+  });
 }
 
 export async function transcribeAudio(params: {
