@@ -21,9 +21,27 @@ import {
   levelToMetering,
 } from "../../utils/audioVisualization";
 import {
+  publishWaveformFrame,
+  resetWaveformFrame,
+} from "../../state/waveformFeed";
+import {
   OSCILLOSCOPE_TICK_INTERVAL_MS,
   VISUAL_UPDATE_INTERVAL_MS,
 } from "./shared";
+
+export interface PlaybackWaveformControls {
+  /**
+   * Updates the active variant used for subsequently published frames. The
+   * variant flips rarely (bars <-> oscilloscope, a handful of times per
+   * playback) so it is tracked as low-frequency React state, while the
+   * per-frame levels/metering go straight to the external waveform store.
+   */
+  setWaveformVariant: (variant: WaveformVisualizationVariant) => void;
+  /** Publishes a waveform frame carrying the active variant. */
+  publishWaveform: (levels: number[], metering: number) => void;
+  /** Clears the waveform back to idle. */
+  resetVisualState: () => void;
+}
 
 export function usePlaybackVisualState(params: {
   player: AudioPlayer;
@@ -32,7 +50,7 @@ export function usePlaybackVisualState(params: {
   nativeSpeakingRef: MutableRefObject<boolean>;
   nativeAudioQueuePlaying: boolean;
   usingNativeAudioQueue: boolean;
-}) {
+}): PlaybackWaveformControls {
   const {
     player,
     status,
@@ -41,17 +59,38 @@ export function usePlaybackVisualState(params: {
     nativeAudioQueuePlaying,
     usingNativeAudioQueue,
   } = params;
-  const [meteringData, setMeteringData] = useState(-160);
-  const [waveformData, setWaveformData] = useState(EMPTY_VISUAL_LEVELS);
-  const [waveformVariant, setWaveformVariant] =
+  const [waveformVariant, setWaveformVariantState] =
     useState<WaveformVisualizationVariant>("bars");
+  const waveformVariantRef = useRef<WaveformVisualizationVariant>("bars");
+  const waveformDataRef = useRef<number[]>(EMPTY_VISUAL_LEVELS);
   const lastSampleUpdateAtRef = useRef(0);
+
+  const setWaveformVariant = useCallback(
+    (variant: WaveformVisualizationVariant) => {
+      if (waveformVariantRef.current === variant) {
+        return;
+      }
+      waveformVariantRef.current = variant;
+      setWaveformVariantState(variant);
+    },
+    [],
+  );
+
+  const publishWaveform = useCallback((levels: number[], metering: number) => {
+    waveformDataRef.current = levels;
+    publishWaveformFrame({
+      metering,
+      levels,
+      variant: waveformVariantRef.current,
+    });
+  }, []);
 
   const resetVisualState = useCallback(() => {
     lastSampleUpdateAtRef.current = 0;
-    setMeteringData(-160);
-    setWaveformData(EMPTY_VISUAL_LEVELS);
-    setWaveformVariant("bars");
+    waveformDataRef.current = EMPTY_VISUAL_LEVELS;
+    waveformVariantRef.current = "bars";
+    setWaveformVariantState("bars");
+    resetWaveformFrame();
   }, []);
 
   useAudioSampleListener(player, (sample) => {
@@ -73,8 +112,12 @@ export function usePlaybackVisualState(params: {
     const samples = buildSampleWaveform(sample.channels);
 
     setWaveformVariant("oscilloscope");
-    setWaveformData((previous) => blendWaveformSamples(previous, samples, 0.16));
-    setMeteringData(levelToMetering(averageSampleMagnitude(samples)));
+    const blended = blendWaveformSamples(
+      waveformDataRef.current,
+      samples,
+      0.16,
+    );
+    publishWaveform(blended, levelToMetering(averageSampleMagnitude(samples)));
   });
 
   useEffect(() => {
@@ -104,8 +147,7 @@ export function usePlaybackVisualState(params: {
     const interval = setInterval(() => {
       const elapsed = (Date.now() - startedAt) / 1000;
       const levels = buildFallbackSpeechLevels(baseTime + elapsed);
-      setWaveformData(levels);
-      setMeteringData(levelToMetering(averageLevels(levels)));
+      publishWaveform(levels, levelToMetering(averageLevels(levels)));
     }, VISUAL_UPDATE_INTERVAL_MS);
 
     return () => {
@@ -117,19 +159,17 @@ export function usePlaybackVisualState(params: {
     player.currentTime,
     player.id,
     player.isAudioSamplingSupported,
+    publishWaveform,
     resetVisualState,
+    setWaveformVariant,
     status.playing,
     usingNativeAudioQueue,
     waveformVariant,
   ]);
 
   return {
-    meteringData,
+    publishWaveform,
     resetVisualState,
-    setMeteringData,
-    setWaveformData,
     setWaveformVariant,
-    waveformData,
-    waveformVariant,
   };
 }

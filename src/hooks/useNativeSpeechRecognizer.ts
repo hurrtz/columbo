@@ -40,8 +40,6 @@ export function useNativeSpeechRecognizer() {
     isAvailable: ExpoSpeechRecognitionModule.isRecognitionAvailable(),
     isRecording: session.isRecording,
     lastError: session.lastError,
-    meteringData: session.meteringData,
-    waveformData: session.waveformData,
     waveformVariant: (usingNativeRecorder ? "oscilloscope" : "bars") as WaveformVisualizationVariant,
     startRecognition,
     stopRecognition,

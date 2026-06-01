@@ -1,12 +1,13 @@
 import { Dispatch, MutableRefObject, SetStateAction, useCallback, useRef } from "react";
 
+import type { PlaybackWaveformControls } from "./usePlaybackVisualState";
+
 import {
   analyzeNativeAudioFile,
   type NativeWaveformAnalysis,
   startNativeOutputWaveformPlayback,
   stopNativeOutputWaveformPlayback,
 } from "../../services/nativeWaveform";
-import { WaveformVisualizationVariant } from "../../types";
 import {
   OSCILLOSCOPE_SAMPLE_COUNT,
   averageLevels,
@@ -29,10 +30,9 @@ interface UseNativeOutputWaveformControllerParams {
   >;
   nativeAudioQueuePendingCountRef: MutableRefObject<number>;
   nativeAudioQueuePlayingRef: MutableRefObject<boolean>;
-  setMeteringData: Dispatch<SetStateAction<number>>;
+  publishWaveform: PlaybackWaveformControls["publishWaveform"];
   setNativeAudioQueuePlaying: Dispatch<SetStateAction<boolean>>;
-  setWaveformData: Dispatch<SetStateAction<number[]>>;
-  setWaveformVariant: Dispatch<SetStateAction<WaveformVisualizationVariant>>;
+  setWaveformVariant: PlaybackWaveformControls["setWaveformVariant"];
   supportsNativeOutputWaveform: boolean;
   usingNativeAudioQueue: boolean;
 }
@@ -43,9 +43,8 @@ export function useNativeOutputWaveformController({
   nativeAudioQueueContextsRef,
   nativeAudioQueuePendingCountRef,
   nativeAudioQueuePlayingRef,
-  setMeteringData,
+  publishWaveform,
   setNativeAudioQueuePlaying,
-  setWaveformData,
   setWaveformVariant,
   supportsNativeOutputWaveform,
   usingNativeAudioQueue,
@@ -110,12 +109,10 @@ export function useNativeOutputWaveformController({
     const baseTime = Date.now() / 1000;
     nativeIntervalRef.current = setInterval(() => {
       const levels = buildFallbackSpeechLevels(baseTime + Date.now() / 700);
-      setWaveformData(levels);
-      setMeteringData(levelToMetering(averageLevels(levels)));
+      publishWaveform(levels, levelToMetering(averageLevels(levels)));
     }, VISUAL_UPDATE_INTERVAL_MS);
   }, [
-    setMeteringData,
-    setWaveformData,
+    publishWaveform,
     setWaveformVariant,
     stopNativeMetering,
   ]);
@@ -180,8 +177,7 @@ export function useNativeOutputWaveformController({
           OSCILLOSCOPE_SAMPLE_COUNT,
         );
 
-        setWaveformData(samples);
-        setMeteringData(levelToMetering(averageSampleMagnitude(samples)));
+        publishWaveform(samples, levelToMetering(averageSampleMagnitude(samples)));
       };
 
       tick();
@@ -192,8 +188,7 @@ export function useNativeOutputWaveformController({
     },
     [
       getWaveformAnalysis,
-      setMeteringData,
-      setWaveformData,
+      publishWaveform,
       setWaveformVariant,
       stopNativeOutputWaveform,
       supportsNativeOutputWaveform,

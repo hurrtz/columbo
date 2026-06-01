@@ -33,14 +33,14 @@ export function useRecognitionSubscriptions({
     isRecordingRef,
     latestTranscriptRef,
     nativeSessionIdRef,
+    publishFrame,
     rejectPendingStop,
     resetVisualState,
     resolvePendingStop,
     setIsRecording,
-    setMeteringData,
-    setWaveformData,
     stopRequestedRef,
     stopResolverRef,
+    waveformDataRef,
   } = session;
 
   useEffect(() => {
@@ -77,18 +77,20 @@ export function useRecognitionSubscriptions({
       );
       inputReferenceLevelRef.current = referenceLevel;
 
-      setWaveformData((previous) =>
-        blendWaveformSamples(previous, samples, 0.08),
+      const blended = blendWaveformSamples(
+        waveformDataRef.current,
+        samples,
+        0.08,
       );
-      setMeteringData(levelToMetering(averageSampleMagnitude(samples)));
+      publishFrame(levelToMetering(averageSampleMagnitude(samples)), blended);
     });
   }, [
     inputReferenceLevelRef,
     nativeSessionIdRef,
+    publishFrame,
     rejectPendingStop,
-    setMeteringData,
-    setWaveformData,
     usingNativeRecorder,
+    waveformDataRef,
   ]);
 
   useEffect(() => {
@@ -110,8 +112,10 @@ export function useRecognitionSubscriptions({
       "volumechange",
       (event) => {
         const metering = volumeToMetering(event.value);
-        setMeteringData(metering);
-        setWaveformData((previous) => appendMeterHistory(previous, metering));
+        publishFrame(
+          metering,
+          appendMeterHistory(waveformDataRef.current, metering),
+        );
       },
     );
 
@@ -158,14 +162,14 @@ export function useRecognitionSubscriptions({
     handleResult,
     isRecordingRef,
     latestTranscriptRef,
+    publishFrame,
     resetVisualState,
     resolvePendingStop,
     setIsRecording,
-    setMeteringData,
-    setWaveformData,
     stopRequestedRef,
     stopResolverRef,
     usingNativeRecorder,
+    waveformDataRef,
   ]);
 
   useEffect(() => {

@@ -62,13 +62,9 @@ export function useAudioPlayer() {
   const { ensurePlaybackSession, resetPlaybackSession } =
     usePlaybackSession();
   const {
-    meteringData,
+    publishWaveform,
     resetVisualState,
-    setMeteringData,
-    setWaveformData,
     setWaveformVariant,
-    waveformData,
-    waveformVariant,
   } = usePlaybackVisualState({
     player,
     status,
@@ -90,9 +86,8 @@ export function useAudioPlayer() {
     nativeAudioQueueContextsRef,
     nativeAudioQueuePendingCountRef,
     nativeAudioQueuePlayingRef,
-    setMeteringData,
+    publishWaveform,
     setNativeAudioQueuePlaying,
-    setWaveformData,
     setWaveformVariant,
     supportsNativeOutputWaveform,
     usingNativeAudioQueue,
@@ -416,9 +411,6 @@ export function useAudioPlayer() {
   return {
     isPlaying: hasPendingPlayback,
     hasPendingPlayback,
-    meteringData,
-    waveformData,
-    waveformVariant,
     isPlaybackPaused,
     enqueueAudio,
     speakText,

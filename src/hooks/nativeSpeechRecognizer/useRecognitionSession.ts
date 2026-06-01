@@ -9,6 +9,11 @@ import {
   EMPTY_VISUAL_LEVELS,
   INPUT_WAVEFORM_REFERENCE_FLOOR,
 } from "../../utils/audioVisualization";
+import {
+  publishWaveformFrame,
+  resetWaveformFrame,
+} from "../../state/waveformFeed";
+import type { WaveformVisualizationVariant } from "../../types";
 import { buildErrorMessage } from "./shared";
 
 type StopResolver = (value: string | null) => void;
@@ -17,8 +22,6 @@ type StopRejecter = (error: Error) => void;
 export interface RecognitionSession {
   isRecording: boolean;
   lastError: string | null;
-  meteringData: number;
-  waveformData: number[];
   isRecordingRef: React.MutableRefObject<boolean>;
   startedAtRef: React.MutableRefObject<number>;
   latestTranscriptRef: React.MutableRefObject<string>;
@@ -29,10 +32,11 @@ export interface RecognitionSession {
   abortRequestedRef: React.MutableRefObject<boolean>;
   nativeSessionIdRef: React.MutableRefObject<string | null>;
   inputReferenceLevelRef: React.MutableRefObject<number>;
+  waveformDataRef: React.MutableRefObject<number[]>;
+  waveformVariant: WaveformVisualizationVariant;
   setIsRecording: React.Dispatch<React.SetStateAction<boolean>>;
   setLastError: React.Dispatch<React.SetStateAction<string | null>>;
-  setMeteringData: React.Dispatch<React.SetStateAction<number>>;
-  setWaveformData: React.Dispatch<React.SetStateAction<number[]>>;
+  publishFrame: (metering: number, levels: number[]) => void;
   resetVisualState: () => void;
   clearPendingResolution: () => void;
   resolvePendingStop: (value: string | null) => void;
@@ -57,10 +61,12 @@ export function useRecognitionSession({
   const emptyWaveform = usingNativeRecorder
     ? EMPTY_OSCILLOSCOPE_SAMPLES
     : EMPTY_VISUAL_LEVELS;
+  const waveformVariant: WaveformVisualizationVariant = usingNativeRecorder
+    ? "oscilloscope"
+    : "bars";
   const [isRecording, setIsRecording] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
-  const [meteringData, setMeteringData] = useState(-160);
-  const [waveformData, setWaveformData] = useState<number[]>(emptyWaveform);
+  const waveformDataRef = useRef<number[]>(emptyWaveform);
   const isRecordingRef = useRef(false);
   const startedAtRef = useRef(0);
   const latestTranscriptRef = useRef("");
@@ -72,10 +78,18 @@ export function useRecognitionSession({
   const nativeSessionIdRef = useRef<string | null>(null);
   const inputReferenceLevelRef = useRef(INPUT_WAVEFORM_REFERENCE_FLOOR);
 
+  const publishFrame = useCallback(
+    (metering: number, levels: number[]) => {
+      waveformDataRef.current = levels;
+      publishWaveformFrame({ metering, levels, variant: waveformVariant });
+    },
+    [waveformVariant],
+  );
+
   const resetVisualState = useCallback(() => {
     inputReferenceLevelRef.current = INPUT_WAVEFORM_REFERENCE_FLOOR;
-    setMeteringData(-160);
-    setWaveformData(emptyWaveform);
+    waveformDataRef.current = emptyWaveform;
+    resetWaveformFrame();
   }, [emptyWaveform]);
 
   const clearPendingResolution = useCallback(() => {
@@ -153,8 +167,6 @@ export function useRecognitionSession({
   return {
     isRecording,
     lastError,
-    meteringData,
-    waveformData,
     isRecordingRef,
     startedAtRef,
     latestTranscriptRef,
@@ -165,10 +177,11 @@ export function useRecognitionSession({
     abortRequestedRef,
     nativeSessionIdRef,
     inputReferenceLevelRef,
+    waveformDataRef,
+    waveformVariant,
     setIsRecording,
     setLastError,
-    setMeteringData,
-    setWaveformData,
+    publishFrame,
     resetVisualState,
     clearPendingResolution,
     resolvePendingStop,

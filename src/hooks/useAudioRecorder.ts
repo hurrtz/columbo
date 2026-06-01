@@ -1,5 +1,9 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import {
+  publishWaveformFrame,
+  resetWaveformFrame,
+} from "../state/waveformFeed";
+import {
   RecordingPresets,
   requestRecordingPermissionsAsync,
   useAudioRecorder as useExpoAudioRecorder,
@@ -28,8 +32,6 @@ import { recordDebugLogEvent } from "../services/debugLogCapture";
 
 export interface RecorderState {
   isRecording: boolean;
-  meteringData: number;
-  waveformData: number[];
   waveformVariant: WaveformVisualizationVariant;
   lastError: string | null;
   clearLastError: () => void;
@@ -65,11 +67,20 @@ export function useAudioRecorder() {
   const inputReferenceLevelRef = useRef(INPUT_WAVEFORM_REFERENCE_FLOOR);
   const lastWaveformPublishRef = useRef<number>(0);
   const [nativeRecording, setNativeRecording] = useState(false);
-  const [nativeMeteringData, setNativeMeteringData] = useState(-160);
   const [lastError, setLastError] = useState<string | null>(null);
-  const [waveformData, setWaveformData] = useState(
+  const waveformVariant: WaveformVisualizationVariant = usingNativeRecorder
+    ? "oscilloscope"
+    : "bars";
+  const waveformDataRef = useRef<number[]>(
     usingNativeRecorder ? EMPTY_OSCILLOSCOPE_SAMPLES : EMPTY_VISUAL_LEVELS
   );
+
+  const resetWaveform = useCallback(() => {
+    waveformDataRef.current = usingNativeRecorder
+      ? EMPTY_OSCILLOSCOPE_SAMPLES
+      : EMPTY_VISUAL_LEVELS;
+    resetWaveformFrame();
+  }, [usingNativeRecorder]);
 
   const resolveStoppedRecordingUri = useCallback(async () => {
     for (let attempt = 0; attempt < STOPPED_RECORDING_URI_ATTEMPTS; attempt += 1) {
@@ -111,8 +122,7 @@ export function useAudioRecorder() {
         nativeSessionIdRef.current = null;
         inputReferenceLevelRef.current = INPUT_WAVEFORM_REFERENCE_FLOOR;
         setNativeRecording(false);
-        setNativeMeteringData(-160);
-        setWaveformData(EMPTY_OSCILLOSCOPE_SAMPLES);
+        resetWaveform();
         setLastError(event.message);
         void cancelNativeWaveformRecording(sessionId).catch(() => {
           // The native module may have already cleaned up after the failure.
@@ -143,10 +153,17 @@ export function useAudioRecorder() {
       }
       lastWaveformPublishRef.current = now;
 
-      setWaveformData((previous) => blendWaveformSamples(previous, samples, 0.08));
-      setNativeMeteringData(
-        levelToMetering(averageSampleMagnitude(samples))
+      const blended = blendWaveformSamples(
+        waveformDataRef.current,
+        samples,
+        0.08
       );
+      waveformDataRef.current = blended;
+      publishWaveformFrame({
+        metering: levelToMetering(averageSampleMagnitude(samples)),
+        levels: blended,
+        variant: "oscilloscope",
+      });
     });
   }, [usingNativeRecorder]);
 
@@ -154,24 +171,29 @@ export function useAudioRecorder() {
     if (usingNativeRecorder) {
       if (!nativeRecording) {
         inputReferenceLevelRef.current = INPUT_WAVEFORM_REFERENCE_FLOOR;
-        setNativeMeteringData(-160);
-        setWaveformData(EMPTY_OSCILLOSCOPE_SAMPLES);
+        resetWaveform();
       }
       return;
     }
 
     if (!recorderState.isRecording) {
-      setWaveformData(EMPTY_VISUAL_LEVELS);
+      resetWaveform();
       return;
     }
 
-    setWaveformData((previous) =>
-      appendMeterHistory(previous, recorderState.metering ?? -160)
-    );
+    const metering = recorderState.metering ?? -160;
+    const levels = appendMeterHistory(waveformDataRef.current, metering);
+    waveformDataRef.current = levels;
+    publishWaveformFrame({
+      metering,
+      levels,
+      variant: "bars",
+    });
   }, [
     nativeRecording,
     recorderState.isRecording,
     recorderState.metering,
+    resetWaveform,
     usingNativeRecorder,
   ]);
 
@@ -207,8 +229,7 @@ export function useAudioRecorder() {
       nativeSessionIdRef.current = sessionId;
       inputReferenceLevelRef.current = INPUT_WAVEFORM_REFERENCE_FLOOR;
       lastWaveformPublishRef.current = 0;
-      setNativeMeteringData(-160);
-      setWaveformData(EMPTY_OSCILLOSCOPE_SAMPLES);
+      resetWaveform();
 
       try {
         await startNativeWaveformRecording({ sessionId });
@@ -293,8 +314,7 @@ export function useAudioRecorder() {
           await cancelNativeWaveformRecording(sessionId);
           inputReferenceLevelRef.current = INPUT_WAVEFORM_REFERENCE_FLOOR;
           setNativeRecording(false);
-          setNativeMeteringData(-160);
-          setWaveformData(EMPTY_OSCILLOSCOPE_SAMPLES);
+          resetWaveform();
           startTimeRef.current = 0;
           recordDebugLogEvent({
             event: "recorder-stop-discarded",
@@ -311,8 +331,7 @@ export function useAudioRecorder() {
         const result = await stopNativeWaveformRecording(sessionId);
         inputReferenceLevelRef.current = INPUT_WAVEFORM_REFERENCE_FLOOR;
         setNativeRecording(false);
-        setNativeMeteringData(-160);
-        setWaveformData(EMPTY_OSCILLOSCOPE_SAMPLES);
+        resetWaveform();
         startTimeRef.current = 0;
 
         if (result.uri) {
@@ -341,8 +360,7 @@ export function useAudioRecorder() {
       } catch (error) {
         inputReferenceLevelRef.current = INPUT_WAVEFORM_REFERENCE_FLOOR;
         setNativeRecording(false);
-        setNativeMeteringData(-160);
-        setWaveformData(EMPTY_OSCILLOSCOPE_SAMPLES);
+        resetWaveform();
         startTimeRef.current = 0;
         recordDebugLogEvent({
           event: "recorder-stop-failed",
@@ -429,11 +447,7 @@ export function useAudioRecorder() {
 
   return {
     isRecording: usingNativeRecorder ? nativeRecording : recorderState.isRecording,
-    meteringData: usingNativeRecorder
-      ? nativeMeteringData
-      : recorderState.metering ?? -160,
-    waveformData,
-    waveformVariant: usingNativeRecorder ? "oscilloscope" : "bars",
+    waveformVariant,
     lastError,
     clearLastError,
     startRecording,
