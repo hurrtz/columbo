@@ -58,6 +58,7 @@ export function useAudioRecorder() {
   const startTimeRef = useRef<number>(0);
   const nativeSessionIdRef = useRef<string | null>(null);
   const inputReferenceLevelRef = useRef(INPUT_WAVEFORM_REFERENCE_FLOOR);
+  const lastWaveformPublishRef = useRef<number>(0);
   const [nativeRecording, setNativeRecording] = useState(false);
   const [nativeMeteringData, setNativeMeteringData] = useState(-160);
   const [lastError, setLastError] = useState<string | null>(null);
@@ -126,7 +127,16 @@ export function useAudioRecorder() {
         event.samples?.length ? event.samples : EMPTY_OSCILLOSCOPE_SAMPLES,
         inputReferenceLevelRef.current
       );
+      // Always keep the smoothing reference up to date so dropped frames blend
+      // seamlessly, but throttle the React state updates to ~12 fps to avoid a
+      // whole-screen re-render storm while recording.
       inputReferenceLevelRef.current = referenceLevel;
+
+      const now = Date.now();
+      if (now - lastWaveformPublishRef.current < 80) {
+        return;
+      }
+      lastWaveformPublishRef.current = now;
 
       setWaveformData((previous) => blendWaveformSamples(previous, samples, 0.08));
       setNativeMeteringData(
@@ -191,6 +201,7 @@ export function useAudioRecorder() {
 
       nativeSessionIdRef.current = sessionId;
       inputReferenceLevelRef.current = INPUT_WAVEFORM_REFERENCE_FLOOR;
+      lastWaveformPublishRef.current = 0;
       setNativeMeteringData(-160);
       setWaveformData(EMPTY_OSCILLOSCOPE_SAMPLES);
 
