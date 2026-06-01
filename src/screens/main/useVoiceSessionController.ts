@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { recordDebugLogEvent } from "../../services/debugLogCapture";
+import { PROVIDER_DEFAULT_STT_MODELS } from "../../constants/models";
+import { getMaxRecordingMs } from "../../utils/recordingLimits";
 
 import { useVoiceCaptureLifecycle } from "./voiceSession/useVoiceCaptureLifecycle";
 import { useVoiceSessionAppState } from "./voiceSession/useVoiceSessionAppState";
@@ -66,7 +68,24 @@ export function useVoiceSessionController<Snapshot>({
     ttsApiKey,
     ttsProvider,
   });
+  // Auto-stop a long recording just before it would exceed the active STT
+  // model's upload size limit (derived from the catalog), so a long thought is
+  // sent rather than rejected. Adapts per provider/model.
+  const maxRecordingMs = useMemo(() => {
+    const sttModel = sttProvider
+      ? settings.providerSttModels?.[sttProvider] ||
+        PROVIDER_DEFAULT_STT_MODELS[sttProvider] ||
+        ""
+      : "";
+    return getMaxRecordingMs({
+      sttMode: settings.sttMode,
+      sttProvider,
+      sttModel,
+    });
+  }, [settings.sttMode, settings.providerSttModels, sttProvider]);
+
   const { startVoiceCapture, stopVoiceCapture } = useVoiceCaptureLifecycle({
+    maxRecordingMs,
     nativeStt,
     player,
     processCapturedVoiceTurn,

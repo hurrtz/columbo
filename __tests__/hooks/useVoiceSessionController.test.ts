@@ -64,6 +64,7 @@ describe("useVoiceSessionController", () => {
         spokenRepliesEnabled: true,
         sttMode: "provider" as const,
         ttsMode: "provider" as const,
+        providerSttModels: {} as Record<string, string>,
       },
       showToast: jest.fn(),
       sttApiKey: "stt-key",

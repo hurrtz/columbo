@@ -8,13 +8,15 @@ import type {
   NativeSpeechRecognizerController,
 } from "./types";
 
-// Hard cap on a single spoken turn. When reached we auto-stop through the same
-// path the user's stop tap uses, so the captured audio is still transcribed and
-// answered rather than discarded. Keep this comfortably under provider STT size
-// limits even at the worst-case (uncompressed) recording bitrate.
+// Default hard cap on a single spoken turn, used when the caller does not pass a
+// derived limit. When reached we auto-stop through the same path the user's stop
+// tap uses, so the captured audio is still transcribed and answered rather than
+// discarded. Callers normally pass `maxRecordingMs` derived from the active STT
+// model's upload size limit (see getMaxRecordingMs).
 export const MAX_RECORDING_MS = 150000;
 
 interface UseVoiceCaptureLifecycleParams {
+  maxRecordingMs?: number;
   nativeStt: NativeSpeechRecognizerController;
   player: AudioPlayerController;
   processCapturedVoiceTurn: (params: {
@@ -28,6 +30,7 @@ interface UseVoiceCaptureLifecycleParams {
 }
 
 export function useVoiceCaptureLifecycle({
+  maxRecordingMs = MAX_RECORDING_MS,
   nativeStt,
   player,
   processCapturedVoiceTurn,
@@ -89,19 +92,28 @@ export function useVoiceCaptureLifecycle({
           event: "voice-capture-max-duration-reached",
           level: "warn",
           payload: {
-            maxDurationMs: MAX_RECORDING_MS,
+            maxDurationMs: maxRecordingMs,
             sttMode,
           },
         });
         showToast(t("maxRecordingLengthReached"));
         void stopVoiceCaptureRef.current();
-      }, MAX_RECORDING_MS);
+      }, maxRecordingMs);
     } finally {
       if (recordingStartedRef.current === startPromise) {
         recordingStartedRef.current = null;
       }
     }
-  }, [clearMaxDurationTimer, nativeStt, player, recorder, showToast, sttMode, t]);
+  }, [
+    clearMaxDurationTimer,
+    maxRecordingMs,
+    nativeStt,
+    player,
+    recorder,
+    showToast,
+    sttMode,
+    t,
+  ]);
 
   const stopVoiceCapture = useCallback(async () => {
     clearMaxDurationTimer();

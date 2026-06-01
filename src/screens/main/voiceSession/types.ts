@@ -50,7 +50,10 @@ export interface UseVoiceSessionControllerParams<Snapshot> {
   restoreActiveConversationSnapshot: (snapshot: Snapshot) => Promise<void>;
   setPipelinePhase: (phase: PipelinePhase) => void;
   setStreamingText: (text: string) => void;
-  settings: Pick<Settings, "spokenRepliesEnabled" | "sttMode" | "ttsMode">;
+  settings: Pick<
+    Settings,
+    "spokenRepliesEnabled" | "sttMode" | "ttsMode" | "providerSttModels"
+  >;
   showToast: ShowToastFn;
   sttApiKey: string;
   sttProvider: Provider | null;
