@@ -13,21 +13,18 @@ import { NativeWaveformView } from "./NativeWaveformView";
 import {
   InputMode,
   VoiceVisualPhase,
-  WaveformVisualizationVariant,
 } from "../types";
 import { RippleRing } from "./waveform/RippleRing";
 import { useWaveformCircleAnimations } from "./waveform/useWaveformCircleAnimations";
 import { useWaveformCircleState } from "./waveform/useWaveformCircleState";
+import { useWaveformFrame } from "../state/waveformFeed";
 
 interface WaveformCircleProps {
-  metering: number;
-  levels?: number[];
   isActive: boolean;
   disabled?: boolean;
   phase: VoiceVisualPhase;
   providerLabel: string;
   size?: number;
-  waveformVariant?: WaveformVisualizationVariant;
   inputMode: InputMode;
   onPressIn?: (e: GestureResponderEvent) => void;
   onPressOut?: (e: GestureResponderEvent) => void;
@@ -46,19 +43,17 @@ function scaleBy(size: number, value: number) {
 }
 
 export function WaveformCircle({
-  metering,
-  levels,
   isActive,
   disabled = false,
   phase,
   providerLabel: _providerLabel,
   size = BASE_SIZE,
-  waveformVariant = "bars",
   inputMode,
   onPressIn,
   onPressOut,
   onPress,
 }: WaveformCircleProps) {
+  const { metering, levels, variant: waveformVariant } = useWaveformFrame();
   const state = useWaveformCircleState({
     inputMode,
     isActive: isActive && !disabled,

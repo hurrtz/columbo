@@ -42,7 +42,6 @@ import { useTheme } from "../theme/ThemeContext";
 import {
   Provider,
   ResponseMode,
-  WaveformVisualizationVariant,
 } from "../types";
 import {
   getEnabledSttProviders,
@@ -202,18 +201,6 @@ export function MainScreen() {
     settings.sttMode === "native"
       ? nativeStt.isRecording
       : recorder.isRecording;
-  const recordingMetering =
-    settings.sttMode === "native"
-      ? nativeStt.meteringData
-      : recorder.meteringData;
-  const recordingLevels =
-    settings.sttMode === "native"
-      ? nativeStt.waveformData
-      : recorder.waveformData;
-  const recordingWaveformVariant: WaveformVisualizationVariant =
-    settings.sttMode === "native"
-      ? (nativeStt.waveformVariant as WaveformVisualizationVariant)
-      : (recorder.waveformVariant as WaveformVisualizationVariant);
 
   const showToast = useCallback((message: string, onRetry?: () => void) => {
     recordDebugLogEvent({
@@ -611,10 +598,7 @@ export function MainScreen() {
     isActive,
     lastAssistantReply,
     messages,
-    metering,
     routeModelLabel,
-    signalLevels,
-    signalWaveformVariant,
     statusDisplay,
     statusIndicatorTone,
     sttStatusLabel,
@@ -630,9 +614,6 @@ export function MainScreen() {
     pipelinePhase,
     player,
     provider,
-    recordingMetering,
-    recordingLevels,
-    recordingWaveformVariant,
     selectedSttModel,
     selectedTtsModel,
     selectedTtsVoice,
@@ -1069,7 +1050,6 @@ export function MainScreen() {
                   inputMode={settings.inputMode}
                   isActive={isActive}
                   layout="landscape"
-                  metering={metering}
                   onOpenStatusDetails={openStatusDetails}
                   onPausePlayback={handlePausePlayback}
                   onPress={handleTogglePress}
@@ -1083,8 +1063,6 @@ export function MainScreen() {
                   playbackPaused={player.isPlaybackPaused}
                   providerLabel={providerLabel}
                   resumePlaybackLabel={t("resume")}
-                  signalLevels={signalLevels}
-                  signalWaveformVariant={signalWaveformVariant}
                   showStatusStrip={false}
                   statusDetail={statusDisplay.statusDetail}
                   statusIndicatorTone={statusIndicatorTone}
@@ -1181,7 +1159,6 @@ export function MainScreen() {
                 disabled={voiceInputDisabled}
                 inputMode={settings.inputMode}
                 isActive={isActive}
-                metering={metering}
                 onOpenStatusDetails={openStatusDetails}
                 onPausePlayback={handlePausePlayback}
                 onPress={handleTogglePress}
@@ -1195,8 +1172,6 @@ export function MainScreen() {
                 playbackPaused={player.isPlaybackPaused}
                 providerLabel={providerLabel}
                 resumePlaybackLabel={t("resume")}
-                signalLevels={signalLevels}
-                signalWaveformVariant={signalWaveformVariant}
                 statusDetail={statusDisplay.statusDetail}
                 statusIndicatorTone={statusIndicatorTone}
                 statusTitle={statusDisplay.actionLabel}
@@ -1251,7 +1226,6 @@ export function MainScreen() {
         conversationMenuVisible={conversationMenuVisible}
         insets={insets}
         isActive={isActive}
-        metering={metering}
         messages={messages}
         onClose={closeTranscript}
         onCloseConversationMenu={closeConversationMenu}
@@ -1281,8 +1255,6 @@ export function MainScreen() {
         }}
         replayPhase={replayPhase}
         settingsShowUsageStats={settings.showUsageStats}
-        signalLevels={signalLevels}
-        signalWaveformVariant={signalWaveformVariant}
         t={t}
         toggleConversationMenu={toggleConversationMenu}
         usageDisplay={usageDisplay}

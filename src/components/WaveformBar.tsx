@@ -22,16 +22,13 @@ import {
 import {
   InputMode,
   VoiceVisualPhase,
-  WaveformVisualizationVariant,
 } from "../types";
+import { useWaveformFrame } from "../state/waveformFeed";
 
 interface WaveformBarProps {
-  metering: number;
-  levels?: number[];
   isActive: boolean;
   phase: VoiceVisualPhase;
   statusLabel?: string;
-  waveformVariant?: WaveformVisualizationVariant;
   inputMode: InputMode;
   onPressIn?: (e: GestureResponderEvent) => void;
   onPressOut?: (e: GestureResponderEvent) => void;
@@ -39,17 +36,15 @@ interface WaveformBarProps {
 }
 
 export function WaveformBar({
-  metering,
-  levels,
   isActive,
   phase,
   statusLabel,
-  waveformVariant = "bars",
   inputMode,
   onPressIn,
   onPressOut,
   onPress,
 }: WaveformBarProps) {
+  const { metering, levels, variant: waveformVariant } = useWaveformFrame();
   const { colors, isDark } = useTheme();
   const isRecording = phase === "recording";
   const isBlockingPhase = isWaveformProcessingPhase(phase);

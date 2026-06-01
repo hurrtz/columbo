@@ -17,7 +17,6 @@ import {
   Settings,
   TtsListenLanguage,
   VoiceVisualPhase,
-  WaveformVisualizationVariant,
 } from "../../types";
 import { getStatusDisplayData, getStatusIndicatorTone } from "./statusSelectors";
 import { TranslateFn } from "./shared";
@@ -27,9 +26,6 @@ import { hasProviderCredentialForCapability } from "../../utils/providerCredenti
 interface AudioSignalState {
   isPlaybackPaused: boolean;
   isPlaying: boolean;
-  meteringData: number;
-  waveformData: number[] | undefined;
-  waveformVariant: string | WaveformVisualizationVariant;
 }
 
 interface GetMainScreenViewModelParams {
@@ -41,9 +37,6 @@ interface GetMainScreenViewModelParams {
   pipelinePhase: PipelinePhase;
   player: AudioSignalState;
   provider: Provider;
-  recordingMetering: number;
-  recordingLevels: number[] | undefined;
-  recordingWaveformVariant: WaveformVisualizationVariant;
   selectedSttModel: string;
   selectedTtsModel: string;
   selectedTtsVoice: string;
@@ -75,9 +68,6 @@ export function getMainScreenViewModel({
   pipelinePhase,
   player,
   provider,
-  recordingMetering,
-  recordingLevels,
-  recordingWaveformVariant,
   selectedSttModel,
   selectedTtsModel,
   selectedTtsVoice,
@@ -145,21 +135,6 @@ export function getMainScreenViewModel({
             ? "thinking"
             : "idle";
   const isActive = visualPhase !== "idle";
-  const metering = isRecording
-    ? recordingMetering
-    : player.isPlaying
-      ? player.meteringData
-      : -160;
-  const signalLevels = isRecording
-    ? recordingLevels
-    : player.isPlaying
-      ? player.waveformData
-      : undefined;
-  const signalWaveformVariant: WaveformVisualizationVariant = isRecording
-    ? recordingWaveformVariant
-    : player.isPlaying
-      ? (player.waveformVariant as WaveformVisualizationVariant)
-      : "bars";
 
   const baseMessages = activeConversation?.messages || [];
   const lastAssistantReply =
@@ -199,10 +174,7 @@ export function getMainScreenViewModel({
     isActive,
     lastAssistantReply,
     messages,
-    metering,
     routeModelLabel,
-    signalLevels,
-    signalWaveformVariant,
     statusDisplay,
     statusIndicatorTone: getStatusIndicatorTone(
       visualPhase,

@@ -9,7 +9,6 @@ import { Colors } from "../../theme/colors";
 import {
   InputMode,
   VoiceVisualPhase,
-  WaveformVisualizationVariant,
 } from "../../types";
 
 import { formatThinkingStatus, isLongRunningPhase } from "./statusSelectors";
@@ -49,7 +48,6 @@ interface MainScreenVoiceStageProps {
   inputMode: InputMode;
   isActive: boolean;
   layout?: "portrait" | "landscape";
-  metering: number;
   onOpenStatusDetails: () => void;
   onPausePlayback?: () => void | Promise<void>;
   onPress: () => void;
@@ -63,8 +61,6 @@ interface MainScreenVoiceStageProps {
   playbackPaused?: boolean;
   providerLabel: string;
   resumePlaybackLabel?: string;
-  signalLevels: number[] | undefined;
-  signalWaveformVariant: WaveformVisualizationVariant;
   showStatusStrip?: boolean;
   statusDetail: string;
   statusIndicatorTone: string;
@@ -246,7 +242,6 @@ export function MainScreenVoiceStage({
   inputMode,
   isActive,
   layout = "portrait",
-  metering,
   onOpenStatusDetails,
   onPausePlayback,
   onPress,
@@ -260,8 +255,6 @@ export function MainScreenVoiceStage({
   playbackPaused = false,
   providerLabel,
   resumePlaybackLabel,
-  signalLevels,
-  signalWaveformVariant,
   showStatusStrip = true,
   statusDetail,
   statusIndicatorTone,
@@ -293,13 +286,10 @@ export function MainScreenVoiceStage({
       />
       <WaveformCircle
         disabled={disabled}
-        metering={metering}
-        levels={signalLevels}
         isActive={isActive}
         phase={visualPhase}
         providerLabel={providerLabel}
         size={circleSize}
-        waveformVariant={signalWaveformVariant}
         inputMode={inputMode}
         onPressIn={onPressIn}
         onPressOut={onPressOut}

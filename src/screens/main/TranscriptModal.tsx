@@ -21,7 +21,6 @@ import {
   InputMode,
   Message,
   VoiceVisualPhase,
-  WaveformVisualizationVariant,
 } from "../../types";
 import { ReplayPhase } from "../../hooks/useVoicePipeline";
 
@@ -38,7 +37,6 @@ interface TranscriptModalProps {
   conversationMenuVisible: boolean;
   insets: EdgeInsets;
   isActive: boolean;
-  metering: number;
   messages: Message[];
   onClose: () => void;
   onCloseConversationMenu: () => void;
@@ -53,8 +51,6 @@ interface TranscriptModalProps {
   onShareThread: () => void;
   replayPhase: ReplayPhase;
   settingsShowUsageStats: boolean;
-  signalLevels: number[] | undefined;
-  signalWaveformVariant: WaveformVisualizationVariant;
   t: TranslateFn;
   toggleConversationMenu: () => void;
   usageDisplay: ConversationUsageDisplayData | null;
@@ -85,7 +81,6 @@ export function TranscriptModal({
   conversationMenuVisible,
   insets,
   isActive,
-  metering,
   messages,
   onClose,
   onCloseConversationMenu,
@@ -100,8 +95,6 @@ export function TranscriptModal({
   onShareThread,
   replayPhase,
   settingsShowUsageStats,
-  signalLevels,
-  signalWaveformVariant,
   t,
   toggleConversationMenu,
   usageDisplay,
@@ -276,12 +269,9 @@ export function TranscriptModal({
                 ]}
               >
                 <WaveformBar
-                  metering={metering}
-                  levels={signalLevels}
                   isActive={waveformIsActive}
                   phase={waveformPhase}
                   statusLabel={waveformStatusLabel}
-                  waveformVariant={signalWaveformVariant}
                   inputMode={waveformInputMode}
                   onPressIn={onPressIn}
                   onPressOut={onPressOut}
