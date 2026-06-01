@@ -35,10 +35,15 @@ export interface RecorderState {
   clearLastError: () => void;
 }
 
+// Speech-grade capture: mono at 16 kHz. STT models downsample to 16 kHz
+// regardless, so this keeps uploads small without hurting transcription
+// quality. (The native waveform recorder applies the same target itself.)
+const SPEECH_SAMPLE_RATE = 16000;
 const RECORDING_OPTIONS = {
   ...RecordingPresets.HIGH_QUALITY,
   isMeteringEnabled: true,
   numberOfChannels: 1,
+  sampleRate: SPEECH_SAMPLE_RATE,
 };
 const RECORDER_STATUS_INTERVAL_MS = 150;
 const STOPPED_RECORDING_URI_ATTEMPTS = 12;

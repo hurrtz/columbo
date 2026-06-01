@@ -6,6 +6,11 @@ final class SchnackWaveformRecorder {
   private static let inputSampleChunkCount = 6
   private static let inputTapBufferSize: AVAudioFrameCount = 512
   private static let inputReferenceFloor: Float = 0.11
+  // Speech-grade recording target. STT models downsample to 16 kHz anyway, so
+  // recording mono 16-bit PCM at 16 kHz keeps the uploaded WAV ~4-6x smaller
+  // than the hardware-rate 32-bit float capture used previously.
+  private static let recordingSampleRate: Double = 16_000
+  private static let recordingChannelCount: AVAudioChannelCount = 1
 
   var onEvent: (([String: Any]) -> Void)?
 
@@ -17,6 +22,8 @@ final class SchnackWaveformRecorder {
   )
   private var audioEngine: AVAudioEngine?
   private var audioFile: AVAudioFile?
+  private var inputToFileConverter: AVAudioConverter?
+  private var fileFormat: AVAudioFormat?
   private var activeSessionId: String?
   private var outputURL: URL?
   private var pendingRecordingErrorSessionId: String?
@@ -52,21 +59,43 @@ final class SchnackWaveformRecorder {
       )
     }
 
+    // Write the uploaded recording as mono 16-bit PCM at 16 kHz. The live
+    // waveform tap still reads the microphone's native input format; only the
+    // persisted file is downsampled to keep STT uploads small.
     let fileSettings: [String: Any] = [
       AVFormatIDKey: kAudioFormatLinearPCM,
-      AVSampleRateKey: inputFormat.sampleRate,
-      AVNumberOfChannelsKey: inputFormat.channelCount,
-      AVLinearPCMBitDepthKey: 32,
-      AVLinearPCMIsFloatKey: true,
+      AVSampleRateKey: Self.recordingSampleRate,
+      AVNumberOfChannelsKey: Self.recordingChannelCount,
+      AVLinearPCMBitDepthKey: 16,
+      AVLinearPCMIsFloatKey: false,
       AVLinearPCMIsBigEndianKey: false,
       AVLinearPCMIsNonInterleaved: false,
     ]
 
+    guard
+      let fileFormat = AVAudioFormat(
+        commonFormat: .pcmFormatInt16,
+        sampleRate: Self.recordingSampleRate,
+        channels: Self.recordingChannelCount,
+        interleaved: true
+      ),
+      let converter = AVAudioConverter(from: inputFormat, to: fileFormat)
+    else {
+      throw NSError(
+        domain: "SchnackNativeWaveform",
+        code: 102,
+        userInfo: [
+          NSLocalizedDescriptionKey:
+            "Unable to prepare the speech recording format.",
+        ]
+      )
+    }
+
     let file = try AVAudioFile(
       forWriting: outputURL,
       settings: fileSettings,
-      commonFormat: .pcmFormatFloat32,
-      interleaved: false
+      commonFormat: .pcmFormatInt16,
+      interleaved: true
     )
 
     rollingBuffer.reset()
@@ -81,7 +110,14 @@ final class SchnackWaveformRecorder {
       }
 
       do {
-        try file.write(from: buffer)
+        let converted = try self.convertToFileFormat(
+          buffer,
+          using: converter,
+          fileFormat: fileFormat
+        )
+        if let converted {
+          try file.write(from: converted)
+        }
       } catch {
         self.handleRecordingWriteError(
           sessionId: sessionId,
@@ -101,6 +137,8 @@ final class SchnackWaveformRecorder {
 
     audioEngine = engine
     audioFile = file
+    inputToFileConverter = converter
+    self.fileFormat = fileFormat
     activeSessionId = sessionId
     self.outputURL = outputURL
     levelEmitter.start(
@@ -175,6 +213,8 @@ final class SchnackWaveformRecorder {
     audioEngine?.stop()
     audioEngine = nil
     audioFile = nil
+    inputToFileConverter = nil
+    fileFormat = nil
     activeSessionId = nil
     pendingRecordingErrorSessionId = nil
 
@@ -187,6 +227,49 @@ final class SchnackWaveformRecorder {
     if deleteOutput, let outputURL {
       try? FileManager.default.removeItem(at: outputURL)
     }
+  }
+
+  private func convertToFileFormat(
+    _ buffer: AVAudioPCMBuffer,
+    using converter: AVAudioConverter,
+    fileFormat: AVAudioFormat
+  ) throws -> AVAudioPCMBuffer? {
+    let ratio = fileFormat.sampleRate / buffer.format.sampleRate
+    let capacity = AVAudioFrameCount(
+      (Double(buffer.frameLength) * ratio).rounded(.up)
+    ) + 1
+
+    guard
+      capacity > 0,
+      let output = AVAudioPCMBuffer(
+        pcmFormat: fileFormat,
+        frameCapacity: capacity
+      )
+    else {
+      return nil
+    }
+
+    var fed = false
+    var conversionError: NSError?
+    let status = converter.convert(to: output, error: &conversionError) { _, inputStatus in
+      if fed {
+        inputStatus.pointee = .noDataNow
+        return nil
+      }
+      fed = true
+      inputStatus.pointee = .haveData
+      return buffer
+    }
+
+    if let conversionError {
+      throw conversionError
+    }
+
+    guard status != .error, output.frameLength > 0 else {
+      return nil
+    }
+
+    return output
   }
 
   private func handleRecordingWriteError(sessionId: String, message: String) {
