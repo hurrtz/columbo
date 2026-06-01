@@ -22,6 +22,13 @@ export const styles = StyleSheet.create({
     height: 208,
     borderRadius: 104,
   },
+  shadowWrap: {
+    width: 188,
+    height: 188,
+    borderRadius: 94,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   circle: {
     width: 188,
     height: 188,

@@ -153,55 +153,57 @@ export function WaveformCircle({
         intensity={state.intensity}
         scale={scale}
       />
-      <Animated.View
+      <View
         style={[
-          animations.circleShellStyle,
+          styles.shadowWrap,
           disabled ? styles.disabledCircleShell : null,
+          {
+            width: circleSize,
+            height: circleSize,
+            borderRadius: circleSize / 2,
+            shadowColor: disabled
+              ? "rgba(100, 116, 139, 0.18)"
+              : state.shellShadowColor,
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: disabled ? 0.28 : isActive ? 1 : 0.55,
+            shadowRadius: isActive && !disabled
+              ? scaleBy(size, 28)
+              : scaleBy(size, 18),
+            elevation: Math.max(
+              6,
+              Math.round(
+                isActive && !disabled ? scaleBy(size, 14) : scaleBy(size, 8),
+              ),
+            ),
+          },
         ]}
       >
-        <TouchableOpacity
-          activeOpacity={disabled ? 1 : 0.9}
-          accessibilityRole="button"
-          accessibilityState={{ disabled }}
-          disabled={disabled}
-          onPressIn={
-            !disabled && inputMode === "push-to-talk" ? onPressIn : undefined
-          }
-          onPressOut={
-            !disabled && inputMode === "push-to-talk" ? onPressOut : undefined
-          }
-          onPress={
-            !disabled && inputMode === "toggle-to-talk" ? onPress : undefined
-          }
-        >
-          <View
-            style={[
-              styles.circle,
-              {
-                width: circleSize,
-                height: circleSize,
-                borderRadius: circleSize / 2,
-              },
-              {
-                shadowColor: disabled
-                  ? "rgba(100, 116, 139, 0.18)"
-                  : state.shellShadowColor,
-                shadowOffset: { width: 0, height: 0 },
-                shadowOpacity: disabled ? 0.28 : isActive ? 1 : 0.55,
-                shadowRadius: isActive && !disabled
-                  ? scaleBy(size, 28)
-                  : scaleBy(size, 18),
-                elevation: Math.max(
-                  6,
-                  Math.round(
-                    isActive && !disabled
-                      ? scaleBy(size, 14)
-                      : scaleBy(size, 8),
-                  ),
-                ),
-              },
-            ]}
+        <Animated.View style={animations.circleShellStyle}>
+          <TouchableOpacity
+            activeOpacity={disabled ? 1 : 0.9}
+            accessibilityRole="button"
+            accessibilityState={{ disabled }}
+            disabled={disabled}
+            onPressIn={
+              !disabled && inputMode === "push-to-talk" ? onPressIn : undefined
+            }
+            onPressOut={
+              !disabled && inputMode === "push-to-talk" ? onPressOut : undefined
+            }
+            onPress={
+              !disabled && inputMode === "toggle-to-talk" ? onPress : undefined
+            }
           >
+            <View
+              style={[
+                styles.circle,
+                {
+                  width: circleSize,
+                  height: circleSize,
+                  borderRadius: circleSize / 2,
+                },
+              ]}
+            >
             <Animated.View
               pointerEvents="none"
               style={[
@@ -446,9 +448,10 @@ export function WaveformCircle({
                 )}
               </Animated.View>
             )}
-          </View>
-        </TouchableOpacity>
-      </Animated.View>
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
+      </View>
     </View>
   );
 }
