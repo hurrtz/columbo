@@ -60,7 +60,6 @@ const baseProps = {
   conversationMenuVisible: false,
   insets: { top: 0, right: 0, bottom: 0, left: 0 },
   isActive: false,
-  metering: -160,
   messages: [
     {
       id: "m1",
@@ -82,8 +81,6 @@ const baseProps = {
   onShareThread: jest.fn(),
   replayPhase: "idle" as const,
   settingsShowUsageStats: true,
-  signalLevels: undefined,
-  signalWaveformVariant: "bars" as const,
   t: (key: string) => key,
   toggleConversationMenu: jest.fn(),
   usageDisplay: {

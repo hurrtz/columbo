@@ -84,8 +84,6 @@ jest.mock("../../src/hooks/useConversations", () => ({
 jest.mock("../../src/hooks/useAudioRecorder", () => ({
   useAudioRecorder: jest.fn(() => ({
     isRecording: false,
-    meteringData: -160,
-    waveformData: undefined,
     waveformVariant: "bars",
   })),
 }));
@@ -93,8 +91,6 @@ jest.mock("../../src/hooks/useAudioRecorder", () => ({
 jest.mock("../../src/hooks/useNativeSpeechRecognizer", () => ({
   useNativeSpeechRecognizer: jest.fn(() => ({
     isRecording: false,
-    meteringData: -160,
-    waveformData: undefined,
     waveformVariant: "bars",
   })),
 }));
@@ -106,9 +102,6 @@ jest.mock("../../src/hooks/useAudioPlayer", () => ({
     pausePlayback: jest.fn(async () => true),
     resumePlayback: jest.fn(async () => true),
     stopPlayback: jest.fn(async () => undefined),
-    meteringData: -160,
-    waveformData: undefined,
-    waveformVariant: "bars",
   })),
 }));
 
