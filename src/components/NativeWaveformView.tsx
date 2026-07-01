@@ -20,14 +20,17 @@ type NativeWaveformViewProps = ViewProps & {
 };
 
 const NativeWaveformComponent =
-  Platform.OS === "ios"
+  Platform.OS === "ios" || Platform.OS === "android"
     ? requireNativeComponent<NativeWaveformViewProps>(
         "SchnackNativeWaveformView"
       )
     : null;
 
 export function NativeWaveformView(props: NativeWaveformViewProps) {
-  if (Platform.OS !== "ios" || !NativeWaveformComponent) {
+  if (
+    (Platform.OS !== "ios" && Platform.OS !== "android") ||
+    !NativeWaveformComponent
+  ) {
     return <View pointerEvents="none" style={props.style} />;
   }
 

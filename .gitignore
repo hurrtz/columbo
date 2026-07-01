@@ -84,8 +84,10 @@ yarn-error.*
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/MainActivity.kt
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/MainApplication.kt
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/SchnackNativeAudioQueueModule.kt
+!/android/app/src/main/java/com/tobiaswinkler/schnackai/SchnackNativeWaveformViewManager.kt
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/SchnackWaveformAudioAnalyzer.kt
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/SchnackWaveformStateCoordinator.kt
+!/android/app/src/main/java/com/tobiaswinkler/schnackai/SchnackWaveformView.kt
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/SchnackNativeWaveformModule.kt
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/SchnackNativeWaveformPackage.kt
 !/android/app/src/main/res/
