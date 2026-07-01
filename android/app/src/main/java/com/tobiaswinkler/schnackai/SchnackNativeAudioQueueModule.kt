@@ -1,7 +1,5 @@
 package com.tobiaswinkler.schnackai
 
-import android.media.MediaPlayer
-import android.net.Uri
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -9,7 +7,6 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
-import java.io.File
 
 class SchnackNativeAudioQueueModule(
   reactContext: ReactApplicationContext,
@@ -21,8 +18,8 @@ class SchnackNativeAudioQueueModule(
 
   private val coordinator = SchnackAudioQueueCoordinator(
     playerFactory = { item, callbacks ->
-      AndroidAudioQueuePlayer(
-        reactContext = reactApplicationContext,
+      SchnackAndroidAudioQueuePlayer(
+        context = reactApplicationContext,
         item = item,
         callbacks = callbacks,
       )
@@ -165,57 +162,6 @@ class SchnackNativeAudioQueueModule(
       putNull(key)
     } else {
       putString(key, value)
-    }
-  }
-
-  private class AndroidAudioQueuePlayer(
-    reactContext: ReactApplicationContext,
-    item: SchnackAudioQueueItem,
-    callbacks: SchnackAudioQueuePlayerCallbacks,
-  ) : SchnackAudioQueuePlayer {
-    private val mediaPlayer = MediaPlayer()
-
-    init {
-      mediaPlayer.setOnCompletionListener {
-        callbacks.onCompletion()
-      }
-      mediaPlayer.setOnErrorListener { _, _, _ ->
-        callbacks.onError("Audio playback failed.")
-        true
-      }
-      mediaPlayer.setDataSource(reactContext, resolveUri(item.uri))
-      mediaPlayer.prepare()
-    }
-
-    override fun start() {
-      mediaPlayer.start()
-    }
-
-    override fun pause() {
-      mediaPlayer.pause()
-    }
-
-    override fun stop() {
-      try {
-        mediaPlayer.stop()
-      } catch (_: IllegalStateException) {
-      }
-    }
-
-    override fun release() {
-      mediaPlayer.setOnCompletionListener(null)
-      mediaPlayer.setOnErrorListener(null)
-      mediaPlayer.reset()
-      mediaPlayer.release()
-    }
-
-    private fun resolveUri(uri: String): Uri {
-      val parsed = Uri.parse(uri)
-      if (!parsed.scheme.isNullOrBlank()) {
-        return parsed
-      }
-
-      return Uri.fromFile(File(uri))
     }
   }
 }
