@@ -129,6 +129,36 @@ describe("streamChat", () => {
     }
   });
 
+  it("returns a development-only local reply for the Android smoke-test key", async () => {
+    const chunks: string[] = [];
+    const onDone = jest.fn();
+    const onError = jest.fn();
+
+    await streamChat({
+      messages: mockMessages,
+      model: "gpt-4o",
+      provider: "openai",
+      apiKey: "sk-test-android-local-dev",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone,
+      onError,
+    });
+
+    expect(chunks.join("")).toContain("local Android development");
+    expect(onDone).toHaveBeenCalledWith(
+      expect.stringContaining("local Android development"),
+      expect.objectContaining({
+        totalTokens: expect.any(Number),
+      }),
+    );
+    expect(onError).not.toHaveBeenCalled();
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("uses the configured OpenAI-compatible endpoint for a newly wired provider", async () => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({

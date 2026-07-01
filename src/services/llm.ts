@@ -37,6 +37,7 @@ import {
 export { buildSystemPrompt } from "./llm/prompts";
 
 const LLM_REPLY_INACTIVITY_TIMEOUT_MS = 45_000;
+const LOCAL_ANDROID_DEV_API_KEY = "sk-test-android-local-dev";
 
 interface StreamChatParams {
   messages: Message[];
@@ -87,6 +88,25 @@ function buildProviderReplyTimeoutError(
       action: translate(language, "replyGenerationAction"),
     }),
   );
+}
+
+function isLocalAndroidDevReplyEnabled(apiKey: string) {
+  return (
+    typeof __DEV__ !== "undefined" &&
+    __DEV__ &&
+    apiKey.trim() === LOCAL_ANDROID_DEV_API_KEY
+  );
+}
+
+function buildLocalAndroidDevReply(messages: Message[]) {
+  const lastUserMessage = [...messages]
+    .reverse()
+    .find((message) => message.role === "user");
+  const prompt = lastUserMessage?.content.trim();
+
+  return prompt
+    ? `local Android development reply: I received "${prompt}". This confirms the text chat pipeline is working without contacting a provider.`
+    : "local Android development reply: this confirms the text chat pipeline is working without contacting a provider.";
 }
 
 function getLlmProviderConfigOrThrow(
@@ -342,6 +362,25 @@ export async function streamChat({
       conversationSummary,
       webSearchContext,
     });
+
+    if (isLocalAndroidDevReplyEnabled(apiKey)) {
+      const fullText = buildLocalAndroidDevReply(messages);
+
+      onChunk(fullText);
+      await onDone(
+        fullText,
+        estimateChatUsage({
+          provider,
+          model,
+          kind: "reply",
+          systemPrompt,
+          messages,
+          completionText: fullText,
+        }),
+      );
+      return;
+    }
+
     const config = getLlmProviderConfigOrThrow(provider, model, language);
     const timeoutError = buildProviderReplyTimeoutError(provider, language);
     let rejectTimeout: ((reason?: unknown) => void) | null = null;
