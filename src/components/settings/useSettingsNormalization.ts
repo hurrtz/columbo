@@ -39,18 +39,6 @@ export function useSettingsNormalization(params: {
     }
 
     const patch: UpdatePayload = {};
-    const shouldPromoteSttMode =
-      settings.sttMode === "native" && enabledSttProviders.length > 0;
-    const promotedSttProvider =
-      settings.sttProvider && enabledSttProviders.includes(settings.sttProvider)
-        ? settings.sttProvider
-        : (enabledSttProviders[0] ?? null);
-    const shouldPromoteTtsMode =
-      settings.ttsMode !== "provider" && enabledTtsProviders.length > 0;
-    const promotedTtsProvider =
-      settings.ttsProvider && enabledTtsProviders.includes(settings.ttsProvider)
-        ? settings.ttsProvider
-        : (enabledTtsProviders[0] ?? null);
     const nextSttProvider = getNormalizedSttProvider(
       settings,
       enabledSttProviders,
@@ -77,28 +65,12 @@ export function useSettingsNormalization(params: {
       language,
     );
 
-    if (shouldPromoteSttMode) {
-      patch.sttMode = "provider";
-
-      if (promotedSttProvider !== settings.sttProvider) {
-        patch.sttProvider = promotedSttProvider;
-      }
-    }
-
     if (nextSttProvider !== null) {
       patch.sttProvider = nextSttProvider;
     }
 
     if (nextResponseModes) {
       patch.responseModes = nextResponseModes;
-    }
-
-    if (shouldPromoteTtsMode) {
-      patch.ttsMode = "provider";
-
-      if (promotedTtsProvider !== settings.ttsProvider) {
-        patch.ttsProvider = promotedTtsProvider;
-      }
     }
 
     if (nextTtsProvider !== null) {

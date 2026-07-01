@@ -48,32 +48,6 @@ export function useProviderAvailabilityGuards({
   ]);
 
   useEffect(() => {
-    if (
-      !loaded ||
-      settings.sttMode !== "native" ||
-      availableSttProviders.length === 0
-    ) {
-      return;
-    }
-
-    const nextProvider =
-      settings.sttProvider && availableSttProviders.includes(settings.sttProvider)
-        ? settings.sttProvider
-        : availableSttProviders[0];
-
-    updateSettings({
-      sttMode: "provider",
-      sttProvider: nextProvider,
-    });
-  }, [
-    availableSttProviders,
-    loaded,
-    settings.sttMode,
-    settings.sttProvider,
-    updateSettings,
-  ]);
-
-  useEffect(() => {
     if (!loaded || settings.sttMode !== "provider") {
       return;
     }
@@ -92,32 +66,6 @@ export function useProviderAvailabilityGuards({
     settings.sttMode,
     settings.sttProvider,
     sttProvider,
-    updateSettings,
-  ]);
-
-  useEffect(() => {
-    if (
-      !loaded ||
-      settings.ttsMode === "provider" ||
-      availableTtsProviders.length === 0
-    ) {
-      return;
-    }
-
-    const nextProvider =
-      settings.ttsProvider && availableTtsProviders.includes(settings.ttsProvider)
-        ? settings.ttsProvider
-        : availableTtsProviders[0];
-
-    updateSettings({
-      ttsMode: "provider",
-      ttsProvider: nextProvider,
-    });
-  }, [
-    availableTtsProviders,
-    loaded,
-    settings.ttsMode,
-    settings.ttsProvider,
     updateSettings,
   ]);
 

@@ -4,7 +4,7 @@ import { useSettingsNormalization } from "../../src/components/settings/useSetti
 import { DEFAULT_SETTINGS } from "../../src/types";
 
 describe("useSettingsNormalization", () => {
-  it("promotes native STT mode to provider when a provider is available in settings", async () => {
+  it("preserves native STT mode when provider STT is also available", async () => {
     const onUpdate = jest.fn();
     const settings = {
       ...DEFAULT_SETTINGS,
@@ -25,14 +25,11 @@ describe("useSettingsNormalization", () => {
     );
 
     await waitFor(() => {
-      expect(onUpdate).toHaveBeenCalledWith({
-        sttMode: "provider",
-        sttProvider: "openai",
-      });
+      expect(onUpdate).not.toHaveBeenCalled();
     });
   });
 
-  it("promotes non-provider TTS mode to provider when a provider is available in settings", async () => {
+  it("preserves native TTS mode when provider TTS is also available", async () => {
     const onUpdate = jest.fn();
     const settings = {
       ...DEFAULT_SETTINGS,
@@ -53,10 +50,7 @@ describe("useSettingsNormalization", () => {
     );
 
     await waitFor(() => {
-      expect(onUpdate).toHaveBeenCalledWith({
-        ttsMode: "provider",
-        ttsProvider: "openai",
-      });
+      expect(onUpdate).not.toHaveBeenCalled();
     });
   });
 
@@ -64,7 +58,9 @@ describe("useSettingsNormalization", () => {
     const onUpdate = jest.fn();
     const settings = {
       ...DEFAULT_SETTINGS,
+      sttMode: "provider" as const,
       sttProvider: "anthropic",
+      ttsMode: "provider" as const,
       ttsProvider: "anthropic",
       providerSttModels: {
         ...DEFAULT_SETTINGS.providerSttModels,

@@ -4,7 +4,7 @@ import { useProviderAvailabilityGuards } from "../../src/screens/main/useProvide
 import { DEFAULT_SETTINGS } from "../../src/types";
 
 describe("useProviderAvailabilityGuards", () => {
-  it("promotes native STT mode to provider when an STT provider becomes available", async () => {
+  it("preserves native STT mode when provider STT becomes available", async () => {
     const updateSettings = jest.fn();
     const settings = {
       ...DEFAULT_SETTINGS,
@@ -29,18 +29,15 @@ describe("useProviderAvailabilityGuards", () => {
     );
 
     await waitFor(() => {
-      expect(updateSettings).toHaveBeenCalledWith({
-        sttMode: "provider",
-        sttProvider: "openai",
-      });
+      expect(updateSettings).not.toHaveBeenCalled();
     });
   });
 
-  it("promotes non-provider TTS mode to provider when a TTS provider becomes available", async () => {
+  it("preserves native TTS mode when provider TTS becomes available", async () => {
     const updateSettings = jest.fn();
     const settings = {
       ...DEFAULT_SETTINGS,
-      ttsMode: "local" as const,
+      ttsMode: "native" as const,
       ttsProvider: null,
     };
 
@@ -61,10 +58,7 @@ describe("useProviderAvailabilityGuards", () => {
     );
 
     await waitFor(() => {
-      expect(updateSettings).toHaveBeenCalledWith({
-        ttsMode: "provider",
-        ttsProvider: "openai",
-      });
+      expect(updateSettings).not.toHaveBeenCalled();
     });
   });
 
