@@ -201,7 +201,21 @@ class SchnackNativeWaveformModule(
 
   @ReactMethod
   fun analyzeAudioFile(uri: String, sampleCount: Double?, promise: Promise) {
-    promise.resolve(null)
+    try {
+      promise.resolve(
+        SchnackWaveformAudioAnalyzer.analyze(
+          reactApplicationContext,
+          uri,
+          sampleCount?.toInt(),
+        ),
+      )
+    } catch (error: Exception) {
+      promise.reject(
+        "native_waveform_analysis_error",
+        error.message ?: "The audio file could not be analyzed for waveform output.",
+        error,
+      )
+    }
   }
 
   @ReactMethod

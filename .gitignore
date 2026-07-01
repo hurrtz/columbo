@@ -83,10 +83,17 @@ yarn-error.*
 /android/app/src/main/java/com/tobiaswinkler/schnackai/*
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/MainActivity.kt
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/MainApplication.kt
+!/android/app/src/main/java/com/tobiaswinkler/schnackai/SchnackWaveformAudioAnalyzer.kt
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/SchnackNativeWaveformModule.kt
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/SchnackNativeWaveformPackage.kt
 !/android/app/src/main/res/
 !/android/app/src/main/res/**
+!/android/app/src/test/
+!/android/app/src/test/java/
+!/android/app/src/test/java/com/
+!/android/app/src/test/java/com/tobiaswinkler/
+!/android/app/src/test/java/com/tobiaswinkler/schnackai/
+!/android/app/src/test/java/com/tobiaswinkler/schnackai/SchnackWaveformAudioAnalyzerTest.kt
 
 # secrets
 src/config.ts
