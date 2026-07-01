@@ -13,8 +13,10 @@ import { Feather } from "@expo/vector-icons";
 
 import {
   getAppProviderForCatalogProviderId,
-  getCatalogProviderEntry,
   getCatalogProviderIdForAppProvider,
+} from "../../catalog/appProviders";
+import {
+  getCatalogProviderEntry,
   type CatalogProviderId,
 } from "../../catalog";
 import { getTtsListenLanguageLabel } from "../../constants/localTts";

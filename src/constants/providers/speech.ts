@@ -1,4 +1,4 @@
-import { getCatalogModelForAppProvider } from "../../catalog";
+import { getCatalogModelForAppProvider } from "../../catalog/appProviders";
 import type { AppLanguage, Provider } from "../../types";
 import {
   RUNTIME_PROVIDER_MANIFEST,

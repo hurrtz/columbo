@@ -8,6 +8,8 @@ import {
   getCatalogRealtimeModelsForAppProvider,
   getCatalogVerifiedServiceStateForAppProvider,
   isCatalogServiceSupportedForAppProvider,
+} from "../../src/catalog/appProviders";
+import {
   isCatalogProviderId,
   listCatalogProviderIds,
 } from "../../src/catalog";

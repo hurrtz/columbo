@@ -2,6 +2,8 @@ import type { AppLanguage, Provider } from "../../types";
 import {
   getCatalogConstraintsForAppProvider,
   getCatalogModelForAppProvider,
+} from "../../catalog/appProviders";
+import {
   getStrictestCatalogMaxConstraint,
 } from "../../catalog";
 import {

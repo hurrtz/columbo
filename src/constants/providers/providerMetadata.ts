@@ -3,7 +3,7 @@ import {
   getCatalogModelForAppProvider,
   getCatalogProviderForAppProvider,
   getCatalogVerifiedServiceStateForAppProvider,
-} from "../../catalog";
+} from "../../catalog/appProviders";
 import type { Provider } from "../../types";
 import type { ModelInfo } from "./types";
 import { PROVIDER_CONFIGS, PROVIDER_ORDER } from "./catalogData";

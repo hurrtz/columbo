@@ -16,7 +16,6 @@ import type {
 } from "./types";
 
 export * from "./types";
-export * from "./appProviders";
 
 const providersById = new Map<CatalogProviderId, CatalogProvider>();
 const providerDocumentsById = new Map<CatalogProviderId, CatalogProviderDocument>();

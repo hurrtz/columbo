@@ -1,6 +1,6 @@
 import * as FileSystem from "expo-file-system/legacy";
+import { getCatalogConstraintsForAppProvider } from "../catalog/appProviders";
 import {
-  getCatalogConstraintsForAppProvider,
   getStrictestCatalogMaxConstraint,
 } from "../catalog";
 import { PROVIDER_LABELS, getSttModelLabel } from "../constants/models";
