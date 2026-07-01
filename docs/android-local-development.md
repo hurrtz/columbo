@@ -2,7 +2,7 @@
 
 SchnackAI contains a native Android project under `android/`. Use this path for local device development; do not regenerate the native project unless an Expo upgrade requires it.
 
-The repo tracks the Android build entrypoints (`build.gradle`, `settings.gradle`, `gradle.properties`, the Gradle wrapper, `android/app/build.gradle`) and the custom native Kotlin sources. Generated Android resources and build output stay ignored.
+The repo tracks the Android build entrypoints (`build.gradle`, `settings.gradle`, `gradle.properties`, the Gradle wrapper, `android/app/build.gradle`), app manifests, required launcher/splash resources, and custom native Kotlin sources. Build output stays ignored.
 
 ## Prerequisites
 
@@ -26,6 +26,17 @@ If Metro is already running, keep it open and run:
 ```bash
 npx expo run:android
 ```
+
+For emulator sessions where you install with Gradle directly, start Metro in development-build mode on a host the emulator can reach:
+
+```bash
+npx expo start --dev-client --host lan
+adb reverse tcp:8081 tcp:8081
+cd android && ./gradlew installDebug
+adb shell am start -n com.tobiaswinkler.schnackai/.MainActivity
+```
+
+Avoid `npx expo start --localhost` for this path: on macOS it can bind Metro only to loopback, while Android probes the host at `10.0.2.2:8081`.
 
 ## Build Without Installing
 
