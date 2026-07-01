@@ -57,6 +57,25 @@ npx tsc --noEmit
 cd android && ./gradlew assembleDebug
 ```
 
+## Android Native Audio And Waveform Parity
+
+The Android native project now registers the same app-facing native audio and waveform surfaces used by the iOS implementation:
+
+- `SchnackNativeWaveform` records local audio, emits input waveform levels, analyzes local audio files, and tracks output waveform playback state.
+- `SchnackNativeAudioQueue` provides Android native audio queue methods and queue events for playback.
+- `SchnackNativeWaveformView` renders the native waveform view on Android as well as iOS.
+
+Focused verification:
+
+```bash
+npm test -- --runInBand --watchman=false __tests__/components/NativeWaveformView.test.tsx __tests__/services/nativeWaveform.test.ts __tests__/services/nativeAudioQueue.test.ts __tests__/hooks/useAudioPlayer.test.ts
+npx tsc --noEmit
+cd android && ./gradlew :app:testDebugUnitTest --tests '*SchnackWaveformAudioAnalyzerTest' --tests '*SchnackWaveformStateCoordinatorTest'
+cd android && ./gradlew assembleDebug
+```
+
+Runtime smoke on the `Pixel_7` emulator verified that the app installs, Metro loads, Android reports `usingNativeAudioQueue: true` and `supportsNativeOutputWaveform: true`, the native waveform UI renders, microphone permission is requested normally, recording reaches the native waveform file path, and Android speech recognition receives a local `native-waveform-*.m4a` file. A silent/headless emulator returns Android `NO_SPEECH_DETECTED`, so full spoken transcription, native queue `started/finished/drained` playback, and output waveform playback still need a device or emulator session with reliable audio input/output.
+
 ## Android Notes
 
 - The project wrapper is pinned to Gradle 8.14.3. Gradle 9.0.0 currently trips React Native's included Foojay toolchain resolver before app compilation.
