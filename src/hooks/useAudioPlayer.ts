@@ -31,8 +31,7 @@ import {
 } from "./audioPlayer/types";
 
 export function useAudioPlayer() {
-  const usingNativeAudioQueue =
-    Platform.OS === "ios" && isNativeAudioQueueAvailable();
+  const usingNativeAudioQueue = isNativeAudioQueueAvailable();
   const supportsNativeOutputWaveform =
     supportsNativeOutputWaveformPlayback();
   const player = useExpoAudioPlayer(null, {

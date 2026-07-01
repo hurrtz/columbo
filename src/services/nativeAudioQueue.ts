@@ -1,4 +1,4 @@
-import { NativeEventEmitter, NativeModules, Platform } from "react-native";
+import { NativeEventEmitter, NativeModules } from "react-native";
 
 type NativeAudioQueueEvent = {
   type: "started" | "finished" | "failed" | "stopped" | "drained";
@@ -27,13 +27,12 @@ const nativeModule = NativeModules.SchnackNativeAudioQueue as
   | NativeAudioQueueModule
   | undefined;
 
-const nativeEmitter =
-  Platform.OS === "ios" && nativeModule
-    ? new NativeEventEmitter(nativeModule as any)
-    : null;
+const nativeEmitter = nativeModule
+  ? new NativeEventEmitter(nativeModule as any)
+  : null;
 
 export function isNativeAudioQueueAvailable() {
-  return Platform.OS === "ios" && !!nativeModule;
+  return !!nativeModule;
 }
 
 export function subscribeToNativeAudioQueue(
