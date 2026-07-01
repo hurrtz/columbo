@@ -53,7 +53,6 @@ const nativeEmitter = nativeModule
 
 export function supportsNativeOutputWaveformPlayback() {
   return (
-    Platform.OS === "ios" &&
     !!nativeModule &&
     typeof (nativeModule as any).startOutputPlayback === "function" &&
     typeof (nativeModule as any).stopOutputPlayback === "function"

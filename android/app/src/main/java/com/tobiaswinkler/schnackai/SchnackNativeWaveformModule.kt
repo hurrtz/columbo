@@ -225,18 +225,38 @@ class SchnackNativeWaveformModule(
     durationMs: Double,
     promise: Promise,
   ) {
-    promise.resolve(false)
+    if (itemId.isBlank()) {
+      promise.reject(
+        "native_waveform_output_error",
+        "itemId is required.",
+      )
+      return
+    }
+
+    SchnackWaveformStateCoordinator.startPlayback(
+      channel = "output",
+      itemId = itemId,
+      samples = samples.toDoubleList(),
+      durationMs = durationMs,
+    )
+    promise.resolve(true)
   }
 
   @ReactMethod
   fun stopOutputPlayback(itemId: String?, promise: Promise) {
-    promise.resolve(false)
+    SchnackWaveformStateCoordinator.stopPlayback(
+      channel = "output",
+      itemId = itemId,
+    )
+    promise.resolve(true)
   }
 
   override fun invalidate() {
     synchronized(lock) {
       cleanupRecorderLocked(deleteOutput = true)
     }
+    SchnackWaveformStateCoordinator.clear("input")
+    SchnackWaveformStateCoordinator.clear("output")
     super.invalidate()
   }
 
@@ -298,6 +318,10 @@ class SchnackNativeWaveformModule(
         levelHistory.removeFirst()
       }
       levelHistory.addLast(normalized)
+      SchnackWaveformStateCoordinator.setSamples(
+        channel = "input",
+        samples = levelHistory.toList(),
+      )
     }
 
     val payload = Arguments.createMap().apply {
@@ -415,4 +439,9 @@ class SchnackNativeWaveformModule(
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
       .emit(EVENT_NAME, payload)
   }
+
+  private fun ReadableArray.toDoubleList(): List<Double> =
+    (0 until size()).map { index ->
+      getDouble(index)
+    }
 }
