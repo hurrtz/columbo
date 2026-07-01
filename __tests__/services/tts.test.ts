@@ -32,6 +32,8 @@ jest.mock("expo-file-system/legacy", () => ({
   writeAsStringAsync: jest.fn(() => Promise.resolve()),
 }));
 
+import * as FileSystem from "expo-file-system/legacy";
+
 class MockFileReader {
   public result: string | ArrayBuffer | null = null;
   public onloadend: (() => void) | null = null;
@@ -139,6 +141,24 @@ describe("splitTextForTts", () => {
 describe("synthesizeSpeech", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it("generates a local Android dev WAV for the exact fake provider key", async () => {
+    const result = await synthesizeSpeech({
+      text: "Hello local audio",
+      voice: "alloy",
+      mode: "provider",
+      provider: "openai",
+      apiKey: "sk-test-android-local-dev",
+      language: "en",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.wav$/);
+    expect(fetch).not.toHaveBeenCalled();
+    expect(FileSystem.writeAsStringAsync).toHaveBeenCalledTimes(1);
+    expect((FileSystem.writeAsStringAsync as jest.Mock).mock.calls[0][1]).toMatch(
+      /^UklGR/,
+    );
   });
 
   it("calls the configured provider TTS API and returns a cached file path", async () => {
