@@ -66,8 +66,13 @@ yarn-error.*
 !/android/app/build.gradle
 !/android/app/src/
 /android/app/src/*
+!/android/app/src/debug/
+!/android/app/src/debug/AndroidManifest.xml
+!/android/app/src/debugOptimized/
+!/android/app/src/debugOptimized/AndroidManifest.xml
 !/android/app/src/main/
 /android/app/src/main/*
+!/android/app/src/main/AndroidManifest.xml
 !/android/app/src/main/java/
 /android/app/src/main/java/*
 !/android/app/src/main/java/com/
@@ -76,9 +81,12 @@ yarn-error.*
 /android/app/src/main/java/com/tobiaswinkler/*
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/
 /android/app/src/main/java/com/tobiaswinkler/schnackai/*
+!/android/app/src/main/java/com/tobiaswinkler/schnackai/MainActivity.kt
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/MainApplication.kt
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/SchnackNativeWaveformModule.kt
 !/android/app/src/main/java/com/tobiaswinkler/schnackai/SchnackNativeWaveformPackage.kt
+!/android/app/src/main/res/
+!/android/app/src/main/res/**
 
 # secrets
 src/config.ts
