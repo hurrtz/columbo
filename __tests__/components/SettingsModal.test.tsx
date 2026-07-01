@@ -102,21 +102,21 @@ describe("SettingsModal", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Settings")).toBeTruthy();
-      expect(screen.getAllByText("API Keys").length).toBeGreaterThan(0);
-      expect(screen.getAllByText("AI & Models").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("Credentials").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("Behavior & Routes").length).toBeGreaterThan(0);
       expect(screen.getAllByText("Voice").length).toBeGreaterThan(0);
       expect(screen.getAllByText("App").length).toBeGreaterThan(0);
-      expect(screen.getByPlaceholderText("Search providers")).toBeTruthy();
+      expect(screen.getByPlaceholderText("Search services")).toBeTruthy();
       expect(screen.queryByText("System Prompt")).toBeNull();
       expect(screen.queryByText("Voice Input")).toBeNull();
       expect(screen.queryByText("Theme")).toBeNull();
     });
 
-    fireEvent.press(screen.getAllByText("AI & Models")[0]);
+    fireEvent.press(screen.getAllByText("Behavior & Routes")[0]);
 
     await waitFor(() => {
       expect(screen.getByText("System Prompt")).toBeTruthy();
-      expect(screen.queryByPlaceholderText("Search providers")).toBeNull();
+      expect(screen.queryByPlaceholderText("Search services")).toBeNull();
       expect(screen.queryByText("Voice Input")).toBeNull();
       expect(screen.queryByText("Theme")).toBeNull();
     });
@@ -156,7 +156,7 @@ describe("SettingsModal", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByPlaceholderText("Search providers")).toBeTruthy();
+      expect(screen.getByPlaceholderText("Search services")).toBeTruthy();
       expect(screen.queryByText("System Prompt")).toBeNull();
     });
   });

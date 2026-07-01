@@ -115,14 +115,14 @@ describe("ProviderSelectionGrid", () => {
           <ProviderSelectionGrid
             settings={DEFAULT_SETTINGS}
             selectedCatalogProviderId="openai"
-            visibleProviders={["openai", "anthropic", "gemini", "groq", "mistral"]}
+            visibleProviders={["openai", "anthropic", "gemini", "xai", "mistral"]}
             includeCatalogOnly={false}
             getProviderHealthState={(provider) =>
               ({
                 openai: "healthy",
                 anthropic: "configured",
                 gemini: "validating",
-                groq: "failing",
+                xai: "failing",
                 mistral: "unconfigured",
               })[provider] as
                 | "healthy"
@@ -146,12 +146,12 @@ describe("ProviderSelectionGrid", () => {
 });
 
 describe("ProviderApiKeyCard", () => {
-  it("shows grouped catalog model details for a catalog-only provider", () => {
+  it("shows grouped catalog model details when a catalog provider is read-only", () => {
     const screen = render(
       <ThemeProvider mode="light">
         <LocalizationProvider language="en">
           <ProviderApiKeyCard
-            catalogProviderId="z-ai-zhipu-ai"
+            catalogProviderId="openai"
             runtimeProvider={null}
             apiKey=""
             apiKeyVisible={false}
@@ -168,20 +168,19 @@ describe("ProviderApiKeyCard", () => {
       </ThemeProvider>,
     );
 
-    expect(screen.getByText("Z.ai / Zhipu AI")).toBeTruthy();
+    expect(screen.getByText("OpenAI")).toBeTruthy();
     expect(
       screen.getByText(
         "This provider is present in the central catalog for inspection, but it is not wired into the app runtime yet.",
       ),
     ).toBeTruthy();
-    expect(screen.getByText("GLM-4.5")).toBeTruthy();
-    expect(screen.getByText("glm-4.5")).toBeTruthy();
-    expect(screen.getByText("GLM-ASR-2512")).toBeTruthy();
-    expect(screen.getByText("glm-asr-2512")).toBeTruthy();
-    expect(screen.getByText(/Pricing:/)).toBeTruthy();
     expect(screen.getByText(/Limits:/)).toBeTruthy();
-    expect(screen.getByText("GLM-TTS")).toBeTruthy();
-    expect(screen.getByText("glm-tts")).toBeTruthy();
+    expect(screen.getByText("GPT-5.5")).toBeTruthy();
+    expect(screen.getByText("gpt-5.5")).toBeTruthy();
+    expect(screen.getByText("GPT-4o mini Transcribe")).toBeTruthy();
+    expect(screen.getByText("gpt-4o-mini-transcribe")).toBeTruthy();
+    expect(screen.getByText("GPT-4o mini TTS")).toBeTruthy();
+    expect(screen.getByText("gpt-4o-mini-tts")).toBeTruthy();
   });
 
   it("shows the catalog reference block for a wired provider as well", () => {
@@ -207,10 +206,10 @@ describe("ProviderApiKeyCard", () => {
     );
 
     expect(screen.getByText("OpenAI")).toBeTruthy();
-    expect(screen.getByText("Create API key")).toBeTruthy();
+    expect(screen.getByText("Credentials")).toBeTruthy();
     expect(screen.getByText("Catalog reference for this provider:")).toBeTruthy();
-    expect(screen.getByText(/Pricing:/)).toBeTruthy();
-    expect(screen.getByText("GPT-5.4")).toBeTruthy();
-    expect(screen.getByText("gpt-5.4")).toBeTruthy();
+    expect(screen.getByText(/Limits:/)).toBeTruthy();
+    expect(screen.getByText("GPT-5.5")).toBeTruthy();
+    expect(screen.getByText("gpt-5.5")).toBeTruthy();
   });
 });
