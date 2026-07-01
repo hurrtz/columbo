@@ -193,7 +193,15 @@ jest.mock("../../src/screens/main/MainScreenVoiceStage", () => ({
 }));
 
 jest.mock("../../src/screens/main/TranscriptPreviewCard", () => ({
-  TranscriptPreviewCard: () => null,
+  TranscriptPreviewCard: ({ showWhenEmpty }: { showWhenEmpty?: boolean }) => {
+    const React = require("react");
+    const { Text } = require("react-native");
+    return React.createElement(
+      Text,
+      null,
+      showWhenEmpty ? "transcript-preview:empty-visible" : "transcript-preview",
+    );
+  },
 }));
 
 jest.mock("../../src/screens/main/StatusDetailsModal", () => ({
@@ -325,6 +333,7 @@ describe("MainScreen", () => {
 
     expect(screen.getByText("route-card")).toBeTruthy();
     expect(screen.getByText("voice-stage:disabled")).toBeTruthy();
+    expect(screen.getByText("transcript-preview:empty-visible")).toBeTruthy();
     expect(screen.getByText("settings:closed")).toBeTruthy();
     expect(screen.getByText("drawer:closed")).toBeTruthy();
   });

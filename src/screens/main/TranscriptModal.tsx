@@ -1,8 +1,11 @@
 import React from "react";
 import {
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
   useWindowDimensions,
@@ -49,6 +52,7 @@ interface TranscriptModalProps {
   onRepeatMessage: (message: Message) => void;
   onShareMessage: (message: Message) => void;
   onShareThread: () => void;
+  onSubmitTextMessage: (text: string) => void;
   replayPhase: ReplayPhase;
   settingsShowUsageStats: boolean;
   t: TranslateFn;
@@ -93,6 +97,7 @@ export function TranscriptModal({
   onRepeatMessage,
   onShareMessage,
   onShareThread,
+  onSubmitTextMessage,
   replayPhase,
   settingsShowUsageStats,
   t,
@@ -102,6 +107,7 @@ export function TranscriptModal({
   visible,
   waveformInputMode,
 }: TranscriptModalProps) {
+  const [textMessage, setTextMessage] = React.useState("");
   const { height, width } = useWindowDimensions();
   const isLandscape = width > height;
   const landscapeSidebarWidth = Math.max(272, Math.min(340, width * 0.31));
@@ -201,6 +207,17 @@ export function TranscriptModal({
       ) : null}
     </View>
   ) : null;
+  const trimmedTextMessage = textMessage.trim();
+  const textMessageSubmitDisabled = !trimmedTextMessage || isActive;
+
+  const handleSubmitTextMessage = React.useCallback(() => {
+    if (textMessageSubmitDisabled) {
+      return;
+    }
+
+    onSubmitTextMessage(trimmedTextMessage);
+    setTextMessage("");
+  }, [onSubmitTextMessage, textMessageSubmitDisabled, trimmedTextMessage]);
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
@@ -221,7 +238,8 @@ export function TranscriptModal({
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFill}
         />
-        <View
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={[
             styles.expandedLayout,
             { paddingTop: Math.max(insets.top, 16) },
@@ -351,9 +369,60 @@ export function TranscriptModal({
                 onRepeatMessage={onRepeatMessage}
                 messageSelectionEnabled
               />
+
+              <View
+                style={[
+                  styles.textMessageComposer,
+                  {
+                    backgroundColor: colors.surfaceElevated,
+                    borderColor: colors.border,
+                  },
+                ]}
+              >
+                <TextInput
+                  value={textMessage}
+                  onChangeText={setTextMessage}
+                  placeholder={t("textMessagePlaceholder")}
+                  placeholderTextColor={colors.textMuted}
+                  multiline
+                  editable={!isActive}
+                  returnKeyType="send"
+                  submitBehavior="submit"
+                  onSubmitEditing={handleSubmitTextMessage}
+                  style={[
+                    styles.textMessageInput,
+                    { color: colors.text },
+                  ]}
+                />
+                <TouchableOpacity
+                  accessibilityLabel={t("sendTextMessage")}
+                  activeOpacity={0.85}
+                  disabled={textMessageSubmitDisabled}
+                  onPress={handleSubmitTextMessage}
+                  style={[
+                    styles.textMessageSendButton,
+                    {
+                      backgroundColor: textMessageSubmitDisabled
+                        ? colors.surface
+                        : colors.accent,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                >
+                  <Feather
+                    name="send"
+                    size={18}
+                    color={
+                      textMessageSubmitDisabled
+                        ? colors.textMuted
+                        : colors.background
+                    }
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </Modal>
   );

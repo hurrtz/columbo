@@ -309,6 +309,26 @@ export function MainScreen() {
     [activeReplayMessageId, handleRepeatLastReply, stopReplay],
   );
 
+  const handleSubmitTextMessage = useCallback(
+    (text: string) => {
+      const trimmed = text.trim();
+
+      if (!trimmed || isBusy) {
+        return;
+      }
+
+      recordDebugLogEvent({
+        event: "text-message-submit-requested",
+        payload: {
+          textLength: trimmed.length,
+        },
+      });
+
+      void handleVoiceCaptureDone({ transcriptionOverride: trimmed });
+    },
+    [handleVoiceCaptureDone, isBusy],
+  );
+
   const handlePausePlayback = useCallback(async () => {
     const paused = await player.pausePlayback();
 
@@ -1201,6 +1221,7 @@ export function MainScreen() {
                   void handleCopyMessage(message.content);
                 }}
                 onOpenTranscript={openTranscript}
+                showWhenEmpty
                 showUsageStats={settings.showUsageStats}
                 t={t}
               />
@@ -1267,6 +1288,7 @@ export function MainScreen() {
           closeConversationMenu();
           void handleShareThread();
         }}
+        onSubmitTextMessage={handleSubmitTextMessage}
         replayPhase={replayPhase}
         settingsShowUsageStats={settings.showUsageStats}
         t={t}

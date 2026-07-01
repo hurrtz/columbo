@@ -397,9 +397,11 @@ export const de: TranslationDictionary = {
       "Starte oben mit der Sprachsteuerung. Deine Nachrichten und die Modellantwort erscheinen hier sofort.",
     noConversationYet: "Noch kein Schnack",
     expandedTranscriptEmptyDescription:
-      "Sprich über die Steuerung oben. Schließe diesen Bildschirm, wenn du zur Hauptansicht zurückkehren willst.",
+      "Sprich über die Steuerung oben oder schreibe unten. Schließe diesen Bildschirm, wenn du zur Hauptansicht zurückkehren willst.",
     transcriptSelectionHint:
       "Du kannst Text direkt markieren oder einzelne Nachrichten unten teilen und kopieren.",
+    textMessagePlaceholder: "Nachricht schreiben",
+    sendTextMessage: "Nachricht senden",
     usageStatsHiddenDescription:
       "Blende Token-Schätzungen im Transkript aus.",
     usageStatsVisibleDescription:

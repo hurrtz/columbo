@@ -391,9 +391,11 @@ export const en: TranslationDictionary = {
       "Start with the voice stage above. Your messages and the model reply will land here instantly.",
     noConversationYet: "No conversation yet",
     expandedTranscriptEmptyDescription:
-      "Speak with the control above. Close this screen when you want to return to the main stage.",
+      "Speak with the control above, or type below. Close this screen when you want to return to the main stage.",
     transcriptSelectionHint:
       "Select any message text directly, or share and copy individual messages below.",
+    textMessagePlaceholder: "Type a message",
+    sendTextMessage: "Send message",
     usageStatsHiddenDescription:
       "Keep token estimates out of the transcript UI.",
     usageStatsVisibleDescription:

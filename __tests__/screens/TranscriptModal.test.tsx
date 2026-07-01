@@ -1,4 +1,5 @@
 import React from "react";
+import { fireEvent } from "@testing-library/react-native";
 import * as ReactNative from "react-native";
 
 import { TranscriptModal } from "../../src/screens/main/TranscriptModal";
@@ -79,6 +80,7 @@ const baseProps = {
   onRepeatMessage: jest.fn(),
   onShareMessage: jest.fn(),
   onShareThread: jest.fn(),
+  onSubmitTextMessage: jest.fn(),
   replayPhase: "idle" as const,
   settingsShowUsageStats: true,
   t: (key: string) => key,
@@ -138,5 +140,42 @@ describe("TranscriptModal", () => {
     expect(screen.getByText("wave:tapToSpeak")).toBeTruthy();
     expect(screen.getByText("estimatedUsageTitle")).toBeTruthy();
     expect(screen.getByText("Anthropic · Claude")).toBeTruthy();
+  });
+
+  it("submits trimmed text messages from the composer", () => {
+    const onSubmitTextMessage = jest.fn();
+    const screen = renderWithProviders(
+      <TranscriptModal
+        {...baseProps}
+        onSubmitTextMessage={onSubmitTextMessage}
+      />,
+    );
+
+    fireEvent.changeText(
+      screen.getByPlaceholderText("textMessagePlaceholder"),
+      "  Hello from Android  ",
+    );
+    fireEvent.press(screen.getByLabelText("sendTextMessage"));
+
+    expect(onSubmitTextMessage).toHaveBeenCalledWith("Hello from Android");
+    expect(screen.getByPlaceholderText("textMessagePlaceholder").props.value).toBe(
+      "",
+    );
+  });
+
+  it("submits text messages from the keyboard send action", () => {
+    const onSubmitTextMessage = jest.fn();
+    const screen = renderWithProviders(
+      <TranscriptModal
+        {...baseProps}
+        onSubmitTextMessage={onSubmitTextMessage}
+      />,
+    );
+    const input = screen.getByPlaceholderText("textMessagePlaceholder");
+
+    fireEvent.changeText(input, "  Keyboard send  ");
+    fireEvent(input, "submitEditing");
+
+    expect(onSubmitTextMessage).toHaveBeenCalledWith("Keyboard send");
   });
 });
