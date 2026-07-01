@@ -10,7 +10,6 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import java.io.File
-import java.util.ArrayDeque
 
 class SchnackNativeAudioQueueModule(
   reactContext: ReactApplicationContext,
@@ -20,11 +19,16 @@ class SchnackNativeAudioQueueModule(
     private const val EVENT_NAME = "SchnackNativeAudioQueueEvent"
   }
 
-  private val lock = Any()
-  private val queue = ArrayDeque<AudioQueueItem>()
-  private var player: MediaPlayer? = null
-  private var currentItem: AudioQueueItem? = null
-  private var currentStarted = false
+  private val coordinator = SchnackAudioQueueCoordinator(
+    playerFactory = { item, callbacks ->
+      AndroidAudioQueuePlayer(
+        reactContext = reactApplicationContext,
+        item = item,
+        callbacks = callbacks,
+      )
+    },
+    eventSink = ::emitQueueEvent,
+  )
 
   override fun getName(): String = NAME
 
@@ -55,26 +59,21 @@ class SchnackNativeAudioQueueModule(
       return
     }
 
-    synchronized(lock) {
-      queue.addLast(
-        AudioQueueItem(
-          uri = uri,
-          itemId = itemId,
-          requestId = requestId,
-          source = source,
-        ),
-      )
-    }
+    coordinator.enqueue(
+      SchnackAudioQueueItem(
+        uri = uri,
+        itemId = itemId,
+        requestId = requestId,
+        source = source,
+      ),
+    )
     promise.resolve(true)
   }
 
   @ReactMethod
   fun start(promise: Promise) {
     try {
-      val started =
-        synchronized(lock) {
-          startLocked()
-        }
+      val started = coordinator.start()
       promise.resolve(started)
     } catch (error: Exception) {
       promise.reject(
@@ -88,9 +87,7 @@ class SchnackNativeAudioQueueModule(
   @ReactMethod
   fun pause(promise: Promise) {
     try {
-      synchronized(lock) {
-        player?.pause()
-      }
+      coordinator.pause()
       promise.resolve(true)
     } catch (error: Exception) {
       promise.reject(
@@ -104,10 +101,7 @@ class SchnackNativeAudioQueueModule(
   @ReactMethod
   fun resume(promise: Promise) {
     try {
-      val resumed =
-        synchronized(lock) {
-          startLocked()
-        }
+      val resumed = coordinator.resume()
       promise.resolve(resumed)
     } catch (error: Exception) {
       promise.reject(
@@ -121,9 +115,7 @@ class SchnackNativeAudioQueueModule(
   @ReactMethod
   fun stop(promise: Promise) {
     try {
-      synchronized(lock) {
-        stopLocked(emitStopped = true)
-      }
+      coordinator.stop(emitStopped = true)
       promise.resolve(true)
     } catch (error: Exception) {
       promise.reject(
@@ -135,128 +127,30 @@ class SchnackNativeAudioQueueModule(
   }
 
   override fun invalidate() {
-    synchronized(lock) {
-      stopLocked(emitStopped = false)
-    }
+    coordinator.stop(emitStopped = false)
     super.invalidate()
   }
 
-  private fun startLocked(): Boolean {
-    val activePlayer = player
-    if (activePlayer != null) {
-      activePlayer.start()
-      emitStartedForCurrentItemLocked()
-      return true
-    }
-
-    val nextItem = queue.pollFirst() ?: return false
-    val nextPlayer = MediaPlayer()
-    currentItem = nextItem
-    currentStarted = false
-    player = nextPlayer
-
-    nextPlayer.setOnCompletionListener {
-      synchronized(lock) {
-        val finishedItem = currentItem
-        if (finishedItem != null) {
-          emitItemEvent("finished", finishedItem)
-        }
-        cleanupCurrentPlayerLocked()
-        if (!startLocked()) {
-          emitDrainedLocked()
-        }
-      }
-    }
-    nextPlayer.setOnErrorListener { _, _, _ ->
-      synchronized(lock) {
-        val failedItem = currentItem
-        if (failedItem != null) {
-          emitItemEvent("failed", failedItem, "Audio playback failed.")
-        }
-        cleanupCurrentPlayerLocked()
-        if (!startLocked()) {
-          emitDrainedLocked()
-        }
-      }
-      true
-    }
-
-    val resolvedUri = resolveUri(nextItem.uri)
-    nextPlayer.setDataSource(reactApplicationContext, resolvedUri)
-    nextPlayer.prepare()
-    nextPlayer.start()
-    emitStartedForCurrentItemLocked()
-    return true
-  }
-
-  private fun stopLocked(emitStopped: Boolean) {
-    val stoppedItems = mutableListOf<AudioQueueItem>()
-    currentItem?.let(stoppedItems::add)
-    while (queue.isNotEmpty()) {
-      queue.pollFirst()?.let(stoppedItems::add)
-    }
-
-    cleanupCurrentPlayerLocked()
-
-    if (emitStopped) {
-      stoppedItems.forEach { emitItemEvent("stopped", it) }
-      emitDrainedLocked()
-    }
-  }
-
-  private fun cleanupCurrentPlayerLocked() {
-    val activePlayer = player
-    player = null
-    currentItem = null
-    currentStarted = false
-
-    if (activePlayer != null) {
-      try {
-        activePlayer.setOnCompletionListener(null)
-        activePlayer.setOnErrorListener(null)
-        activePlayer.stop()
-      } catch (_: IllegalStateException) {
-      } finally {
-        activePlayer.reset()
-        activePlayer.release()
-      }
-    }
-  }
-
-  private fun emitStartedForCurrentItemLocked() {
-    val item = currentItem ?: return
-    if (currentStarted) {
-      return
-    }
-
-    currentStarted = true
-    emitItemEvent("started", item)
-  }
-
-  private fun emitItemEvent(
-    type: String,
-    item: AudioQueueItem,
-    message: String? = null,
-  ) {
+  private fun emitQueueEvent(event: SchnackAudioQueueEvent) {
     val payload = Arguments.createMap().apply {
-      putString("type", type)
-      putString("itemId", item.itemId)
-      putString("uri", item.uri)
-      putNullableString("requestId", item.requestId)
-      putNullableString("source", item.source)
-      if (message != null) {
-        putString("message", message)
+      putString("type", event.type)
+      if (event.itemId != null) {
+        putString("itemId", event.itemId)
+      }
+      if (event.uri != null) {
+        putString("uri", event.uri)
+      }
+      if (event.requestId != null || event.itemId != null) {
+        putNullableString("requestId", event.requestId)
+      }
+      if (event.source != null || event.itemId != null) {
+        putNullableString("source", event.source)
+      }
+      if (event.message != null) {
+        putString("message", event.message)
       }
     }
     emitEvent(payload)
-  }
-
-  private fun emitDrainedLocked() {
-    emitEvent(
-      Arguments.createMap().apply {
-        putString("type", "drained")
-      },
-    )
   }
 
   private fun emitEvent(payload: WritableMap) {
@@ -264,15 +158,6 @@ class SchnackNativeAudioQueueModule(
     reactContext
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
       .emit(EVENT_NAME, payload)
-  }
-
-  private fun resolveUri(uri: String): Uri {
-    val parsed = Uri.parse(uri)
-    if (!parsed.scheme.isNullOrBlank()) {
-      return parsed
-    }
-
-    return Uri.fromFile(File(uri))
   }
 
   private fun WritableMap.putNullableString(key: String, value: String?) {
@@ -283,10 +168,54 @@ class SchnackNativeAudioQueueModule(
     }
   }
 
-  private data class AudioQueueItem(
-    val uri: String,
-    val itemId: String,
-    val requestId: String?,
-    val source: String?,
-  )
+  private class AndroidAudioQueuePlayer(
+    reactContext: ReactApplicationContext,
+    item: SchnackAudioQueueItem,
+    callbacks: SchnackAudioQueuePlayerCallbacks,
+  ) : SchnackAudioQueuePlayer {
+    private val mediaPlayer = MediaPlayer()
+
+    init {
+      mediaPlayer.setOnCompletionListener {
+        callbacks.onCompletion()
+      }
+      mediaPlayer.setOnErrorListener { _, _, _ ->
+        callbacks.onError("Audio playback failed.")
+        true
+      }
+      mediaPlayer.setDataSource(reactContext, resolveUri(item.uri))
+      mediaPlayer.prepare()
+    }
+
+    override fun start() {
+      mediaPlayer.start()
+    }
+
+    override fun pause() {
+      mediaPlayer.pause()
+    }
+
+    override fun stop() {
+      try {
+        mediaPlayer.stop()
+      } catch (_: IllegalStateException) {
+      }
+    }
+
+    override fun release() {
+      mediaPlayer.setOnCompletionListener(null)
+      mediaPlayer.setOnErrorListener(null)
+      mediaPlayer.reset()
+      mediaPlayer.release()
+    }
+
+    private fun resolveUri(uri: String): Uri {
+      val parsed = Uri.parse(uri)
+      if (!parsed.scheme.isNullOrBlank()) {
+        return parsed
+      }
+
+      return Uri.fromFile(File(uri))
+    }
+  }
 }
