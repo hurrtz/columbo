@@ -31,7 +31,7 @@ const GERMAN_PROVIDER_API_KEY_PLACEHOLDER_OVERRIDES: Partial<
 > = {
   openai: "sk-...",
   anthropic: "sk-ant-...",
-  gemini: "AIza...|project-id|access-token|us",
+  gemini: "Gemini API key|project-id|access-token|us",
   xai: "xai-...",
   deepseek: "sk-...",
   mistral: "API-Schluessel eingeben",

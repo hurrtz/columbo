@@ -600,7 +600,7 @@ export const de: TranslationDictionary = {
     azureSpeechApiKeyFormat:
       "Microsoft Azure TTS benötigt Azure-Speech-Zugangsdaten im Format <Schlüssel>|<Region>, zum Beispiel abc123|westeurope, oder das kombinierte Azure-Format <Endpunkt>|<API-Schlüssel>|<Schlüssel>|<Region>.",
     googleCloudSpeechCredentialFormat: ({ provider }) =>
-      `${provider} STT benötigt Google-Cloud-Speech-Zugangsdaten im Format <Projekt-ID>|<Access-Token>|<Location>, oder das kombinierte Gemini-Format AIza...|<Projekt-ID>|<Access-Token>|<Location>.`,
+      `${provider} STT benötigt Google-Cloud-Speech-Zugangsdaten im Format <Projekt-ID>|<Access-Token>|<Location>, oder das kombinierte Gemini-Format <Gemini-API-Schluessel>|<Projekt-ID>|<Access-Token>|<Location>.`,
     bytedanceSpeechCredentialFormat: ({ provider }) =>
       `${provider} STT benötigt Doubao-Speech-Zugangsdaten im Format <App-Key>|<Access-Key>, optional <App-Key>|<Access-Key>|<Resource-Id>, oder im kombinierten Format <Ark-API-Key>|<App-Key>|<Access-Key>|<Resource-Id>.`,
     nativeTtsDoesNotSynthesizeAudioFiles:

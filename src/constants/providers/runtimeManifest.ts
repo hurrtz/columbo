@@ -504,9 +504,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     catalogProviderId: "google-vertex-ai-studio",
     label: "Google",
     shortLabel: "GOOGLE",
-    apiKeyPlaceholder: "AIza...|project-id|access-token|us",
+    apiKeyPlaceholder: "Gemini API key|project-id|access-token|us",
     apiKeyHint:
-      "Use AI Studio as AIza... for Gemini chat and TTS, Google Cloud Speech STT as <project-id>|<access-token>|<location>, or combine both as AIza...|<project-id>|<access-token>|<location>.",
+      "Use an AI Studio Gemini API key for chat and TTS, Google Cloud Speech STT as <project-id>|<access-token>|<location>, or combine both as <Gemini API key>|<project-id>|<access-token>|<location>.",
     apiKeyUrl: "https://aistudio.google.com/app/apikey",
     llm: {
       support: "provider",
@@ -528,7 +528,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "chirp_3",
       models: catalogModelSpecs("google-vertex-ai-studio", "stt"),
       languageNote:
-        "Google Cloud Speech-to-Text is a separate credential path from the Gemini AI Studio key. Use <project-id>|<access-token>|<location> for STT-only, or combine it with AI Studio as AIza...|<project-id>|<access-token>|<location>.",
+        "Google Cloud Speech-to-Text is a separate credential path from the Gemini API key. Use <project-id>|<access-token>|<location> for STT-only, or combine it as <Gemini API key>|<project-id>|<access-token>|<location>.",
     },
     tts: {
       support: "provider",

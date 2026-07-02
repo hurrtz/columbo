@@ -224,7 +224,7 @@ describe("synthesizeSpeech", () => {
       voice: "Aoede",
       mode: "provider",
       provider: "gemini",
-      apiKey: "AIza-test",
+      apiKey: "gemini-test-key",
       language: "de",
     });
 
@@ -233,7 +233,7 @@ describe("synthesizeSpeech", () => {
     expect(url).toBe(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent",
     );
-    expect(options.headers["x-goog-api-key"]).toBe("AIza-test");
+    expect(options.headers["x-goog-api-key"]).toBe("gemini-test-key");
     const body = JSON.parse(options.body);
     expect(
       body.generationConfig.speechConfig.voiceConfig.prebuiltVoiceConfig
@@ -311,7 +311,7 @@ describe("synthesizeSpeech", () => {
       voice: "Kore",
       mode: "provider",
       provider: "gemini",
-      apiKey: "AIza-test",
+      apiKey: "gemini-test-key",
       language: "en",
     });
 

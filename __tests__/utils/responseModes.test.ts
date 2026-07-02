@@ -23,7 +23,7 @@ describe("response mode selectors", () => {
       },
       apiKeys: {
         ...DEFAULT_SETTINGS.apiKeys,
-        gemini: "AIzaSyTestKey",
+        gemini: "gemini-test-key",
         openai: "sk-test",
       },
     };
@@ -80,8 +80,8 @@ describe("response mode selectors", () => {
     expect(getAvailableResponseModes(settings)).toEqual([]);
   });
 
-  it("requires valid Google AI Studio credentials for Gemini-backed response modes", () => {
-    const invalidKeySettings = {
+  it("allows any non-empty Gemini key for response modes and defers validity to server validation", () => {
+    const settings = {
       ...DEFAULT_SETTINGS,
       responseModes: {
         ...DEFAULT_SETTINGS.responseModes,
@@ -96,17 +96,7 @@ describe("response mode selectors", () => {
       },
     };
 
-    expect(isResponseModeReady(invalidKeySettings, "quick")).toBe(false);
-
-    const validKeySettings = {
-      ...invalidKeySettings,
-      apiKeys: {
-        ...invalidKeySettings.apiKeys,
-        gemini: "AIzaSyValidLookingKey",
-      },
-    };
-
-    expect(isResponseModeReady(validKeySettings, "quick")).toBe(true);
+    expect(isResponseModeReady(settings, "quick")).toBe(true);
   });
 });
 

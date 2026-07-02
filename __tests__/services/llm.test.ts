@@ -309,7 +309,7 @@ describe("streamChat", () => {
       messages: mockMessages,
       model: "gemini-2.5-flash",
       provider: "gemini",
-      apiKey: "AIzaSySample-Key_123",
+      apiKey: "gemini-test-key",
       assistantInstructions: "",
       responseLength: "normal",
       responseTone: "professional",
@@ -324,7 +324,7 @@ describe("streamChat", () => {
     expect(url).toBe(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse",
     );
-    expect(options.headers["x-goog-api-key"]).toBe("AIzaSySample-Key_123");
+    expect(options.headers["x-goog-api-key"]).toBe("gemini-test-key");
     expect(options.headers.Authorization).toBeUndefined();
     const body = JSON.parse(options.body);
     expect(body.systemInstruction.parts[0].text).toContain("voice assistant");
@@ -583,7 +583,7 @@ describe("validateProviderConnection", () => {
     await validateProviderConnection({
       provider: "gemini",
       model: "gemini-2.5-flash",
-      apiKey: "AIzaSySample-Key_123",
+      apiKey: "gemini-test-key",
       language: "en",
     });
 
@@ -591,7 +591,7 @@ describe("validateProviderConnection", () => {
     expect(url).toBe(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
     );
-    expect(options.headers["x-goog-api-key"]).toBe("AIzaSySample-Key_123");
+    expect(options.headers["x-goog-api-key"]).toBe("gemini-test-key");
     expect(options.headers.Authorization).toBeUndefined();
     const body = JSON.parse(options.body);
     expect(body.systemInstruction.parts[0].text).toContain(

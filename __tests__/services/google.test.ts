@@ -5,11 +5,11 @@ import {
 } from "../../src/services/google";
 
 describe("Google credential helpers", () => {
-  it("parses AI Studio-only credentials", () => {
-    expect(parseGoogleAiStudioCredentials("AIza-test-key")).toEqual({
-      apiKey: "AIza-test-key",
+  it("parses AI Studio-only credentials without local prefix validation", () => {
+    expect(parseGoogleAiStudioCredentials("opaque-test-key")).toEqual({
+      apiKey: "opaque-test-key",
     });
-    expect(parseGoogleCloudSpeechCredentials("AIza-test-key")).toBeNull();
+    expect(parseGoogleCloudSpeechCredentials("opaque-test-key")).toBeNull();
   });
 
   it("parses Cloud Speech-only credentials", () => {
@@ -28,14 +28,14 @@ describe("Google credential helpers", () => {
   it("parses combined AI Studio and Cloud Speech credentials", () => {
     expect(
       parseGoogleAiStudioCredentials(
-        "AIza-test-key|my-project|ya29.test-token|us",
+        "opaque-test-key|my-project|ya29.test-token|us",
       ),
     ).toEqual({
-      apiKey: "AIza-test-key",
+      apiKey: "opaque-test-key",
     });
     expect(
       parseGoogleCloudSpeechCredentials(
-        "AIza-test-key|my-project|ya29.test-token|us",
+        "opaque-test-key|my-project|ya29.test-token|us",
       ),
     ).toEqual({
       projectId: "my-project",

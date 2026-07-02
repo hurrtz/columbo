@@ -20,20 +20,20 @@ function splitGoogleCredentialParts(apiKey?: string | null) {
   return apiKey.split("|").map((part) => part.trim());
 }
 
-function looksLikeGoogleAiStudioApiKey(value: string) {
-  return value.trim().startsWith("AIza");
+function hasGoogleAiStudioApiKey(value?: string) {
+  return !!value?.trim();
 }
 
 export function parseGoogleAiStudioCredentials(apiKey?: string | null) {
   const parts = splitGoogleCredentialParts(apiKey);
 
-  if (parts.length === 1 && looksLikeGoogleAiStudioApiKey(parts[0] ?? "")) {
+  if (parts.length === 1 && hasGoogleAiStudioApiKey(parts[0])) {
     return {
       apiKey: parts[0]!,
     } satisfies GoogleAiStudioCredentials;
   }
 
-  if (parts.length === 4 && looksLikeGoogleAiStudioApiKey(parts[0] ?? "")) {
+  if (parts.length === 4 && hasGoogleAiStudioApiKey(parts[0])) {
     return {
       apiKey: parts[0]!,
     } satisfies GoogleAiStudioCredentials;
@@ -59,7 +59,7 @@ export function parseGoogleCloudSpeechCredentials(apiKey?: string | null) {
     } satisfies GoogleCloudSpeechCredentials;
   }
 
-  if (parts.length === 4 && looksLikeGoogleAiStudioApiKey(parts[0] ?? "")) {
+  if (parts.length === 4 && hasGoogleAiStudioApiKey(parts[0])) {
     const [_apiKey, projectId, accessToken, location] = parts;
 
     if (!projectId || !accessToken || !location) {

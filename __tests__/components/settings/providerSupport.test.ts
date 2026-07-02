@@ -27,7 +27,7 @@ describe("getProviderValidationTarget", () => {
       },
       apiKeys: {
         ...DEFAULT_SETTINGS.apiKeys,
-        gemini: "AIza-test",
+        gemini: "not-a-google-key",
       },
     };
 

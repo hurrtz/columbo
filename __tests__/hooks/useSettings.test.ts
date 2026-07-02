@@ -63,7 +63,7 @@ describe("useSettings", () => {
         const values: Record<string, string | null> = {
           "schnackai.provider_key.openai": "sk-openai",
           "schnackai.provider_key.anthropic": "sk-anthropic",
-          "schnackai.provider_key.gemini": "AIza-test",
+          "schnackai.provider_key.gemini": "gemini-test-key",
           "schnackai.provider_key.xai": "xai-test",
         };
 
@@ -77,7 +77,7 @@ describe("useSettings", () => {
       ...DEFAULT_SETTINGS.apiKeys,
       openai: "sk-openai",
       anthropic: "sk-anthropic",
-      gemini: "AIza-test",
+      gemini: "gemini-test-key",
       xai: "xai-test",
     });
     expect(result.current.settings.setupGuideDismissed).toBe(true);
@@ -489,14 +489,14 @@ describe("useSettings", () => {
     await flushSettingsLoad();
 
     await act(async () => {
-      result.current.updateApiKey("gemini", "AIza-live-key");
+      result.current.updateApiKey("gemini", "gemini-live-key");
     });
 
     expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
       "schnackai.provider_key.gemini",
-      "AIza-live-key",
+      "gemini-live-key",
     );
-    expect(result.current.settings.apiKeys.gemini).toBe("AIza-live-key");
+    expect(result.current.settings.apiKeys.gemini).toBe("gemini-live-key");
   });
 
   it("exposes no usable response mode on a fresh install without keys", async () => {

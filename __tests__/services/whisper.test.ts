@@ -261,7 +261,7 @@ describe("transcribeAudio", () => {
       mode: "provider",
       provider: "gemini",
       providerModel: "chirp_3",
-      apiKey: "AIza-test-key|my-project|ya29.test-token|us",
+      apiKey: "gemini-test-key|my-project|ya29.test-token|us",
       language: "de",
     });
 

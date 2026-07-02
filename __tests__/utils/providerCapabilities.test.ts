@@ -11,7 +11,7 @@ describe("provider capability selectors", () => {
       ...DEFAULT_SETTINGS,
       apiKeys: {
         ...DEFAULT_SETTINGS.apiKeys,
-        gemini: "AIza-test",
+        gemini: "gemini-test-key",
         deepseek: "sk-deepseek",
         mistral: "mistral_test",
         xai: "xai-test",
@@ -96,12 +96,26 @@ describe("provider capability selectors", () => {
       ...DEFAULT_SETTINGS,
       apiKeys: {
         ...DEFAULT_SETTINGS.apiKeys,
-        gemini: "AIza-test|my-project|ya29.test-token|us",
+        gemini: "opaque-test-key|my-project|ya29.test-token|us",
       },
     };
 
     expect(getEnabledProviders(settings)).toEqual(["gemini"]);
     expect(getEnabledSttProviders(settings)).toEqual(["gemini"]);
+    expect(getEnabledTtsProviders(settings)).toEqual(["gemini"]);
+  });
+
+  it("treats any non-empty Gemini key as ready for llm and tts validation", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      apiKeys: {
+        ...DEFAULT_SETTINGS.apiKeys,
+        gemini: "not-a-google-key",
+      },
+    };
+
+    expect(getEnabledProviders(settings)).toEqual(["gemini"]);
+    expect(getEnabledSttProviders(settings)).toEqual([]);
     expect(getEnabledTtsProviders(settings)).toEqual(["gemini"]);
   });
 });
