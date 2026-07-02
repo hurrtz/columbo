@@ -172,6 +172,63 @@ describe("useSetupGuideController", () => {
     );
   });
 
+  it("does not validate when the selected provider key is missing", async () => {
+    const params = createControllerParams();
+    params.settings = {
+      ...params.settings,
+      apiKeys: {
+        ...params.settings.apiKeys,
+        openai: "",
+      },
+    };
+    const { result } = renderHook(() => useSetupGuideController(params), {
+      wrapper,
+    });
+
+    act(() => {
+      result.current.handleOpenSetupGuide("provider");
+      result.current.handleSelectProvider("openai");
+    });
+
+    await act(async () => {
+      const didValidate = await result.current.handleValidateProviderKey();
+      expect(didValidate).toBe(false);
+    });
+
+    expect(validateProviderConnection).not.toHaveBeenCalled();
+    expect(result.current.currentValidationState).toEqual(
+      expect.objectContaining({
+        status: "error",
+        message: "Add an API key to continue, or cancel the setup guide.",
+      }),
+    );
+  });
+
+  it("reports missing provider and key before validating", async () => {
+    const params = createControllerParams();
+    const { result } = renderHook(() => useSetupGuideController(params), {
+      wrapper,
+    });
+
+    act(() => {
+      result.current.handleOpenSetupGuide("provider");
+    });
+
+    await act(async () => {
+      const didValidate = await result.current.handleValidateProviderKey();
+      expect(didValidate).toBe(false);
+    });
+
+    expect(validateProviderConnection).not.toHaveBeenCalled();
+    expect(result.current.currentValidationState).toEqual(
+      expect.objectContaining({
+        status: "error",
+        message:
+          "Choose a provider and add an API key to continue, or cancel the setup guide.",
+      }),
+    );
+  });
+
   it("saves onboarding in text-only mode when no acceptable TTS route is available", async () => {
     const params = createControllerParams();
     params.settings = createAnthropicSettings();

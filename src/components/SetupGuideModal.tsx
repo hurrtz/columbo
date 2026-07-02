@@ -196,9 +196,18 @@ export function SetupGuideModal({
   const providerPlaceholder =
     (selectedProvider ? PROVIDER_API_KEY_PLACEHOLDERS[selectedProvider] : null) ||
     t("setupGuideApiKeyPlaceholder");
+  const isProviderApiKeyMissing =
+    Boolean(selectedProvider) && selectedProviderApiKey.trim().length === 0;
   const canValidateProvider =
-    Boolean(selectedProvider) && selectedProviderApiKey.trim().length > 0;
+    Boolean(selectedProvider) && !isProviderApiKeyMissing;
   const canContinueFromProvider = currentValidationState.status === "success";
+  const isValidatingProviderKey = currentValidationState.status === "validating";
+  const shouldShowFooterValidationPrompt =
+    currentValidationState.status === "error" &&
+    Boolean(currentValidationState.message) &&
+    (!selectedProvider || isProviderApiKeyMissing);
+  const shouldShowStatusMessage =
+    Boolean(currentValidationState.message) && !shouldShowFooterValidationPrompt;
   const canContinueFromVoiceTest =
     !resolvedRoutes.stt.enabled || voiceTest.hasCompleted;
 
@@ -387,7 +396,7 @@ export function SetupGuideModal({
                       {providerHint}
                     </Text>
                   </View>
-                  {currentValidationState.message ? (
+                  {shouldShowStatusMessage ? (
                     <View
                       style={[
                         styles.statusCard,
@@ -568,66 +577,85 @@ export function SetupGuideModal({
               ) : null}
 
               {step === "provider" ? (
-                <>
-                  <TouchableOpacity
-                    onPress={onBack}
-                    style={[
-                      styles.secondaryButton,
-                      {
-                        backgroundColor: colors.surfaceElevated,
-                        borderColor: colors.border,
-                      },
-                    ]}
-                    activeOpacity={0.85}
-                  >
-                    <Text
-                      style={[styles.secondaryButtonText, { color: colors.textSecondary }]}
+                <View style={styles.providerFooterStack}>
+                  {shouldShowFooterValidationPrompt ? (
+                    <View
+                      style={[
+                        styles.footerErrorBanner,
+                        {
+                          backgroundColor: colors.surfaceElevated,
+                          borderColor: colors.danger,
+                        },
+                      ]}
                     >
-                      {t("setupGuideBack")}
-                    </Text>
-                  </TouchableOpacity>
-                  {canContinueFromProvider ? (
+                      <Text style={[styles.footerErrorText, { color: colors.danger }]}>
+                        {currentValidationState.message}
+                      </Text>
+                    </View>
+                  ) : null}
+                  <View style={styles.footerButtonRow}>
                     <TouchableOpacity
-                      activeOpacity={0.9}
-                      onPress={onContinueFromProvider}
+                      onPress={onBack}
+                      style={[
+                        styles.secondaryButton,
+                        {
+                          backgroundColor: colors.surfaceElevated,
+                          borderColor: colors.border,
+                        },
+                      ]}
+                      activeOpacity={0.85}
                     >
-                      <LinearGradient
-                        colors={[colors.accentGradientStart, colors.accentGradientEnd]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.primaryButton}
+                      <Text
+                        style={[styles.secondaryButtonText, { color: colors.textSecondary }]}
                       >
-                        <Text style={styles.primaryButtonText}>
-                          {t("setupGuideContinue")}
-                        </Text>
-                      </LinearGradient>
+                        {t("setupGuideBack")}
+                      </Text>
                     </TouchableOpacity>
-                  ) : (
-                    <TouchableOpacity
-                      activeOpacity={0.9}
-                      disabled={!canValidateProvider || currentValidationState.status === "validating"}
-                      onPress={onValidateProviderKey}
-                    >
-                      <LinearGradient
-                        colors={[colors.accentGradientStart, colors.accentGradientEnd]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={[
-                          styles.primaryButton,
-                          !canValidateProvider || currentValidationState.status === "validating"
-                            ? styles.primaryButtonDisabled
-                            : null,
-                        ]}
+                    {canContinueFromProvider ? (
+                      <TouchableOpacity
+                        style={styles.primaryButtonWrapper}
+                        activeOpacity={0.9}
+                        onPress={onContinueFromProvider}
                       >
-                        <Text style={styles.primaryButtonText}>
-                          {currentValidationState.status === "validating"
-                            ? t("validatingKey")
-                            : t("setupGuideValidateKey")}
-                        </Text>
-                      </LinearGradient>
-                    </TouchableOpacity>
-                  )}
-                </>
+                        <LinearGradient
+                          colors={[colors.accentGradientStart, colors.accentGradientEnd]}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                          style={styles.primaryButton}
+                        >
+                          <Text numberOfLines={1} style={styles.primaryButtonText}>
+                            {t("setupGuideContinue")}
+                          </Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity
+                        style={styles.primaryButtonWrapper}
+                        activeOpacity={0.9}
+                        disabled={isValidatingProviderKey}
+                        onPress={onValidateProviderKey}
+                      >
+                        <LinearGradient
+                          colors={[colors.accentGradientStart, colors.accentGradientEnd]}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                          style={[
+                            styles.primaryButton,
+                            !canValidateProvider || isValidatingProviderKey
+                              ? styles.primaryButtonDisabled
+                              : null,
+                          ]}
+                        >
+                          <Text numberOfLines={1} style={styles.primaryButtonText}>
+                            {isValidatingProviderKey
+                              ? t("validatingKey")
+                              : t("setupGuideValidateKey")}
+                          </Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
+                    )}
+                    </View>
+                </View>
               ) : null}
 
               {step === "voice-test" ? (
@@ -906,8 +934,34 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     marginTop: 8,
+    alignItems: "flex-end",
+  },
+  providerFooterStack: {
+    flex: 1,
+    gap: 10,
+  },
+  footerButtonRow: {
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "flex-end",
+  },
+  footerErrorBanner: {
+    width: "100%",
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  footerErrorText: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontFamily: fonts.body,
+  },
+  primaryButtonWrapper: {
+    flex: 1,
   },
   primaryButton: {
+    width: "100%",
     minWidth: 148,
     paddingHorizontal: 22,
     paddingVertical: 14,

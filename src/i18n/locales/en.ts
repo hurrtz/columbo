@@ -465,6 +465,10 @@ export const en: TranslationDictionary = {
     setupGuideOpenSettings: "Open Settings",
     setupGuideBack: "Back",
     setupGuideValidateKey: "Validate key",
+    setupGuideApiKeyRequiredOrCancel:
+      "Add an API key to continue, or cancel the setup guide.",
+    setupGuideProviderAndApiKeyRequiredOrCancel:
+      "Choose a provider and add an API key to continue, or cancel the setup guide.",
     setupGuideProviderKeyNeedsLlmAccess: ({ provider }) =>
       `These ${provider} credentials do not allow reply requests.`,
     setupGuideVoiceTestTitle: "Test Your Setup",

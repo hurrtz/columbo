@@ -472,6 +472,10 @@ export const de: TranslationDictionary = {
     setupGuideOpenSettings: "Einstellungen öffnen",
     setupGuideBack: "Zurück",
     setupGuideValidateKey: "Key prüfen",
+    setupGuideApiKeyRequiredOrCancel:
+      "Gib einen API-Key ein, um fortzufahren, oder brich den Einrichtungsassistenten ab.",
+    setupGuideProviderAndApiKeyRequiredOrCancel:
+      "Wähle einen Anbieter aus und gib einen API-Key ein, um fortzufahren, oder brich den Einrichtungsassistenten ab.",
     setupGuideProviderKeyNeedsLlmAccess: ({ provider }) =>
       `Diese Zugangsdaten für ${provider} erlauben keine Antwortanfragen.`,
     setupGuideVoiceTestTitle: "Setup testen",

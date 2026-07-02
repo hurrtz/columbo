@@ -2,7 +2,7 @@
   "expo": {
     "name": "SchnackAI",
     "slug": "schnackai",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "orientation": "default",
     "userInterfaceStyle": "automatic",
     "ios": {

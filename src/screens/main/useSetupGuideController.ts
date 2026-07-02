@@ -81,6 +81,10 @@ export function useSetupGuideController({
   const currentValidationState = useMemo(
     () => {
       if (!selectedProvider) {
+        if (validationState.status === "error" && !validationState.provider) {
+          return validationState;
+        }
+
         return { status: "idle" } satisfies SetupGuideValidationState;
       }
 
@@ -186,7 +190,18 @@ export function useSetupGuideController({
     if (!selectedProvider) {
       setValidationState({
         status: "error",
-        message: t("setupGuideSelectProviderFirst"),
+        message: t("setupGuideProviderAndApiKeyRequiredOrCancel"),
+      });
+      return false;
+    }
+
+    if (!selectedProviderApiKey) {
+      setValidationState({
+        status: "error",
+        provider: selectedProvider,
+        apiKey: selectedProviderApiKey,
+        model: selectedProviderModel,
+        message: t("setupGuideApiKeyRequiredOrCancel"),
       });
       return false;
     }
