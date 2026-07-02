@@ -21,6 +21,10 @@ import {
   requestOpenAICompatibleChatStream,
 } from "./llm/providers/openaiCompatible";
 import {
+  requestGeminiGenerateContentChat,
+  requestGeminiGenerateContentChatStream,
+} from "./llm/providers/geminiGenerateContent";
+import {
   requestOpenAiRealtimeChat,
   requestOpenAiRealtimeChatStream,
 } from "./llm/providers/openaiRealtime";
@@ -138,6 +142,20 @@ const LLM_TEXT_REQUESTERS = {
       systemPrompt: params.systemPrompt,
       abortSignal: params.abortSignal,
     }),
+  "gemini-generate-content": async (
+    params: LlmRequestParams,
+    config: Extract<ProviderLlmConfig, { transport: "gemini-generate-content" }>,
+  ) =>
+    requestGeminiGenerateContentChat({
+      endpoint: config.endpoint,
+      provider: params.provider,
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      abortSignal: params.abortSignal,
+    }),
   "openai-realtime": async (params: LlmRequestParams) =>
     requestOpenAiRealtimeChat({
       provider: params.provider,
@@ -175,6 +193,21 @@ const LLM_STREAM_REQUESTERS = {
     config: Extract<ProviderLlmConfig, { transport: "openai-compatible" }>,
   ) =>
     requestOpenAICompatibleChatStream({
+      endpoint: config.endpoint,
+      provider: params.provider,
+      model: params.model,
+      messages: params.messages,
+      apiKey: params.apiKey,
+      language: params.language,
+      systemPrompt: params.systemPrompt,
+      onChunk: params.onChunk,
+      abortSignal: params.abortSignal,
+    }),
+  "gemini-generate-content": async (
+    params: StreamingLlmRequestParams,
+    config: Extract<ProviderLlmConfig, { transport: "gemini-generate-content" }>,
+  ) =>
+    requestGeminiGenerateContentChatStream({
       endpoint: config.endpoint,
       provider: params.provider,
       model: params.model,
@@ -237,6 +270,8 @@ async function requestChatText(params: {
   switch (config.transport) {
     case "openai-compatible":
       return LLM_TEXT_REQUESTERS["openai-compatible"](params, config);
+    case "gemini-generate-content":
+      return LLM_TEXT_REQUESTERS["gemini-generate-content"](params, config);
     case "openai-realtime":
       return LLM_TEXT_REQUESTERS["openai-realtime"](params);
     case "gemini-live":
@@ -408,6 +443,21 @@ export async function streamChat({
       switch (config.transport) {
         case "openai-compatible":
           fullText = await LLM_STREAM_REQUESTERS["openai-compatible"](
+            {
+              messages,
+              model,
+              provider,
+              apiKey,
+              language,
+              systemPrompt,
+              onChunk: onChunkWithTimeout,
+              abortSignal,
+            },
+            config,
+          );
+          break;
+        case "gemini-generate-content":
+          fullText = await LLM_STREAM_REQUESTERS["gemini-generate-content"](
             {
               messages,
               model,

@@ -22,6 +22,7 @@ export type RuntimeLlmTransport =
   | "none"
   | "openai-compatible"
   | "openai-realtime"
+  | "gemini-generate-content"
   | "gemini-live"
   | "anthropic";
 export type RuntimeSttTransport =
@@ -509,9 +510,8 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     apiKeyUrl: "https://aistudio.google.com/app/apikey",
     llm: {
       support: "provider",
-      transport: "openai-compatible",
-      endpoint:
-        "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+      transport: "gemini-generate-content",
+      endpoint: "https://generativelanguage.googleapis.com/v1beta",
       defaultModel: "gemini-2.5-flash",
       realtimeModelIds: ["gemini-live-2.5-flash-native-audio"],
       realtimeTransport: "gemini-live",

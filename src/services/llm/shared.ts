@@ -1,8 +1,5 @@
 import { PROVIDER_LABELS } from "../../constants/models";
-import {
-  RUNTIME_PROVIDER_MANIFEST,
-  RuntimeLlmTransport,
-} from "../../constants/providers/runtimeManifest";
+import { RUNTIME_PROVIDER_MANIFEST } from "../../constants/providers/runtimeManifest";
 import { translate } from "../../i18n";
 import { AppLanguage, Provider } from "../../types";
 
@@ -20,23 +17,25 @@ type OpenAiRealtimeLlmConfig = {
   transport: "openai-realtime";
 };
 
+type GeminiGenerateContentLlmConfig = {
+  transport: "gemini-generate-content";
+  endpoint: string;
+};
+
 type GeminiLiveLlmConfig = {
   transport: "gemini-live";
 };
 
-type TransportOnlyLlmConfig = {
-  transport: Exclude<
-    RuntimeLlmTransport,
-    | "openai-compatible"
-    | "openai-realtime"
-  >;
+type AnthropicLlmConfig = {
+  transport: "anthropic";
 };
 
 export type ProviderLlmConfig =
   | OpenAiCompatibleLlmConfig
   | OpenAiRealtimeLlmConfig
+  | GeminiGenerateContentLlmConfig
   | GeminiLiveLlmConfig
-  | TransportOnlyLlmConfig;
+  | AnthropicLlmConfig;
 
 export function getProviderLlmConfig(
   provider: Provider,
@@ -51,26 +50,35 @@ export function getProviderLlmConfig(
   const isRealtimeModel = manifest.llm.realtimeModelIds?.includes(model) ?? false;
   const realtimeTransport = manifest.llm.realtimeTransport;
 
+  if (isRealtimeModel) {
+    if (realtimeTransport === "gemini-live") {
+      return {
+        transport: "gemini-live",
+      };
+    }
+
+    return {
+      transport: "openai-realtime",
+    };
+  }
+
   switch (manifest.llm.transport) {
     case "openai-compatible":
-      if (isRealtimeModel) {
-        if (realtimeTransport === "gemini-live") {
-          return {
-            transport: "gemini-live",
-          };
-        }
-
-        return {
-          transport: "openai-realtime",
-        };
-      }
-
       if (!manifest.llm.endpoint) {
         return null;
       }
 
       return {
         transport: "openai-compatible",
+        endpoint: manifest.llm.endpoint,
+      };
+    case "gemini-generate-content":
+      if (!manifest.llm.endpoint) {
+        return null;
+      }
+
+      return {
+        transport: "gemini-generate-content",
         endpoint: manifest.llm.endpoint,
       };
     case "anthropic":

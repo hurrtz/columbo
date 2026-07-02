@@ -290,6 +290,50 @@ describe("streamChat", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it("uses Gemini native streaming with Google API key auth", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'data: {"candidates":[{"content":{"parts":[{"text":"Hi from Gemini"}]}}]}\n\n',
+          ),
+        );
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+
+    await streamChat({
+      messages: mockMessages,
+      model: "gemini-2.5-flash",
+      provider: "gemini",
+      apiKey: "AIzaSySample-Key_123",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["Hi from Gemini"]);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse",
+    );
+    expect(options.headers["x-goog-api-key"]).toBe("AIzaSySample-Key_123");
+    expect(options.headers.Authorization).toBeUndefined();
+    const body = JSON.parse(options.body);
+    expect(body.systemInstruction.parts[0].text).toContain("voice assistant");
+    expect(body.contents[0]).toEqual({
+      role: "user",
+      parts: [{ text: "Hello" }],
+    });
+  });
+
 
   it("uses the configured routed endpoint for a hyphenated OpenAI-compatible provider", async () => {
     const encoder = new TextEncoder();
@@ -520,6 +564,43 @@ describe("validateProviderConnection", () => {
     expect(body.model).toBe("gpt-5.4");
     expect(body.messages[0].role).toBe("system");
     expect(body.messages[1].content).toBe("Reply with OK only.");
+  });
+
+  it("validates Gemini with the native generateContent API key path", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        candidates: [
+          {
+            content: {
+              parts: [{ text: "OK" }],
+            },
+          },
+        ],
+      }),
+    });
+
+    await validateProviderConnection({
+      provider: "gemini",
+      model: "gemini-2.5-flash",
+      apiKey: "AIzaSySample-Key_123",
+      language: "en",
+    });
+
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+    );
+    expect(options.headers["x-goog-api-key"]).toBe("AIzaSySample-Key_123");
+    expect(options.headers.Authorization).toBeUndefined();
+    const body = JSON.parse(options.body);
+    expect(body.systemInstruction.parts[0].text).toContain(
+      "validating a provider connection",
+    );
+    expect(body.contents[0]).toEqual({
+      role: "user",
+      parts: [{ text: "Reply with OK only." }],
+    });
   });
 
   it("returns a human-readable auth error when the provider rejects credentials", async () => {
