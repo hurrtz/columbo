@@ -6,6 +6,7 @@ import {
   ResponseModeSelections,
   Settings,
 } from "../types";
+import { normalizeResponseModeRouteEffort } from "./modelEffort";
 import { hasProviderCredentialForCapability } from "./providerCredentials";
 
 export const RESPONSE_MODE_ORDER: ResponseMode[] = ["quick", "normal", "deep"];
@@ -37,7 +38,10 @@ export function deriveResponseModesForProvider(
     fallbackModel;
 
   return RESPONSE_MODE_ORDER.reduce((selections, mode, index) => {
-    selections[mode] = { provider, model: pickModel(index) };
+    selections[mode] = normalizeResponseModeRouteEffort({
+      provider,
+      model: pickModel(index),
+    });
     return selections;
   }, {} as ResponseModeSelections);
 }

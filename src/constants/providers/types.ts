@@ -2,6 +2,20 @@ export interface ModelInfo {
   id: string;
   name: string;
   releaseDate?: string;
+  effort?: ModelEffortConfig;
+}
+
+export interface ModelEffortOption {
+  id: string;
+  label: string;
+  localizedLabels?: Partial<Record<"de", string>>;
+  transportValue?: string;
+}
+
+export interface ModelEffortConfig {
+  options: ModelEffortOption[];
+  defaultOptionId?: string;
+  transportParam: "gemini-thinking-level";
 }
 
 export interface TtsVoiceOption {

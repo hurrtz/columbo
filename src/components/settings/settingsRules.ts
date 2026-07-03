@@ -18,6 +18,16 @@ import {
   isValidModelForProvider,
   RESPONSE_MODE_ORDER,
 } from "../../utils/responseModes";
+import { normalizeResponseModeRouteEffort } from "../../utils/modelEffort";
+
+function routesEqual(left: ResponseModeSelections[keyof ResponseModeSelections], right: ResponseModeSelections[keyof ResponseModeSelections]) {
+  return (
+    left.provider === right.provider &&
+    left.model === right.model &&
+    left.effort === right.effort
+  );
+}
+
 export function getNormalizedSttProvider(
   settings: Settings,
   enabledSttProviders: Provider[],
@@ -49,6 +59,13 @@ export function getNormalizedResponseModes(
     const currentRoute = settings.responseModes[mode];
 
     if (enabledProviders.includes(currentRoute.provider)) {
+      const normalizedRoute = normalizeResponseModeRouteEffort(currentRoute);
+
+      if (!routesEqual(currentRoute, normalizedRoute)) {
+        nextResponseModes[mode] = normalizedRoute;
+        changed = true;
+      }
+
       continue;
     }
 
@@ -58,10 +75,10 @@ export function getNormalizedResponseModes(
       ? preferredModel
       : getDefaultModelForProvider(nextProvider);
 
-    nextResponseModes[mode] = {
+    nextResponseModes[mode] = normalizeResponseModeRouteEffort({
       provider: nextProvider,
       model: nextModel,
-    };
+    });
     changed = true;
   }
 

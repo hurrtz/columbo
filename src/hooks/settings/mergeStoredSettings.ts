@@ -36,6 +36,7 @@ import {
   isValidModelForProvider,
   RESPONSE_MODE_ORDER,
 } from "../../utils/responseModes";
+import { normalizeResponseModeRouteEffort } from "../../utils/modelEffort";
 import {
   LEGACY_MODEL_FIELD_KEYS,
   type LegacyStoredSettings,
@@ -241,12 +242,12 @@ function getLegacyResponseModeRoute(
     : DEFAULT_SETTINGS.lastProvider;
   const providerModel = providerModels[provider];
 
-  return {
+  return normalizeResponseModeRouteEffort({
     provider,
     model: isValidModelForProvider(provider, providerModel)
       ? providerModel
       : getDefaultModelForProvider(provider),
-  };
+  });
 }
 
 function extractStoredResponseModes(
@@ -280,10 +281,16 @@ function extractStoredResponseModes(
           ? fallbackModel
           : getDefaultModelForProvider(provider);
 
-    accumulator[mode] = {
+    const effort =
+      typeof entry.effort === "string" && entry.effort.trim()
+        ? entry.effort
+        : undefined;
+
+    accumulator[mode] = normalizeResponseModeRouteEffort({
       provider,
       model,
-    };
+      ...(effort ? { effort } : {}),
+    });
 
     return accumulator;
   }, {} as Partial<ResponseModeSelections>);

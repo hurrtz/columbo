@@ -19,13 +19,14 @@ export const PROVIDER_ORDER: Provider[] = [...RUNTIME_PROVIDER_ORDER];
 
 function buildRuntimeLlmModels(provider: Provider): ModelInfo[] {
   return RUNTIME_PROVIDER_MANIFEST[provider].llm.models.map(
-    ({ id, fallbackName, releaseDate }) => ({
+    ({ id, fallbackName, releaseDate, effort }) => ({
       id,
       name:
         getCatalogModelForAppProvider(provider, id, "llm")?.publicName ??
         fallbackName ??
         id,
       ...(releaseDate ? { releaseDate } : {}),
+      ...(effort ? { effort } : {}),
     }),
   );
 }

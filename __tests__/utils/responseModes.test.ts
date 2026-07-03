@@ -98,6 +98,21 @@ describe("response mode selectors", () => {
 
     expect(isResponseModeReady(settings, "quick")).toBe(true);
   });
+
+  it("derives effort defaults for effort-capable Gemini response routes", () => {
+    const modes = deriveResponseModesForProvider("gemini");
+
+    expect(modes.normal).toEqual({
+      provider: "gemini",
+      model: "gemini-3.5-flash",
+      effort: "medium",
+    });
+    expect(modes.deep).toEqual({
+      provider: "gemini",
+      model: "gemini-3.1-pro-preview",
+      effort: "high",
+    });
+  });
 });
 
 describe("deriveResponseModesForProvider", () => {

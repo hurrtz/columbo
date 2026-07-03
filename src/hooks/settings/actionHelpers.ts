@@ -1,6 +1,7 @@
 import type { Provider, ResponseMode, Settings } from "../../types";
 import { PROVIDER_LLM_SUPPORT } from "../../constants/models";
 import { deriveResponseModesForProvider } from "../../utils/responseModes";
+import { normalizeResponseModeRouteEffort } from "../../utils/modelEffort";
 import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
 import { persistApiKey, persistPublicSettings } from "./storage";
 
@@ -52,12 +53,14 @@ export function createProviderModelUpdater(
 
 export function createResponseModeUpdater(setSettings: SetSettings) {
   return (mode: ResponseMode, value: Settings["responseModes"][ResponseMode]) => {
+    const normalizedValue = normalizeResponseModeRouteEffort(value);
+
     setSettings((prev) =>
       persistAndReturn({
         ...prev,
         responseModes: {
           ...prev.responseModes,
-          [mode]: value,
+          [mode]: normalizedValue,
         },
       }),
     );

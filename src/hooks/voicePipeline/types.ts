@@ -54,6 +54,7 @@ export interface UseVoicePipelineParams {
   provider: Provider;
   providerApiKey: string;
   model: string;
+  modelEffort?: string;
   sttMode: SttBackendMode;
   sttProvider: Provider | null;
   sttApiKey: string;

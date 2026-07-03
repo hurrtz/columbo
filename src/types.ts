@@ -48,6 +48,7 @@ export type AssistantResponseTone =
 export interface ResponseModeRoute {
   provider: Provider;
   model: string;
+  effort?: string;
 }
 export type ProviderApiKeys = Record<Provider, string>;
 export type ProviderModelSelections = Record<Provider, string>;

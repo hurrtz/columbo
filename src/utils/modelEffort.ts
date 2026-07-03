@@ -1,0 +1,123 @@
+import { PROVIDER_MODELS } from "../constants/models";
+import type { ModelEffortConfig, ModelEffortOption } from "../constants/models";
+import type { AppLanguage, Provider, ResponseModeRoute } from "../types";
+
+const GENERIC_DEFAULT_EFFORT_IDS = ["medium", "normal"];
+
+export function getModelEffortConfig(
+  provider: Provider,
+  model: string,
+): ModelEffortConfig | undefined {
+  return PROVIDER_MODELS[provider].find((entry) => entry.id === model)?.effort;
+}
+
+export function getModelEffortOptions(
+  provider: Provider,
+  model: string,
+): ModelEffortOption[] {
+  return getModelEffortConfig(provider, model)?.options ?? [];
+}
+
+function getModelEffortOption(
+  provider: Provider,
+  model: string,
+  effort: string | undefined,
+) {
+  if (!effort) {
+    return undefined;
+  }
+
+  return getModelEffortOptions(provider, model).find(
+    (option) => option.id === effort,
+  );
+}
+
+export function getDefaultModelEffort(
+  provider: Provider,
+  model: string,
+): string | undefined {
+  const config = getModelEffortConfig(provider, model);
+  const options = config?.options ?? [];
+
+  if (options.length === 0) {
+    return undefined;
+  }
+
+  if (
+    config?.defaultOptionId &&
+    options.some((option) => option.id === config.defaultOptionId)
+  ) {
+    return config.defaultOptionId;
+  }
+
+  return (
+    GENERIC_DEFAULT_EFFORT_IDS.find((fallbackId) =>
+      options.some((option) => option.id === fallbackId),
+    ) ?? options[0]?.id
+  );
+}
+
+export function normalizeResponseModeRouteEffort(
+  route: ResponseModeRoute,
+): ResponseModeRoute {
+  const defaultEffort = getDefaultModelEffort(route.provider, route.model);
+
+  if (!defaultEffort) {
+    return {
+      provider: route.provider,
+      model: route.model,
+    };
+  }
+
+  const selectedEffort = getModelEffortOption(
+    route.provider,
+    route.model,
+    route.effort,
+  );
+
+  return {
+    provider: route.provider,
+    model: route.model,
+    effort: selectedEffort?.id ?? defaultEffort,
+  };
+}
+
+export function getModelEffortOptionLabel(
+  option: ModelEffortOption,
+  language: AppLanguage,
+) {
+  return language === "de"
+    ? option.localizedLabels?.de ?? option.label
+    : option.label;
+}
+
+export function getResponseModeRouteEffortLabel(
+  route: ResponseModeRoute,
+  language: AppLanguage,
+): string | undefined {
+  const normalizedRoute = normalizeResponseModeRouteEffort(route);
+  const option = getModelEffortOption(
+    normalizedRoute.provider,
+    normalizedRoute.model,
+    normalizedRoute.effort,
+  );
+
+  return option ? getModelEffortOptionLabel(option, language) : undefined;
+}
+
+export function getModelEffortTransportParam(
+  provider: Provider,
+  model: string,
+) {
+  return getModelEffortConfig(provider, model)?.transportParam;
+}
+
+export function getModelEffortTransportValue(
+  provider: Provider,
+  model: string,
+  effort: string | undefined,
+): string | undefined {
+  const option = getModelEffortOption(provider, model, effort);
+
+  return option?.transportValue ?? option?.id;
+}

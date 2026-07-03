@@ -36,6 +36,7 @@ export async function runVoicePipeline(
     assistantInstructions,
     responseLength,
     responseTone,
+    modelEffort,
     language,
     webSearchMode,
     webSearchProvider,
@@ -212,6 +213,7 @@ export async function runVoicePipeline(
       event: "voice-pipeline-llm-requested",
       payload: {
         model,
+        modelEffort: modelEffort ?? null,
         provider,
         hasWebSearchContext: !!webSearchContext,
         webSearchContextLength: webSearchContext?.length ?? 0,
@@ -221,6 +223,7 @@ export async function runVoicePipeline(
     await streamChat({
       messages: allMessages,
       model,
+      modelEffort,
       provider,
       apiKey: providerApiKey,
       assistantInstructions,

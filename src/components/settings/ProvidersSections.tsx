@@ -32,6 +32,11 @@ import {
   isValidModelForProvider,
   RESPONSE_MODE_ORDER,
 } from "../../utils/responseModes";
+import {
+  getModelEffortOptionLabel,
+  getModelEffortOptions,
+  normalizeResponseModeRouteEffort,
+} from "../../utils/modelEffort";
 import { Picker } from "../Picker";
 import { ProviderIcon } from "../ProviderIcon";
 
@@ -60,7 +65,7 @@ export function ResponseModesSection({
   ) => void;
 }) {
   const { colors } = useTheme();
-  const { t } = useLocalization();
+  const { language, t } = useLocalization();
 
   return (
     <View
@@ -81,6 +86,13 @@ export function ResponseModesSection({
         <View style={styles.responseModeList}>
           {RESPONSE_MODE_ORDER.map((mode, index) => {
             const route = settings.responseModes[mode];
+            const normalizedRoute = normalizeResponseModeRouteEffort(route);
+            const effortOptions = getModelEffortOptions(
+              normalizedRoute.provider,
+              normalizedRoute.model,
+            );
+            const showEffortPicker =
+              effortOptions.length > 0 && !!normalizedRoute.effort;
 
             return (
               <View
@@ -115,7 +127,7 @@ export function ResponseModesSection({
                   dropdownLabel={t("provider")}
                   hideLabel
                   containerStyle={styles.responseModePicker}
-                  value={route.provider}
+                  value={normalizedRoute.provider}
                   options={renderProviderPickerOptions(enabledProviders)}
                   onChange={(value) => {
                     const nextProvider = value as Provider;
@@ -127,10 +139,10 @@ export function ResponseModesSection({
                       ? preferredModel
                       : getDefaultModelForProvider(nextProvider);
 
-                    onUpdateResponseModeRoute(mode, {
+                    onUpdateResponseModeRoute(mode, normalizeResponseModeRouteEffort({
                       provider: nextProvider,
                       model: nextModel,
-                    });
+                    }));
                   }}
                 />
 
@@ -138,19 +150,46 @@ export function ResponseModesSection({
                   label={t("model")}
                   dropdownLabel={t("model")}
                   hideLabel
-                  containerStyle={styles.responseModePickerLast}
-                  value={route.model}
-                  options={PROVIDER_MODELS[route.provider].map((model) => ({
+                  containerStyle={
+                    showEffortPicker
+                      ? styles.responseModePicker
+                      : styles.responseModePickerLast
+                  }
+                  value={normalizedRoute.model}
+                  options={PROVIDER_MODELS[normalizedRoute.provider].map((model) => ({
                     value: model.id,
                     label: model.name,
                   }))}
                   onChange={(value) =>
-                    onUpdateResponseModeRoute(mode, {
-                      ...route,
+                    onUpdateResponseModeRoute(mode, normalizeResponseModeRouteEffort({
+                      ...normalizedRoute,
                       model: value,
-                    })
+                    }))
                   }
                 />
+
+                {showEffortPicker ? (
+                  <Picker
+                    label={t("effort")}
+                    dropdownLabel={t("effort")}
+                    hideLabel
+                    containerStyle={styles.responseModePickerLast}
+                    value={normalizedRoute.effort ?? ""}
+                    options={effortOptions.map((option) => ({
+                      value: option.id,
+                      label: getModelEffortOptionLabel(option, language),
+                    }))}
+                    onChange={(value) =>
+                      onUpdateResponseModeRoute(
+                        mode,
+                        normalizeResponseModeRouteEffort({
+                          ...normalizedRoute,
+                          effort: value,
+                        }),
+                      )
+                    }
+                  />
+                ) : null}
               </View>
             );
           })}

@@ -46,6 +46,7 @@ const LOCAL_ANDROID_DEV_API_KEY = "sk-test-android-local-dev";
 interface StreamChatParams {
   messages: Message[];
   model: string;
+  modelEffort?: string;
   provider: Provider;
   apiKey: string;
   assistantInstructions: string;
@@ -63,6 +64,7 @@ interface StreamChatParams {
 interface LlmRequestParams {
   messages: ChatMessage[];
   model: string;
+  modelEffort?: string;
   provider: Provider;
   apiKey: string;
   language: AppLanguage;
@@ -150,6 +152,7 @@ const LLM_TEXT_REQUESTERS = {
       endpoint: config.endpoint,
       provider: params.provider,
       model: params.model,
+      modelEffort: params.modelEffort,
       messages: params.messages,
       apiKey: params.apiKey,
       language: params.language,
@@ -211,6 +214,7 @@ const LLM_STREAM_REQUESTERS = {
       endpoint: config.endpoint,
       provider: params.provider,
       model: params.model,
+      modelEffort: params.modelEffort,
       messages: params.messages,
       apiKey: params.apiKey,
       language: params.language,
@@ -372,6 +376,7 @@ export async function validateProviderConnection(params: {
 export async function streamChat({
   messages,
   model,
+  modelEffort,
   provider,
   apiKey,
   assistantInstructions,
@@ -446,6 +451,7 @@ export async function streamChat({
             {
               messages,
               model,
+              modelEffort,
               provider,
               apiKey,
               language,
@@ -461,6 +467,7 @@ export async function streamChat({
             {
               messages,
               model,
+              modelEffort,
               provider,
               apiKey,
               language,
@@ -475,6 +482,7 @@ export async function streamChat({
           fullText = await LLM_STREAM_REQUESTERS["openai-realtime"]({
             messages,
             model,
+            modelEffort,
             provider,
             apiKey,
             language,

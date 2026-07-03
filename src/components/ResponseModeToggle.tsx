@@ -7,6 +7,7 @@ import { useTheme } from "../theme/ThemeContext";
 import { fonts } from "../theme/typography";
 import { ResponseMode, ResponseModeSelections } from "../types";
 import { RESPONSE_MODE_ORDER } from "../utils/responseModes";
+import { getResponseModeRouteEffortLabel } from "../utils/modelEffort";
 import { ProviderIcon } from "./ProviderIcon";
 
 interface ResponseModeToggleProps {
@@ -39,7 +40,7 @@ export function ResponseModeToggle({
   readyModes = RESPONSE_MODE_ORDER,
 }: ResponseModeToggleProps) {
   const { colors } = useTheme();
-  const { t } = useLocalization();
+  const { language, t } = useLocalization();
 
   return (
     <View
@@ -60,6 +61,10 @@ export function ResponseModeToggle({
         const modeLabel = getResponseModeLabel(mode, t);
         const providerLabel = PROVIDER_LABELS[route.provider];
         const modelLabel = getProviderModelName(route.provider, route.model);
+        const effortLabel = getResponseModeRouteEffortLabel(route, language);
+        const effortText = effortLabel
+          ? t("effortValue", { effort: effortLabel })
+          : "";
         const content = (
           <View style={styles.optionContent}>
             <View
@@ -104,10 +109,22 @@ export function ResponseModeToggle({
                   compact ? styles.modelTextCompact : null,
                   { color: active ? colors.text : colors.textMuted },
                 ]}
-                numberOfLines={compact ? 1 : 2}
+                numberOfLines={effortText || compact ? 1 : 2}
               >
                 {modelLabel}
               </Text>
+              {effortText ? (
+                <Text
+                  style={[
+                    styles.effortText,
+                    compact ? styles.effortTextCompact : null,
+                    { color: active ? colors.text : colors.textMuted },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {effortText}
+                </Text>
+              ) : null}
             </View>
           </View>
         );
@@ -129,7 +146,7 @@ export function ResponseModeToggle({
             accessibilityRole="button"
             accessibilityLabel={`${t("useResponseMode", {
               mode: modeLabel,
-            })}. ${providerLabel}. ${modelLabel}`}
+            })}. ${providerLabel}. ${modelLabel}${effortText ? `. ${effortText}` : ""}`}
             accessibilityState={{ disabled: !ready, selected: active }}
           >
             {active ? (
@@ -192,7 +209,7 @@ const styles = StyleSheet.create({
   },
   optionInner: {
     flex: 1,
-    minHeight: 116,
+    minHeight: 124,
     borderRadius: 17,
     alignItems: "center",
     justifyContent: "center",
@@ -200,7 +217,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   optionInnerCompact: {
-    minHeight: 82,
+    minHeight: 92,
     paddingHorizontal: 8,
     paddingVertical: 8,
   },
@@ -236,13 +253,15 @@ const styles = StyleSheet.create({
     height: 28,
   },
   modelRow: {
-    height: 38,
+    height: 48,
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
+    gap: 2,
   },
   modelRowCompact: {
-    height: 18,
+    height: 30,
+    gap: 1,
   },
   modelText: {
     fontSize: 12,
@@ -253,5 +272,15 @@ const styles = StyleSheet.create({
   modelTextCompact: {
     fontSize: 10,
     lineHeight: 14,
+  },
+  effortText: {
+    fontSize: 10,
+    lineHeight: 13,
+    fontFamily: fonts.body,
+    textAlign: "center",
+  },
+  effortTextCompact: {
+    fontSize: 9,
+    lineHeight: 11,
   },
 });

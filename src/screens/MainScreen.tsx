@@ -158,6 +158,7 @@ export function MainScreen() {
     "llm",
   );
   const model = activeResponseRoute.model;
+  const modelEffort = activeResponseRoute.effort;
   const availableResponseModes = getAvailableResponseModes(settings);
   const availableSttProviders = getEnabledSttProviders(settings);
   const availableTtsProviders = getEnabledTtsProviders(settings);
@@ -257,6 +258,7 @@ export function MainScreen() {
     provider,
     providerApiKey,
     model,
+    modelEffort,
     sttMode: settings.sttMode,
     sttProvider,
     sttApiKey,
@@ -830,6 +832,7 @@ export function MainScreen() {
         activeResponseMode,
         inputMode: settings.inputMode,
         model,
+        modelEffort: modelEffort ?? null,
         provider,
         replyPlayback: settings.replyPlayback,
         responseLength: settings.responseLength,
@@ -844,6 +847,7 @@ export function MainScreen() {
   }, [
     activeResponseMode,
     model,
+    modelEffort,
     provider,
     settings.inputMode,
     settings.replyPlayback,

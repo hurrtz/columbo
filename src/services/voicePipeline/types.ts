@@ -52,6 +52,7 @@ export interface RunVoicePipelineParams {
   transcriptionOverride?: string;
   messages: Message[];
   model: string;
+  modelEffort?: string;
   provider: Provider;
   providerApiKey: string;
   sttMode: SttBackendMode;

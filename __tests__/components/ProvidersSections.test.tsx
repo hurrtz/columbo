@@ -3,6 +3,7 @@ import { fireEvent, render } from "@testing-library/react-native";
 
 import {
   ProviderApiKeyCard,
+  ResponseModesSection,
   ProviderSelectionGrid,
 } from "../../src/components/settings/ProvidersSections";
 import { APP_PROVIDER_CATALOG_IDS } from "../../src/catalog/appProviders";
@@ -142,6 +143,66 @@ describe("ProviderSelectionGrid", () => {
     expect(screen.getByText("Checking 1")).toBeTruthy();
     expect(screen.getByText("Failing 1")).toBeTruthy();
     expect(screen.getByText("Missing 1")).toBeTruthy();
+  });
+});
+
+describe("ResponseModesSection", () => {
+  it("shows an effort picker for Gemini models with thinking levels", () => {
+    const screen = render(
+      <ThemeProvider mode="light">
+        <LocalizationProvider language="en">
+          <ResponseModesSection
+            settings={{
+              ...DEFAULT_SETTINGS,
+              responseModes: {
+                quick: {
+                  provider: "gemini",
+                  model: "gemini-live-2.5-flash-native-audio",
+                },
+                normal: {
+                  provider: "gemini",
+                  model: "gemini-3.5-flash",
+                  effort: "high",
+                },
+                deep: {
+                  provider: "gemini",
+                  model: "gemini-3.1-pro-preview",
+                  effort: "high",
+                },
+              },
+            }}
+            enabledProviders={["gemini"]}
+            onUpdateResponseModeRoute={jest.fn()}
+          />
+        </LocalizationProvider>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getAllByText("Effort").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("High").length).toBeGreaterThan(0);
+  });
+
+  it("keeps effort hidden for Gemini models without effort metadata", () => {
+    const screen = render(
+      <ThemeProvider mode="light">
+        <LocalizationProvider language="en">
+          <ResponseModesSection
+            settings={{
+              ...DEFAULT_SETTINGS,
+              responseModes: {
+                quick: { provider: "gemini", model: "gemini-2.5-flash" },
+                normal: { provider: "gemini", model: "gemini-2.5-flash" },
+                deep: { provider: "gemini", model: "gemini-2.5-flash" },
+              },
+            }}
+            enabledProviders={["gemini"]}
+            onUpdateResponseModeRoute={jest.fn()}
+          />
+        </LocalizationProvider>
+      </ThemeProvider>,
+    );
+
+    expect(screen.queryByText("Effort")).toBeNull();
   });
 });
 

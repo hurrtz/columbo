@@ -16,6 +16,7 @@ import type {
   ResponseModeSelections,
   Settings,
 } from "../../types";
+import { normalizeResponseModeRouteEffort } from "../../utils/modelEffort";
 import { getDefaultModelForProvider, getProviderValidationModel } from "../../utils/responseModes";
 import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
 
@@ -214,17 +215,17 @@ export function buildSetupGuideResponseModes(
   const model = getDefaultModelForProvider(provider);
 
   return {
-    quick: {
+    quick: normalizeResponseModeRouteEffort({
       provider,
       model,
-    },
-    normal: {
+    }),
+    normal: normalizeResponseModeRouteEffort({
       provider,
       model,
-    },
-    deep: {
+    }),
+    deep: normalizeResponseModeRouteEffort({
       provider,
       model,
-    },
+    }),
   };
 }

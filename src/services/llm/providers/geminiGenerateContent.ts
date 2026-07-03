@@ -4,6 +4,10 @@ import {
   normalizeProviderTransportError,
 } from "../../providerErrors";
 import { AppLanguage, Provider } from "../../../types";
+import {
+  getModelEffortTransportParam,
+  getModelEffortTransportValue,
+} from "../../../utils/modelEffort";
 
 import { readEventStream } from "../eventStream";
 import { ChatMessage, requireProviderKey } from "../shared";
@@ -38,15 +42,38 @@ function toGeminiContents(messages: ChatMessage[]) {
 }
 
 function buildGeminiGenerateContentBody(params: {
+  provider: Provider;
+  model: string;
+  modelEffort?: string;
   messages: ChatMessage[];
   systemPrompt: string;
 }) {
-  return {
+  const body = {
     systemInstruction: {
       parts: [{ text: params.systemPrompt }],
     },
     contents: toGeminiContents(params.messages),
   };
+  const thinkingLevel =
+    getModelEffortTransportParam(params.provider, params.model) ===
+    "gemini-thinking-level"
+      ? getModelEffortTransportValue(
+          params.provider,
+          params.model,
+          params.modelEffort,
+        )
+      : undefined;
+
+  return thinkingLevel
+    ? {
+        ...body,
+        generationConfig: {
+          thinkingConfig: {
+            thinkingLevel,
+          },
+        },
+      }
+    : body;
 }
 
 function extractGeminiGenerateContentText(payload: unknown): string {
@@ -93,6 +120,7 @@ export async function requestGeminiGenerateContentChat(params: {
   endpoint: string;
   provider: Provider;
   model: string;
+  modelEffort?: string;
   messages: ChatMessage[];
   apiKey: string;
   language: AppLanguage;
@@ -119,6 +147,9 @@ export async function requestGeminiGenerateContentChat(params: {
         },
         body: JSON.stringify(
           buildGeminiGenerateContentBody({
+            provider: params.provider,
+            model: params.model,
+            modelEffort: params.modelEffort,
             messages: params.messages,
             systemPrompt: params.systemPrompt,
           }),
@@ -153,6 +184,7 @@ export async function requestGeminiGenerateContentChatStream(params: {
   endpoint: string;
   provider: Provider;
   model: string;
+  modelEffort?: string;
   messages: ChatMessage[];
   apiKey: string;
   language: AppLanguage;
@@ -181,6 +213,9 @@ export async function requestGeminiGenerateContentChatStream(params: {
         },
         body: JSON.stringify(
           buildGeminiGenerateContentBody({
+            provider: params.provider,
+            model: params.model,
+            modelEffort: params.modelEffort,
             messages: params.messages,
             systemPrompt: params.systemPrompt,
           }),

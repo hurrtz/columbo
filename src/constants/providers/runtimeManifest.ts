@@ -46,6 +46,22 @@ export interface RuntimeModelSpec {
   id: string;
   fallbackName?: string;
   releaseDate?: string;
+  effort?: RuntimeModelEffortConfig;
+}
+
+export type RuntimeModelEffortTransportParam = "gemini-thinking-level";
+
+export interface RuntimeModelEffortOption {
+  id: string;
+  label: string;
+  localizedLabels?: Partial<Record<"de", string>>;
+  transportValue?: string;
+}
+
+export interface RuntimeModelEffortConfig {
+  options: RuntimeModelEffortOption[];
+  defaultOptionId?: string;
+  transportParam: RuntimeModelEffortTransportParam;
 }
 
 export interface RuntimeVoiceOption {
@@ -131,12 +147,64 @@ function namedModel(
   return releaseDate ? { id, fallbackName, releaseDate } : { id, fallbackName };
 }
 
+function withEffort(
+  modelSpec: RuntimeModelSpec,
+  effort: RuntimeModelEffortConfig,
+): RuntimeModelSpec {
+  return {
+    ...modelSpec,
+    effort,
+  };
+}
+
 function voice(
   id: string,
   label: string,
   localizedLabels?: RuntimeVoiceOption["localizedLabels"],
 ): RuntimeVoiceOption {
   return localizedLabels ? { id, label, localizedLabels } : { id, label };
+}
+
+const GEMINI_THINKING_LEVEL_OPTIONS: RuntimeModelEffortOption[] = [
+  {
+    id: "minimal",
+    label: "Minimal",
+    localizedLabels: { de: "Minimal" },
+    transportValue: "MINIMAL",
+  },
+  {
+    id: "low",
+    label: "Low",
+    localizedLabels: { de: "Niedrig" },
+    transportValue: "LOW",
+  },
+  {
+    id: "medium",
+    label: "Medium",
+    localizedLabels: { de: "Mittel" },
+    transportValue: "MEDIUM",
+  },
+  {
+    id: "high",
+    label: "High",
+    localizedLabels: { de: "Hoch" },
+    transportValue: "HIGH",
+  },
+];
+
+function geminiThinkingEffort(
+  defaultOptionId: string,
+  optionIds: string[],
+): RuntimeModelEffortConfig {
+  const allowedOptionIds = new Set(optionIds);
+
+  return {
+    defaultOptionId,
+    options: GEMINI_THINKING_LEVEL_OPTIONS.filter((option) =>
+      allowedOptionIds.has(option.id),
+    ),
+    transportParam: "gemini-thinking-level",
+  };
 }
 
 const DEEPGRAM_TTS_VOICE_OPTIONS: RuntimeVoiceOption[] = [
@@ -535,8 +603,28 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       realtimeTransport: "gemini-live",
       models: [
         model("gemini-live-2.5-flash-native-audio"),
-        model("gemini-3.5-flash"),
-        model("gemini-3.1-flash-lite"),
+        withEffort(
+          model("gemini-3.5-flash"),
+          geminiThinkingEffort("medium", [
+            "minimal",
+            "low",
+            "medium",
+            "high",
+          ]),
+        ),
+        withEffort(
+          namedModel("gemini-3.1-pro-preview", "Gemini 3.1 Pro Preview"),
+          geminiThinkingEffort("high", ["low", "medium", "high"]),
+        ),
+        withEffort(
+          model("gemini-3.1-flash-lite"),
+          geminiThinkingEffort("minimal", [
+            "minimal",
+            "low",
+            "medium",
+            "high",
+          ]),
+        ),
         model("gemini-2.5-pro"),
         model("gemini-2.5-flash"),
         model("gemini-2.5-flash-lite"),

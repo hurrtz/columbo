@@ -334,6 +334,43 @@ describe("streamChat", () => {
     });
   });
 
+  it("passes Gemini effort as generateContent thinking level", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'data: {"candidates":[{"content":{"parts":[{"text":"Hi from Gemini"}]}}]}\n\n',
+          ),
+        );
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+
+    await streamChat({
+      messages: mockMessages,
+      model: "gemini-3.5-flash",
+      provider: "gemini",
+      apiKey: "gemini-test-key",
+      modelEffort: "high",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: () => {},
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    const [, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(JSON.parse(options.body).generationConfig).toEqual({
+      thinkingConfig: {
+        thinkingLevel: "HIGH",
+      },
+    });
+  });
+
 
   it("uses the configured routed endpoint for a hyphenated OpenAI-compatible provider", async () => {
     const encoder = new TextEncoder();
