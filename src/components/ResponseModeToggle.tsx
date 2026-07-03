@@ -62,9 +62,7 @@ export function ResponseModeToggle({
         const providerLabel = PROVIDER_LABELS[route.provider];
         const modelLabel = getProviderModelName(route.provider, route.model);
         const effortLabel = getResponseModeRouteEffortLabel(route, language);
-        const effortText = effortLabel
-          ? t("effortValue", { effort: effortLabel })
-          : "";
+        const effortText = effortLabel ?? "";
         const content = (
           <View style={styles.optionContent}>
             <View

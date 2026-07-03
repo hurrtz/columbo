@@ -20,7 +20,7 @@ jest.mock("../../src/components/ProviderIcon", () => ({
 }));
 
 describe("ResponseModeToggle", () => {
-  it("shows effort beneath the model name for effort-capable routes", () => {
+  it("shows the effort value beneath the model name without an effort prefix", () => {
     const screen = renderWithProviders(
       <ResponseModeToggle
         selected="normal"
@@ -46,7 +46,8 @@ describe("ResponseModeToggle", () => {
     );
 
     expect(screen.getByText("Gemini 3.5 Flash")).toBeTruthy();
-    expect(screen.getAllByText("Effort: High").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("High").length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Effort:/)).toBeNull();
   });
 
   it("does not add an effort line for routes without effort metadata", () => {
