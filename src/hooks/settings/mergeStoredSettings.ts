@@ -23,6 +23,7 @@ import {
   type ProviderSttModelSelections,
   type ProviderTtsModelSelections,
   type ProviderTtsVoiceSelections,
+  type ResponseModeConfig,
   type ResponseMode,
   type ResponseModeRoute,
   type ResponseModeSelections,
@@ -34,8 +35,13 @@ import {
 import {
   getDefaultModelForProvider,
   isValidModelForProvider,
-  RESPONSE_MODE_ORDER,
+  LEGACY_RESPONSE_MODE_ORDER,
 } from "../../utils/responseModes";
+import {
+  createResponseModeId,
+  DEFAULT_RESPONSE_MODE_COUNT,
+  MAX_RESPONSE_MODES,
+} from "../../constants/providers/defaults";
 import { normalizeResponseModeRouteEffort } from "../../utils/modelEffort";
 import {
   LEGACY_MODEL_FIELD_KEYS,
@@ -148,7 +154,7 @@ function migrateLegacyProviders(
 }
 
 function isResponseMode(value: unknown): value is ResponseMode {
-  return typeof value === "string" && RESPONSE_MODE_ORDER.includes(value as ResponseMode);
+  return typeof value === "string" && value.trim().length > 0;
 }
 
 function extractStoredProviderModels(
@@ -250,50 +256,91 @@ function getLegacyResponseModeRoute(
   });
 }
 
+function extractStoredResponseModeRoute(
+  entry: unknown,
+  providerModels: ProviderModelSelections,
+): ResponseModeRoute | null {
+  if (!entry || typeof entry !== "object") {
+    return null;
+  }
+
+  const candidate = entry as Partial<ResponseModeRoute>;
+  const provider = isProvider(candidate.provider) ? candidate.provider : undefined;
+
+  if (!provider) {
+    return null;
+  }
+
+  const fallbackModel = providerModels[provider] || getDefaultModelForProvider(provider);
+  const model =
+    typeof candidate.model === "string" &&
+    isValidModelForProvider(provider, candidate.model)
+      ? candidate.model
+      : isValidModelForProvider(provider, fallbackModel)
+        ? fallbackModel
+        : getDefaultModelForProvider(provider);
+  const effort =
+    typeof candidate.effort === "string" && candidate.effort.trim()
+      ? candidate.effort
+      : undefined;
+
+  return normalizeResponseModeRouteEffort({
+    provider,
+    model,
+    ...(effort ? { effort } : {}),
+  });
+}
+
 function extractStoredResponseModes(
   storedSettings: LegacyStoredSettings | undefined,
   providerModels: ProviderModelSelections,
-): Partial<ResponseModeSelections> {
-  const storedResponseModes = storedSettings?.responseModes;
+): ResponseModeSelections {
+  const storedResponseModes = storedSettings?.responseModes as unknown;
 
   if (!storedResponseModes || typeof storedResponseModes !== "object") {
-    return {};
+    return [];
   }
 
-  return RESPONSE_MODE_ORDER.reduce((accumulator, mode) => {
-    const entry = storedResponseModes[mode];
+  if (Array.isArray(storedResponseModes)) {
+    return storedResponseModes
+      .slice(0, MAX_RESPONSE_MODES)
+      .reduce((accumulator, entry, index) => {
+        const candidate = entry as Partial<ResponseModeConfig> | undefined;
+        const route = extractStoredResponseModeRoute(
+          candidate?.route,
+          providerModels,
+        );
 
-    if (!entry || typeof entry !== "object") {
-      return accumulator;
+        if (!route) {
+          return accumulator;
+        }
+
+        const id =
+          typeof candidate?.id === "string" && candidate.id.trim()
+            ? candidate.id
+            : createResponseModeId(index);
+
+        accumulator.push({ id, route });
+        return accumulator;
+      }, [] as ResponseModeSelections);
+  }
+
+  return LEGACY_RESPONSE_MODE_ORDER.reduce((accumulator, legacyMode, index) => {
+    const legacyRecord = storedResponseModes as Record<string, unknown>;
+    const route = extractStoredResponseModeRoute(
+      legacyRecord[legacyMode],
+      providerModels,
+    );
+
+    if (route) {
+      accumulator.push({
+        id: createResponseModeId(index),
+        route,
+      });
     }
-
-    const provider = isProvider(entry.provider) ? entry.provider : undefined;
-
-    if (!provider) {
-      return accumulator;
-    }
-
-    const fallbackModel = providerModels[provider] || getDefaultModelForProvider(provider);
-    const model =
-      typeof entry.model === "string" && isValidModelForProvider(provider, entry.model)
-        ? entry.model
-        : isValidModelForProvider(provider, fallbackModel)
-          ? fallbackModel
-          : getDefaultModelForProvider(provider);
-
-    const effort =
-      typeof entry.effort === "string" && entry.effort.trim()
-        ? entry.effort
-        : undefined;
-
-    accumulator[mode] = normalizeResponseModeRouteEffort({
-      provider,
-      model,
-      ...(effort ? { effort } : {}),
-    });
 
     return accumulator;
-  }, {} as Partial<ResponseModeSelections>);
+  }, [] as ResponseModeSelections);
 }
 
 function extractStoredWebSearchProviderSettings(
@@ -421,9 +468,32 @@ export function mergeSettings(
   );
   const webSearchProviderSettings =
     extractStoredWebSearchProviderSettings(storedSettings);
-  const hasStoredResponseModes = RESPONSE_MODE_ORDER.some(
-    (mode) => !!extractedResponseModes[mode],
+  const hasStoredResponseModes = extractedResponseModes.length > 0;
+  const legacyActiveResponseModeIndex = LEGACY_RESPONSE_MODE_ORDER.indexOf(
+    storedSettings?.activeResponseMode as typeof LEGACY_RESPONSE_MODE_ORDER[number],
   );
+  const activeResponseMode = (() => {
+    const storedActiveResponseMode = storedSettings?.activeResponseMode;
+
+    if (
+      isResponseMode(storedActiveResponseMode) &&
+      extractedResponseModes.some((mode) => mode.id === storedActiveResponseMode)
+    ) {
+      return storedActiveResponseMode;
+    }
+
+    if (legacyActiveResponseModeIndex >= 0) {
+      return (
+        extractedResponseModes[legacyActiveResponseModeIndex]?.id ??
+        createResponseModeId(legacyActiveResponseModeIndex)
+      );
+    }
+
+    return (
+      extractedResponseModes[0]?.id ??
+      DEFAULT_SETTINGS.activeResponseMode
+    );
+  })();
   const spokenRepliesEnabled =
     typeof storedSettings?.spokenRepliesEnabled === "boolean"
       ? storedSettings.spokenRepliesEnabled
@@ -480,22 +550,19 @@ export function mergeSettings(
       ? storedSettings.webSearchProvider
       : DEFAULT_SETTINGS.webSearchProvider,
     webSearchProviderSettings,
-    activeResponseMode: isResponseMode(storedSettings?.activeResponseMode)
-      ? storedSettings.activeResponseMode
-      : DEFAULT_SETTINGS.activeResponseMode,
+    activeResponseMode,
     responseModes:
       !storedSettings
         ? DEFAULT_SETTINGS.responseModes
         : hasStoredResponseModes
-          ? {
-              ...DEFAULT_SETTINGS.responseModes,
-              ...extractedResponseModes,
-            }
-          : {
-              quick: legacyResponseModeRoute,
-              normal: legacyResponseModeRoute,
-              deep: legacyResponseModeRoute,
-            },
+          ? extractedResponseModes
+          : Array.from(
+              { length: DEFAULT_RESPONSE_MODE_COUNT },
+              (_, index) => ({
+                id: createResponseModeId(index),
+                route: legacyResponseModeRoute,
+              }),
+            ),
     providerModels: mergedProviderModels,
     providerSttModels: mergedProviderSttModels,
     providerTtsModels: mergedProviderTtsModels,

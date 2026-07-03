@@ -35,6 +35,8 @@ interface ProvidersTabProps {
     mode: ResponseMode,
     route: ResponseModeRoute,
   ) => void;
+  onAddResponseMode: () => void;
+  onRemoveResponseMode: (mode: ResponseMode) => void;
   onUpdateApiKey: (provider: Provider, apiKey: string) => void;
   onTextInputFocus: TextInputFocusHandler;
   onValidateProvider: (provider: Provider) => Promise<void>;
@@ -45,6 +47,8 @@ export function ProvidersTab({
   focusProvider,
   focusCatalogProviderId,
   onUpdateResponseModeRoute,
+  onAddResponseMode,
+  onRemoveResponseMode,
   onUpdateApiKey,
   onTextInputFocus,
   onValidateProvider,
@@ -88,6 +92,8 @@ export function ProvidersTab({
         settings={settings}
         enabledProviders={enabledProviders}
         onUpdateResponseModeRoute={onUpdateResponseModeRoute}
+        onAddResponseMode={onAddResponseMode}
+        onRemoveResponseMode={onRemoveResponseMode}
       />
 
       <View

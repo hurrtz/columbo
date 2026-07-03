@@ -23,7 +23,7 @@ import {
   AssistantResponseLength,
   AssistantResponseTone,
   ResponseMode,
-  ResponseModeRoute,
+  ResponseModeSelections,
 } from "../../types";
 
 import { TranslateFn } from "./shared";
@@ -40,7 +40,7 @@ interface MainScreenRouteCardProps {
   onSelectResponseMode: (mode: ResponseMode) => void;
   onToggleWebSearchEnabled: () => void;
   responseLength: AssistantResponseLength;
-  responseModes: Record<ResponseMode, ResponseModeRoute>;
+  responseModes: ResponseModeSelections;
   responseTone: AssistantResponseTone;
   showStyleChip: boolean;
   style?: StyleProp<ViewStyle>;
@@ -121,7 +121,7 @@ export function MainScreenRouteCard({
           compact={compactResponseModes}
           selected={activeResponseMode}
           onSelect={onSelectResponseMode}
-          routes={responseModes}
+          modes={responseModes}
           readyModes={availableResponseModes}
         />
       ) : (

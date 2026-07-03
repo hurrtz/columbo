@@ -45,6 +45,7 @@ import type {
   Provider,
   ReplyPlayback,
   ResponseMode,
+  ResponseModeRoute,
   Settings,
   SttBackendMode,
   TtsBackendMode,
@@ -682,6 +683,8 @@ export function AiModelsSection({
   searchProviders,
   onUpdate,
   onUpdateResponseModeRoute,
+  onAddResponseMode,
+  onRemoveResponseMode,
 }: {
   settings: Settings;
   llmProviders: Provider[];
@@ -691,8 +694,10 @@ export function AiModelsSection({
   ) => void;
   onUpdateResponseModeRoute: (
     mode: ResponseMode,
-    route: { provider: Provider; model: string },
+    route: ResponseModeRoute,
   ) => void;
+  onAddResponseMode: () => void;
+  onRemoveResponseMode: (mode: ResponseMode) => void;
 }) {
   const { colors } = useTheme();
   const { t } = useLocalization();
@@ -794,6 +799,8 @@ export function AiModelsSection({
         settings={settings}
         enabledProviders={llmProviders}
         onUpdateResponseModeRoute={onUpdateResponseModeRoute}
+        onAddResponseMode={onAddResponseMode}
+        onRemoveResponseMode={onRemoveResponseMode}
       />
 
       <View

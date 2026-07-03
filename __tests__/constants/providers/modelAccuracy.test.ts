@@ -26,13 +26,10 @@ describe("provider model accuracy", () => {
   it("uses the curated runtime picker, not broad catalog rows, for new response modes", () => {
     const modes = deriveResponseModesForProvider("perplexity");
     const runtimeIds = providerModelIds("perplexity");
+    const modeModelIds = modes.map((mode) => mode.route.model);
 
-    expect(Object.values(modes).map((mode) => mode.model)).toEqual(
-      runtimeIds.slice(0, 3),
-    );
-    expect(Object.values(modes).map((mode) => mode.model)).not.toContain(
-      "perplexity/sonar",
-    );
+    expect(modeModelIds).toEqual(runtimeIds.slice(0, 3));
+    expect(modeModelIds).not.toContain("perplexity/sonar");
   });
 
   it("exposes current Anthropic Claude 5 models and hides retired Claude 4.0 rows", () => {

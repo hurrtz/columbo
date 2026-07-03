@@ -45,7 +45,7 @@ export const en: TranslationDictionary = {
     instructionsTabDescription:
       "Shape the hidden guidance that steers the assistant before any provider sees the request.",
     providersTabDescription:
-      "Store external-service credentials on-device and map each response mode after a service is configured.",
+      "Store external-service credentials on-device and configure the response modes you want to use.",
     webSearchTabDescription:
       "Configure optional live web context before replies.",
     catalogOnlyProvidersHint: ({ count }) =>
@@ -53,17 +53,11 @@ export const en: TranslationDictionary = {
     openProviderCatalogDetails: ({ provider }) =>
       `Open ${provider} catalog details`,
     responseModes: "Response Modes",
+    responseModeItemTitle: ({ index }) => `Response mode ${index}`,
+    addResponseMode: "Add response mode",
+    removeResponseMode: "Remove response mode",
     responseModesNoConfiguredProviders:
       "Add credentials first. Route controls stay hidden until at least one compatible service is configured.",
-    quickAndShallow: "Chat",
-    deepThinking: "Research",
-    responseModeReason: "Reason",
-    quickModeDescription:
-      "Use this for fast answers where speed matters more than nuance.",
-    normalModeDescription:
-      "Use this for most conversations when you want a balanced answer.",
-    deepModeDescription:
-      "Use this when you want more detail, tradeoffs, and reasoning.",
     useResponseMode: ({ mode }) => `Use ${mode}`,
     sttTabDescription:
       "Control how speech is captured and which backend turns audio into text before it reaches the model.",

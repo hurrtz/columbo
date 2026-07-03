@@ -16,11 +16,23 @@ describe("response mode selectors", () => {
   it("returns only response modes backed by configured provider keys", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
-      responseModes: {
-        quick: { provider: "gemini" as const, model: "gemini-2.5-flash" },
-        normal: { provider: "anthropic" as const, model: "claude-sonnet-4-6" },
-        deep: { provider: "openai" as const, model: "gpt-5.4" },
-      },
+      responseModes: [
+        {
+          id: "mode-1",
+          route: { provider: "gemini" as const, model: "gemini-2.5-flash" },
+        },
+        {
+          id: "mode-2",
+          route: {
+            provider: "anthropic" as const,
+            model: "claude-sonnet-4-6",
+          },
+        },
+        {
+          id: "mode-3",
+          route: { provider: "openai" as const, model: "gpt-5.4" },
+        },
+      ],
       apiKeys: {
         ...DEFAULT_SETTINGS.apiKeys,
         gemini: "gemini-test-key",
@@ -28,24 +40,29 @@ describe("response mode selectors", () => {
       },
     };
 
-    expect(getAvailableResponseModes(settings)).toEqual(["quick", "deep"]);
+    expect(getAvailableResponseModes(settings)).toEqual(["mode-1", "mode-3"]);
   });
 
   it("prefers the active response mode model when validating a provider", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
-      activeResponseMode: "quick" as const,
-      responseModes: {
-        ...DEFAULT_SETTINGS.responseModes,
-        quick: {
-          provider: "openai" as const,
-          model: "gpt-5-mini",
+      activeResponseMode: "mode-1",
+      responseModes: [
+        {
+          id: "mode-1",
+          route: {
+            provider: "openai" as const,
+            model: "gpt-5-mini",
+          },
         },
-        deep: {
-          provider: "openai" as const,
-          model: "gpt-5.4",
+        {
+          id: "mode-2",
+          route: {
+            provider: "openai" as const,
+            model: "gpt-5.4",
+          },
         },
-      },
+      ],
       providerModels: {
         ...DEFAULT_SETTINGS.providerModels,
         openai: "gpt-4.1",
@@ -65,49 +82,50 @@ describe("response mode selectors", () => {
   it("does not treat a search-only provider with an empty model as a usable response mode", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
-      responseModes: {
-        quick: { provider: "brave" as const, model: "" },
-        normal: { provider: "brave" as const, model: "" },
-        deep: { provider: "brave" as const, model: "" },
-      },
+      responseModes: [
+        { id: "mode-1", route: { provider: "brave" as const, model: "" } },
+        { id: "mode-2", route: { provider: "brave" as const, model: "" } },
+      ],
       apiKeys: {
         ...DEFAULT_SETTINGS.apiKeys,
         brave: "brave-search-key",
       },
     };
 
-    expect(isResponseModeReady(settings, "quick")).toBe(false);
+    expect(isResponseModeReady(settings, "mode-1")).toBe(false);
     expect(getAvailableResponseModes(settings)).toEqual([]);
   });
 
   it("allows any non-empty Gemini key for response modes and defers validity to server validation", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
-      responseModes: {
-        ...DEFAULT_SETTINGS.responseModes,
-        quick: {
-          provider: "gemini" as const,
-          model: "gemini-2.5-flash",
+      responseModes: [
+        {
+          id: "mode-1",
+          route: {
+            provider: "gemini" as const,
+            model: "gemini-2.5-flash",
+          },
         },
-      },
+      ],
       apiKeys: {
         ...DEFAULT_SETTINGS.apiKeys,
         gemini: "not-a-google-key",
       },
     };
 
-    expect(isResponseModeReady(settings, "quick")).toBe(true);
+    expect(isResponseModeReady(settings, "mode-1")).toBe(true);
   });
 
   it("derives effort defaults for effort-capable Gemini response routes", () => {
     const modes = deriveResponseModesForProvider("gemini");
 
-    expect(modes.normal).toEqual({
+    expect(modes[1].route).toEqual({
       provider: "gemini",
       model: "gemini-3.5-flash",
       effort: "medium",
     });
-    expect(modes.deep).toEqual({
+    expect(modes[2].route).toEqual({
       provider: "gemini",
       model: "gemini-3.1-pro-preview",
       effort: "high",
@@ -116,7 +134,7 @@ describe("response mode selectors", () => {
 });
 
 describe("deriveResponseModesForProvider", () => {
-  it("maps quick/normal/deep to the first three curated runtime models of the provider", () => {
+  it("maps the first three dynamic modes to curated runtime models of the provider", () => {
     const expected = PROVIDER_MODELS.openai
       .slice(0, 3)
       .map((model) => model.id);
@@ -125,36 +143,38 @@ describe("deriveResponseModesForProvider", () => {
 
     const modes = deriveResponseModesForProvider("openai");
 
-    expect(modes.quick).toEqual({
+    expect(modes).toHaveLength(3);
+    expect(modes.map((mode) => mode.id)).toEqual([
+      "mode-1",
+      "mode-2",
+      "mode-3",
+    ]);
+    expect(modes[0].route).toEqual({
       provider: "openai",
       model: expected[0],
       effort: "medium",
     });
-    expect(modes.normal).toEqual({
+    expect(modes[1].route).toEqual({
       provider: "openai",
       model: expected[1],
       effort: "none",
     });
-    expect(modes.deep).toEqual({
+    expect(modes[2].route).toEqual({
       provider: "openai",
       model: expected[2],
       effort: "none",
     });
 
-    const distinct = new Set([
-      modes.quick.model,
-      modes.normal.model,
-      modes.deep.model,
-    ]);
+    const distinct = new Set(modes.map((mode) => mode.route.model));
     expect(distinct.size).toBe(3);
   });
 
   it("assigns every mode a route belonging to the requested provider", () => {
     const modes = deriveResponseModesForProvider("anthropic");
 
-    for (const route of Object.values(modes)) {
-      expect(route.provider).toBe("anthropic");
-      expect(route.model).not.toBe("");
+    for (const mode of modes) {
+      expect(mode.route.provider).toBe("anthropic");
+      expect(mode.route.model).not.toBe("");
     }
   });
 
@@ -166,9 +186,11 @@ describe("deriveResponseModesForProvider", () => {
 
     // deepseek exposes fewer than three models today; this asserts the padding
     // contract regardless: every mode gets a real model id from the provider.
-    expect(orderedIds).toContain(modes.quick.model);
-    expect(orderedIds).toContain(modes.normal.model);
-    expect(orderedIds).toContain(modes.deep.model);
-    expect(modes.deep.model).toBe(orderedIds[Math.min(2, orderedIds.length - 1)]);
+    expect(orderedIds).toContain(modes[0].route.model);
+    expect(orderedIds).toContain(modes[1].route.model);
+    expect(orderedIds).toContain(modes[2].route.model);
+    expect(modes[2].route.model).toBe(
+      orderedIds[Math.min(2, orderedIds.length - 1)],
+    );
   });
 });

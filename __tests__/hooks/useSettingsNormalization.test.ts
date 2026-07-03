@@ -74,11 +74,20 @@ describe("useSettingsNormalization", () => {
         ...DEFAULT_SETTINGS.providerTtsVoices,
         openai: "invalid-voice",
       },
-      responseModes: {
-        quick: { provider: "anthropic", model: "claude-sonnet-4-6" },
-        normal: { provider: "anthropic", model: "claude-sonnet-4-6" },
-        deep: { provider: "anthropic", model: "claude-sonnet-4-6" },
-      },
+      responseModes: [
+        {
+          id: "mode-1",
+          route: { provider: "anthropic", model: "claude-sonnet-4-6" },
+        },
+        {
+          id: "mode-2",
+          route: { provider: "anthropic", model: "claude-sonnet-4-6" },
+        },
+        {
+          id: "mode-3",
+          route: { provider: "anthropic", model: "claude-sonnet-4-6" },
+        },
+      ],
     };
 
     renderHook(() =>
@@ -107,11 +116,20 @@ describe("useSettingsNormalization", () => {
         providerTtsVoices: expect.objectContaining({
           openai: "alloy",
         }),
-        responseModes: {
-          quick: { provider: "openai", model: "gpt-5.5", effort: "medium" },
-          normal: { provider: "openai", model: "gpt-5.5", effort: "medium" },
-          deep: { provider: "openai", model: "gpt-5.5", effort: "medium" },
-        },
+        responseModes: [
+          {
+            id: "mode-1",
+            route: { provider: "openai", model: "gpt-5.5", effort: "medium" },
+          },
+          {
+            id: "mode-2",
+            route: { provider: "openai", model: "gpt-5.5", effort: "medium" },
+          },
+          {
+            id: "mode-3",
+            route: { provider: "openai", model: "gpt-5.5", effort: "medium" },
+          },
+        ],
       }),
     );
   });

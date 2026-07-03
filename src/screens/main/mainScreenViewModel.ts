@@ -13,7 +13,6 @@ import {
   Conversation,
   Message,
   Provider,
-  ResponseMode,
   Settings,
   TtsListenLanguage,
   VoiceVisualPhase,
@@ -48,17 +47,6 @@ interface GetMainScreenViewModelParams {
   ttsProvider: Provider | null;
 }
 
-function getResponseModeLabel(mode: ResponseMode, t: TranslateFn) {
-  switch (mode) {
-    case "quick":
-      return t("quickAndShallow");
-    case "normal":
-      return t("responseModeReason");
-    case "deep":
-      return t("deepThinking");
-  }
-}
-
 export function getMainScreenViewModel({
   activeConversation,
   availableTtsProviders,
@@ -79,14 +67,13 @@ export function getMainScreenViewModel({
   ttsProvider,
 }: GetMainScreenViewModelParams) {
   const providerLabel = PROVIDER_LABELS[provider];
-  const responseModeLabel = getResponseModeLabel(settings.activeResponseMode, t);
   const modelLabel = getProviderModelName(provider, model);
   const routeModelLabel = hasProviderCredentialForCapability(
     provider,
     settings.apiKeys[provider],
     "llm",
   )
-    ? `${responseModeLabel} · ${providerLabel} · ${modelLabel}`
+    ? `${providerLabel} · ${modelLabel}`
     : t("noProviderYet");
   const sttStatusLabel =
     settings.sttMode === "native"

@@ -4,6 +4,7 @@ import type {
   ProviderSttModelSelections,
   ProviderTtsModelSelections,
   ProviderTtsVoiceSelections,
+  ResponseModeConfig,
   ResponseModeSelections,
 } from "../../types";
 import { PROVIDER_ORDER } from "./catalogData";
@@ -46,13 +47,27 @@ export const DEFAULT_PROVIDER_TTS_VOICES: ProviderTtsVoiceSelections =
  * three modes are auto-derived from the user's first configured provider in
  * `updateApiKey`, so this placeholder is replaced before it is ever relied on.
  */
+export const MIN_RESPONSE_MODES = 1;
+export const MAX_RESPONSE_MODES = 4;
+export const DEFAULT_RESPONSE_MODE_COUNT = 3;
+
 const NEUTRAL_RESPONSE_MODE_ROUTE = {
   provider: DEFAULT_RUNTIME_PROVIDER_ID,
   model: "",
 } as const;
 
-export const DEFAULT_RESPONSE_MODES: ResponseModeSelections = {
-  quick: { ...NEUTRAL_RESPONSE_MODE_ROUTE },
-  normal: { ...NEUTRAL_RESPONSE_MODE_ROUTE },
-  deep: { ...NEUTRAL_RESPONSE_MODE_ROUTE },
-};
+export function createResponseModeId(index: number) {
+  return `mode-${index + 1}`;
+}
+
+export function createNeutralResponseMode(index: number): ResponseModeConfig {
+  return {
+    id: createResponseModeId(index),
+    route: { ...NEUTRAL_RESPONSE_MODE_ROUTE },
+  };
+}
+
+export const DEFAULT_RESPONSE_MODES: ResponseModeSelections = Array.from(
+  { length: DEFAULT_RESPONSE_MODE_COUNT },
+  (_, index) => createNeutralResponseMode(index),
+);

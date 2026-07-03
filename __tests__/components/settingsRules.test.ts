@@ -19,11 +19,20 @@ describe("settingsRules", () => {
   it("repairs response modes that point to disabled providers", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
-      responseModes: {
-        quick: { provider: "openai" as const, model: "gpt-5.4" },
-        normal: { provider: "openai" as const, model: "gpt-5.4" },
-        deep: { provider: "openai" as const, model: "gpt-5.4" },
-      },
+      responseModes: [
+        {
+          id: "mode-1",
+          route: { provider: "openai" as const, model: "gpt-5.4" },
+        },
+        {
+          id: "mode-2",
+          route: { provider: "openai" as const, model: "gpt-5.4" },
+        },
+        {
+          id: "mode-3",
+          route: { provider: "openai" as const, model: "gpt-5.4" },
+        },
+      ],
       providerModels: {
         ...DEFAULT_SETTINGS.providerModels,
         deepseek: "deepseek-v4-flash",
@@ -32,23 +41,32 @@ describe("settingsRules", () => {
 
     const next = getNormalizedResponseModes(settings, ["deepseek"]);
 
-    expect(next).toEqual({
-      quick: {
-        provider: "deepseek",
-        model: "deepseek-v4-flash",
-        effort: "high",
+    expect(next).toEqual([
+      {
+        id: "mode-1",
+        route: {
+          provider: "deepseek",
+          model: "deepseek-v4-flash",
+          effort: "high",
+        },
       },
-      normal: {
-        provider: "deepseek",
-        model: "deepseek-v4-flash",
-        effort: "high",
+      {
+        id: "mode-2",
+        route: {
+          provider: "deepseek",
+          model: "deepseek-v4-flash",
+          effort: "high",
+        },
       },
-      deep: {
-        provider: "deepseek",
-        model: "deepseek-v4-flash",
-        effort: "high",
+      {
+        id: "mode-3",
+        route: {
+          provider: "deepseek",
+          model: "deepseek-v4-flash",
+          effort: "high",
+        },
       },
-    });
+    ]);
   });
 
   it("repairs invalid provider voice selections", () => {

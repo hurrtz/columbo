@@ -21,6 +21,8 @@ export function SettingsProvider({
       value.updateProviderSttModel,
       value.updateProviderTtsModel,
       value.updateResponseModeRoute,
+      value.addResponseMode,
+      value.removeResponseMode,
       value.updateActiveResponseMode,
       value.updateProviderTtsVoice,
       value.updateApiKey,

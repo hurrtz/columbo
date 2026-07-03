@@ -154,25 +154,36 @@ describe("ResponseModesSection", () => {
           <ResponseModesSection
             settings={{
               ...DEFAULT_SETTINGS,
-              responseModes: {
-                quick: {
-                  provider: "gemini",
-                  model: "gemini-live-2.5-flash-native-audio",
+              responseModes: [
+                {
+                  id: "mode-1",
+                  route: {
+                    provider: "gemini",
+                    model: "gemini-live-2.5-flash-native-audio",
+                  },
                 },
-                normal: {
-                  provider: "gemini",
-                  model: "gemini-3.5-flash",
-                  effort: "high",
+                {
+                  id: "mode-2",
+                  route: {
+                    provider: "gemini",
+                    model: "gemini-3.5-flash",
+                    effort: "high",
+                  },
                 },
-                deep: {
-                  provider: "gemini",
-                  model: "gemini-3.1-pro-preview",
-                  effort: "high",
+                {
+                  id: "mode-3",
+                  route: {
+                    provider: "gemini",
+                    model: "gemini-3.1-pro-preview",
+                    effort: "high",
+                  },
                 },
-              },
+              ],
             }}
             enabledProviders={["gemini"]}
             onUpdateResponseModeRoute={jest.fn()}
+            onAddResponseMode={jest.fn()}
+            onRemoveResponseMode={jest.fn()}
           />
         </LocalizationProvider>
       </ThemeProvider>,
@@ -189,14 +200,21 @@ describe("ResponseModesSection", () => {
           <ResponseModesSection
             settings={{
               ...DEFAULT_SETTINGS,
-              responseModes: {
-                quick: { provider: "gemini", model: "gemini-2.5-flash" },
-                normal: { provider: "gemini", model: "gemini-2.5-flash" },
-                deep: { provider: "gemini", model: "gemini-2.5-flash" },
-              },
+              responseModes: [
+                {
+                  id: "mode-1",
+                  route: { provider: "gemini", model: "gemini-2.5-flash" },
+                },
+                {
+                  id: "mode-2",
+                  route: { provider: "gemini", model: "gemini-2.5-flash" },
+                },
+              ],
             }}
             enabledProviders={["gemini"]}
             onUpdateResponseModeRoute={jest.fn()}
+            onAddResponseMode={jest.fn()}
+            onRemoveResponseMode={jest.fn()}
           />
         </LocalizationProvider>
       </ThemeProvider>,

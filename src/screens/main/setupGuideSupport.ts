@@ -11,6 +11,10 @@ import {
   WEB_SEARCH_PROVIDER_IDS,
   type WebSearchProvider,
 } from "../../constants/webSearch";
+import {
+  DEFAULT_RESPONSE_MODE_COUNT,
+  createResponseModeId,
+} from "../../constants/providers/defaults";
 import type {
   Provider,
   ResponseModeSelections,
@@ -214,18 +218,11 @@ export function buildSetupGuideResponseModes(
 ): ResponseModeSelections {
   const model = getDefaultModelForProvider(provider);
 
-  return {
-    quick: normalizeResponseModeRouteEffort({
+  return Array.from({ length: DEFAULT_RESPONSE_MODE_COUNT }, (_, index) => ({
+    id: createResponseModeId(index),
+    route: normalizeResponseModeRouteEffort({
       provider,
       model,
     }),
-    normal: normalizeResponseModeRouteEffort({
-      provider,
-      model,
-    }),
-    deep: normalizeResponseModeRouteEffort({
-      provider,
-      model,
-    }),
-  };
+  }));
 }

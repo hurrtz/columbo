@@ -126,24 +126,33 @@ describe("useSettings", () => {
     const { result } = renderHook(() => useSettings());
     await flushSettingsLoad();
 
-    expect(result.current.settings.responseModes).toEqual({
-      quick: {
-        provider: "anthropic",
-        model: "claude-opus-4-6",
-        effort: "high",
+    expect(result.current.settings.responseModes).toEqual([
+      {
+        id: "mode-1",
+        route: {
+          provider: "anthropic",
+          model: "claude-opus-4-6",
+          effort: "high",
+        },
       },
-      normal: {
-        provider: "anthropic",
-        model: "claude-opus-4-6",
-        effort: "high",
+      {
+        id: "mode-2",
+        route: {
+          provider: "anthropic",
+          model: "claude-opus-4-6",
+          effort: "high",
+        },
       },
-      deep: {
-        provider: "anthropic",
-        model: "claude-opus-4-6",
-        effort: "high",
+      {
+        id: "mode-3",
+        route: {
+          provider: "anthropic",
+          model: "claude-opus-4-6",
+          effort: "high",
+        },
       },
-    });
-    expect(result.current.settings.activeResponseMode).toBe("normal");
+    ]);
+    expect(result.current.settings.activeResponseMode).toBe("mode-1");
   });
 
   it("persists settings on update", async () => {
@@ -317,9 +326,9 @@ describe("useSettings", () => {
     });
 
     expect(getAvailableResponseModes(result.current.settings)).toEqual([
-      "quick",
-      "normal",
-      "deep",
+      "mode-1",
+      "mode-2",
+      "mode-3",
     ]);
   });
 
@@ -418,7 +427,7 @@ describe("useSettings", () => {
     await flushSettingsLoad();
 
     await act(async () => {
-      result.current.updateResponseModeRoute("deep", {
+      result.current.updateResponseModeRoute("mode-3", {
         provider: "gemini",
         model: "gemini-2.5-pro",
       });
@@ -427,10 +436,10 @@ describe("useSettings", () => {
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
       "@schnackai/settings",
       expect.stringContaining(
-        '"deep":{"provider":"gemini","model":"gemini-2.5-pro"}',
+        '"id":"mode-3","route":{"provider":"gemini","model":"gemini-2.5-pro"}',
       ),
     );
-    expect(result.current.settings.responseModes.deep).toEqual({
+    expect(result.current.settings.responseModes[2].route).toEqual({
       provider: "gemini",
       model: "gemini-2.5-pro",
     });
@@ -441,14 +450,14 @@ describe("useSettings", () => {
     await flushSettingsLoad();
 
     await act(async () => {
-      result.current.updateActiveResponseMode("deep");
+      result.current.updateActiveResponseMode("mode-3");
     });
 
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
       "@schnackai/settings",
-      expect.stringContaining('"activeResponseMode":"deep"'),
+      expect.stringContaining('"activeResponseMode":"mode-3"'),
     );
-    expect(result.current.settings.activeResponseMode).toBe("deep");
+    expect(result.current.settings.activeResponseMode).toBe("mode-3");
   });
 
   it("persists provider TTS voice selections", async () => {
@@ -523,10 +532,44 @@ describe("useSettings", () => {
       deriveResponseModesForProvider("openai"),
     );
     expect(getAvailableResponseModes(result.current.settings)).toEqual([
-      "quick",
-      "normal",
-      "deep",
+      "mode-1",
+      "mode-2",
+      "mode-3",
     ]);
+  });
+
+  it("adds response modes up to four and selects the new mode", async () => {
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    await act(async () => {
+      result.current.addResponseMode();
+    });
+    await act(async () => {
+      result.current.addResponseMode();
+    });
+
+    expect(result.current.settings.responseModes).toHaveLength(4);
+    expect(result.current.settings.responseModes[3].id).toBe("mode-4");
+    expect(result.current.settings.activeResponseMode).toBe("mode-4");
+  });
+
+  it("removes response modes but keeps at least one", async () => {
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    await act(async () => {
+      result.current.removeResponseMode("mode-1");
+    });
+    await act(async () => {
+      result.current.removeResponseMode("mode-2");
+    });
+    await act(async () => {
+      result.current.removeResponseMode("mode-3");
+    });
+
+    expect(result.current.settings.responseModes).toHaveLength(1);
+    expect(result.current.settings.responseModes[0].id).toBe("mode-3");
   });
 
   it("does not overwrite derived modes when a second provider key is added", async () => {
@@ -544,8 +587,8 @@ describe("useSettings", () => {
     });
 
     expect(result.current.settings.responseModes).toEqual(derived);
-    for (const route of Object.values(result.current.settings.responseModes)) {
-      expect(route.provider).toBe("openai");
+    for (const mode of result.current.settings.responseModes) {
+      expect(mode.route.provider).toBe("openai");
     }
   });
 

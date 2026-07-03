@@ -1,6 +1,13 @@
 import type { Provider, ResponseMode, Settings } from "../../types";
 import { PROVIDER_LLM_SUPPORT } from "../../constants/models";
-import { deriveResponseModesForProvider } from "../../utils/responseModes";
+import {
+  deriveResponseModesForProvider,
+  getNextResponseModeId,
+} from "../../utils/responseModes";
+import {
+  MAX_RESPONSE_MODES,
+  MIN_RESPONSE_MODES,
+} from "../../constants/providers/defaults";
 import { normalizeResponseModeRouteEffort } from "../../utils/modelEffort";
 import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
 import { persistApiKey, persistPublicSettings } from "./storage";
@@ -52,24 +59,82 @@ export function createProviderModelUpdater(
 }
 
 export function createResponseModeUpdater(setSettings: SetSettings) {
-  return (mode: ResponseMode, value: Settings["responseModes"][ResponseMode]) => {
+  return (mode: ResponseMode, value: Settings["responseModes"][number]["route"]) => {
     const normalizedValue = normalizeResponseModeRouteEffort(value);
 
     setSettings((prev) =>
       persistAndReturn({
         ...prev,
-        responseModes: {
-          ...prev.responseModes,
-          [mode]: normalizedValue,
-        },
+        responseModes: prev.responseModes.map((entry) =>
+          entry.id === mode ? { ...entry, route: normalizedValue } : entry,
+        ),
       }),
     );
   };
 }
 
+export function createResponseModeAdder(setSettings: SetSettings) {
+  return () => {
+    setSettings((prev) => {
+      if (prev.responseModes.length >= MAX_RESPONSE_MODES) {
+        return prev;
+      }
+
+      const sourceRoute =
+        prev.responseModes[prev.responseModes.length - 1]?.route ??
+        prev.responseModes[0]?.route;
+
+      if (!sourceRoute) {
+        return prev;
+      }
+
+      const nextMode = {
+        id: getNextResponseModeId(prev.responseModes),
+        route: normalizeResponseModeRouteEffort(sourceRoute),
+      };
+      const next = {
+        ...prev,
+        activeResponseMode: nextMode.id,
+        responseModes: [...prev.responseModes, nextMode],
+      };
+
+      return persistAndReturn(next);
+    });
+  };
+}
+
+export function createResponseModeRemover(setSettings: SetSettings) {
+  return (mode: ResponseMode) => {
+    setSettings((prev) => {
+      if (prev.responseModes.length <= MIN_RESPONSE_MODES) {
+        return prev;
+      }
+
+      const nextResponseModes = prev.responseModes.filter(
+        (entry) => entry.id !== mode,
+      );
+
+      if (nextResponseModes.length === prev.responseModes.length) {
+        return prev;
+      }
+
+      const nextActiveResponseMode =
+        prev.activeResponseMode === mode
+          ? nextResponseModes[0]?.id ?? prev.activeResponseMode
+          : prev.activeResponseMode;
+
+      return persistAndReturn({
+        ...prev,
+        activeResponseMode: nextActiveResponseMode,
+        responseModes: nextResponseModes,
+      });
+    });
+  };
+}
+
 function hasUsableResponseMode(settings: Settings): boolean {
-  return Object.values(settings.responseModes).some(
-    (route) =>
+  return settings.responseModes.some(
+    ({ route }) =>
       route.model.trim().length > 0 &&
       hasProviderCredentialForCapability(
         route.provider,

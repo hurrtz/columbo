@@ -16,11 +16,13 @@ import {
 import {
   getDefaultModelForProvider,
   isValidModelForProvider,
-  RESPONSE_MODE_ORDER,
 } from "../../utils/responseModes";
 import { normalizeResponseModeRouteEffort } from "../../utils/modelEffort";
 
-function routesEqual(left: ResponseModeSelections[keyof ResponseModeSelections], right: ResponseModeSelections[keyof ResponseModeSelections]) {
+function routesEqual(
+  left: ResponseModeSelections[number]["route"],
+  right: ResponseModeSelections[number]["route"],
+) {
   return (
     left.provider === right.provider &&
     left.model === right.model &&
@@ -53,16 +55,16 @@ export function getNormalizedResponseModes(
   }
 
   let changed = false;
-  const nextResponseModes = { ...settings.responseModes };
+  const nextResponseModes = settings.responseModes.map((entry) => ({ ...entry }));
 
-  for (const mode of RESPONSE_MODE_ORDER) {
-    const currentRoute = settings.responseModes[mode];
+  for (const mode of nextResponseModes) {
+    const currentRoute = mode.route;
 
     if (enabledProviders.includes(currentRoute.provider)) {
       const normalizedRoute = normalizeResponseModeRouteEffort(currentRoute);
 
       if (!routesEqual(currentRoute, normalizedRoute)) {
-        nextResponseModes[mode] = normalizedRoute;
+        mode.route = normalizedRoute;
         changed = true;
       }
 
@@ -75,7 +77,7 @@ export function getNormalizedResponseModes(
       ? preferredModel
       : getDefaultModelForProvider(nextProvider);
 
-    nextResponseModes[mode] = normalizeResponseModeRouteEffort({
+    mode.route = normalizeResponseModeRouteEffort({
       provider: nextProvider,
       model: nextModel,
     });

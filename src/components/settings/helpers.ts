@@ -5,7 +5,6 @@ import {
   AssistantResponseLength,
   AssistantResponseTone,
   Provider,
-  ResponseMode,
   TtsListenLanguage,
 } from "../../types";
 import {
@@ -121,34 +120,6 @@ export function getResponseToneOptions(
       description: t("eli5Description"),
     },
   ];
-}
-
-export function getResponseModeLabel(
-  mode: ResponseMode,
-  t: ReturnType<typeof useLocalization>["t"],
-) {
-  switch (mode) {
-    case "quick":
-      return t("quickAndShallow");
-    case "normal":
-      return t("responseModeReason");
-    case "deep":
-      return t("deepThinking");
-  }
-}
-
-export function getResponseModeDescription(
-  mode: ResponseMode,
-  t: ReturnType<typeof useLocalization>["t"],
-) {
-  switch (mode) {
-    case "quick":
-      return t("quickModeDescription");
-    case "normal":
-      return t("normalModeDescription");
-    case "deep":
-      return t("deepModeDescription");
-  }
 }
 
 export function getLocalPreviewSampleText(language: TtsListenLanguage) {

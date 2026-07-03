@@ -45,25 +45,19 @@ export const de: TranslationDictionary = {
     instructionsTabDescription:
       "Definiere die versteckte Anleitung, die den Assistenten steuert, bevor ein Anbieter die Anfrage sieht.",
     providersTabDescription:
-      "Speichere Zugangsdaten für externe Dienste auf dem Gerät und ordne jeder Gesprächskategorie nach der Konfiguration eine Route zu.",
+      "Speichere Zugangsdaten für externe Dienste auf dem Gerät und konfiguriere die Antwortmodi, die du verwenden möchtest.",
     webSearchTabDescription:
       "Konfiguriere optionalen frischen Web-Kontext vor Antworten.",
     catalogOnlyProvidersHint: ({ count }) =>
       `Hier werden ${count} zusätzliche Anbieter nur aus dem Katalog für die UI-Prüfung angezeigt. Konfigurierbar und wirklich aufrufbar sind aktuell nur die verdrahteten Anbieter.`,
     openProviderCatalogDetails: ({ provider }) =>
       `Katalogdetails für ${provider} öffnen`,
-    responseModes: "Gesprächskategorien",
+    responseModes: "Antwortmodi",
+    responseModeItemTitle: ({ index }) => `Antwortmodus ${index}`,
+    addResponseMode: "Antwortmodus hinzufügen",
+    removeResponseMode: "Antwortmodus entfernen",
     responseModesNoConfiguredProviders:
       "Füge zuerst Zugangsdaten hinzu. Routen bleiben ausgeblendet, bis mindestens ein kompatibler Dienst konfiguriert ist.",
-    quickAndShallow: "Chat",
-    deepThinking: "Recherche",
-    responseModeReason: "Reason",
-    quickModeDescription:
-      "Nutze das für schnelle Antworten, wenn Tempo wichtiger ist als Nuancen.",
-    normalModeDescription:
-      "Nutze das für die meisten Gespräche, wenn du eine ausgewogene Antwort willst.",
-    deepModeDescription:
-      "Nutze das, wenn du mehr Details, Abwägungen und Reasoning willst.",
     useResponseMode: ({ mode }) => `${mode} verwenden`,
     sttTabDescription:
       "Steuere, wie Sprache aufgenommen wird und welches Backend Audio in Text umwandelt, bevor es das Modell erreicht.",

@@ -343,7 +343,7 @@ describe("MainScreen", () => {
       createSharedSettingsValue({
         apiKeys: {
           ...DEFAULT_SETTINGS.apiKeys,
-          [DEFAULT_SETTINGS.responseModes.normal.provider]: "provider-key",
+          [DEFAULT_SETTINGS.responseModes[0].route.provider]: "provider-key",
         },
       }),
     );
@@ -387,23 +387,18 @@ describe("MainScreen", () => {
   });
 
   it("renders the style chip when a reply provider is configured", () => {
+    const provider = DEFAULT_SETTINGS.responseModes[0].route.provider;
     const route = {
-      provider: DEFAULT_SETTINGS.responseModes.normal.provider,
-      model: getDefaultModelForProvider(
-        DEFAULT_SETTINGS.responseModes.normal.provider,
-      ),
+      provider,
+      model: getDefaultModelForProvider(provider),
     };
 
     useSharedSettings.mockReturnValue(
       createSharedSettingsValue({
-        responseModes: {
-          quick: route,
-          normal: route,
-          deep: route,
-        },
+        responseModes: [{ id: "mode-1", route }],
         apiKeys: {
           ...DEFAULT_SETTINGS.apiKeys,
-          [DEFAULT_SETTINGS.responseModes.normal.provider]: "provider-key",
+          [provider]: "provider-key",
         },
       }),
     );

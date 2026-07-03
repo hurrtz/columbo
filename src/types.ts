@@ -24,7 +24,7 @@ export type ReplyPlayback = "stream" | "wait";
 export type TtsPlayback = ReplyPlayback;
 export type ThemeMode = "light" | "dark" | "system";
 export type AppLanguage = "en" | "de";
-export type ResponseMode = "quick" | "normal" | "deep";
+export type ResponseMode = string;
 export type TtsListenLanguage =
   | "en"
   | "de"
@@ -50,12 +50,16 @@ export interface ResponseModeRoute {
   model: string;
   effort?: string;
 }
+export interface ResponseModeConfig {
+  id: ResponseMode;
+  route: ResponseModeRoute;
+}
 export type ProviderApiKeys = Record<Provider, string>;
 export type ProviderModelSelections = Record<Provider, string>;
 export type ProviderSttModelSelections = Record<Provider, string>;
 export type ProviderTtsVoiceSelections = Record<Provider, string>;
 export type ProviderTtsModelSelections = Record<Provider, string>;
-export type ResponseModeSelections = Record<ResponseMode, ResponseModeRoute>;
+export type ResponseModeSelections = ResponseModeConfig[];
 export type UsageEstimateKind = "reply" | "summary";
 export type VoicePreviewRequest =
   | {
@@ -174,7 +178,7 @@ export const DEFAULT_SETTINGS: Settings = {
   inputMode: "toggle-to-talk",
   replyPlayback: "stream",
   spokenRepliesEnabled: true,
-  activeResponseMode: "normal",
+  activeResponseMode: DEFAULT_RESPONSE_MODES[0]?.id ?? "mode-1",
   responseModes: DEFAULT_RESPONSE_MODES,
   providerModels: PROVIDER_DEFAULT_MODELS,
   providerSttModels: DEFAULT_PROVIDER_STT_MODELS,

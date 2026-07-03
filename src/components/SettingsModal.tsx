@@ -37,6 +37,8 @@ export function SettingsModal(props: SettingsModalProps) {
     focusTab,
     onUpdate,
     onUpdateResponseModeRoute,
+    onAddResponseMode,
+    onRemoveResponseMode,
     onUpdateProviderSttModel,
     onUpdateProviderTtsModel,
     onUpdateProviderTtsVoice,
@@ -156,6 +158,8 @@ export function SettingsModal(props: SettingsModalProps) {
             searchProviders={selectableSearchProviders}
             onUpdate={onUpdate}
             onUpdateResponseModeRoute={onUpdateResponseModeRoute}
+            onAddResponseMode={onAddResponseMode}
+            onRemoveResponseMode={onRemoveResponseMode}
           />
         );
       case "voice":

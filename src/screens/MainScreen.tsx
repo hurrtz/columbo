@@ -52,6 +52,7 @@ import { getMaxRecordingMs } from "../utils/recordingLimits";
 import {
   getAvailableResponseModes,
   getProviderValidationModel,
+  getResponseModeRoute,
 } from "../utils/responseModes";
 import { MainScreenTopBar } from "./main/MainScreenTopBar";
 import { MainScreenRouteCard } from "./main/MainScreenRouteCard";
@@ -83,6 +84,8 @@ export function MainScreen() {
     updateSettings,
     updateActiveResponseMode,
     updateResponseModeRoute,
+    addResponseMode,
+    removeResponseMode,
     updateProviderSttModel,
     updateProviderTtsModel,
     updateProviderTtsVoice,
@@ -149,7 +152,7 @@ export function MainScreen() {
   } = useMainScreenUiState();
 
   const activeResponseMode = settings.activeResponseMode;
-  const activeResponseRoute = settings.responseModes[activeResponseMode];
+  const activeResponseRoute = getResponseModeRoute(settings);
   const provider = activeResponseRoute.provider;
   const providerApiKey = settings.apiKeys[provider].trim();
   const voiceInputDisabled = !hasProviderCredentialForCapability(
@@ -459,7 +462,8 @@ export function MainScreen() {
 
   const handleResponseModeChange = useCallback(
     (nextMode: ResponseMode) => {
-      const nextProvider = settings.responseModes[nextMode].provider;
+      const nextRoute = getResponseModeRoute(settings, nextMode);
+      const nextProvider = nextRoute.provider;
 
       recordDebugLogEvent({
         event: "response-mode-change-requested",
@@ -1309,6 +1313,8 @@ export function MainScreen() {
         focusTab={settingsFocusTab}
         onUpdate={updateSettings}
         onUpdateResponseModeRoute={updateResponseModeRoute}
+        onAddResponseMode={addResponseMode}
+        onRemoveResponseMode={removeResponseMode}
         onUpdateProviderSttModel={updateProviderSttModel}
         onUpdateProviderTtsModel={updateProviderTtsModel}
         onUpdateProviderTtsVoice={updateProviderTtsVoice}

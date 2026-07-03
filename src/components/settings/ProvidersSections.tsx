@@ -19,6 +19,10 @@ import {
   getProviderApiKeyHint,
   getProviderApiKeyPlaceholder,
 } from "../../constants/models";
+import {
+  MAX_RESPONSE_MODES,
+  MIN_RESPONSE_MODES,
+} from "../../constants/providers/defaults";
 import { useLocalization } from "../../i18n";
 import {
   Provider,
@@ -30,7 +34,6 @@ import { useTheme } from "../../theme/ThemeContext";
 import {
   getDefaultModelForProvider,
   isValidModelForProvider,
-  RESPONSE_MODE_ORDER,
 } from "../../utils/responseModes";
 import {
   getModelEffortOptionLabel,
@@ -40,11 +43,7 @@ import {
 import { Picker } from "../Picker";
 import { ProviderIcon } from "../ProviderIcon";
 
-import {
-  getResponseModeDescription,
-  getResponseModeLabel,
-  renderProviderPickerOptions,
-} from "./helpers";
+import { renderProviderPickerOptions } from "./helpers";
 import { styles } from "./styles";
 import {
   ProviderHealthState,
@@ -56,6 +55,8 @@ export function ResponseModesSection({
   settings,
   enabledProviders,
   onUpdateResponseModeRoute,
+  onAddResponseMode,
+  onRemoveResponseMode,
 }: {
   settings: Settings;
   enabledProviders: Provider[];
@@ -63,9 +64,14 @@ export function ResponseModesSection({
     mode: ResponseMode,
     route: ResponseModeRoute,
   ) => void;
+  onAddResponseMode: () => void;
+  onRemoveResponseMode: (mode: ResponseMode) => void;
 }) {
   const { colors } = useTheme();
   const { language, t } = useLocalization();
+  const canAddResponseMode = settings.responseModes.length < MAX_RESPONSE_MODES;
+  const canRemoveResponseMode =
+    settings.responseModes.length > MIN_RESPONSE_MODES;
 
   return (
     <View
@@ -74,9 +80,38 @@ export function ResponseModesSection({
         { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
       ]}
     >
-      <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
-        {t("responseModes")}
-      </Text>
+      <View style={styles.responseModesHeader}>
+        <Text
+          style={[
+            styles.sectionLabel,
+            styles.responseModesHeaderLabel,
+            { color: colors.textSecondary },
+          ]}
+        >
+          {t("responseModes")}
+        </Text>
+        {canAddResponseMode ? (
+          <TouchableOpacity
+            style={[
+              styles.responseModeHeaderButton,
+              { borderColor: colors.border },
+            ]}
+            onPress={onAddResponseMode}
+            accessibilityRole="button"
+            accessibilityLabel={t("addResponseMode")}
+          >
+            <Feather name="plus" size={14} color={colors.accent} />
+            <Text
+              style={[
+                styles.responseModeHeaderButtonText,
+                { color: colors.accent },
+              ]}
+            >
+              {t("addResponseMode")}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
+      </View>
 
       {enabledProviders.length === 0 ? (
         <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
@@ -84,8 +119,8 @@ export function ResponseModesSection({
         </Text>
       ) : (
         <View style={styles.responseModeList}>
-          {RESPONSE_MODE_ORDER.map((mode, index) => {
-            const route = settings.responseModes[mode];
+          {settings.responseModes.map((mode, index) => {
+            const route = mode.route;
             const normalizedRoute = normalizeResponseModeRouteEffort(route);
             const effortOptions = getModelEffortOptions(
               normalizedRoute.provider,
@@ -96,30 +131,41 @@ export function ResponseModesSection({
 
             return (
               <View
-                key={mode}
+                key={mode.id}
                 style={[
                   styles.responseModeItem,
                   {
                     borderTopColor: colors.border,
                     borderTopWidth: index === 0 ? 0 : 1,
                     paddingBottom:
-                      index === RESPONSE_MODE_ORDER.length - 1 ? 4 : 18,
+                      index === settings.responseModes.length - 1 ? 4 : 18,
                     paddingTop: index === 0 ? 8 : 20,
                   },
                 ]}
               >
-                <View style={styles.responseModeCopy}>
-                  <Text style={[styles.responseModeTitle, { color: colors.text }]}>
-                    {getResponseModeLabel(mode, t)}
-                  </Text>
+                <View style={styles.responseModeHeaderRow}>
                   <Text
-                    style={[
-                      styles.responseModeDescription,
-                      { color: colors.textMuted },
-                    ]}
+                    style={[styles.responseModeTitle, { color: colors.text }]}
                   >
-                    {getResponseModeDescription(mode, t)}
+                    {t("responseModeItemTitle", { index: index + 1 })}
                   </Text>
+                  {canRemoveResponseMode ? (
+                    <TouchableOpacity
+                      style={[
+                        styles.responseModeRemoveButton,
+                        { borderColor: colors.border },
+                      ]}
+                      onPress={() => onRemoveResponseMode(mode.id)}
+                      accessibilityRole="button"
+                      accessibilityLabel={t("removeResponseMode")}
+                    >
+                      <Feather
+                        name="trash-2"
+                        size={14}
+                        color={colors.textSecondary}
+                      />
+                    </TouchableOpacity>
+                  ) : null}
                 </View>
 
                 <Picker
@@ -139,10 +185,13 @@ export function ResponseModesSection({
                       ? preferredModel
                       : getDefaultModelForProvider(nextProvider);
 
-                    onUpdateResponseModeRoute(mode, normalizeResponseModeRouteEffort({
-                      provider: nextProvider,
-                      model: nextModel,
-                    }));
+                    onUpdateResponseModeRoute(
+                      mode.id,
+                      normalizeResponseModeRouteEffort({
+                        provider: nextProvider,
+                        model: nextModel,
+                      }),
+                    );
                   }}
                 />
 
@@ -161,10 +210,13 @@ export function ResponseModesSection({
                     label: model.name,
                   }))}
                   onChange={(value) =>
-                    onUpdateResponseModeRoute(mode, normalizeResponseModeRouteEffort({
-                      ...normalizedRoute,
-                      model: value,
-                    }))
+                    onUpdateResponseModeRoute(
+                      mode.id,
+                      normalizeResponseModeRouteEffort({
+                        ...normalizedRoute,
+                        model: value,
+                      }),
+                    )
                   }
                 />
 
@@ -181,7 +233,7 @@ export function ResponseModesSection({
                     }))}
                     onChange={(value) =>
                       onUpdateResponseModeRoute(
-                        mode,
+                        mode.id,
                         normalizeResponseModeRouteEffort({
                           ...normalizedRoute,
                           effort: value,

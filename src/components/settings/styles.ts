@@ -175,12 +175,39 @@ export const styles = StyleSheet.create({
   responseModeList: {
     marginBottom: 14,
   },
+  responseModesHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    marginBottom: 12,
+  },
+  responseModesHeaderLabel: {
+    marginBottom: 0,
+  },
+  responseModeHeaderButton: {
+    minHeight: 32,
+    paddingHorizontal: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  responseModeHeaderButtonText: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontFamily: fonts.display,
+  },
   responseModeItem: {
     paddingBottom: 10,
     paddingTop: 14,
   },
-  responseModeCopy: {
-    gap: 4,
+  responseModeHeaderRow: {
+    minHeight: 34,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 16,
   },
   responseModeTitle: {
@@ -188,10 +215,13 @@ export const styles = StyleSheet.create({
     lineHeight: 18,
     fontFamily: fonts.display,
   },
-  responseModeDescription: {
-    fontSize: 12,
-    lineHeight: 17,
-    fontFamily: fonts.body,
+  responseModeRemoveButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
   responseModePicker: {
     marginBottom: 10,

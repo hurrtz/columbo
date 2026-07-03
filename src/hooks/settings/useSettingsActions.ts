@@ -11,6 +11,8 @@ import {
 } from "../../types";
 import {
   createApiKeyUpdater,
+  createResponseModeAdder,
+  createResponseModeRemover,
   createProviderModelUpdater,
   createResponseModeUpdater,
   updateTopLevelSettingsValue,
@@ -67,6 +69,18 @@ export function useSettingsActions({ setSettings }: UseSettingsActionsParams) {
     [setSettings],
   );
 
+  const addResponseMode = useCallback(
+    createResponseModeAdder(setSettings),
+    [setSettings],
+  );
+
+  const removeResponseMode = useCallback(
+    (mode: ResponseMode) => {
+      createResponseModeRemover(setSettings)(mode);
+    },
+    [setSettings],
+  );
+
   const updateActiveResponseMode = useCallback(
     (value: ResponseMode) => {
       updateTopLevelSettingsValue(setSettings, "activeResponseMode", value);
@@ -97,6 +111,8 @@ export function useSettingsActions({ setSettings }: UseSettingsActionsParams) {
     updateProviderSttModel,
     updateProviderTtsModel,
     updateResponseModeRoute,
+    addResponseMode,
+    removeResponseMode,
     updateActiveResponseMode,
     updateProviderTtsVoice,
     updateApiKey,

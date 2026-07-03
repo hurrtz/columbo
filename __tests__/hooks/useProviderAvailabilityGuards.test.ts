@@ -14,8 +14,8 @@ describe("useProviderAvailabilityGuards", () => {
 
     renderHook(() =>
       useProviderAvailabilityGuards({
-        activeResponseMode: "normal",
-        availableResponseModes: ["normal"],
+        activeResponseMode: "mode-2",
+        availableResponseModes: ["mode-2"],
         availableSttProviders: ["openai"],
         availableTtsProviders: [],
         loaded: true,
@@ -43,8 +43,8 @@ describe("useProviderAvailabilityGuards", () => {
 
     renderHook(() =>
       useProviderAvailabilityGuards({
-        activeResponseMode: "normal",
-        availableResponseModes: ["normal"],
+        activeResponseMode: "mode-2",
+        availableResponseModes: ["mode-2"],
         availableSttProviders: [],
         availableTtsProviders: ["openai"],
         loaded: true,
@@ -67,8 +67,8 @@ describe("useProviderAvailabilityGuards", () => {
 
     renderHook(() =>
       useProviderAvailabilityGuards({
-        activeResponseMode: "normal",
-        availableResponseModes: ["quick", "deep"],
+        activeResponseMode: "mode-2",
+        availableResponseModes: ["mode-1", "mode-3"],
         availableSttProviders: ["openai"],
         availableTtsProviders: ["openai"],
         loaded: true,
@@ -82,7 +82,7 @@ describe("useProviderAvailabilityGuards", () => {
     );
 
     await waitFor(() => {
-      expect(updateActiveResponseMode).toHaveBeenCalledWith("quick");
+      expect(updateActiveResponseMode).toHaveBeenCalledWith("mode-1");
     });
   });
 
@@ -98,8 +98,8 @@ describe("useProviderAvailabilityGuards", () => {
 
     renderHook(() =>
       useProviderAvailabilityGuards({
-        activeResponseMode: "normal",
-        availableResponseModes: ["normal"],
+        activeResponseMode: "mode-2",
+        availableResponseModes: ["mode-2"],
         availableSttProviders: ["groq"],
         availableTtsProviders: ["xai"],
         loaded: true,

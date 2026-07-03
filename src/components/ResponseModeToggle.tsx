@@ -6,7 +6,7 @@ import { useLocalization } from "../i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { fonts } from "../theme/typography";
 import { ResponseMode, ResponseModeSelections } from "../types";
-import { RESPONSE_MODE_ORDER } from "../utils/responseModes";
+import { getResponseModeIds } from "../utils/responseModes";
 import { getResponseModeRouteEffortLabel } from "../utils/modelEffort";
 import { ProviderIcon } from "./ProviderIcon";
 
@@ -14,30 +14,16 @@ interface ResponseModeToggleProps {
   compact?: boolean;
   selected: ResponseMode;
   onSelect: (mode: ResponseMode) => void;
-  routes: ResponseModeSelections;
+  modes: ResponseModeSelections;
   readyModes?: ResponseMode[];
-}
-
-function getResponseModeLabel(
-  mode: ResponseMode,
-  t: ReturnType<typeof useLocalization>["t"],
-) {
-  switch (mode) {
-    case "quick":
-      return t("quickAndShallow");
-    case "normal":
-      return t("responseModeReason");
-    case "deep":
-      return t("deepThinking");
-  }
 }
 
 export function ResponseModeToggle({
   compact = false,
   selected,
   onSelect,
-  routes,
-  readyModes = RESPONSE_MODE_ORDER,
+  modes,
+  readyModes = getResponseModeIds(modes),
 }: ResponseModeToggleProps) {
   const { colors } = useTheme();
   const { language, t } = useLocalization();
@@ -54,35 +40,18 @@ export function ResponseModeToggle({
         },
       ]}
     >
-      {RESPONSE_MODE_ORDER.map((mode) => {
-        const active = mode === selected;
-        const route = routes[mode];
-        const ready = readyModes.includes(mode);
-        const modeLabel = getResponseModeLabel(mode, t);
+      {modes.map(({ id, route }) => {
+        const active = id === selected;
+        const ready = readyModes.includes(id);
         const providerLabel = PROVIDER_LABELS[route.provider];
         const modelLabel = getProviderModelName(route.provider, route.model);
         const effortLabel = getResponseModeRouteEffortLabel(route, language);
         const effortText = effortLabel ?? "";
+        const accessibilityRouteLabel = `${providerLabel}. ${modelLabel}${
+          effortText ? `. ${effortText}` : ""
+        }`;
         const content = (
           <View style={styles.optionContent}>
-            <View
-              style={[
-                styles.modeRow,
-                compact ? styles.modeRowCompact : null,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.optionLabel,
-                  compact ? styles.optionLabelCompact : null,
-                  { color: active ? colors.text : colors.textSecondary },
-                ]}
-                numberOfLines={1}
-              >
-                {modeLabel}
-              </Text>
-            </View>
-
             <View
               style={[
                 styles.providerIconRow,
@@ -101,27 +70,55 @@ export function ResponseModeToggle({
                 compact ? styles.modelRowCompact : null,
               ]}
             >
-              <Text
+              <View
                 style={[
-                  styles.modelText,
-                  compact ? styles.modelTextCompact : null,
-                  { color: active ? colors.text : colors.textMuted },
+                  styles.modelTextSlot,
+                  compact ? styles.modelTextSlotCompact : null,
                 ]}
-                numberOfLines={effortText || compact ? 1 : 2}
               >
-                {modelLabel}
-              </Text>
-              {effortText ? (
                 <Text
                   style={[
-                    styles.effortText,
-                    compact ? styles.effortTextCompact : null,
+                    styles.modelText,
+                    compact ? styles.modelTextCompact : null,
                     { color: active ? colors.text : colors.textMuted },
                   ]}
-                  numberOfLines={1}
+                  numberOfLines={2}
                 >
-                  {effortText}
+                  {modelLabel}
                 </Text>
+              </View>
+              {effortText ? (
+                <View
+                  testID="response-mode-effort-footer"
+                  style={[
+                    styles.effortFooter,
+                    compact ? styles.effortFooterCompact : null,
+                  ]}
+                >
+                  <View
+                    testID="response-mode-effort-divider"
+                    style={[
+                      styles.effortDivider,
+                      compact ? styles.effortDividerCompact : null,
+                      {
+                        backgroundColor: active
+                          ? colors.text
+                          : colors.borderStrong,
+                        opacity: active ? 0.28 : 1,
+                      },
+                    ]}
+                  />
+                  <Text
+                    style={[
+                      styles.effortText,
+                      compact ? styles.effortTextCompact : null,
+                      { color: active ? colors.text : colors.textMuted },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {effortText}
+                  </Text>
+                </View>
               ) : null}
             </View>
           </View>
@@ -129,7 +126,7 @@ export function ResponseModeToggle({
 
         return (
           <Pressable
-            key={mode}
+            key={id}
             style={[
               styles.option,
               !ready ? styles.optionDisabled : null,
@@ -140,11 +137,11 @@ export function ResponseModeToggle({
                     borderColor: colors.border,
                   },
             ]}
-            onPress={() => onSelect(mode)}
+            onPress={() => onSelect(id)}
             accessibilityRole="button"
             accessibilityLabel={`${t("useResponseMode", {
-              mode: modeLabel,
-            })}. ${providerLabel}. ${modelLabel}${effortText ? `. ${effortText}` : ""}`}
+              mode: accessibilityRouteLabel,
+            })}`}
             accessibilityState={{ disabled: !ready, selected: active }}
           >
             {active ? (
@@ -223,24 +220,6 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
-  modeRow: {
-    height: 20,
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  modeRowCompact: {
-    height: 18,
-  },
-  optionLabel: {
-    fontSize: 13,
-    lineHeight: 17,
-    fontFamily: fonts.display,
-  },
-  optionLabelCompact: {
-    fontSize: 12,
-    lineHeight: 16,
-  },
   providerIconRow: {
     height: 32,
     width: "100%",
@@ -251,15 +230,21 @@ const styles = StyleSheet.create({
     height: 28,
   },
   modelRow: {
-    height: 48,
+    height: 56,
+    width: "100%",
+    alignItems: "center",
+  },
+  modelRowCompact: {
+    height: 46,
+  },
+  modelTextSlot: {
+    flex: 1,
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    gap: 2,
   },
-  modelRowCompact: {
-    height: 30,
-    gap: 1,
+  modelTextSlotCompact: {
+    minHeight: 28,
   },
   modelText: {
     fontSize: 12,
@@ -270,6 +255,25 @@ const styles = StyleSheet.create({
   modelTextCompact: {
     fontSize: 10,
     lineHeight: 14,
+  },
+  effortDivider: {
+    width: 28,
+    height: 0.5,
+    borderRadius: 0.5,
+  },
+  effortDividerCompact: {
+    width: 22,
+  },
+  effortFooter: {
+    height: 20,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: 4,
+  },
+  effortFooterCompact: {
+    height: 18,
+    gap: 3,
   },
   effortText: {
     fontSize: 10,

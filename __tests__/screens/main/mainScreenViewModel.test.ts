@@ -21,11 +21,13 @@ describe("getMainScreenViewModel", () => {
   it("builds provider and fallback route labels plus streaming transcript state", () => {
     const settings: Settings = {
       ...DEFAULT_SETTINGS,
-      activeResponseMode: "quick",
-      responseModes: {
-        ...DEFAULT_SETTINGS.responseModes,
-        quick: { provider: "openai", model: "gpt-5.4" },
-      },
+      activeResponseMode: "mode-1",
+      responseModes: [
+        {
+          id: "mode-1",
+          route: { provider: "openai", model: "gpt-5.4" },
+        },
+      ],
       sttMode: "provider",
       sttProvider: "openai",
       providerSttModels: {
@@ -135,13 +137,13 @@ describe("getMainScreenViewModel", () => {
       availableTtsProviders: [],
       isRecording: false,
       language: "en",
-      model: DEFAULT_SETTINGS.responseModes.normal.model,
+      model: DEFAULT_SETTINGS.responseModes[0].route.model,
       pipelinePhase: "idle",
       player: {
         isPlaybackPaused: false,
         isPlaying: false,
       },
-      provider: DEFAULT_SETTINGS.responseModes.normal.provider,
+      provider: DEFAULT_SETTINGS.responseModes[0].route.provider,
       selectedSttModel: "",
       selectedTtsModel: "",
       selectedTtsVoice: "",

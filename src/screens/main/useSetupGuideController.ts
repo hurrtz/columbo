@@ -287,7 +287,7 @@ export function useSetupGuideController({
     }
 
     updateSettings({
-      activeResponseMode: "normal",
+      activeResponseMode: "mode-2",
       responseModes: buildSetupGuideResponseModes(selectedProvider),
       setupGuideDismissed: true,
       lastProvider: selectedProvider,

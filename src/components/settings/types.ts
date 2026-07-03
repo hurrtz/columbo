@@ -26,6 +26,8 @@ export interface SettingsModalProps {
     mode: ResponseMode,
     route: ResponseModeRoute,
   ) => void;
+  onAddResponseMode: () => void;
+  onRemoveResponseMode: (mode: ResponseMode) => void;
   onUpdateProviderSttModel: (provider: Provider, model: string) => void;
   onUpdateProviderTtsModel: (provider: Provider, model: string) => void;
   onUpdateProviderTtsVoice: (provider: Provider, voice: string) => void;

@@ -1,7 +1,13 @@
 import { PROVIDER_DEFAULT_MODELS, PROVIDER_MODELS } from "../constants/models";
 import {
+  DEFAULT_RESPONSE_MODE_COUNT,
+  MAX_RESPONSE_MODES,
+  createResponseModeId,
+} from "../constants/providers/defaults";
+import {
   Provider,
   ResponseMode,
+  ResponseModeConfig,
   ResponseModeRoute,
   ResponseModeSelections,
   Settings,
@@ -9,7 +15,25 @@ import {
 import { normalizeResponseModeRouteEffort } from "./modelEffort";
 import { hasProviderCredentialForCapability } from "./providerCredentials";
 
-export const RESPONSE_MODE_ORDER: ResponseMode[] = ["quick", "normal", "deep"];
+export const LEGACY_RESPONSE_MODE_ORDER = ["quick", "normal", "deep"] as const;
+
+export function getResponseModeIds(modes: ResponseModeSelections): ResponseMode[] {
+  return modes.map((mode) => mode.id);
+}
+
+export function getNextResponseModeId(modes: ResponseModeSelections) {
+  const existingIds = new Set(getResponseModeIds(modes));
+
+  for (let index = 0; index < MAX_RESPONSE_MODES; index += 1) {
+    const id = createResponseModeId(index);
+
+    if (!existingIds.has(id)) {
+      return id;
+    }
+  }
+
+  return createResponseModeId(modes.length);
+}
 
 /**
  * Derives a full set of response-mode routes ({@link ResponseModeSelections})
@@ -25,6 +49,7 @@ export const RESPONSE_MODE_ORDER: ResponseMode[] = ["quick", "normal", "deep"];
  */
 export function deriveResponseModesForProvider(
   provider: Provider,
+  count = DEFAULT_RESPONSE_MODE_COUNT,
 ): ResponseModeSelections {
   const runtimeModelIds = PROVIDER_MODELS[provider].map((model) => model.id);
 
@@ -37,20 +62,30 @@ export function deriveResponseModesForProvider(
     availableModelIds[availableModelIds.length - 1] ??
     fallbackModel;
 
-  return RESPONSE_MODE_ORDER.reduce((selections, mode, index) => {
-    selections[mode] = normalizeResponseModeRouteEffort({
+  return Array.from({ length: count }, (_, index) => ({
+    id: createResponseModeId(index),
+    route: normalizeResponseModeRouteEffort({
       provider,
       model: pickModel(index),
-    });
-    return selections;
-  }, {} as ResponseModeSelections);
+    }),
+  }));
+}
+
+export function getResponseModeEntry(
+  modes: ResponseModeSelections,
+  mode: ResponseMode,
+): ResponseModeConfig | undefined {
+  return modes.find((entry) => entry.id === mode);
 }
 
 export function getResponseModeRoute(
   settings: Settings,
   mode: ResponseMode = settings.activeResponseMode,
 ): ResponseModeRoute {
-  return settings.responseModes[mode];
+  return (
+    getResponseModeEntry(settings.responseModes, mode)?.route ??
+    settings.responseModes[0]?.route
+  );
 }
 
 export function isResponseModeReady(
@@ -58,6 +93,11 @@ export function isResponseModeReady(
   mode: ResponseMode,
 ): boolean {
   const route = getResponseModeRoute(settings, mode);
+
+  if (!route) {
+    return false;
+  }
+
   return (
     route.model.trim().length > 0 &&
     hasProviderCredentialForCapability(
@@ -69,7 +109,9 @@ export function isResponseModeReady(
 }
 
 export function getAvailableResponseModes(settings: Settings): ResponseMode[] {
-  return RESPONSE_MODE_ORDER.filter((mode) => isResponseModeReady(settings, mode));
+  return settings.responseModes
+    .filter((entry) => isResponseModeReady(settings, entry.id))
+    .map((entry) => entry.id);
 }
 
 export function isValidModelForProvider(
@@ -95,13 +137,11 @@ export function getProviderValidationModel(
 ): string {
   const activeRoute = getResponseModeRoute(settings);
 
-  if (activeRoute.provider === provider && activeRoute.model.trim()) {
+  if (activeRoute?.provider === provider && activeRoute.model.trim()) {
     return activeRoute.model;
   }
 
-  for (const mode of RESPONSE_MODE_ORDER) {
-    const route = settings.responseModes[mode];
-
+  for (const { route } of settings.responseModes) {
     if (route.provider === provider && route.model.trim()) {
       return route.model;
     }
