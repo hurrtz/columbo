@@ -125,9 +125,21 @@ describe("deriveResponseModesForProvider", () => {
 
     const modes = deriveResponseModesForProvider("openai");
 
-    expect(modes.quick).toEqual({ provider: "openai", model: expected[0] });
-    expect(modes.normal).toEqual({ provider: "openai", model: expected[1] });
-    expect(modes.deep).toEqual({ provider: "openai", model: expected[2] });
+    expect(modes.quick).toEqual({
+      provider: "openai",
+      model: expected[0],
+      effort: "medium",
+    });
+    expect(modes.normal).toEqual({
+      provider: "openai",
+      model: expected[1],
+      effort: "none",
+    });
+    expect(modes.deep).toEqual({
+      provider: "openai",
+      model: expected[2],
+      effort: "none",
+    });
 
     const distinct = new Set([
       modes.quick.model,

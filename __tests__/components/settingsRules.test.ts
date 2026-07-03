@@ -33,9 +33,21 @@ describe("settingsRules", () => {
     const next = getNormalizedResponseModes(settings, ["deepseek"]);
 
     expect(next).toEqual({
-      quick: { provider: "deepseek", model: "deepseek-v4-flash" },
-      normal: { provider: "deepseek", model: "deepseek-v4-flash" },
-      deep: { provider: "deepseek", model: "deepseek-v4-flash" },
+      quick: {
+        provider: "deepseek",
+        model: "deepseek-v4-flash",
+        effort: "high",
+      },
+      normal: {
+        provider: "deepseek",
+        model: "deepseek-v4-flash",
+        effort: "high",
+      },
+      deep: {
+        provider: "deepseek",
+        model: "deepseek-v4-flash",
+        effort: "high",
+      },
     });
   });
 

@@ -138,6 +138,7 @@ const LLM_TEXT_REQUESTERS = {
       endpoint: config.endpoint,
       provider: params.provider,
       model: params.model,
+      modelEffort: params.modelEffort,
       messages: params.messages,
       apiKey: params.apiKey,
       language: params.language,
@@ -182,6 +183,7 @@ const LLM_TEXT_REQUESTERS = {
   anthropic: async (params: LlmRequestParams) =>
     requestAnthropicChat({
       model: params.model,
+      modelEffort: params.modelEffort,
       messages: params.messages,
       apiKey: params.apiKey,
       language: params.language,
@@ -199,6 +201,7 @@ const LLM_STREAM_REQUESTERS = {
       endpoint: config.endpoint,
       provider: params.provider,
       model: params.model,
+      modelEffort: params.modelEffort,
       messages: params.messages,
       apiKey: params.apiKey,
       language: params.language,
@@ -247,6 +250,7 @@ const LLM_STREAM_REQUESTERS = {
   anthropic: async (params: StreamingLlmRequestParams) =>
     requestAnthropicChatStream({
       model: params.model,
+      modelEffort: params.modelEffort,
       messages: params.messages,
       apiKey: params.apiKey,
       language: params.language,
@@ -259,6 +263,7 @@ const LLM_STREAM_REQUESTERS = {
 async function requestChatText(params: {
   messages: ChatMessage[];
   model: string;
+  modelEffort?: string;
   provider: Provider;
   apiKey: string;
   language: AppLanguage;
@@ -507,6 +512,7 @@ export async function streamChat({
           fullText = await LLM_STREAM_REQUESTERS.anthropic({
             messages,
             model,
+            modelEffort,
             provider,
             apiKey,
             language,
@@ -519,6 +525,7 @@ export async function streamChat({
           fullText = await requestChatText({
             messages,
             model,
+            modelEffort,
             provider,
             apiKey,
             language,

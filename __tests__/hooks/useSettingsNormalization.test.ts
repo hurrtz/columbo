@@ -108,9 +108,9 @@ describe("useSettingsNormalization", () => {
           openai: "alloy",
         }),
         responseModes: {
-          quick: { provider: "openai", model: "gpt-5.5" },
-          normal: { provider: "openai", model: "gpt-5.5" },
-          deep: { provider: "openai", model: "gpt-5.5" },
+          quick: { provider: "openai", model: "gpt-5.5", effort: "medium" },
+          normal: { provider: "openai", model: "gpt-5.5", effort: "medium" },
+          deep: { provider: "openai", model: "gpt-5.5", effort: "medium" },
         },
       }),
     );

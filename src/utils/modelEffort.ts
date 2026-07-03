@@ -121,3 +121,62 @@ export function getModelEffortTransportValue(
 
   return option?.transportValue ?? option?.id;
 }
+
+export function getModelEffortRequestBody(
+  provider: Provider,
+  model: string,
+  effort: string | undefined,
+): Record<string, unknown> {
+  const transportParam = getModelEffortTransportParam(provider, model);
+  const value = getModelEffortTransportValue(provider, model, effort);
+
+  if (!transportParam || !value) {
+    return {};
+  }
+
+  switch (transportParam) {
+    case "anthropic-output-effort":
+      return {
+        output_config: {
+          effort: value,
+        },
+      };
+    case "deepseek-thinking-effort":
+      if (value === "disabled") {
+        return {
+          thinking: {
+            type: "disabled",
+          },
+        };
+      }
+
+      return {
+        thinking: {
+          type: "enabled",
+        },
+        reasoning_effort: value,
+      };
+    case "kimi-thinking":
+      return {
+        thinking: {
+          type: value,
+        },
+      };
+    case "qwen-enable-thinking":
+      return {
+        enable_thinking: value === "enabled",
+      };
+    case "reasoning-effort":
+      return {
+        reasoning_effort: value,
+      };
+    case "gemini-thinking-level":
+      return {
+        generationConfig: {
+          thinkingConfig: {
+            thinkingLevel: value,
+          },
+        },
+      };
+  }
+}

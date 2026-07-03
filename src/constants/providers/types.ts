@@ -15,7 +15,13 @@ export interface ModelEffortOption {
 export interface ModelEffortConfig {
   options: ModelEffortOption[];
   defaultOptionId?: string;
-  transportParam: "gemini-thinking-level";
+  transportParam:
+    | "anthropic-output-effort"
+    | "gemini-thinking-level"
+    | "deepseek-thinking-effort"
+    | "kimi-thinking"
+    | "qwen-enable-thinking"
+    | "reasoning-effort";
 }
 
 export interface TtsVoiceOption {

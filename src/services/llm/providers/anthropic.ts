@@ -4,19 +4,22 @@ import {
   normalizeProviderTransportError,
 } from "../../providerErrors";
 import { AppLanguage } from "../../../types";
+import { getModelEffortRequestBody } from "../../../utils/modelEffort";
 
 import { readEventStream } from "../eventStream";
 import { ChatMessage, requireProviderKey, toAPIMessages } from "../shared";
 
 export async function requestAnthropicChat(params: {
   model: string;
+  modelEffort?: string;
   messages: ChatMessage[];
   apiKey: string;
   language: AppLanguage;
   systemPrompt: string;
   abortSignal?: AbortSignal;
 }) {
-  const { model, messages, apiKey, systemPrompt, abortSignal } = params;
+  const { model, modelEffort, messages, apiKey, systemPrompt, abortSignal } =
+    params;
   let response: Awaited<ReturnType<typeof networkFetch>>;
 
   try {
@@ -30,6 +33,7 @@ export async function requestAnthropicChat(params: {
       body: JSON.stringify({
         model,
         max_tokens: 4096,
+        ...getModelEffortRequestBody("anthropic", model, modelEffort),
         system: systemPrompt,
         messages: toAPIMessages(messages),
       }),
@@ -64,6 +68,7 @@ export async function requestAnthropicChat(params: {
 
 export async function requestAnthropicChatStream(params: {
   model: string;
+  modelEffort?: string;
   messages: ChatMessage[];
   apiKey: string;
   language: AppLanguage;
@@ -71,8 +76,15 @@ export async function requestAnthropicChatStream(params: {
   onChunk: (text: string) => void;
   abortSignal?: AbortSignal;
 }) {
-  const { model, messages, apiKey, systemPrompt, onChunk, abortSignal } =
-    params;
+  const {
+    model,
+    modelEffort,
+    messages,
+    apiKey,
+    systemPrompt,
+    onChunk,
+    abortSignal,
+  } = params;
   let response: Awaited<ReturnType<typeof networkFetch>>;
 
   try {
@@ -86,6 +98,7 @@ export async function requestAnthropicChatStream(params: {
       body: JSON.stringify({
         model,
         max_tokens: 4096,
+        ...getModelEffortRequestBody("anthropic", model, modelEffort),
         system: systemPrompt,
         stream: true,
         messages: toAPIMessages(messages),
@@ -115,6 +128,7 @@ export async function requestAnthropicChatStream(params: {
   if (!response.body) {
     const fullText = await requestAnthropicChat({
       model,
+      modelEffort,
       messages,
       apiKey,
       language: params.language,

@@ -4,6 +4,7 @@ import {
   normalizeProviderTransportError,
 } from "../../providerErrors";
 import { AppLanguage, Provider } from "../../../types";
+import { getModelEffortRequestBody } from "../../../utils/modelEffort";
 
 import { readEventStream } from "../eventStream";
 import { ChatMessage, requireProviderKey, toAPIMessages } from "../shared";
@@ -42,6 +43,7 @@ export async function requestChatWithOpenAiCompatibleTransport(params: {
   headers: Record<string, string>;
   provider: Provider;
   model: string;
+  modelEffort?: string;
   messages: ChatMessage[];
   language: AppLanguage;
   systemPrompt: string;
@@ -52,6 +54,7 @@ export async function requestChatWithOpenAiCompatibleTransport(params: {
     headers,
     provider,
     model,
+    modelEffort,
     messages,
     language,
     systemPrompt,
@@ -68,6 +71,7 @@ export async function requestChatWithOpenAiCompatibleTransport(params: {
       },
       body: JSON.stringify({
         model,
+        ...getModelEffortRequestBody(provider, model, modelEffort),
         messages: [
           { role: "system", content: systemPrompt },
           ...toAPIMessages(messages),
@@ -104,6 +108,7 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
   headers: Record<string, string>;
   provider: Provider;
   model: string;
+  modelEffort?: string;
   messages: ChatMessage[];
   language: AppLanguage;
   systemPrompt: string;
@@ -115,6 +120,7 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
     headers,
     provider,
     model,
+    modelEffort,
     messages,
     language,
     systemPrompt,
@@ -132,6 +138,7 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
       },
       body: JSON.stringify({
         model,
+        ...getModelEffortRequestBody(provider, model, modelEffort),
         stream: true,
         messages: [
           { role: "system", content: systemPrompt },
@@ -166,6 +173,7 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
       headers,
       provider,
       model,
+      modelEffort,
       messages,
       language,
       systemPrompt,
@@ -206,6 +214,7 @@ export async function requestOpenAICompatibleChat(params: {
   endpoint: string;
   provider: Provider;
   model: string;
+  modelEffort?: string;
   messages: ChatMessage[];
   apiKey: string;
   language: AppLanguage;
@@ -223,6 +232,7 @@ export async function requestOpenAICompatibleChat(params: {
     },
     provider: params.provider,
     model: params.model,
+    modelEffort: params.modelEffort,
     messages: params.messages,
     language: params.language,
     systemPrompt: params.systemPrompt,
@@ -234,6 +244,7 @@ export async function requestOpenAICompatibleChatStream(params: {
   endpoint: string;
   provider: Provider;
   model: string;
+  modelEffort?: string;
   messages: ChatMessage[];
   apiKey: string;
   language: AppLanguage;
@@ -252,6 +263,7 @@ export async function requestOpenAICompatibleChatStream(params: {
     },
     provider: params.provider,
     model: params.model,
+    modelEffort: params.modelEffort,
     messages: params.messages,
     language: params.language,
     systemPrompt: params.systemPrompt,

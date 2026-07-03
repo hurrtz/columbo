@@ -129,4 +129,9 @@ describe("provider model accuracy", () => {
       "sonar-deep-research",
     ]);
   });
+
+  it("keeps code-specific xAI models out of the voice-chat picker", () => {
+    expect(providerModelIds("xai")).toEqual(["grok-4.3"]);
+    expect(providerModelIds("xai")).not.toContain("grok-build-0.1");
+  });
 });

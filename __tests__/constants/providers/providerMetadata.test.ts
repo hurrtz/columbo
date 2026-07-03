@@ -15,8 +15,7 @@ describe("provider metadata constants", () => {
       "DeepSeek Coder (legacy alias)",
     );
     expect(
-      PROVIDER_MODELS.xai.find((model) => model.id === "grok-4.20-non-reasoning")
-        ?.name,
+      getProviderModelName("xai", "grok-4.20-non-reasoning"),
     ).toBe("Grok 4.20 Non-Reasoning");
   });
 
@@ -36,9 +35,9 @@ describe("provider metadata constants", () => {
     expect(
       PROVIDER_MODELS.xai.find((model) => model.id === "grok-4.3")?.name,
     ).toBe("Grok 4.3");
-    expect(
-      PROVIDER_MODELS.xai.find((model) => model.id === "grok-build-0.1")?.name,
-    ).toBe("Grok Build 0.1");
+    expect(PROVIDER_MODELS.xai.map((model) => model.id)).not.toContain(
+      "grok-build-0.1",
+    );
   });
 
   it("does not expose retired xAI model slugs in the picker", () => {

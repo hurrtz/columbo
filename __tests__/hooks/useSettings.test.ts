@@ -6,8 +6,10 @@ import {
   DEFAULT_SETTINGS,
   DEFAULT_ASSISTANT_INSTRUCTIONS_BY_LANGUAGE,
 } from "../../src/types";
-import { getAvailableResponseModes } from "../../src/utils/responseModes";
-import { PROVIDER_MODELS } from "../../src/constants/models";
+import {
+  deriveResponseModesForProvider,
+  getAvailableResponseModes,
+} from "../../src/utils/responseModes";
 
 jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn(() => Promise.resolve(null)),
@@ -128,14 +130,17 @@ describe("useSettings", () => {
       quick: {
         provider: "anthropic",
         model: "claude-opus-4-6",
+        effort: "high",
       },
       normal: {
         provider: "anthropic",
         model: "claude-opus-4-6",
+        effort: "high",
       },
       deep: {
         provider: "anthropic",
         model: "claude-opus-4-6",
+        effort: "high",
       },
     });
     expect(result.current.settings.activeResponseMode).toBe("normal");
@@ -514,15 +519,9 @@ describe("useSettings", () => {
       result.current.updateApiKey("openai", "sk-first-provider");
     });
 
-    const expected = PROVIDER_MODELS.openai
-      .slice(0, 3)
-      .map((model) => model.id);
-
-    expect(result.current.settings.responseModes).toEqual({
-      quick: { provider: "openai", model: expected[0] },
-      normal: { provider: "openai", model: expected[1] },
-      deep: { provider: "openai", model: expected[2] },
-    });
+    expect(result.current.settings.responseModes).toEqual(
+      deriveResponseModesForProvider("openai"),
+    );
     expect(getAvailableResponseModes(result.current.settings)).toEqual([
       "quick",
       "normal",

@@ -49,7 +49,13 @@ export interface RuntimeModelSpec {
   effort?: RuntimeModelEffortConfig;
 }
 
-export type RuntimeModelEffortTransportParam = "gemini-thinking-level";
+export type RuntimeModelEffortTransportParam =
+  | "anthropic-output-effort"
+  | "gemini-thinking-level"
+  | "deepseek-thinking-effort"
+  | "kimi-thinking"
+  | "qwen-enable-thinking"
+  | "reasoning-effort";
 
 export interface RuntimeModelEffortOption {
   id: string;
@@ -192,6 +198,72 @@ const GEMINI_THINKING_LEVEL_OPTIONS: RuntimeModelEffortOption[] = [
   },
 ];
 
+const BASIC_REASONING_EFFORT_OPTIONS: RuntimeModelEffortOption[] = [
+  {
+    id: "none",
+    label: "None",
+    localizedLabels: { de: "Keine" },
+  },
+  {
+    id: "minimal",
+    label: "Minimal",
+    localizedLabels: { de: "Minimal" },
+  },
+  {
+    id: "low",
+    label: "Low",
+    localizedLabels: { de: "Niedrig" },
+  },
+  {
+    id: "medium",
+    label: "Medium",
+    localizedLabels: { de: "Mittel" },
+  },
+  {
+    id: "high",
+    label: "High",
+    localizedLabels: { de: "Hoch" },
+  },
+  {
+    id: "xhigh",
+    label: "Extra high",
+    localizedLabels: { de: "Sehr hoch" },
+  },
+  {
+    id: "max",
+    label: "Max",
+    localizedLabels: { de: "Maximal" },
+  },
+];
+
+const THINKING_TOGGLE_OPTIONS: RuntimeModelEffortOption[] = [
+  {
+    id: "disabled",
+    label: "Disabled",
+    localizedLabels: { de: "Deaktiviert" },
+  },
+  {
+    id: "enabled",
+    label: "Enabled",
+    localizedLabels: { de: "Aktiviert" },
+  },
+];
+
+function effortConfig(
+  transportParam: RuntimeModelEffortTransportParam,
+  defaultOptionId: string,
+  optionIds: string[],
+  options = BASIC_REASONING_EFFORT_OPTIONS,
+): RuntimeModelEffortConfig {
+  const allowedOptionIds = new Set(optionIds);
+
+  return {
+    defaultOptionId,
+    options: options.filter((option) => allowedOptionIds.has(option.id)),
+    transportParam,
+  };
+}
+
 function geminiThinkingEffort(
   defaultOptionId: string,
   optionIds: string[],
@@ -206,6 +278,78 @@ function geminiThinkingEffort(
     transportParam: "gemini-thinking-level",
   };
 }
+
+const OPENAI_GPT_55_EFFORT = effortConfig("reasoning-effort", "medium", [
+  "none",
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+]);
+
+const OPENAI_GPT_54_EFFORT = effortConfig("reasoning-effort", "none", [
+  "none",
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+]);
+
+const ANTHROPIC_OUTPUT_EFFORT = effortConfig("anthropic-output-effort", "high", [
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+  "max",
+]);
+
+const XAI_GROK_43_EFFORT = effortConfig("reasoning-effort", "low", [
+  "none",
+  "low",
+  "medium",
+  "high",
+]);
+
+const DEEPSEEK_THINKING_EFFORT = effortConfig(
+  "deepseek-thinking-effort",
+  "high",
+  ["disabled", "high", "max"],
+  [THINKING_TOGGLE_OPTIONS[0], ...BASIC_REASONING_EFFORT_OPTIONS],
+);
+
+const MISTRAL_REASONING_EFFORT = effortConfig(
+  "reasoning-effort",
+  "medium",
+  ["none", "minimal", "low", "medium", "high", "xhigh"],
+);
+
+const PERPLEXITY_REASONING_EFFORT = effortConfig(
+  "reasoning-effort",
+  "medium",
+  ["minimal", "low", "medium", "high"],
+);
+
+const DOUBAO_SEED_21_EFFORT = effortConfig("reasoning-effort", "high", [
+  "minimal",
+  "low",
+  "medium",
+  "high",
+  "max",
+]);
+
+const QWEN_THINKING_EFFORT = effortConfig(
+  "qwen-enable-thinking",
+  "enabled",
+  ["disabled", "enabled"],
+  THINKING_TOGGLE_OPTIONS,
+);
+
+const KIMI_THINKING_EFFORT = effortConfig(
+  "kimi-thinking",
+  "enabled",
+  ["disabled", "enabled"],
+  THINKING_TOGGLE_OPTIONS,
+);
 
 const DEEPGRAM_TTS_VOICE_OPTIONS: RuntimeVoiceOption[] = [
   voice("aura-2-thalia-en", "Aura 2 · Thalia"),
@@ -379,10 +523,16 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultModel: "gpt-5.5",
       realtimeModelIds: ["gpt-realtime-1.5", "gpt-realtime-mini"],
       models: [
-        model("gpt-5.5", "2026-04-23"),
-        model("gpt-5.4", "2026-03-01"),
-        model("gpt-5.4-mini", "2026-03-17"),
-        model("gpt-5.4-nano", "2026-03-17"),
+        withEffort(model("gpt-5.5", "2026-04-23"), OPENAI_GPT_55_EFFORT),
+        withEffort(model("gpt-5.4", "2026-03-01"), OPENAI_GPT_54_EFFORT),
+        withEffort(
+          model("gpt-5.4-mini", "2026-03-17"),
+          OPENAI_GPT_54_EFFORT,
+        ),
+        withEffort(
+          model("gpt-5.4-nano", "2026-03-17"),
+          OPENAI_GPT_54_EFFORT,
+        ),
         model("gpt-4.1", "2025-04-14"),
         model("gpt-4.1-mini", "2025-04-14"),
         namedModel("gpt-realtime-1.5", "GPT-Realtime-1.5"),
@@ -442,13 +592,19 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "anthropic",
       defaultModel: "claude-sonnet-5",
       models: [
-        namedModel("claude-sonnet-5", "Claude Sonnet 5"),
-        namedModel("claude-fable-5", "Claude Fable 5"),
-        model("claude-opus-4-8"),
+        withEffort(
+          namedModel("claude-sonnet-5", "Claude Sonnet 5"),
+          ANTHROPIC_OUTPUT_EFFORT,
+        ),
+        withEffort(
+          namedModel("claude-fable-5", "Claude Fable 5"),
+          ANTHROPIC_OUTPUT_EFFORT,
+        ),
+        withEffort(model("claude-opus-4-8"), ANTHROPIC_OUTPUT_EFFORT),
         model("claude-haiku-4-5-20251001"),
-        model("claude-sonnet-4-6"),
-        model("claude-opus-4-7"),
-        model("claude-opus-4-6"),
+        withEffort(model("claude-sonnet-4-6"), ANTHROPIC_OUTPUT_EFFORT),
+        withEffort(model("claude-opus-4-7"), ANTHROPIC_OUTPUT_EFFORT),
+        withEffort(model("claude-opus-4-6"), ANTHROPIC_OUTPUT_EFFORT),
       ],
     },
     stt: {
@@ -480,15 +636,27 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
       defaultModel: "qwen3.6-flash",
       models: [
-        namedModel("qwen3.7-plus", "Qwen3.7-Plus"),
-        namedModel("qwen3.7-max", "Qwen3.7-Max"),
-        namedModel("qwen3.6-flash", "Qwen3.6-Flash"),
-        namedModel("qwen3.6-plus", "Qwen3.6-Plus"),
-        model("qwen3.5-plus"),
-        model("qwen3.5-flash"),
-        model("qwen-plus"),
-        model("qwen-flash"),
-        model("qwen3-max"),
+        withEffort(
+          namedModel("qwen3.7-plus", "Qwen3.7-Plus"),
+          QWEN_THINKING_EFFORT,
+        ),
+        withEffort(
+          namedModel("qwen3.7-max", "Qwen3.7-Max"),
+          QWEN_THINKING_EFFORT,
+        ),
+        withEffort(
+          namedModel("qwen3.6-flash", "Qwen3.6-Flash"),
+          QWEN_THINKING_EFFORT,
+        ),
+        withEffort(
+          namedModel("qwen3.6-plus", "Qwen3.6-Plus"),
+          QWEN_THINKING_EFFORT,
+        ),
+        withEffort(model("qwen3.5-plus"), QWEN_THINKING_EFFORT),
+        withEffort(model("qwen3.5-flash"), QWEN_THINKING_EFFORT),
+        withEffort(model("qwen-plus"), QWEN_THINKING_EFFORT),
+        withEffort(model("qwen-flash"), QWEN_THINKING_EFFORT),
+        withEffort(model("qwen3-max"), QWEN_THINKING_EFFORT),
       ],
     },
     stt: {
@@ -542,8 +710,14 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       endpoint: "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
       defaultModel: "doubao-seed-2-1-turbo-260628",
       models: [
-        namedModel("doubao-seed-2-1-turbo-260628", "Doubao Seed 2.1 Turbo"),
-        namedModel("doubao-seed-2-1-pro-260628", "Doubao Seed 2.1 Pro"),
+        withEffort(
+          namedModel("doubao-seed-2-1-turbo-260628", "Doubao Seed 2.1 Turbo"),
+          DOUBAO_SEED_21_EFFORT,
+        ),
+        withEffort(
+          namedModel("doubao-seed-2-1-pro-260628", "Doubao Seed 2.1 Pro"),
+          DOUBAO_SEED_21_EFFORT,
+        ),
         namedModel("doubao-seed-2-0-lite-260428", "Doubao Seed 2.0 Lite"),
         namedModel("doubao-seed-2-0-mini-260428", "Doubao Seed 2.0 Mini"),
         model("doubao-seed-2-0-pro-260215"),
@@ -708,7 +882,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint: "https://api.x.ai/v1/chat/completions",
       defaultModel: "grok-4.3",
-      models: catalogModelSpecs("xai", "llm"),
+      models: [withEffort(model("grok-4.3"), XAI_GROK_43_EFFORT)],
     },
     stt: {
       support: "provider",
@@ -753,8 +927,14 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       endpoint: "https://api.deepseek.com/chat/completions",
       defaultModel: "deepseek-v4-flash",
       models: [
-        namedModel("deepseek-v4-flash", "DeepSeek V4 Flash"),
-        namedModel("deepseek-v4-pro", "DeepSeek V4 Pro"),
+        withEffort(
+          namedModel("deepseek-v4-flash", "DeepSeek V4 Flash"),
+          DEEPSEEK_THINKING_EFFORT,
+        ),
+        withEffort(
+          namedModel("deepseek-v4-pro", "DeepSeek V4 Pro"),
+          DEEPSEEK_THINKING_EFFORT,
+        ),
       ],
     },
     stt: {
@@ -783,7 +963,10 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       endpoint: "https://api.mistral.ai/v1/chat/completions",
       defaultModel: "mistral-medium-3-5",
       models: [
-        namedModel("mistral-medium-3-5", "Mistral Medium 3.5"),
+        withEffort(
+          namedModel("mistral-medium-3-5", "Mistral Medium 3.5"),
+          MISTRAL_REASONING_EFFORT,
+        ),
         model("mistral-small-2603"),
         model("mistral-large-2512"),
         model("ministral-14b-2512"),
@@ -825,8 +1008,8 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       endpoint: "https://api.moonshot.ai/v1/chat/completions",
       defaultModel: "kimi-k2.6",
       models: [
-        namedModel("kimi-k2.6", "Kimi K2.6"),
-        model("kimi-k2.5"),
+        withEffort(namedModel("kimi-k2.6", "Kimi K2.6"), KIMI_THINKING_EFFORT),
+        withEffort(model("kimi-k2.5"), KIMI_THINKING_EFFORT),
         model("moonshot-v1-128k"),
         model("moonshot-v1-32k"),
         model("moonshot-v1-8k"),
@@ -861,8 +1044,8 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: [
         model("sonar"),
         model("sonar-pro"),
-        model("sonar-reasoning-pro"),
-        model("sonar-deep-research"),
+        withEffort(model("sonar-reasoning-pro"), PERPLEXITY_REASONING_EFFORT),
+        withEffort(model("sonar-deep-research"), PERPLEXITY_REASONING_EFFORT),
       ],
     },
     stt: {

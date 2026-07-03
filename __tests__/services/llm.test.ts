@@ -371,6 +371,139 @@ describe("streamChat", () => {
     });
   });
 
+  it.each([
+    {
+      provider: "openai" as const,
+      model: "gpt-5.5",
+      modelEffort: "xhigh",
+      expected: { reasoning_effort: "xhigh" },
+    },
+    {
+      provider: "xai" as const,
+      model: "grok-4.3",
+      modelEffort: "none",
+      expected: { reasoning_effort: "none" },
+    },
+    {
+      provider: "mistral" as const,
+      model: "mistral-medium-3-5",
+      modelEffort: "high",
+      expected: { reasoning_effort: "high" },
+    },
+    {
+      provider: "perplexity" as const,
+      model: "sonar-deep-research",
+      modelEffort: "medium",
+      expected: { reasoning_effort: "medium" },
+    },
+    {
+      provider: "bytedance-doubao-seed" as const,
+      model: "doubao-seed-2-1-turbo-260628",
+      modelEffort: "max",
+      expected: { reasoning_effort: "max" },
+    },
+    {
+      provider: "deepseek" as const,
+      model: "deepseek-v4-pro",
+      modelEffort: "max",
+      expected: {
+        thinking: { type: "enabled" },
+        reasoning_effort: "max",
+      },
+    },
+    {
+      provider: "deepseek" as const,
+      model: "deepseek-v4-pro",
+      modelEffort: "disabled",
+      expected: { thinking: { type: "disabled" } },
+    },
+    {
+      provider: "alibaba-qwen-dashscope" as const,
+      model: "qwen3.7-plus",
+      modelEffort: "disabled",
+      expected: { enable_thinking: false },
+    },
+    {
+      provider: "moonshot-ai-kimi" as const,
+      model: "kimi-k2.6",
+      modelEffort: "disabled",
+      expected: { thinking: { type: "disabled" } },
+    },
+  ])(
+    "passes $provider effort controls through OpenAI-compatible chat requests",
+    async ({ provider, model, modelEffort, expected }) => {
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(
+            encoder.encode(
+              'data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n',
+            ),
+          );
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          controller.close();
+        },
+      });
+      (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+
+      await streamChat({
+        messages: mockMessages,
+        model,
+        provider,
+        apiKey: "provider-test-key",
+        modelEffort,
+        assistantInstructions: "",
+        responseLength: "normal",
+        responseTone: "professional",
+        language: "en",
+        onChunk: () => {},
+        onDone: () => {},
+        onError: () => {},
+      });
+
+      const [, options] = (fetch as jest.Mock).mock.calls[0];
+      expect(JSON.parse(options.body)).toMatchObject(expected);
+    },
+  );
+
+  it("passes Anthropic effort as output_config effort", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'event: content_block_delta\ndata: {"type":"content_block_delta","delta":{"type":"text_delta","text":"Hi"}}\n\n',
+          ),
+        );
+        controller.enqueue(
+          encoder.encode('event: message_stop\ndata: {"type":"message_stop"}\n\n'),
+        );
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+
+    await streamChat({
+      messages: mockMessages,
+      model: "claude-sonnet-5",
+      provider: "anthropic",
+      apiKey: "sk-ant-test-key",
+      modelEffort: "medium",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: () => {},
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    const [, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(JSON.parse(options.body).output_config).toEqual({
+      effort: "medium",
+    });
+  });
+
 
   it("uses the configured routed endpoint for a hyphenated OpenAI-compatible provider", async () => {
     const encoder = new TextEncoder();
