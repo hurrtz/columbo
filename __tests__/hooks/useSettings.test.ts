@@ -7,7 +7,7 @@ import {
   DEFAULT_ASSISTANT_INSTRUCTIONS_BY_LANGUAGE,
 } from "../../src/types";
 import { getAvailableResponseModes } from "../../src/utils/responseModes";
-import { getCatalogModelsForAppProvider } from "../../src/catalog/appProviders";
+import { PROVIDER_MODELS } from "../../src/constants/models";
 
 jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn(() => Promise.resolve(null)),
@@ -514,9 +514,9 @@ describe("useSettings", () => {
       result.current.updateApiKey("openai", "sk-first-provider");
     });
 
-    const expected = getCatalogModelsForAppProvider("openai", "llm")
+    const expected = PROVIDER_MODELS.openai
       .slice(0, 3)
-      .map((model) => model.modelId);
+      .map((model) => model.id);
 
     expect(result.current.settings.responseModes).toEqual({
       quick: { provider: "openai", model: expected[0] },

@@ -26,16 +26,16 @@ describe("settingsRules", () => {
       },
       providerModels: {
         ...DEFAULT_SETTINGS.providerModels,
-        deepseek: "deepseek-chat",
+        deepseek: "deepseek-v4-flash",
       },
     };
 
     const next = getNormalizedResponseModes(settings, ["deepseek"]);
 
     expect(next).toEqual({
-      quick: { provider: "deepseek", model: "deepseek-chat" },
-      normal: { provider: "deepseek", model: "deepseek-chat" },
-      deep: { provider: "deepseek", model: "deepseek-chat" },
+      quick: { provider: "deepseek", model: "deepseek-v4-flash" },
+      normal: { provider: "deepseek", model: "deepseek-v4-flash" },
+      deep: { provider: "deepseek", model: "deepseek-v4-flash" },
     });
   });
 

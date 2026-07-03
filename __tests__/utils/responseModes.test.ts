@@ -5,7 +5,7 @@ import {
   getProviderValidationModel,
   isResponseModeReady,
 } from "../../src/utils/responseModes";
-import { getCatalogModelsForAppProvider } from "../../src/catalog/appProviders";
+import { PROVIDER_MODELS } from "../../src/constants/models";
 import { DEFAULT_SETTINGS } from "../../src/types";
 
 describe("response mode selectors", () => {
@@ -58,7 +58,7 @@ describe("response mode selectors", () => {
   });
 
   it("uses the curated provider default instead of the first picker entry", () => {
-    expect(getDefaultModelForProvider("anthropic")).toBe("claude-sonnet-4-6");
+    expect(getDefaultModelForProvider("anthropic")).toBe("claude-sonnet-5");
     expect(getDefaultModelForProvider("xai")).toBe("grok-4.3");
   });
 
@@ -101,10 +101,10 @@ describe("response mode selectors", () => {
 });
 
 describe("deriveResponseModesForProvider", () => {
-  it("maps quick/normal/deep to the first three LLM models of the provider", () => {
-    const expected = getCatalogModelsForAppProvider("openai", "llm")
+  it("maps quick/normal/deep to the first three curated runtime models of the provider", () => {
+    const expected = PROVIDER_MODELS.openai
       .slice(0, 3)
-      .map((model) => model.modelId);
+      .map((model) => model.id);
 
     expect(expected.length).toBe(3);
 
@@ -132,12 +132,12 @@ describe("deriveResponseModesForProvider", () => {
   });
 
   it("pads by repeating the last model when fewer than three are available", () => {
-    const llmModels = getCatalogModelsForAppProvider("deepseek", "llm");
+    const runtimeModels = PROVIDER_MODELS.deepseek;
 
     const modes = deriveResponseModesForProvider("deepseek");
-    const orderedIds = llmModels.map((model) => model.modelId);
+    const orderedIds = runtimeModels.map((model) => model.id);
 
-    // deepseek exposes exactly three models today; this asserts the padding
+    // deepseek exposes fewer than three models today; this asserts the padding
     // contract regardless: every mode gets a real model id from the provider.
     expect(orderedIds).toContain(modes.quick.model);
     expect(orderedIds).toContain(modes.normal.model);

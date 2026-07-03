@@ -1,4 +1,3 @@
-import { getCatalogModelsForAppProvider } from "../catalog/appProviders";
 import { PROVIDER_DEFAULT_MODELS, PROVIDER_MODELS } from "../constants/models";
 import {
   Provider,
@@ -13,26 +12,24 @@ export const RESPONSE_MODE_ORDER: ResponseMode[] = ["quick", "normal", "deep"];
 
 /**
  * Derives a full set of response-mode routes ({@link ResponseModeSelections})
- * from a single provider's LLM catalog models.
+ * from a single provider's curated runtime LLM models.
  *
- * `quick`/`normal`/`deep` map to the first three LLM model ids in catalog
+ * `quick`/`normal`/`deep` map to the first three runtime model ids in picker
  * order. If the provider exposes fewer than three LLM models, the last
  * available id is repeated so every mode receives a valid route. If the
- * provider has no catalog LLM models, the manifest default model id is used
+ * provider has no runtime LLM models, the manifest default model id is used
  * (falling back to an empty model only as a last resort).
  *
- * Pure: no side effects, depends only on its argument and static catalog data.
+ * Pure: no side effects, depends only on its argument and static runtime data.
  */
 export function deriveResponseModesForProvider(
   provider: Provider,
 ): ResponseModeSelections {
-  const catalogModelIds = getCatalogModelsForAppProvider(provider, "llm").map(
-    (model) => model.modelId,
-  );
+  const runtimeModelIds = PROVIDER_MODELS[provider].map((model) => model.id);
 
   const fallbackModel = PROVIDER_DEFAULT_MODELS[provider] ?? "";
   const availableModelIds =
-    catalogModelIds.length > 0 ? catalogModelIds : [fallbackModel];
+    runtimeModelIds.length > 0 ? runtimeModelIds : [fallbackModel];
 
   const pickModel = (index: number): string =>
     availableModelIds[index] ??
