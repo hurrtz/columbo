@@ -6,6 +6,118 @@ export const llms = providerContext.defineLlms([
       "providerId": "google-vertex-ai-studio",
       "providerName": "Google Vertex AI Studio",
       "service": "llm",
+      "modelId": "gemini-3.5-flash",
+      "publicName": "Gemini 3.5 Flash",
+      "aliases": [
+        "gemini-3-flash-preview"
+      ],
+      "status": "Documented active/current",
+      "catalogScope": "Dynamic/non-exhaustive",
+      "pricingSummary": "See Gemini API pricing for current token rates; the model page documents Gemini 3.5 Flash as the stable version of the Gemini 3 Flash line.",
+      "limitsSummary": "1,048,576 max input tokens; 65,536 max output tokens.",
+      "regionSummary": "Available through Gemini API model endpoints; use configured regional routing where required.",
+      "languagesSummary": "Multimodal general-purpose LLM; no fixed language list published on the model page.",
+      "notes": "Current stable Gemini 3 Flash-family picker entry. Supports the existing generateContent path for text output.",
+      "officialSources": [
+        "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash",
+        "https://ai.google.dev/gemini-api/docs/models",
+        "https://ai.google.dev/gemini-api/docs/interactions-overview"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 1048576,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Input token limit 1,048,576"
+        },
+        {
+          "metric": "other",
+          "comparator": "=",
+          "value": 65536,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Output token limit 65,536"
+        }
+      ],
+      "languageSupport": {
+        "rawText": "General multimodal Gemini model; no fixed language count published on the model page.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": [
+          "model-dependent",
+          "multimodal-input"
+        ]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "providerId": "google-vertex-ai-studio",
+      "providerName": "Google Vertex AI Studio",
+      "service": "llm",
+      "modelId": "gemini-3.1-flash-lite",
+      "publicName": "Gemini 3.1 Flash-Lite",
+      "aliases": [],
+      "status": "Documented active/current",
+      "catalogScope": "Dynamic/non-exhaustive",
+      "pricingSummary": "Cost-efficient Gemini 3 stable model for high-volume lightweight tasks; see Gemini API pricing for current token rates.",
+      "limitsSummary": "1,048,576 max input tokens; 65,536 max output tokens.",
+      "regionSummary": "Available through Gemini API model endpoints; use configured regional routing where required.",
+      "languagesSummary": "Multimodal general-purpose LLM; no fixed language list published on the model page.",
+      "notes": "Current stable low-latency Gemini 3 picker entry. Supports the existing generateContent path for text output.",
+      "officialSources": [
+        "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite",
+        "https://ai.google.dev/gemini-api/docs/models",
+        "https://ai.google.dev/gemini-api/docs/interactions-overview"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 1048576,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Input token limit 1,048,576"
+        },
+        {
+          "metric": "other",
+          "comparator": "=",
+          "value": 65536,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Output token limit 65,536"
+        }
+      ],
+      "languageSupport": {
+        "rawText": "General multimodal Gemini model; no fixed language count published on the model page.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": [
+          "model-dependent",
+          "multimodal-input"
+        ]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "providerId": "google-vertex-ai-studio",
+      "providerName": "Google Vertex AI Studio",
+      "service": "llm",
       "modelId": "gemini-2.5-pro",
       "publicName": "Gemini 2.5 Pro",
       "aliases": [],

@@ -16,9 +16,9 @@ describe("provider catalog", () => {
       providerCount: 10,
       modelCount: 114,
       serviceCounts: {
-        llm: 86,
+        llm: 85,
         stt: 15,
-        tts: 13,
+        tts: 14,
       },
     });
   });

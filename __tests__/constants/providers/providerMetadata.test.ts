@@ -15,12 +15,13 @@ describe("provider metadata constants", () => {
       "DeepSeek Coder (legacy alias)",
     );
     expect(
-      PROVIDER_MODELS.xai.find((model) => model.id === "grok-4-0709")?.name,
-    ).toBe("Grok 4");
+      PROVIDER_MODELS.xai.find((model) => model.id === "grok-4.20-non-reasoning")
+        ?.name,
+    ).toBe("Grok 4.20 Non-Reasoning");
   });
 
   it("uses direct catalog labels for known models even outside the curated picker list", () => {
-    expect(getProviderModelName("xai", "grok-4")).toBe("Grok 4");
+    expect(getProviderModelName("xai", "grok-4")).toBe("Grok 4.3");
     expect(getProviderModelName("xai", "grok-latest")).toBe("Grok 4.3");
   });
 
@@ -35,5 +36,32 @@ describe("provider metadata constants", () => {
     expect(
       PROVIDER_MODELS.xai.find((model) => model.id === "grok-4.3")?.name,
     ).toBe("Grok 4.3");
+    expect(
+      PROVIDER_MODELS.xai.find((model) => model.id === "grok-build-0.1")?.name,
+    ).toBe("Grok Build 0.1");
+  });
+
+  it("does not expose retired xAI model slugs in the picker", () => {
+    expect(PROVIDER_MODELS.xai.map((model) => model.id)).not.toEqual(
+      expect.arrayContaining([
+        "grok-4-1-fast-reasoning",
+        "grok-4-1-fast-non-reasoning",
+        "grok-4-0709",
+        "grok-4-fast-reasoning",
+        "grok-code-fast-1",
+        "grok-3",
+      ]),
+    );
+  });
+
+  it("surfaces stable Gemini 3 picker models from the runtime manifest", () => {
+    expect(
+      PROVIDER_MODELS.gemini.find((model) => model.id === "gemini-3.5-flash")
+        ?.name,
+    ).toBe("Gemini 3.5 Flash");
+    expect(
+      PROVIDER_MODELS.gemini.find((model) => model.id === "gemini-3.1-flash-lite")
+        ?.name,
+    ).toBe("Gemini 3.1 Flash-Lite");
   });
 });

@@ -6,6 +6,61 @@ export const tts = providerContext.defineTtsModels([
       "providerId": "google-vertex-ai-studio",
       "providerName": "Google Vertex AI Studio",
       "service": "tts",
+      "modelId": "gemini-3.1-flash-tts-preview",
+      "publicName": "Gemini 3.1 Flash TTS Preview",
+      "aliases": [],
+      "status": "Preview",
+      "catalogScope": "Mostly exhaustive",
+      "pricingSummary": "See Gemini API pricing for current TTS token rates.",
+      "limitsSummary": "8,192 input tokens; 16,384 output tokens. Supports text input and audio output.",
+      "regionSummary": "Available through Gemini API model endpoints; use configured regional routing where required.",
+      "languagesSummary": "Uses the Gemini-TTS language/voice system.",
+      "notes": "Newer low-latency Gemini TTS preview with expressive audio tags.",
+      "officialSources": [
+        "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-tts-preview",
+        "https://ai.google.dev/gemini-api/docs/models"
+      ],
+      "openAiCompatible": false,
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 8192,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Input token limit 8,192"
+        },
+        {
+          "metric": "other",
+          "comparator": "=",
+          "value": 16384,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Output token limit 16,384"
+        }
+      ],
+      "languageSupport": {
+        "rawText": "Uses the Gemini-TTS language/voice system with multilingual speech generation.",
+        "isMultilingual": true,
+        "languageCount": 80,
+        "voiceCount": 30,
+        "listedLanguages": [],
+        "notes": [
+          "preview",
+          "voice-dependent",
+          "expressive-audio-tags"
+        ]
+      }
+    }
+  ),
+  providerContext.tts(
+    {
+      "providerId": "google-vertex-ai-studio",
+      "providerName": "Google Vertex AI Studio",
+      "service": "tts",
       "modelId": "gemini-2.5-flash-tts",
       "publicName": "Gemini 2.5 Flash TTS",
       "aliases": [],

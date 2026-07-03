@@ -517,6 +517,8 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       realtimeTransport: "gemini-live",
       models: [
         model("gemini-live-2.5-flash-native-audio"),
+        model("gemini-3.5-flash"),
+        model("gemini-3.1-flash-lite"),
         model("gemini-2.5-pro"),
         model("gemini-2.5-flash"),
         model("gemini-2.5-flash-lite"),
@@ -538,6 +540,10 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       defaultVoice: "Kore",
       voiceFallback: "Kore",
       models: [
+        namedModel(
+          "gemini-3.1-flash-tts-preview",
+          "Gemini 3.1 Flash TTS Preview",
+        ),
         namedModel(
           "gemini-2.5-flash-preview-tts",
           "Gemini 2.5 Flash Preview TTS",
