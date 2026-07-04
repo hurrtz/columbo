@@ -18,15 +18,56 @@ import { Provider, TtsListenLanguage } from "../types";
 import { useTheme } from "../theme/ThemeContext";
 
 import {
-  AiModelsSection,
   ApiKeysSection,
-  VoiceSection,
+  ListeningSection,
+  SearchSection,
+  SpeakingSection,
+  ThinkingSection,
 } from "./settings/SettingsFlowSections";
+import { SettingsOverview } from "./settings/SettingsOverview";
+import { getSettingsReadiness } from "./settings/readiness";
+import { SpeechDiagnosticsSection } from "./settings/shared";
 import { styles } from "./settings/styles";
-import { SettingsFlowTab, SettingsModalProps } from "./settings/types";
+import { SettingsModalProps, SettingsPage } from "./settings/types";
 import { UiTab } from "./settings/UiTab";
 import { useProviderValidationState } from "./settings/useProviderValidationState";
 import { useSettingsModalController } from "./settings/useSettingsModalController";
+
+type DrillInSettingsPage = Exclude<SettingsPage, "overview">;
+
+function getInitialSettingsPage(params: {
+  focusProvider?: SettingsModalProps["focusProvider"];
+  focusCatalogProviderId?: SettingsModalProps["focusCatalogProviderId"];
+  focusTab?: SettingsModalProps["focusTab"];
+}): SettingsPage {
+  const { focusProvider, focusCatalogProviderId, focusTab } = params;
+
+  if (focusProvider || focusCatalogProviderId || focusTab === "providers") {
+    return "connections";
+  }
+
+  if (focusTab === "instructions") {
+    return "thinking";
+  }
+
+  if (focusTab === "stt") {
+    return "listening";
+  }
+
+  if (focusTab === "tts") {
+    return "speaking";
+  }
+
+  if (focusTab === "web") {
+    return "search";
+  }
+
+  if (focusTab === "ui") {
+    return "app";
+  }
+
+  return "overview";
+}
 
 export function SettingsModal(props: SettingsModalProps) {
   const {
@@ -55,9 +96,14 @@ export function SettingsModal(props: SettingsModalProps) {
   const { height, width } = useWindowDimensions();
   const isLandscape = width > height;
   const modalMaxWidth = isLandscape ? Math.min(width - 24, 980) : 460;
+  const [activePage, setActivePage] = React.useState<SettingsPage>(() =>
+    getInitialSettingsPage({
+      focusProvider,
+      focusCatalogProviderId,
+      focusTab,
+    }),
+  );
   const {
-    activeTab,
-    setActiveTab,
     contentScrollRef,
     providerPreviewTexts,
     setProviderPreviewText,
@@ -84,9 +130,6 @@ export function SettingsModal(props: SettingsModalProps) {
     toggleListenLanguage,
   } = useSettingsModalController({
     visible,
-    focusProvider,
-    focusCatalogProviderId,
-    focusTab,
     settings,
     onUpdate,
     onPreviewVoice,
@@ -106,23 +149,36 @@ export function SettingsModal(props: SettingsModalProps) {
     onValidateProvider,
     onValidateWebSearchProvider,
   });
-  const tabOrder: SettingsFlowTab[] = ["keys", "ai", "voice", "app"];
-
-  const getSectionLabel = React.useCallback(
-    (section: SettingsFlowTab) => {
-      switch (section) {
-        case "keys":
-          return t("settingsSectionApiKeys");
-        case "ai":
-          return t("settingsSectionAiModels");
-        case "voice":
-          return t("settingsSectionVoice");
-        case "app":
-          return t("settingsSectionApp");
-      }
-    },
-    [t],
+  const readiness = React.useMemo(
+    () =>
+      getSettingsReadiness(settings, {
+        llmProviders: selectableLlmProviders,
+        sttProviders: selectableSttProviders,
+        ttsProviders: selectableTtsProviders,
+        searchProviders: selectableSearchProviders,
+      }),
+    [
+      selectableLlmProviders,
+      selectableSearchProviders,
+      selectableSttProviders,
+      selectableTtsProviders,
+      settings,
+    ],
   );
+
+  React.useEffect(() => {
+    if (!visible) {
+      return;
+    }
+
+    setActivePage(
+      getInitialSettingsPage({
+        focusProvider,
+        focusCatalogProviderId,
+        focusTab,
+      }),
+    );
+  }, [focusCatalogProviderId, focusProvider, focusTab, visible]);
 
   React.useEffect(() => {
     if (!visible) {
@@ -132,12 +188,92 @@ export function SettingsModal(props: SettingsModalProps) {
     requestAnimationFrame(() => {
       contentScrollRef.current?.scrollTo({ y: 0, animated: false });
     });
-  }, [activeTab, contentScrollRef, visible]);
+  }, [activePage, contentScrollRef, visible]);
+
+  const getPageTitle = React.useCallback(
+    (page: DrillInSettingsPage) => {
+      switch (page) {
+        case "connections":
+          return t("settingsConnections");
+        case "thinking":
+          return t("settingsThinking");
+        case "listening":
+          return t("settingsListening");
+        case "speaking":
+          return t("settingsSpeaking");
+        case "search":
+          return t("settingsSearch");
+        case "app":
+          return t("settingsAppDiagnostics");
+      }
+    },
+    [t],
+  );
+
+  const getPageSummary = React.useCallback(
+    (page: DrillInSettingsPage) => {
+      switch (page) {
+        case "connections":
+          return t("settingsConnectionsSummary");
+        case "thinking":
+          return t("settingsThinkingSummary");
+        case "listening":
+          return t("settingsListeningSummary");
+        case "speaking":
+          return t("settingsSpeakingSummary");
+        case "search":
+          return t("settingsSearchSummary");
+        case "app":
+          return t("settingsAppDiagnosticsSummary");
+      }
+    },
+    [t],
+  );
+
+  const renderDrillInPage = React.useCallback(
+    (page: DrillInSettingsPage, children: React.ReactNode) => (
+      <View style={styles.tabPane}>
+        <View style={styles.drillInHeader}>
+          <TouchableOpacity
+            style={[
+              styles.drillInBackButton,
+              { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
+            ]}
+            activeOpacity={0.85}
+            onPress={() => setActivePage("overview")}
+          >
+            <Feather name="chevron-left" size={16} color={colors.accent} />
+            <Text style={[styles.tabButtonText, { color: colors.accent }]}>
+              {t("settingsBackToOverview")}
+            </Text>
+          </TouchableOpacity>
+          <View style={styles.drillInTitleBlock}>
+            <Text style={[styles.drillInTitle, { color: colors.text }]}>
+              {getPageTitle(page)}
+            </Text>
+            <Text style={[styles.drillInSummary, { color: colors.textMuted }]}>
+              {getPageSummary(page)}
+            </Text>
+          </View>
+        </View>
+        {children}
+      </View>
+    ),
+    [colors, getPageSummary, getPageTitle, t],
+  );
 
   const activeContent = (() => {
-    switch (activeTab) {
-      case "keys":
+    switch (activePage) {
+      case "overview":
         return (
+          <SettingsOverview
+            readiness={readiness}
+            onOpenPage={(page) => setActivePage(page)}
+          />
+        );
+      case "connections":
+        return renderDrillInPage(
+          "connections",
           <ApiKeysSection
             settings={settings}
             focusProvider={focusProvider}
@@ -148,30 +284,40 @@ export function SettingsModal(props: SettingsModalProps) {
             onValidateProvider={validateProviderForSettings}
             onUpdateApiKey={onUpdateApiKey}
             onTextInputFocus={handleTextInputFocus}
-          />
+          />,
         );
-      case "ai":
-        return (
-          <AiModelsSection
+      case "thinking":
+        return renderDrillInPage(
+          "thinking",
+          <ThinkingSection
             settings={settings}
             llmProviders={selectableLlmProviders}
-            searchProviders={selectableSearchProviders}
             onUpdate={onUpdate}
             onUpdateResponseModeRoute={onUpdateResponseModeRoute}
             onAddResponseMode={onAddResponseMode}
             onRemoveResponseMode={onRemoveResponseMode}
-          />
+          />,
         );
-      case "voice":
-        return (
-          <VoiceSection
+      case "listening":
+        return renderDrillInPage(
+          "listening",
+          <ListeningSection
             settings={settings}
             selectableSttProviders={selectableSttProviders}
-            selectableTtsProviders={selectableTtsProviders}
             selectedSttProviderModelOptions={selectedSttProviderModelOptions}
             selectedSttProviderModel={selectedSttProviderModel}
             sttLanguageNote={sttLanguageNote}
             sttLimitNote={sttLimitNote}
+            onUpdate={onUpdate}
+            onUpdateProviderSttModel={onUpdateProviderSttModel}
+          />,
+        );
+      case "speaking":
+        return renderDrillInPage(
+          "speaking",
+          <SpeakingSection
+            settings={settings}
+            selectableTtsProviders={selectableTtsProviders}
             ttsLanguageNote={ttsLanguageNote}
             selectedPreviewProvider={selectedPreviewProvider}
             selectedPreviewProviderModelOptions={
@@ -183,9 +329,7 @@ export function SettingsModal(props: SettingsModalProps) {
             nativeVoiceOptions={nativeVoiceOptions}
             selectedNativeVoice={selectedNativeVoice}
             nativePreviewText={nativePreviewText}
-            speechDiagnostics={speechDiagnostics}
             onUpdate={onUpdate}
-            onUpdateProviderSttModel={onUpdateProviderSttModel}
             onUpdateProviderTtsModel={onUpdateProviderTtsModel}
             onUpdateProviderTtsVoice={onUpdateProviderTtsVoice}
             onStopPreviewVoice={onStopPreviewVoice}
@@ -200,10 +344,25 @@ export function SettingsModal(props: SettingsModalProps) {
             onSelectNativeVoice={setSelectedNativeVoice}
             onTextInputFocus={handleTextInputFocus}
             onToggleListenLanguage={toggleListenLanguage}
-          />
+          />,
         );
       case "app":
-        return <UiTab settings={settings} onUpdate={onUpdate} />;
+        return renderDrillInPage(
+          "app",
+          <>
+            <UiTab settings={settings} onUpdate={onUpdate} />
+            <SpeechDiagnosticsSection summaries={speechDiagnostics} />
+          </>,
+        );
+      case "search":
+        return renderDrillInPage(
+          "search",
+          <SearchSection
+            settings={settings}
+            searchProviders={selectableSearchProviders}
+            onUpdate={onUpdate}
+          />,
+        );
     }
   })();
 
@@ -262,135 +421,22 @@ export function SettingsModal(props: SettingsModalProps) {
             </TouchableOpacity>
           </View>
 
-          {isLandscape ? (
-            <View style={styles.landscapeBody}>
-              <View
-                style={[
-                  styles.landscapeTabRail,
-                  { borderRightColor: colors.border },
-                ]}
-              >
-                <ScrollView
-                  style={styles.landscapeTabScroll}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.landscapeTabRow}
-                  contentInsetAdjustmentBehavior="never"
-                >
-                  {tabOrder.map((section) => {
-                    const active = activeTab === section;
-
-                    return (
-                      <TouchableOpacity
-                        key={section}
-                        style={[
-                          styles.tabButton,
-                          styles.landscapeTabButton,
-                          {
-                            backgroundColor: active
-                              ? colors.accentSoft
-                              : colors.surface,
-                            borderColor: active ? colors.accent : colors.border,
-                          },
-                        ]}
-                        onPress={() => setActiveTab(section)}
-                        activeOpacity={0.85}
-                      >
-                        <Text
-                          style={[
-                            styles.tabButtonText,
-                            {
-                              color: active
-                                ? colors.accent
-                                : colors.textSecondary,
-                            },
-                          ]}
-                        >
-                          {getSectionLabel(section)}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
-              </View>
-
-              <ScrollView
-                ref={contentScrollRef}
-                style={styles.contentScroll}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={[
-                  styles.content,
-                  styles.contentLandscape,
-                  { paddingBottom: Math.max(20, keyboardInset + 20) },
-                ]}
-                scrollIndicatorInsets={{ bottom: keyboardInset }}
-                keyboardShouldPersistTaps="always"
-                keyboardDismissMode="interactive"
-                nestedScrollEnabled
-              >
-                {activeContent}
-              </ScrollView>
-            </View>
-          ) : (
-            <>
-              <ScrollView
-                horizontal
-                style={styles.tabScroll}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.tabRow}
-                contentInsetAdjustmentBehavior="never"
-              >
-                {tabOrder.map((section) => {
-                  const active = activeTab === section;
-
-                  return (
-                    <TouchableOpacity
-                      key={section}
-                      style={[
-                        styles.tabButton,
-                        {
-                          backgroundColor: active
-                            ? colors.accentSoft
-                            : colors.surface,
-                          borderColor: active ? colors.accent : colors.border,
-                        },
-                      ]}
-                      onPress={() => setActiveTab(section)}
-                      activeOpacity={0.85}
-                    >
-                      <Text
-                        style={[
-                          styles.tabButtonText,
-                          {
-                            color: active
-                              ? colors.accent
-                              : colors.textSecondary,
-                          },
-                        ]}
-                      >
-                        {getSectionLabel(section)}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-
-              <ScrollView
-                ref={contentScrollRef}
-                style={styles.contentScroll}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={[
-                  styles.content,
-                  { paddingBottom: Math.max(20, keyboardInset + 20) },
-                ]}
-                scrollIndicatorInsets={{ bottom: keyboardInset }}
-                keyboardShouldPersistTaps="always"
-                keyboardDismissMode="interactive"
-                nestedScrollEnabled
-              >
-                {activeContent}
-              </ScrollView>
-            </>
-          )}
+          <ScrollView
+            ref={contentScrollRef}
+            style={styles.contentScroll}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[
+              styles.content,
+              isLandscape ? styles.contentLandscape : null,
+              { paddingBottom: Math.max(20, keyboardInset + 20) },
+            ]}
+            scrollIndicatorInsets={{ bottom: keyboardInset }}
+            keyboardShouldPersistTaps="always"
+            keyboardDismissMode="interactive"
+            nestedScrollEnabled
+          >
+            {activeContent}
+          </ScrollView>
         </Animated.View>
       </View>
     </Modal>

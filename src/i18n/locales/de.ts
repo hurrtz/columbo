@@ -15,18 +15,35 @@ export const de: TranslationDictionary = {
     stt: "STT",
     tts: "TTS",
     ui: "UI",
-    settingsSectionApiKeys: "Zugangsdaten",
-    settingsSectionApiKeysDescription:
-      "Füge Zugangsdaten für externe Dienste ein, die du bereits nutzt. Keys bleiben auf diesem Gerät.",
-    settingsSectionAiModels: "Verhalten & Routen",
-    settingsSectionAiModelsDescription:
-      "Lege Systemprompt, Antwortstil, Routing und optionale Web-Grundierung an einer Stelle fest.",
-    settingsSectionVoice: "Stimme",
-    settingsSectionVoiceDescription:
-      "Bestimme, wie du mit der App sprichst und wie die App mit dir spricht.",
-    settingsSectionApp: "App",
-    settingsSectionAppDescription:
-      "Steuere Design, Sprache und Sichtbarkeit der Nutzung.",
+    settingsRuntimeReadiness: "Laufzeitstatus",
+    settingsReadinessThink: "Denken",
+    settingsReadinessListen: "Hören",
+    settingsReadinessSpeak: "Sprechen",
+    settingsReadinessSearch: "Suchen",
+    settingsReadinessReady: "Bereit",
+    settingsReadinessNeedsAttention: "Achtung",
+    settingsReadinessBroken: "Defekt",
+    settingsReadinessOff: "Aus",
+    settingsConnections: "Verbindungen",
+    settingsThinking: "Denken",
+    settingsListening: "Hören",
+    settingsSpeaking: "Sprechen",
+    settingsSearch: "Suche",
+    settingsAppDiagnostics: "App & Diagnose",
+    settingsConnectionsSummary:
+      "Provider-Keys, Prüfung und Fähigkeiten.",
+    settingsThinkingSummary:
+      "Homescreen-Karten, Modelle, Aufwand und Systemprompt.",
+    settingsListeningSummary:
+      "Eingabemodus und Sprache-zu-Text-Routing.",
+    settingsSpeakingSummary:
+      "Gesprochene Antworten, Wiedergabe, Stimmen und Vorschau.",
+    settingsSearchSummary:
+      "Websuche-Anbieter und Regler für die Suchqualität.",
+    settingsAppDiagnosticsSummary:
+      "Design, Sprache, Nutzung, Debug-Logs und letzte Aktivität.",
+    settingsBackToOverview: "Zurück zur Übersicht",
+    settingsOpenSection: ({ section }) => `${section} öffnen`,
     theme: "Design",
     language: "Sprache",
     usageStats: "Nutzungsdaten",

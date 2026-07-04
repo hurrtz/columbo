@@ -97,67 +97,103 @@ function renderSettingsModal(overrideProps: Partial<React.ComponentProps<typeof 
 }
 
 describe("SettingsModal", () => {
-  it("renders the modal shell and switches between distinct tab contents", async () => {
+  it("renders readiness overview and drills into Connections", async () => {
     const screen = renderSettingsModal();
 
     await waitFor(() => {
       expect(screen.getByText("Settings")).toBeTruthy();
-      expect(screen.getAllByText("Credentials").length).toBeGreaterThan(0);
-      expect(screen.getAllByText("Behavior & Routes").length).toBeGreaterThan(0);
-      expect(screen.getAllByText("Voice").length).toBeGreaterThan(0);
-      expect(screen.getAllByText("App").length).toBeGreaterThan(0);
+      expect(screen.getByText("Runtime Readiness")).toBeTruthy();
+      expect(screen.getByText("Connections")).toBeTruthy();
+      expect(screen.getByText("Thinking")).toBeTruthy();
+      expect(screen.getByText("Listening")).toBeTruthy();
+      expect(screen.getByText("Speaking")).toBeTruthy();
+      expect(screen.getAllByText("Search").length).toBeGreaterThan(0);
+      expect(screen.getByText("App & diagnostics")).toBeTruthy();
+      expect(screen.queryByPlaceholderText("Search services")).toBeNull();
+      expect(screen.queryByText("System Prompt")).toBeNull();
+      expect(screen.queryByText("Voice Input")).toBeNull();
+      expect(screen.queryByText("Theme")).toBeNull();
+    });
+
+    fireEvent.press(screen.getByText("Connections"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Back to overview")).toBeTruthy();
       expect(screen.getByPlaceholderText("Search services")).toBeTruthy();
       expect(screen.queryByText("System Prompt")).toBeNull();
-      expect(screen.queryByText("Voice Input")).toBeNull();
-      expect(screen.queryByText("Theme")).toBeNull();
     });
 
-    fireEvent.press(screen.getAllByText("Behavior & Routes")[0]);
+    fireEvent.press(screen.getByText("Back to overview"));
 
     await waitFor(() => {
-      expect(screen.getByText("System Prompt")).toBeTruthy();
+      expect(screen.getByText("Runtime Readiness")).toBeTruthy();
       expect(screen.queryByPlaceholderText("Search services")).toBeNull();
-      expect(screen.queryByText("Voice Input")).toBeNull();
-      expect(screen.queryByText("Theme")).toBeNull();
-    });
-
-    fireEvent.press(screen.getAllByText("Voice")[0]);
-
-    await waitFor(() => {
-      expect(screen.getByText("Voice Input")).toBeTruthy();
-      expect(screen.getByText("Voice Output")).toBeTruthy();
-      expect(screen.queryByText("System Prompt")).toBeNull();
-      expect(screen.queryByText("Theme")).toBeNull();
-    });
-
-    fireEvent.press(screen.getAllByText("App")[0]);
-
-    await waitFor(() => {
-      expect(screen.getByText("Theme")).toBeTruthy();
-      expect(screen.getByText("Usage Stats")).toBeTruthy();
-      expect(screen.queryByText("Voice Input")).toBeNull();
-      expect(screen.queryByText("System Prompt")).toBeNull();
     });
   });
 
-  it("opens the API keys tab when a focus provider is supplied", async () => {
+  it("opens Connections when a focus provider is supplied", async () => {
     const screen = renderSettingsModal({ focusProvider: "openai" });
 
     await waitFor(() => {
+      expect(screen.getByText("Back to overview")).toBeTruthy();
       expect(screen.getByText("OpenAI")).toBeTruthy();
       expect(screen.getByText("Test key")).toBeTruthy();
       expect(screen.queryByText("System Prompt")).toBeNull();
     });
   });
 
-  it("opens the API keys tab even when a catalog-only provider id is supplied", async () => {
+  it("opens Connections even when a catalog-only provider id is supplied", async () => {
     const screen = renderSettingsModal({
       focusCatalogProviderId: "ibm-watsonx",
     });
 
     await waitFor(() => {
+      expect(screen.getByText("Back to overview")).toBeTruthy();
       expect(screen.getByPlaceholderText("Search services")).toBeTruthy();
       expect(screen.queryByText("System Prompt")).toBeNull();
+    });
+  });
+
+  it("places Thinking, Search, and diagnostics controls in their drill-in pages", async () => {
+    const screen = renderSettingsModal({
+      settings: {
+        ...DEFAULT_SETTINGS,
+        apiKeys: {
+          ...DEFAULT_SETTINGS.apiKeys,
+          openai: "test-key",
+        },
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Runtime Readiness")).toBeTruthy();
+    });
+
+    fireEvent.press(screen.getByLabelText("Open Thinking"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Response Modes")).toBeTruthy();
+      expect(screen.getByText("System Prompt")).toBeTruthy();
+      expect(screen.queryByText("Adaptive Length")).toBeNull();
+      expect(screen.queryByText("Response Tone")).toBeNull();
+    });
+
+    fireEvent.press(screen.getByText("Back to overview"));
+    fireEvent.press(screen.getByLabelText("Open Search"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Web Search Provider")).toBeTruthy();
+      expect(screen.queryByText("Response Modes")).toBeNull();
+    });
+
+    fireEvent.press(screen.getByText("Back to overview"));
+    fireEvent.press(screen.getByLabelText("Open App & diagnostics"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Theme")).toBeTruthy();
+      expect(screen.getByText("Usage Stats")).toBeTruthy();
+      expect(screen.getByText("Recent Speech Activity")).toBeTruthy();
+      expect(screen.queryByText("Web Search Provider")).toBeNull();
     });
   });
 });

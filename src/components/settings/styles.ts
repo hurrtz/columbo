@@ -7,10 +7,6 @@ import {
   SETTINGS_HEADER_CONTROL_SIZE,
   SETTINGS_HEADER_TOP_PADDING,
   SETTINGS_HERO_GLOW_HEIGHT,
-  SETTINGS_TAB_BUTTON_HEIGHT,
-  SETTINGS_TAB_ROW_BOTTOM_PADDING,
-  SETTINGS_TAB_ROW_TOP_PADDING,
-  SETTINGS_TAB_SECTION_HEIGHT,
 } from "./constants";
 
 export const styles = StyleSheet.create({
@@ -69,50 +65,12 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 1,
   },
-  tabRow: {
-    paddingHorizontal: 18,
-    paddingTop: SETTINGS_TAB_ROW_TOP_PADDING,
-    paddingBottom: SETTINGS_TAB_ROW_BOTTOM_PADDING,
-    gap: 10,
-    alignItems: "center",
-  },
-  tabScroll: {
-    flexGrow: 0,
-    minHeight: SETTINGS_TAB_SECTION_HEIGHT,
-  },
-  tabButton: {
-    minHeight: SETTINGS_TAB_BUTTON_HEIGHT,
-    paddingHorizontal: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   tabButtonText: {
     fontSize: 13,
     fontFamily: fonts.display,
   },
   contentScroll: {
     flex: 1,
-  },
-  landscapeBody: {
-    flex: 1,
-    flexDirection: "row",
-    minHeight: 0,
-  },
-  landscapeTabRail: {
-    width: 188,
-    borderRightWidth: 1,
-  },
-  landscapeTabScroll: {
-    flex: 1,
-  },
-  landscapeTabRow: {
-    padding: 16,
-    gap: 10,
-  },
-  landscapeTabButton: {
-    width: "100%",
   },
   content: {
     paddingHorizontal: 12,
@@ -234,18 +192,6 @@ export const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 8,
     marginBottom: 12,
-  },
-  sectionNavButton: {
-    minHeight: SETTINGS_TAB_BUTTON_HEIGHT,
-    paddingHorizontal: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  sectionNavButtonText: {
-    fontSize: 13,
-    fontFamily: fonts.display,
   },
   searchFieldWrap: {
     minHeight: 48,
@@ -524,6 +470,105 @@ export const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.8,
     fontFamily: fonts.mono,
+  },
+  readinessCard: {
+    borderRadius: 22,
+    borderWidth: 1,
+    padding: 16,
+  },
+  readinessGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  readinessPill: {
+    flexGrow: 1,
+    minWidth: "46%",
+    minHeight: 58,
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    justifyContent: "center",
+    gap: 3,
+  },
+  readinessPillTitle: {
+    fontSize: 13,
+    lineHeight: 17,
+    fontFamily: fonts.display,
+  },
+  readinessPillSummary: {
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    fontFamily: fonts.mono,
+  },
+  overviewRowList: {
+    gap: 10,
+  },
+  overviewRow: {
+    minHeight: 74,
+    borderRadius: 20,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  overviewRowIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  overviewRowCopy: {
+    flex: 1,
+    gap: 3,
+  },
+  overviewRowTitle: {
+    fontSize: 15,
+    lineHeight: 19,
+    fontFamily: fonts.display,
+  },
+  overviewRowSummary: {
+    fontSize: 12,
+    lineHeight: 17,
+    fontFamily: fonts.body,
+  },
+  drillInHeader: {
+    minHeight: 46,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 2,
+  },
+  drillInBackButton: {
+    minHeight: 36,
+    paddingHorizontal: 12,
+    borderRadius: 18,
+    borderWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
+  drillInTitleBlock: {
+    flex: 1,
+    gap: 2,
+  },
+  drillInTitle: {
+    fontSize: 20,
+    lineHeight: 24,
+    fontFamily: fonts.display,
+  },
+  drillInSummary: {
+    fontSize: 12,
+    lineHeight: 17,
+    fontFamily: fonts.body,
   },
   apiKeyCard: {
     borderRadius: 18,

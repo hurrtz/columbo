@@ -169,7 +169,7 @@ export function useProviderValidationState(params: {
     [getConfiguredProviders],
   );
   const selectableSearchProviders = useMemo(
-    () => getConfiguredProviders("search"),
+    () => getConfiguredProviders("search").filter(isWebSearchCapableProvider),
     [getConfiguredProviders],
   );
 

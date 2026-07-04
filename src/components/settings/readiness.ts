@@ -1,0 +1,144 @@
+import type { WebSearchProvider } from "../../constants/webSearch";
+import type { Provider, Settings } from "../../types";
+
+export type SettingsReadinessState = "ready" | "attention" | "broken" | "off";
+
+export interface SettingsReadinessStatus {
+  state: SettingsReadinessState;
+  summaryKey:
+    | "settingsReadinessReady"
+    | "settingsReadinessNeedsAttention"
+    | "settingsReadinessBroken"
+    | "settingsReadinessOff";
+}
+
+export interface SettingsReadiness {
+  think: SettingsReadinessStatus;
+  listen: SettingsReadinessStatus;
+  speak: SettingsReadinessStatus;
+  search: SettingsReadinessStatus;
+}
+
+export interface SettingsReadinessContext {
+  llmProviders: Provider[];
+  sttProviders: Provider[];
+  ttsProviders: Provider[];
+  searchProviders: WebSearchProvider[];
+}
+
+function status(state: SettingsReadinessState): SettingsReadinessStatus {
+  switch (state) {
+    case "ready":
+      return { state, summaryKey: "settingsReadinessReady" };
+    case "attention":
+      return { state, summaryKey: "settingsReadinessNeedsAttention" };
+    case "broken":
+      return { state, summaryKey: "settingsReadinessBroken" };
+    case "off":
+      return { state, summaryKey: "settingsReadinessOff" };
+  }
+}
+
+function hasConfiguredKey(
+  settings: Settings,
+  provider: Provider | null | undefined,
+) {
+  return !!provider && !!settings.apiKeys[provider]?.trim();
+}
+
+function getThinkReadiness(
+  settings: Settings,
+  context: SettingsReadinessContext,
+) {
+  const runnableModes = settings.responseModes.filter((mode) => {
+    const provider = mode.route.provider;
+    return (
+      context.llmProviders.includes(provider) &&
+      hasConfiguredKey(settings, provider)
+    );
+  });
+
+  if (runnableModes.length === 0) {
+    return status("broken");
+  }
+
+  return runnableModes.length === settings.responseModes.length
+    ? status("ready")
+    : status("attention");
+}
+
+function getListenReadiness(
+  settings: Settings,
+  context: SettingsReadinessContext,
+) {
+  if (settings.sttMode === "native") {
+    return status("ready");
+  }
+
+  const provider = settings.sttProvider;
+  if (
+    !provider ||
+    !context.sttProviders.includes(provider) ||
+    !hasConfiguredKey(settings, provider)
+  ) {
+    return status("broken");
+  }
+
+  return status("ready");
+}
+
+function getSpeakReadiness(
+  settings: Settings,
+  context: SettingsReadinessContext,
+) {
+  if (!settings.spokenRepliesEnabled) {
+    return status("off");
+  }
+
+  if (settings.ttsMode === "native") {
+    return status("ready");
+  }
+
+  const provider = settings.ttsProvider;
+  if (
+    !provider ||
+    !context.ttsProviders.includes(provider) ||
+    !hasConfiguredKey(settings, provider)
+  ) {
+    return status("broken");
+  }
+
+  return status("ready");
+}
+
+function getSearchReadiness(
+  settings: Settings,
+  context: SettingsReadinessContext,
+) {
+  if (settings.webSearchMode === "off") {
+    return status("off");
+  }
+
+  const provider = settings.webSearchProvider;
+  if (
+    !provider ||
+    !context.searchProviders.includes(provider) ||
+    !settings.apiKeys[provider]?.trim()
+  ) {
+    return status("broken");
+  }
+
+  return status("ready");
+}
+
+export function getSettingsReadiness(
+  settings: Settings,
+  context: SettingsReadinessContext,
+): SettingsReadiness {
+  return {
+    think: getThinkReadiness(settings, context),
+    listen: getListenReadiness(settings, context),
+    speak: getSpeakReadiness(settings, context),
+    search: getSearchReadiness(settings, context),
+  };
+}

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef } from "react";
 import { Platform, ScrollView } from "react-native";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -23,9 +23,7 @@ import {
 } from "../../utils/providerCapabilities";
 
 import {
-  SettingsFlowTab,
   SettingsModalProps,
-  SettingsTab,
   TextInputFocusHandler,
 } from "./types";
 import { useNativeVoiceOptions } from "./useNativeVoiceOptions";
@@ -35,37 +33,8 @@ import { useSettingsModalAnimation } from "./useSettingsModalAnimation";
 import { useSettingsNormalization } from "./useSettingsNormalization";
 import { useVoicePreviewState } from "./useVoicePreviewState";
 
-function getInitialSettingsFlowTab(params: {
-  focusProvider?: SettingsModalProps["focusProvider"];
-  focusCatalogProviderId?: SettingsModalProps["focusCatalogProviderId"];
-  focusTab?: SettingsTab;
-}): SettingsFlowTab {
-  const { focusProvider, focusCatalogProviderId, focusTab } = params;
-
-  if (focusTab === "ui") {
-    return "app";
-  }
-
-  if (focusTab === "stt" || focusTab === "tts") {
-    return "voice";
-  }
-
-  if (focusTab === "instructions" || focusTab === "web") {
-    return "ai";
-  }
-
-  if (focusTab === "providers" || focusProvider || focusCatalogProviderId) {
-    return "keys";
-  }
-
-  return "keys";
-}
-
 export function useSettingsModalController({
   visible,
-  focusProvider,
-  focusCatalogProviderId,
-  focusTab,
   settings,
   onUpdate,
   onPreviewVoice,
@@ -73,24 +42,14 @@ export function useSettingsModalController({
 }: Pick<
   SettingsModalProps,
   | "visible"
-  | "focusProvider"
-  | "focusCatalogProviderId"
-  | "focusTab"
   | "settings"
   | "onUpdate"
   | "onPreviewVoice"
   | "onStopPreviewVoice"
 >) {
-  const { t, language } = useLocalization();
+  const { language } = useLocalization();
   const insets = useSafeAreaInsets();
   const contentScrollRef = useRef<ScrollView>(null);
-  const [activeTab, setActiveTab] = useState<SettingsFlowTab>(() =>
-    getInitialSettingsFlowTab({
-      focusProvider,
-      focusCatalogProviderId,
-      focusTab,
-    }),
-  );
   const speechDiagnostics = useSpeechDiagnostics(6);
   const {
     providerPreviewTexts,
@@ -122,23 +81,10 @@ export function useSettingsModalController({
     setSelectedNativeVoice,
   } = useNativeVoiceOptions({
     visible,
-    shouldLoad: activeTab === "voice",
+    shouldLoad: visible,
     language,
   });
 
-  React.useEffect(() => {
-    if (!visible) {
-      return;
-    }
-
-    setActiveTab(
-      getInitialSettingsFlowTab({
-        focusProvider,
-        focusCatalogProviderId,
-        focusTab,
-      }),
-    );
-  }, [focusCatalogProviderId, focusProvider, focusTab, visible]);
   useSettingsNormalization({
     visible,
     settings,
@@ -274,8 +220,6 @@ export function useSettingsModalController({
   };
 
   return {
-    activeTab,
-    setActiveTab,
     contentScrollRef,
     providerPreviewTexts,
     setProviderPreviewText,

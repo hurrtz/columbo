@@ -19,10 +19,8 @@ import {
   getCatalogProviderEntry,
   type CatalogProviderId,
 } from "../../catalog";
-import { getTtsListenLanguageLabel } from "../../constants/localTts";
 import {
   PROVIDER_API_KEY_URLS,
-  PROVIDER_DEFAULT_TTS_VOICES,
   PROVIDER_LABELS,
   getProviderApiKeyHint,
   getProviderApiKeyPlaceholder,
@@ -37,10 +35,7 @@ import {
   type WebSearchProviderSettings,
 } from "../../constants/webSearch";
 import { useLocalization } from "../../i18n";
-import { type SpeechDiagnosticRequestSummary } from "../../services/speech/diagnostics";
 import type {
-  AssistantResponseLength,
-  AssistantResponseTone,
   InputMode,
   Provider,
   ReplyPlayback,
@@ -56,14 +51,9 @@ import { Picker } from "../Picker";
 import { ProviderIcon } from "../ProviderIcon";
 
 import {
-  getResponseLengthOptions,
-  getResponseToneOptions,
-} from "./helpers";
-import {
   ListenLanguageSelector,
   PickerSection,
   RadioGroup,
-  SpeechDiagnosticsSection,
 } from "./shared";
 import { styles } from "./styles";
 import {
@@ -677,10 +667,9 @@ export function ApiKeysSection({
   );
 }
 
-export function AiModelsSection({
+export function ThinkingSection({
   settings,
   llmProviders,
-  searchProviders,
   onUpdate,
   onUpdateResponseModeRoute,
   onAddResponseMode,
@@ -688,7 +677,6 @@ export function AiModelsSection({
 }: {
   settings: Settings;
   llmProviders: Provider[];
-  searchProviders: Provider[];
   onUpdate: (
     partial: Partial<Omit<Settings, "apiKeys" | "providerModels">>,
   ) => void;
@@ -701,14 +689,90 @@ export function AiModelsSection({
 }) {
   const { colors } = useTheme();
   const { t } = useLocalization();
-  const responseLengthOptions = getResponseLengthOptions(t);
-  const responseToneOptions = getResponseToneOptions(t);
+  const [systemPromptOpen, setSystemPromptOpen] = React.useState(false);
+
+  return (
+    <View style={styles.tabPane}>
+      <ResponseModesSection
+        settings={settings}
+        enabledProviders={llmProviders}
+        onUpdateResponseModeRoute={onUpdateResponseModeRoute}
+        onAddResponseMode={onAddResponseMode}
+        onRemoveResponseMode={onRemoveResponseMode}
+      />
+
+      <View style={styles.inlineAccordion}>
+        <TouchableOpacity
+          style={[
+            styles.inlineAccordionButton,
+            {
+              backgroundColor: colors.surfaceElevated,
+              borderColor: colors.border,
+            },
+          ]}
+          activeOpacity={0.85}
+          onPress={() => setSystemPromptOpen((previous) => !previous)}
+        >
+          <Text style={[styles.inlineAccordionTitle, { color: colors.text }]}>
+            {t("systemPrompt")}
+          </Text>
+          <Feather
+            name={systemPromptOpen ? "chevron-up" : "chevron-down"}
+            size={16}
+            color={colors.textSecondary}
+          />
+        </TouchableOpacity>
+
+        {systemPromptOpen ? (
+          <View
+            style={[
+              styles.promptCard,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
+            <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
+              {t("assistantInstructionsIntro")}
+            </Text>
+            <TextInput
+              value={settings.assistantInstructions}
+              onChangeText={(value) => onUpdate({ assistantInstructions: value })}
+              multiline
+              placeholder={t("assistantInstructionsPlaceholder")}
+              placeholderTextColor={colors.textMuted}
+              selectionColor={colors.accent}
+              style={[
+                styles.promptInput,
+                {
+                  backgroundColor: colors.surfaceElevated,
+                  borderColor: colors.border,
+                  color: colors.text,
+                },
+              ]}
+            />
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+export function SearchSection({
+  settings,
+  searchProviders,
+  onUpdate,
+}: {
+  settings: Settings;
+  searchProviders: WebSearchProvider[];
+  onUpdate: (
+    partial: Partial<Omit<Settings, "apiKeys" | "providerModels">>,
+  ) => void;
+}) {
+  const { colors } = useTheme();
+  const { t } = useLocalization();
   const [advancedSearchOpen, setAdvancedSearchOpen] = React.useState(false);
-  const selectableSearchProviders = searchProviders as WebSearchProvider[];
+  const selectableSearchProviders = searchProviders;
   const selectedWebSearchProvider =
-    settings.webSearchProvider ??
-    selectableSearchProviders[0] ??
-    null;
+    settings.webSearchProvider ?? selectableSearchProviders[0] ?? null;
   const webSearchPickerOptions = buildProviderPickerOptions(
     selectableSearchProviders,
     selectedWebSearchProvider,
@@ -754,55 +818,6 @@ export function AiModelsSection({
 
   return (
     <View style={styles.tabPane}>
-      <View
-        style={[
-          styles.promptCard,
-          { backgroundColor: colors.surface, borderColor: colors.border },
-        ]}
-      >
-        <Text style={[styles.promptLabel, { color: colors.textSecondary }]}>
-          {t("systemPrompt")}
-        </Text>
-        <TextInput
-          value={settings.assistantInstructions}
-          onChangeText={(value) => onUpdate({ assistantInstructions: value })}
-          multiline
-          placeholder={t("assistantInstructionsPlaceholder")}
-          placeholderTextColor={colors.textMuted}
-          selectionColor={colors.accent}
-          style={[
-            styles.promptInput,
-            {
-              backgroundColor: colors.surfaceElevated,
-              borderColor: colors.border,
-              color: colors.text,
-            },
-          ]}
-        />
-      </View>
-
-      <RadioGroup<AssistantResponseLength>
-        label={t("adaptiveLength")}
-        options={responseLengthOptions}
-        value={settings.responseLength}
-        onChange={(value) => onUpdate({ responseLength: value })}
-      />
-
-      <RadioGroup<AssistantResponseTone>
-        label={t("responseTone")}
-        options={responseToneOptions}
-        value={settings.responseTone}
-        onChange={(value) => onUpdate({ responseTone: value })}
-      />
-
-      <ResponseModesSection
-        settings={settings}
-        enabledProviders={llmProviders}
-        onUpdateResponseModeRoute={onUpdateResponseModeRoute}
-        onAddResponseMode={onAddResponseMode}
-        onRemoveResponseMode={onRemoveResponseMode}
-      />
-
       <View
         style={[
           styles.sectionCard,
@@ -869,7 +884,7 @@ export function AiModelsSection({
                   />
                 </TouchableOpacity>
 
-                {advancedSearchOpen ? (
+                {advancedSearchOpen && selectedProviderSettings ? (
                   <View
                     style={[
                       styles.inlineAccordionBody,
@@ -882,7 +897,7 @@ export function AiModelsSection({
                     {controlSupport.resultLimit ? (
                       <Picker
                         label={t("webSearchResultCount")}
-                        value={String(selectedProviderSettings!.resultLimit)}
+                        value={String(selectedProviderSettings.resultLimit)}
                         options={WEB_SEARCH_RESULT_LIMIT_VALUES.map((value) => ({
                           value: String(value),
                           label: `${value}`,
@@ -897,7 +912,7 @@ export function AiModelsSection({
                     {controlSupport.depth ? (
                       <Picker
                         label={t("webSearchDepth")}
-                        value={selectedProviderSettings!.depth}
+                        value={selectedProviderSettings.depth}
                         options={WEB_SEARCH_DEPTH_VALUES.map((value) => ({
                           value,
                           label:
@@ -915,7 +930,7 @@ export function AiModelsSection({
                     {controlSupport.searchMode ? (
                       <Picker
                         label={t("webSearchSearchMode")}
-                        value={selectedProviderSettings!.searchMode}
+                        value={selectedProviderSettings.searchMode}
                         options={WEB_SEARCH_SEARCH_MODE_VALUES.map((value) => ({
                           value,
                           label:
@@ -938,92 +953,42 @@ export function AiModelsSection({
               </View>
             ) : null}
           </>
-        ) : null}
+        ) : (
+          <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
+            {t("webSearchSetupNeeded")}
+          </Text>
+        )}
       </View>
     </View>
   );
 }
 
-export function VoiceSection({
+export function ListeningSection({
   settings,
   selectableSttProviders,
-  selectableTtsProviders,
   selectedSttProviderModelOptions,
   selectedSttProviderModel,
   sttLanguageNote,
   sttLimitNote,
-  ttsLanguageNote,
-  selectedPreviewProvider,
-  selectedPreviewProviderModelOptions,
-  selectedPreviewProviderModel,
-  providerPreviewTexts,
-  activePreview,
-  nativeVoiceOptions,
-  selectedNativeVoice,
-  nativePreviewText,
-  speechDiagnostics,
   onUpdate,
   onUpdateProviderSttModel,
-  onUpdateProviderTtsModel,
-  onUpdateProviderTtsVoice,
-  onStopPreviewVoice,
-  onSetProviderPreviewText,
-  onSetNativePreviewText,
-  onPreviewProviderVoice,
-  onPreviewNativeVoice,
-  onSelectNativeVoice,
-  onTextInputFocus,
-  onToggleListenLanguage,
 }: {
   settings: Settings;
   selectableSttProviders: Provider[];
-  selectableTtsProviders: Provider[];
   selectedSttProviderModelOptions: { id: string; name: string }[];
   selectedSttProviderModel: string;
   sttLanguageNote: string | null;
   sttLimitNote: string | null;
-  ttsLanguageNote: string | null;
-  selectedPreviewProvider: Provider | null;
-  selectedPreviewProviderModelOptions: { id: string; name: string }[];
-  selectedPreviewProviderModel: string;
-  providerPreviewTexts: ProviderPreviewTexts;
-  activePreview: { id: string; phase: PreviewButtonPhase } | null;
-  nativeVoiceOptions: { value: string; label: string }[];
-  selectedNativeVoice: string;
-  nativePreviewText: string;
-  speechDiagnostics: SpeechDiagnosticRequestSummary[];
   onUpdate: (
     partial: Partial<Omit<Settings, "apiKeys" | "providerModels">>,
   ) => void;
   onUpdateProviderSttModel: (provider: Provider, model: string) => void;
-  onUpdateProviderTtsModel: (provider: Provider, model: string) => void;
-  onUpdateProviderTtsVoice: (provider: Provider, voice: string) => void;
-  onStopPreviewVoice: () => Promise<void>;
-  onSetProviderPreviewText: (
-    provider: Provider,
-    language: TtsListenLanguage,
-    text: string,
-  ) => void;
-  onSetNativePreviewText: (text: string) => void;
-  onPreviewProviderVoice: (
-    provider: Provider,
-    previewLanguage: TtsListenLanguage,
-  ) => Promise<void>;
-  onPreviewNativeVoice: () => Promise<void>;
-  onSelectNativeVoice: (voiceId: string) => void;
-  onTextInputFocus: TextInputFocusHandler;
-  onToggleListenLanguage: (language: TtsListenLanguage) => void;
 }) {
   const { colors } = useTheme();
   const { t } = useLocalization();
   const sttProviderOptions = buildProviderPickerOptions(
     selectableSttProviders,
     settings.sttProvider,
-    t("providerNeedsAttention"),
-  );
-  const ttsProviderOptions = buildProviderPickerOptions(
-    selectableTtsProviders,
-    settings.ttsProvider,
     t("providerNeedsAttention"),
   );
 
@@ -1110,7 +1075,76 @@ export function VoiceSection({
           </PickerSection>
         ) : null}
       </View>
+    </View>
+  );
+}
 
+export function SpeakingSection({
+  settings,
+  selectableTtsProviders,
+  ttsLanguageNote,
+  selectedPreviewProvider,
+  selectedPreviewProviderModelOptions,
+  selectedPreviewProviderModel,
+  providerPreviewTexts,
+  activePreview,
+  nativeVoiceOptions,
+  selectedNativeVoice,
+  nativePreviewText,
+  onUpdate,
+  onUpdateProviderTtsModel,
+  onUpdateProviderTtsVoice,
+  onStopPreviewVoice,
+  onSetProviderPreviewText,
+  onSetNativePreviewText,
+  onPreviewProviderVoice,
+  onPreviewNativeVoice,
+  onSelectNativeVoice,
+  onTextInputFocus,
+  onToggleListenLanguage,
+}: {
+  settings: Settings;
+  selectableTtsProviders: Provider[];
+  ttsLanguageNote: string | null;
+  selectedPreviewProvider: Provider | null;
+  selectedPreviewProviderModelOptions: { id: string; name: string }[];
+  selectedPreviewProviderModel: string;
+  providerPreviewTexts: ProviderPreviewTexts;
+  activePreview: { id: string; phase: PreviewButtonPhase } | null;
+  nativeVoiceOptions: { value: string; label: string }[];
+  selectedNativeVoice: string;
+  nativePreviewText: string;
+  onUpdate: (
+    partial: Partial<Omit<Settings, "apiKeys" | "providerModels">>,
+  ) => void;
+  onUpdateProviderTtsModel: (provider: Provider, model: string) => void;
+  onUpdateProviderTtsVoice: (provider: Provider, voice: string) => void;
+  onStopPreviewVoice: () => Promise<void>;
+  onSetProviderPreviewText: (
+    provider: Provider,
+    language: TtsListenLanguage,
+    text: string,
+  ) => void;
+  onSetNativePreviewText: (text: string) => void;
+  onPreviewProviderVoice: (
+    provider: Provider,
+    previewLanguage: TtsListenLanguage,
+  ) => Promise<void>;
+  onPreviewNativeVoice: () => Promise<void>;
+  onSelectNativeVoice: (voiceId: string) => void;
+  onTextInputFocus: TextInputFocusHandler;
+  onToggleListenLanguage: (language: TtsListenLanguage) => void;
+}) {
+  const { colors } = useTheme();
+  const { t } = useLocalization();
+  const ttsProviderOptions = buildProviderPickerOptions(
+    selectableTtsProviders,
+    settings.ttsProvider,
+    t("providerNeedsAttention"),
+  );
+
+  return (
+    <View style={styles.tabPane}>
       <View style={styles.settingsSubsectionIntro}>
         <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
           {t("voiceOutput")}
@@ -1244,9 +1278,6 @@ export function VoiceSection({
           />
         ) : null}
 
-        {speechDiagnostics.length > 0 ? (
-          <SpeechDiagnosticsSection summaries={speechDiagnostics} />
-        ) : null}
       </View>
     </View>
   );
