@@ -361,26 +361,6 @@ function extractStoredWebSearchProviderSettings(
       "perplexity",
       storedSettings.webSearchProviderSettings.perplexity,
     ),
-    tavily: normalizeWebSearchProviderSettings(
-      "tavily",
-      storedSettings.webSearchProviderSettings.tavily,
-    ),
-    brave: normalizeWebSearchProviderSettings(
-      "brave",
-      storedSettings.webSearchProviderSettings.brave,
-    ),
-    exa: normalizeWebSearchProviderSettings(
-      "exa",
-      storedSettings.webSearchProviderSettings.exa,
-    ),
-    firecrawl: normalizeWebSearchProviderSettings(
-      "firecrawl",
-      storedSettings.webSearchProviderSettings.firecrawl,
-    ),
-    serpapi: normalizeWebSearchProviderSettings(
-      "serpapi",
-      storedSettings.webSearchProviderSettings.serpapi,
-    ),
   };
 }
 

@@ -307,29 +307,31 @@ describe("useSettings", () => {
     expect(sttApiKey).toBe("");
   });
 
-  it("does not derive response modes from a search-only provider key", async () => {
+  it("ignores stored keys for removed search-only providers", async () => {
+    const legacyStored: Record<string, unknown> = {
+      ...DEFAULT_SETTINGS,
+      apiKeys: {
+        ...DEFAULT_SETTINGS.apiKeys,
+        brave: "brave-search-key",
+      },
+    };
+
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
+      JSON.stringify(legacyStored),
+    );
+
     const { result } = renderHook(() => useSettings());
     await flushSettingsLoad();
 
-    await act(async () => {
-      result.current.updateApiKey("brave", "brave-search-key");
-    });
-
-    expect(result.current.settings.responseModes).toEqual(
-      DEFAULT_SETTINGS.responseModes,
+    expect(result.current.settings.responseModes).not.toContainEqual(
+      expect.objectContaining({
+        route: expect.objectContaining({ provider: "brave" }),
+      }),
     );
     expect(getAvailableResponseModes(result.current.settings)).toEqual([]);
-
-    // A real LLM provider key still derives usable modes afterwards.
-    await act(async () => {
-      result.current.updateApiKey("openai", "sk-real-llm");
-    });
-
-    expect(getAvailableResponseModes(result.current.settings)).toEqual([
-      "mode-1",
-      "mode-2",
-      "mode-3",
-    ]);
+    expect(
+      (result.current.settings.apiKeys as Record<string, unknown>).brave,
+    ).toBeUndefined();
   });
 
   it("migrates legacy webSearchEnabled into webSearchMode", async () => {
@@ -350,7 +352,15 @@ describe("useSettings", () => {
     (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
       JSON.stringify({
         ...DEFAULT_SETTINGS,
-        webSearchProvider: "anthropic",
+        webSearchProvider: "tavily",
+        webSearchProviderSettings: {
+          ...DEFAULT_SETTINGS.webSearchProviderSettings,
+          tavily: {
+            resultLimit: 8,
+            depth: "deep",
+            searchMode: "balanced",
+          },
+        },
       }),
     );
 
@@ -358,6 +368,10 @@ describe("useSettings", () => {
     await flushSettingsLoad();
 
     expect(result.current.settings.webSearchProvider).toBeNull();
+    expect(Object.keys(result.current.settings.webSearchProviderSettings)).toEqual([
+      "openai",
+      "perplexity",
+    ]);
   });
 
   it("keeps the setup guide available for brand-new installs without keys", async () => {

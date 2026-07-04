@@ -79,16 +79,16 @@ describe("response mode selectors", () => {
     expect(getDefaultModelForProvider("xai")).toBe("grok-4.3");
   });
 
-  it("does not treat a search-only provider with an empty model as a usable response mode", () => {
+  it("does not treat a model-less route as a usable response mode", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
       responseModes: [
-        { id: "mode-1", route: { provider: "brave" as const, model: "" } },
-        { id: "mode-2", route: { provider: "brave" as const, model: "" } },
+        { id: "mode-1", route: { provider: "openai" as const, model: "" } },
+        { id: "mode-2", route: { provider: "openai" as const, model: "" } },
       ],
       apiKeys: {
         ...DEFAULT_SETTINGS.apiKeys,
-        brave: "brave-search-key",
+        openai: "sk-test",
       },
     };
 

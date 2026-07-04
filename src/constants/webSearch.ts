@@ -1,11 +1,6 @@
 export const WEB_SEARCH_PROVIDER_IDS = [
   "openai",
   "perplexity",
-  "tavily",
-  "brave",
-  "exa",
-  "firecrawl",
-  "serpapi",
 ] as const;
 export type WebSearchProvider = (typeof WEB_SEARCH_PROVIDER_IDS)[number];
 
@@ -25,14 +20,6 @@ export interface WebSearchProviderControlSupport {
   depth: boolean;
   searchMode: boolean;
 }
-
-export const WEB_SEARCH_SEARCH_ONLY_PROVIDER_IDS = [
-  "tavily",
-  "brave",
-  "exa",
-  "firecrawl",
-  "serpapi",
-] as const;
 
 export const DEFAULT_WEB_SEARCH_PROVIDER: WebSearchProvider = "openai";
 export const DEFAULT_WEB_SEARCH_MODE: WebSearchMode = "off";
@@ -58,31 +45,6 @@ export const DEFAULT_WEB_SEARCH_PROVIDER_SETTINGS: Record<
     depth: "standard",
     searchMode: "balanced",
   },
-  tavily: {
-    resultLimit: 5,
-    depth: "deep",
-    searchMode: "balanced",
-  },
-  brave: {
-    resultLimit: 5,
-    depth: "standard",
-    searchMode: "balanced",
-  },
-  exa: {
-    resultLimit: 5,
-    depth: "standard",
-    searchMode: "balanced",
-  },
-  firecrawl: {
-    resultLimit: 5,
-    depth: "standard",
-    searchMode: "balanced",
-  },
-  serpapi: {
-    resultLimit: 5,
-    depth: "standard",
-    searchMode: "balanced",
-  },
 };
 
 export const WEB_SEARCH_PROVIDER_CONTROL_SUPPORT: Record<
@@ -99,41 +61,11 @@ export const WEB_SEARCH_PROVIDER_CONTROL_SUPPORT: Record<
     depth: false,
     searchMode: false,
   },
-  tavily: {
-    resultLimit: true,
-    depth: true,
-    searchMode: false,
-  },
-  brave: {
-    resultLimit: true,
-    depth: false,
-    searchMode: false,
-  },
-  exa: {
-    resultLimit: true,
-    depth: false,
-    searchMode: false,
-  },
-  firecrawl: {
-    resultLimit: true,
-    depth: false,
-    searchMode: false,
-  },
-  serpapi: {
-    resultLimit: true,
-    depth: false,
-    searchMode: false,
-  },
 };
 
 export const WEB_SEARCH_PROVIDER_MODELS: Record<WebSearchProvider, string> = {
   openai: "gpt-4.1-mini",
   perplexity: "sonar",
-  tavily: "Tavily Search API",
-  brave: "Brave Search API",
-  exa: "Exa Search API",
-  firecrawl: "Firecrawl Search API",
-  serpapi: "SerpApi Google Search API",
 };
 export const WEB_SEARCH_MAX_SOURCES = 5;
 export const WEB_SEARCH_RESULT_LIMIT = 5;
@@ -143,11 +75,6 @@ export const WEB_SEARCH_TIMEOUT_MS_BY_PROVIDER: Record<
 > = {
   openai: 25000,
   perplexity: 25000,
-  tavily: 25000,
-  brave: 25000,
-  exa: 25000,
-  firecrawl: 25000,
-  serpapi: 25000,
 };
 
 export const WEB_SEARCH_PROVIDER_KIND: Record<
@@ -156,22 +83,12 @@ export const WEB_SEARCH_PROVIDER_KIND: Record<
 > = {
   openai: "grounded-answer",
   perplexity: "grounded-answer",
-  tavily: "search-results",
-  brave: "search-results",
-  exa: "search-results",
-  firecrawl: "search-results",
-  serpapi: "search-results",
 };
 
 export function createDefaultWebSearchProviderSettings() {
   return {
     openai: { ...DEFAULT_WEB_SEARCH_PROVIDER_SETTINGS.openai },
     perplexity: { ...DEFAULT_WEB_SEARCH_PROVIDER_SETTINGS.perplexity },
-    tavily: { ...DEFAULT_WEB_SEARCH_PROVIDER_SETTINGS.tavily },
-    brave: { ...DEFAULT_WEB_SEARCH_PROVIDER_SETTINGS.brave },
-    exa: { ...DEFAULT_WEB_SEARCH_PROVIDER_SETTINGS.exa },
-    firecrawl: { ...DEFAULT_WEB_SEARCH_PROVIDER_SETTINGS.firecrawl },
-    serpapi: { ...DEFAULT_WEB_SEARCH_PROVIDER_SETTINGS.serpapi },
   } satisfies Record<WebSearchProvider, WebSearchProviderSettings>;
 }
 

@@ -391,10 +391,10 @@ describe("streamChat", () => {
       expected: { reasoning_effort: "high" },
     },
     {
-      provider: "perplexity" as const,
-      model: "sonar-deep-research",
-      modelEffort: "medium",
-      expected: { reasoning_effort: "medium" },
+      provider: "mistral" as const,
+      model: "mistral-small-2603",
+      modelEffort: "minimal",
+      expected: { reasoning_effort: "minimal" },
     },
     {
       provider: "bytedance-doubao-seed" as const,

@@ -99,11 +99,6 @@ describe("ProviderSelectionGrid", () => {
     );
     expect(screen.getByText("OpenAI")).toBeTruthy();
     expect(screen.getByText("Perplexity")).toBeTruthy();
-    expect(screen.getByText("Tavily")).toBeTruthy();
-    expect(screen.getByText("Brave")).toBeTruthy();
-    expect(screen.getByText("Exa")).toBeTruthy();
-    expect(screen.getByText("Firecrawl")).toBeTruthy();
-    expect(screen.getByText("SerpApi")).toBeTruthy();
     expect(
       screen.queryByText(/Showing .* extra catalog-only providers here/),
     ).toBeNull();

@@ -1,7 +1,11 @@
 import {
+  DEFAULT_PROVIDER_STT_MODELS,
   PROVIDER_DEFAULT_MODELS,
   PROVIDER_MODELS,
+  PROVIDER_ORDER,
+  PROVIDER_STT_MODEL_OPTIONS,
 } from "../../../src/constants/models";
+import { WEB_SEARCH_PROVIDER_IDS } from "../../../src/constants/webSearch";
 import { deriveResponseModesForProvider } from "../../../src/utils/responseModes";
 import type { Provider } from "../../../src/types";
 
@@ -10,6 +14,31 @@ function providerModelIds(provider: Provider) {
 }
 
 describe("provider model accuracy", () => {
+  it("does not expose dedicated web-search providers as runtime providers", () => {
+    expect(PROVIDER_ORDER).toEqual([
+      "openai",
+      "anthropic",
+      "alibaba-qwen-dashscope",
+      "bytedance-doubao-seed",
+      "gemini",
+      "xai",
+      "deepseek",
+      "mistral",
+      "moonshot-ai-kimi",
+      "perplexity",
+    ]);
+    expect(WEB_SEARCH_PROVIDER_IDS).toEqual(["openai", "perplexity"]);
+    expect(PROVIDER_ORDER).toEqual(
+      expect.not.arrayContaining([
+        "brave",
+        "exa",
+        "firecrawl",
+        "serpapi",
+        "tavily",
+      ]),
+    );
+  });
+
   it("keeps curated defaults valid for the visible runtime picker", () => {
     for (const [provider, modelId] of Object.entries(PROVIDER_DEFAULT_MODELS) as [
       Provider,
@@ -72,6 +101,10 @@ describe("provider model accuracy", () => {
       ]),
     );
     expect(PROVIDER_DEFAULT_MODELS.mistral).toBe("mistral-medium-3-5");
+    expect(DEFAULT_PROVIDER_STT_MODELS.mistral).toBe("voxtral-mini-2602");
+    expect(PROVIDER_STT_MODEL_OPTIONS.mistral?.map((model) => model.id)).toEqual([
+      "voxtral-mini-2602",
+    ]);
   });
 
   it("surfaces current Qwen and Doubao picker models", () => {
@@ -98,6 +131,8 @@ describe("provider model accuracy", () => {
     expect(PROVIDER_DEFAULT_MODELS["bytedance-doubao-seed"]).toBe(
       "doubao-seed-2-1-turbo-260628",
     );
+    expect(DEFAULT_PROVIDER_STT_MODELS["bytedance-doubao-seed"]).toBe("");
+    expect(PROVIDER_STT_MODEL_OPTIONS["bytedance-doubao-seed"]).toBeUndefined();
   });
 
   it("surfaces current Kimi models and hides discontinued K2 rows", () => {

@@ -15,9 +15,9 @@ describe("provider language notes", () => {
     ).toBe("Supports 57 languages.");
   });
 
-  it("resolves catalog aliases before building STT language notes", () => {
+  it("builds STT language notes for the canonical Mistral runtime model", () => {
     expect(
-      getProviderSttLanguageNoteForModel("mistral", "voxtral-mini-latest", "en"),
+      getProviderSttLanguageNoteForModel("mistral", "voxtral-mini-2602", "en"),
     ).toBe("Supports 13 languages.");
   });
 
@@ -55,7 +55,7 @@ describe("provider language notes", () => {
 
   it("builds a tier-aware STT upload limit note from catalog constraints", () => {
     expect(
-      getProviderSttLimitNote("mistral", "voxtral-mini-latest", "en"),
+      getProviderSttLimitNote("mistral", "voxtral-mini-2602", "en"),
     ).toBe("File upload up to 512 MiB. Audio up to 3 hours.");
   });
 });

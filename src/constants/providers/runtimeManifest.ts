@@ -5,18 +5,13 @@ export type RuntimeAppProviderId =
   | "openai"
   | "anthropic"
   | "alibaba-qwen-dashscope"
-  | "brave"
   | "bytedance-doubao-seed"
-  | "exa"
-  | "firecrawl"
   | "gemini"
   | "deepseek"
   | "mistral"
   | "moonshot-ai-kimi"
   | "perplexity"
-  | "serpapi"
-  | "tavily"
-  | "xai"
+  | "xai";
 
 export type RuntimeLlmTransport =
   | "none"
@@ -27,8 +22,8 @@ export type RuntimeLlmTransport =
   | "anthropic";
 export type RuntimeSttTransport =
   | "none"
-  | "multipart"
   | "bytedance-bigmodel-flash"
+  | "multipart"
   | "google-cloud-speech-v2"
   | "openai-audio-input"
   | "xai-stt-rest"
@@ -324,12 +319,6 @@ const MISTRAL_REASONING_EFFORT = effortConfig(
   ["none", "minimal", "low", "medium", "high", "xhigh"],
 );
 
-const PERPLEXITY_REASONING_EFFORT = effortConfig(
-  "reasoning-effort",
-  "medium",
-  ["minimal", "low", "medium", "high"],
-);
-
 const DOUBAO_SEED_21_EFFORT = effortConfig("reasoning-effort", "high", [
   "minimal",
   "low",
@@ -351,101 +340,6 @@ const KIMI_THINKING_EFFORT = effortConfig(
   ["disabled", "enabled"],
   THINKING_TOGGLE_OPTIONS,
 );
-
-const DEEPGRAM_TTS_VOICE_OPTIONS: RuntimeVoiceOption[] = [
-  voice("aura-2-thalia-en", "Aura 2 · Thalia"),
-  voice("aura-2-asteria-en", "Aura 2 · Asteria"),
-  voice("aura-2-apollo-en", "Aura 2 · Apollo"),
-  voice("aura-2-helena-en", "Aura 2 · Helena"),
-  voice("aura-2-viktoria-de", "Aura 2 · Viktoria"),
-  voice("aura-2-linnea-de", "Aura 2 · Linnea"),
-  voice("aura-2-sophia-de", "Aura 2 · Sophia"),
-  voice("aura-2-casper-de", "Aura 2 · Casper"),
-  voice("aura-2-julian-de", "Aura 2 · Julian"),
-  voice("aura-2-lukas-de", "Aura 2 · Lukas"),
-  voice("aura-2-julius-de", "Aura 2 · Julius"),
-  voice("aura-2-adele-fr", "Aura 2 · Adele"),
-  voice("aura-2-marcel-fr", "Aura 2 · Marcel"),
-  voice("aura-2-daan-nl", "Aura 2 · Daan"),
-  voice("aura-2-fenna-nl", "Aura 2 · Fenna"),
-  voice("aura-2-isa-nl", "Aura 2 · Isa"),
-  voice("aura-2-ruben-nl", "Aura 2 · Ruben"),
-  voice("aura-2-saar-nl", "Aura 2 · Saar"),
-  voice("aura-2-sem-nl", "Aura 2 · Sem"),
-  voice("aura-2-sophie-nl", "Aura 2 · Sophie"),
-  voice("aura-2-viggo-nl", "Aura 2 · Viggo"),
-  voice("aura-2-luna-es", "Aura 2 · Luna"),
-  voice("aura-2-seraphina-es", "Aura 2 · Seraphina"),
-  voice("aura-2-celeste-es", "Aura 2 · Celeste"),
-  voice("aura-2-estrella-es", "Aura 2 · Estrella"),
-  voice("aura-2-orfeo-es", "Aura 2 · Orfeo"),
-  voice("aura-2-selene-es", "Aura 2 · Selene"),
-  voice("aura-2-omara-es", "Aura 2 · Omara"),
-  voice("aura-2-bruno-es", "Aura 2 · Bruno"),
-  voice("aura-2-javier-es", "Aura 2 · Javier"),
-  voice("aura-2-jorge-es", "Aura 2 · Jorge"),
-  voice("aura-2-hector-es", "Aura 2 · Hector"),
-  voice("aura-2-raquel-es", "Aura 2 · Raquel"),
-  voice("aura-2-teresa-es", "Aura 2 · Teresa"),
-  voice("aura-2-tomas-es", "Aura 2 · Tomas"),
-  voice("aura-2-valeria-es", "Aura 2 · Valeria"),
-  voice("aura-2-alvaro-es", "Aura 2 · Alvaro"),
-  voice("aura-2-lucia-es", "Aura 2 · Lucia"),
-  voice("aura-2-stella-it", "Aura 2 · Stella"),
-  voice("aura-2-ginevra-it", "Aura 2 · Ginevra"),
-  voice("aura-2-luna-it", "Aura 2 · Luna"),
-  voice("aura-2-seneca-it", "Aura 2 · Seneca"),
-  voice("aura-2-orfeo-it", "Aura 2 · Orfeo"),
-  voice("aura-2-virgilio-it", "Aura 2 · Virgilio"),
-  voice("aura-2-beatrice-it", "Aura 2 · Beatrice"),
-  voice("aura-2-diana-it", "Aura 2 · Diana"),
-  voice("aura-2-marcello-it", "Aura 2 · Marcello"),
-  voice("aura-2-carlo-it", "Aura 2 · Carlo"),
-  voice("aura-2-himari-ja", "Aura 2 · Himari"),
-  voice("aura-2-keita-ja", "Aura 2 · Keita"),
-  voice("aura-2-aoi-ja", "Aura 2 · Aoi"),
-  voice("aura-2-naoki-ja", "Aura 2 · Naoki"),
-  voice("aura-2-yuki-ja", "Aura 2 · Yuki"),
-  voice("aura-asteria-en", "Aura 1 · Asteria"),
-  voice("aura-luna-en", "Aura 1 · Luna"),
-  voice("aura-orion-en", "Aura 1 · Orion"),
-  voice("aura-zeus-en", "Aura 1 · Zeus"),
-];
-
-function searchOnlyProviderEntry(params: {
-  appProvider: RuntimeAppProviderId;
-  label: string;
-  shortLabel: string;
-  apiKeyPlaceholder: string;
-  apiKeyHint: string;
-  apiKeyUrl: string;
-}): RuntimeProviderManifestEntry {
-  return {
-    appProvider: params.appProvider,
-    catalogProviderId: params.appProvider,
-    label: params.label,
-    shortLabel: params.shortLabel,
-    apiKeyPlaceholder: params.apiKeyPlaceholder,
-    apiKeyHint: params.apiKeyHint,
-    apiKeyUrl: params.apiKeyUrl,
-    llm: {
-      support: "none",
-      transport: "none",
-      models: [],
-    },
-    stt: {
-      support: "none",
-      transport: "none",
-      models: [],
-    },
-    tts: {
-      support: "none",
-      transport: "none",
-      models: [],
-      voiceOptions: [],
-    },
-  };
-}
 
 function getCatalogProviderDocument(providerId: CatalogProviderId) {
   return PROVIDER_DOCUMENTS.find(
@@ -490,18 +384,13 @@ export const RUNTIME_PROVIDER_ORDER = [
   "openai",
   "anthropic",
   "alibaba-qwen-dashscope",
-  "brave",
   "bytedance-doubao-seed",
-  "exa",
-  "firecrawl",
   "gemini",
   "xai",
   "deepseek",
   "mistral",
   "moonshot-ai-kimi",
   "perplexity",
-  "serpapi",
-  "tavily",
 ] as const satisfies readonly RuntimeAppProviderId[];
 
 export const RUNTIME_PROVIDER_MANIFEST: Record<
@@ -687,23 +576,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         "DashScope TTS is limited to the standard non-realtime Qwen3-TTS-Flash families with the default Cherry voice. Realtime TTS rows stay catalog-only to keep the app on straightforward BYOK flows.",
     },
   },
-  brave: searchOnlyProviderEntry({
-    appProvider: "brave",
-    label: "Brave",
-    shortLabel: "BRAVE",
-    apiKeyPlaceholder: "BSA...",
-    apiKeyHint:
-      "Unlocks Brave Search web results through Brave's independent search index API.",
-    apiKeyUrl: "https://api-dashboard.search.brave.com/app/keys",
-  }),
   "bytedance-doubao-seed": {
     appProvider: "bytedance-doubao-seed",
     catalogProviderId: "bytedance-doubao-seed",
     label: "ByteDance",
     shortLabel: "DOUBAO",
-    apiKeyPlaceholder: "Ark key or Ark|App|Access|Resource",
-    apiKeyHint:
-      "Unlocks Volcengine Ark chat models and Doubao Speech STT. Supported formats: <ark-api-key> for chat, <app-key>|<access-key> or <app-key>|<access-key>|<resource-id> for speech, or <ark-api-key>|<app-key>|<access-key>|<resource-id> to use both.",
+    apiKeyPlaceholder: "Ark API key",
+    apiKeyHint: "Unlocks Volcengine Ark chat models.",
     apiKeyUrl: "https://www.volcengine.com/docs/82379/1298459",
     llm: {
       support: "provider",
@@ -727,13 +606,9 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       ],
     },
     stt: {
-      support: "provider",
-      transport: "bytedance-bigmodel-flash",
-      endpoint: "https://openspeech.bytedance.com/api/v3/auc/bigmodel/recognize/flash",
-      defaultModel: "bigmodel",
-      models: catalogModelSpecs("bytedance-doubao-seed", "stt"),
-      languageNote:
-        "Doubao Speech STT is wired through the one-shot bigmodel flash recognition route. The app sends local recordings as base64 audio with the speech credential format <app-key>|<access-key> or the combined Ark plus speech format.",
+      support: "none",
+      transport: "none",
+      models: [],
     },
     tts: {
       support: "none",
@@ -742,24 +617,6 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       voiceOptions: [],
     },
   },
-  exa: searchOnlyProviderEntry({
-    appProvider: "exa",
-    label: "Exa",
-    shortLabel: "EXA",
-    apiKeyPlaceholder: "exa_...",
-    apiKeyHint:
-      "Unlocks Exa's search API for semantic web retrieval with extracted page text.",
-    apiKeyUrl: "https://dashboard.exa.ai/api-keys",
-  }),
-  firecrawl: searchOnlyProviderEntry({
-    appProvider: "firecrawl",
-    label: "Firecrawl",
-    shortLabel: "FIRECRAWL",
-    apiKeyPlaceholder: "fc-...",
-    apiKeyHint:
-      "Unlocks Firecrawl search for live web results with optional extracted page content.",
-    apiKeyUrl: "https://www.firecrawl.dev/app/api-keys",
-  }),
   gemini: {
     appProvider: "gemini",
     catalogProviderId: "google-vertex-ai-studio",
@@ -968,7 +825,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
           namedModel("mistral-medium-3-5", "Mistral Medium 3.5"),
           MISTRAL_REASONING_EFFORT,
         ),
-        model("mistral-small-2603"),
+        withEffort(model("mistral-small-2603"), MISTRAL_REASONING_EFFORT),
         model("mistral-large-2512"),
         model("ministral-14b-2512"),
         model("ministral-8b-2512"),
@@ -979,13 +836,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "provider",
       transport: "multipart",
       endpoint: "https://api.mistral.ai/v1/audio/transcriptions",
-      defaultModel: "voxtral-mini-latest",
+      defaultModel: "voxtral-mini-2602",
       languageHintKey: "mistral-stt-language-code",
       models: [
-        namedModel("voxtral-mini-latest", "Voxtral Mini Latest"),
+        namedModel("voxtral-mini-2602", "Voxtral Mini Transcribe 2"),
       ],
       languageNote:
-        "The current Voxtral transcription route is documented for English, Spanish, French, Portuguese, Hindi, German, Dutch, and Italian.",
+        "The current Voxtral Mini Transcribe 2 route supports English, Chinese, Hindi, Spanish, Arabic, French, Portuguese, Russian, German, Japanese, Korean, Italian, and Dutch.",
     },
     tts: {
       support: "none",
@@ -1045,8 +902,8 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: [
         model("sonar"),
         model("sonar-pro"),
-        withEffort(model("sonar-reasoning-pro"), PERPLEXITY_REASONING_EFFORT),
-        withEffort(model("sonar-deep-research"), PERPLEXITY_REASONING_EFFORT),
+        model("sonar-reasoning-pro"),
+        model("sonar-deep-research"),
       ],
     },
     stt: {
@@ -1061,24 +918,6 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       voiceOptions: [],
     },
   },
-  serpapi: searchOnlyProviderEntry({
-    appProvider: "serpapi",
-    label: "SerpApi",
-    shortLabel: "SERPAPI",
-    apiKeyPlaceholder: "Enter API key",
-    apiKeyHint:
-      "Unlocks SerpApi's structured Google search results API for fresh web retrieval.",
-    apiKeyUrl: "https://serpapi.com/manage-api-key",
-  }),
-  tavily: searchOnlyProviderEntry({
-    appProvider: "tavily",
-    label: "Tavily",
-    shortLabel: "TAVILY",
-    apiKeyPlaceholder: "tvly-...",
-    apiKeyHint:
-      "Unlocks Tavily's search API for ranked results, snippets, and answer-oriented search.",
-    apiKeyUrl: "https://app.tavily.com/home",
-  }),
 };
 
 export type RuntimeProviderManifest = typeof RUNTIME_PROVIDER_MANIFEST;

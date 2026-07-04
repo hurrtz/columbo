@@ -48,7 +48,7 @@ describe("provider capability selectors", () => {
     expect(getEnabledTtsProviders(settings)).toEqual(["openai"]);
   });
 
-  it("treats ByteDance speech-only credentials as STT-only readiness", () => {
+  it("does not treat ByteDance speech-only credentials as runtime readiness", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
       apiKeys: {
@@ -58,22 +58,21 @@ describe("provider capability selectors", () => {
     };
 
     expect(getEnabledProviders(settings)).toEqual([]);
-    expect(getEnabledSttProviders(settings)).toEqual(["bytedance-doubao-seed"]);
+    expect(getEnabledSttProviders(settings)).toEqual([]);
     expect(getEnabledTtsProviders(settings)).toEqual([]);
   });
 
-  it("treats combined ByteDance Ark and speech credentials as ready for llm and stt", () => {
+  it("treats ByteDance Ark credentials as LLM-only readiness", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
       apiKeys: {
         ...DEFAULT_SETTINGS.apiKeys,
-        "bytedance-doubao-seed":
-          "ark-api-key|speech-app-key|speech-access-key|volc.bigasr.auc_turbo",
+        "bytedance-doubao-seed": "ark-api-key",
       },
     };
 
     expect(getEnabledProviders(settings)).toEqual(["bytedance-doubao-seed"]);
-    expect(getEnabledSttProviders(settings)).toEqual(["bytedance-doubao-seed"]);
+    expect(getEnabledSttProviders(settings)).toEqual([]);
     expect(getEnabledTtsProviders(settings)).toEqual([]);
   });
 

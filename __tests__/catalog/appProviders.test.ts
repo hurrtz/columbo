@@ -25,17 +25,12 @@ describe("app provider catalog bridge", () => {
       openai: "openai",
       anthropic: "anthropic",
       "alibaba-qwen-dashscope": "alibaba-qwen-dashscope",
-      brave: "brave",
       "bytedance-doubao-seed": "bytedance-doubao-seed",
-      exa: "exa",
-      firecrawl: "firecrawl",
       gemini: "google-vertex-ai-studio",
       deepseek: "deepseek",
       mistral: "mistral-ai",
       "moonshot-ai-kimi": "moonshot-ai-kimi",
       perplexity: "perplexity",
-      serpapi: "serpapi",
-      tavily: "tavily",
       xai: "xai",
     });
 

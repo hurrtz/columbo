@@ -8,13 +8,10 @@ const PROVIDER_ICON_ASSETS: Record<string, number> = {
     "../../assets/providers/alibaba-qwen-dashscope.svg"
   ),
   anthropic: require("../../assets/providers/anthropic.svg"),
-  brave: require("../../assets/providers/brave.svg"),
   "bytedance-doubao-seed": require(
     "../../assets/providers/bytedance-doubao-seed.svg"
   ),
   deepseek: require("../../assets/providers/deepseek.svg"),
-  exa: require("../../assets/providers/exa.svg"),
-  firecrawl: require("../../assets/providers/firecrawl.svg"),
   gemini: require("../../assets/providers/google-vertex-ai-studio.svg"),
   "google-vertex-ai-studio": require(
     "../../assets/providers/google-vertex-ai-studio.svg"
@@ -24,8 +21,6 @@ const PROVIDER_ICON_ASSETS: Record<string, number> = {
   "moonshot-ai-kimi": require("../../assets/providers/moonshot-ai-kimi.svg"),
   openai: require("../../assets/providers/openai.svg"),
   perplexity: require("../../assets/providers/perplexity.svg"),
-  serpapi: require("../../assets/providers/serpapi.svg"),
-  tavily: require("../../assets/providers/tavily.svg"),
   xai: require("../../assets/providers/xai.svg"),
 };
 

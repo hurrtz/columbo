@@ -4,11 +4,6 @@ import { WebSearchProvider } from "../../../src/constants/webSearch";
 const providerLabels = {
   openai: "OpenAI",
   perplexity: "Perplexity",
-  tavily: "Tavily",
-  brave: "Brave",
-  exa: "Exa",
-  firecrawl: "Firecrawl",
-  serpapi: "SerpAPI",
 } as Record<WebSearchProvider, string>;
 
 const t = ((key: string) =>
@@ -20,7 +15,7 @@ describe("getWebSearchToggleDisplay", () => {
   it("is inactive with no provider when disabled", () => {
     const display = getWebSearchToggleDisplay({
       webSearchEnabled: false,
-      webSearchProvider: "tavily",
+      webSearchProvider: "perplexity",
       webSearchReady: true,
       providerLabels,
       t,
@@ -52,7 +47,7 @@ describe("getWebSearchToggleDisplay", () => {
   it("is inactive when enabled with a provider that is not ready", () => {
     const display = getWebSearchToggleDisplay({
       webSearchEnabled: true,
-      webSearchProvider: "tavily",
+      webSearchProvider: "perplexity",
       webSearchReady: false,
       providerLabels,
       t,
@@ -66,7 +61,7 @@ describe("getWebSearchToggleDisplay", () => {
   it("surfaces the provider when on and configured", () => {
     const display = getWebSearchToggleDisplay({
       webSearchEnabled: true,
-      webSearchProvider: "tavily",
+      webSearchProvider: "perplexity",
       webSearchReady: true,
       providerLabels,
       t,
@@ -75,7 +70,7 @@ describe("getWebSearchToggleDisplay", () => {
     expect(display).toEqual({
       active: true,
       title: "Web Search",
-      providerLabel: "Tavily",
+      providerLabel: "Perplexity",
     });
   });
 });

@@ -37,7 +37,8 @@ against official docs and the app's current transports.
   - `perplexity`
 - Remove Tavily, Brave, Exa, Firecrawl, and SerpApi request builders,
   normalizers, timeout entries, provider-kind entries, and tests.
-- Ensure stored removed web-search providers migrate to `openai`.
+- Ensure stored removed web-search providers migrate to the unselected default
+  Settings state.
 
 ## Phase 4: Refresh Kept Provider Models And Effort
 

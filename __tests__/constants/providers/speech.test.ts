@@ -15,8 +15,8 @@ describe("speech provider constants", () => {
     );
   });
 
-  it("uses catalog labels for aliased STT model ids", () => {
-    expect(getSttModelLabel("mistral", "voxtral-mini-latest")).toBe(
+  it("uses catalog labels for the canonical Mistral STT model id", () => {
+    expect(getSttModelLabel("mistral", "voxtral-mini-2602")).toBe(
       "Voxtral Mini Transcribe 2",
     );
   });
@@ -36,17 +36,12 @@ describe("speech provider constants", () => {
       { id: "telephony", name: "Telephony" },
     ]);
     expect(getProviderSttModelOptions("mistral")).toEqual(
-      [{ id: "voxtral-mini-latest", name: "Voxtral Mini Transcribe 2" }],
+      [{ id: "voxtral-mini-2602", name: "Voxtral Mini Transcribe 2" }],
     );
   });
 
   it("surfaces newly wired catalog-backed STT providers through the runtime manifest", () => {
-    expect(getProviderSttModelOptions("bytedance-doubao-seed")).toEqual([
-      {
-        id: "bigmodel",
-        name: "Doubao Big-Model Streaming ASR",
-      },
-    ]);
+    expect(getProviderSttModelOptions("bytedance-doubao-seed")).toEqual([]);
     expect(getProviderSttModelOptions("alibaba-qwen-dashscope")).toEqual([
       { id: "qwen3-asr-flash", name: "Qwen3-ASR-Flash" },
     ]);
