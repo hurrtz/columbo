@@ -162,15 +162,19 @@ native and app-wired.
 
 Initial supported runtime web-search providers:
 
-- OpenAI, because the app already uses the Responses web-search tool.
-- Perplexity, because the app already uses Sonar chat completions for grounded
-  answers.
+- OpenAI Responses web search.
+- Anthropic Messages web search.
+- Alibaba/Qwen DashScope chat completions with `enable_search`.
+- ByteDance/Doubao Ark Responses web search.
+- Google/Gemini Interactions grounding with `google_search`.
+- xAI Responses web search.
+- Mistral Conversations web search.
+- Moonshot/Kimi built-in `$web_search`.
+- Perplexity Sonar grounded answers.
 
-Do not expose Anthropic, Google/Gemini, Alibaba/Qwen, ByteDance/Doubao,
-Mistral, xAI, or Kimi as web-search providers unless their provider-native
-search route is implemented in `src/services/webSearch.ts`. Some of those
-providers document web search, but several require a different API family than
-the app currently uses.
+Do not re-add raw SERP/crawler vendors such as Brave, Exa, Firecrawl, SerpApi,
+or Tavily. Web search should stay provider-native unless a future product
+decision explicitly brings back dedicated retrieval providers.
 
 ## Effort Rules
 

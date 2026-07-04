@@ -11,6 +11,7 @@ import {
   isRuntimeProviderId,
 } from "../../constants/providers/runtimeState";
 import {
+  WEB_SEARCH_PROVIDER_IDS,
   createDefaultWebSearchProviderSettings,
   isWebSearchMode,
   isWebSearchProvider,
@@ -352,16 +353,15 @@ function extractStoredWebSearchProviderSettings(
     return defaults;
   }
 
-  return {
-    openai: normalizeWebSearchProviderSettings(
-      "openai",
-      storedSettings.webSearchProviderSettings.openai,
-    ),
-    perplexity: normalizeWebSearchProviderSettings(
-      "perplexity",
-      storedSettings.webSearchProviderSettings.perplexity,
-    ),
-  };
+  return Object.fromEntries(
+    WEB_SEARCH_PROVIDER_IDS.map((provider) => [
+      provider,
+      normalizeWebSearchProviderSettings(
+        provider,
+        storedSettings.webSearchProviderSettings?.[provider],
+      ),
+    ]),
+  ) as typeof defaults;
 }
 
 export function mergeSettings(

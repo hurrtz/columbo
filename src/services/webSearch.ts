@@ -126,7 +126,7 @@ function formatWebSearchContext(params: {
     .join("\n\n");
 }
 
-function extractOpenAiOutputText(data: unknown): string {
+function extractResponsesOutputText(data: unknown): string {
   if (!data || typeof data !== "object") {
     return "";
   }
@@ -168,14 +168,28 @@ function extractOpenAiOutputText(data: unknown): string {
   return parts.join("").trim();
 }
 
-function collectOpenAiSources(value: unknown, sink: WebSearchSource[]) {
+function firstStringValue(...values: unknown[]) {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return "";
+}
+
+function collectSources(
+  value: unknown,
+  sink: WebSearchSource[],
+  visited = new WeakSet<object>(),
+) {
   if (!value) {
     return;
   }
 
   if (Array.isArray(value)) {
     for (const entry of value) {
-      collectOpenAiSources(entry, sink);
+      collectSources(entry, sink, visited);
     }
     return;
   }
@@ -184,40 +198,77 @@ function collectOpenAiSources(value: unknown, sink: WebSearchSource[]) {
     return;
   }
 
+  if (visited.has(value)) {
+    return;
+  }
+
+  visited.add(value);
+
   const candidate = value as {
     action?: { sources?: unknown };
+    citations?: unknown;
+    link?: unknown;
+    mobile_url?: unknown;
+    name?: unknown;
+    site_name?: unknown;
+    source?: unknown;
+    source_url?: unknown;
     title?: unknown;
+    uri?: unknown;
     url?: unknown;
   };
 
   if (candidate.action?.sources) {
-    collectOpenAiSources(candidate.action.sources, sink);
+    collectSources(candidate.action.sources, sink, visited);
   }
 
-  if (typeof candidate.url === "string" && candidate.url.trim()) {
+  if (Array.isArray(candidate.citations)) {
+    for (const citation of candidate.citations) {
+      if (typeof citation === "string" && citation.trim()) {
+        sink.push({
+          title: citation.trim(),
+          url: citation.trim(),
+        });
+      }
+    }
+  }
+
+  const url = firstStringValue(
+    candidate.url,
+    candidate.source_url,
+    candidate.link,
+    candidate.uri,
+    candidate.mobile_url,
+  );
+
+  if (url) {
+    const title = firstStringValue(
+      candidate.title,
+      candidate.name,
+      candidate.site_name,
+      candidate.source,
+    );
+
     sink.push({
-      title:
-        typeof candidate.title === "string" && candidate.title.trim()
-          ? candidate.title.trim()
-          : candidate.url.trim(),
-      url: candidate.url.trim(),
+      title: title || url,
+      url,
     });
   }
 
   for (const nested of Object.values(candidate)) {
     if (nested !== candidate.action?.sources) {
-      collectOpenAiSources(nested, sink);
+      collectSources(nested, sink, visited);
     }
   }
 }
 
-function extractOpenAiSources(data: unknown) {
+function extractGenericSources(data: unknown) {
   const sources: WebSearchSource[] = [];
-  collectOpenAiSources(data, sources);
+  collectSources(data, sources);
   return dedupeSources(sources);
 }
 
-function extractPerplexityOutputText(data: unknown): string {
+function extractChatCompletionOutputText(data: unknown): string {
   if (!data || typeof data !== "object") {
     return "";
   }
@@ -263,6 +314,131 @@ function extractPerplexityOutputText(data: unknown): string {
     .trim();
 }
 
+function extractAnthropicOutputText(data: unknown): string {
+  if (!data || typeof data !== "object") {
+    return "";
+  }
+
+  const content = "content" in data && Array.isArray(data.content) ? data.content : [];
+
+  return content
+    .flatMap((part) => {
+      if (
+        part &&
+        typeof part === "object" &&
+        "type" in part &&
+        part.type === "text" &&
+        "text" in part &&
+        typeof part.text === "string"
+      ) {
+        return [part.text];
+      }
+
+      return [];
+    })
+    .join("")
+    .trim();
+}
+
+function extractGeminiOutputText(data: unknown): string {
+  if (!data || typeof data !== "object") {
+    return "";
+  }
+
+  if ("output_text" in data && typeof data.output_text === "string") {
+    return data.output_text.trim();
+  }
+
+  const output = "output" in data && Array.isArray(data.output) ? data.output : [];
+  const outputParts: string[] = [];
+
+  for (const item of output) {
+    if (!item || typeof item !== "object") {
+      continue;
+    }
+
+    const content = "content" in item && Array.isArray(item.content) ? item.content : [];
+    for (const part of content) {
+      if (
+        part &&
+        typeof part === "object" &&
+        "text" in part &&
+        typeof part.text === "string"
+      ) {
+        outputParts.push(part.text);
+      }
+    }
+  }
+
+  if (outputParts.length > 0) {
+    return outputParts.join("").trim();
+  }
+
+  const candidates =
+    "candidates" in data && Array.isArray(data.candidates) ? data.candidates : [];
+  const firstCandidate = candidates[0];
+  const content =
+    firstCandidate &&
+    typeof firstCandidate === "object" &&
+    "content" in firstCandidate &&
+    firstCandidate.content &&
+    typeof firstCandidate.content === "object"
+      ? firstCandidate.content
+      : null;
+  const parts: unknown[] =
+    content && "parts" in content && Array.isArray(content.parts)
+      ? content.parts
+      : [];
+
+  return parts
+    .map((part) =>
+      part &&
+      typeof part === "object" &&
+      "text" in part &&
+      typeof part.text === "string"
+        ? part.text
+        : "",
+    )
+    .join("")
+    .trim();
+}
+
+function extractMistralOutputText(data: unknown): string {
+  if (!data || typeof data !== "object") {
+    return "";
+  }
+
+  const outputs = [
+    ...("outputs" in data && Array.isArray(data.outputs) ? data.outputs : []),
+    ...("entries" in data && Array.isArray(data.entries) ? data.entries : []),
+  ];
+  const parts: string[] = [];
+
+  for (const output of outputs) {
+    if (!output || typeof output !== "object") {
+      continue;
+    }
+
+    const content =
+      "content" in output && Array.isArray(output.content) ? output.content : [];
+
+    for (const chunk of content) {
+      if (
+        chunk &&
+        typeof chunk === "object" &&
+        "type" in chunk &&
+        chunk.type === "text" &&
+        "text" in chunk &&
+        typeof chunk.text === "string"
+      ) {
+        parts.push(chunk.text);
+      }
+    }
+  }
+
+  return parts.join("").trim();
+}
+
 function extractPerplexitySources(data: unknown) {
   if (!data || typeof data !== "object") {
     return [];
@@ -306,7 +482,7 @@ function extractPerplexitySources(data: unknown) {
     }
   }
 
-  return dedupeSources(sources);
+  return dedupeSources([...sources, ...extractGenericSources(data)]);
 }
 
 async function fetchWithTimeout(
@@ -412,10 +588,15 @@ async function searchWithOpenAi(params: WebSearchRequestParams) {
       },
       body: JSON.stringify({
         model,
-        input: buildWebSearchPrompt({
-          query: params.query,
-          conversationSummary: params.conversationSummary,
-        }),
+        input: [
+          {
+            role: "user",
+            content: buildWebSearchPrompt({
+              query: params.query,
+              conversationSummary: params.conversationSummary,
+            }),
+          },
+        ],
         tools: [
           {
             type: "web_search",
@@ -447,6 +628,323 @@ async function searchWithOpenAi(params: WebSearchRequestParams) {
     model,
     provider: params.provider,
   } satisfies RawWebSearchResponse;
+}
+
+async function fetchJsonWebSearch(
+  params: WebSearchRequestParams,
+  request: {
+    url: string;
+    model: string;
+    headers: Record<string, string>;
+    body: unknown;
+  },
+) {
+  const response = await fetchWithTimeout(
+    request.url,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...request.headers,
+      },
+      body: JSON.stringify(request.body),
+    },
+    WEB_SEARCH_TIMEOUT_MS_BY_PROVIDER[params.provider],
+    () => buildWebSearchTimeoutError(params.provider, params.language),
+    params.abortSignal,
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider: params.provider,
+      language: params.language,
+      status: response.status,
+      errorText,
+      action: "web-search",
+    });
+  }
+
+  return {
+    data: await response.json(),
+    model: request.model,
+    provider: params.provider,
+  } satisfies RawWebSearchResponse;
+}
+
+function buildPromptForProvider(params: WebSearchRequestParams) {
+  return buildWebSearchPrompt({
+    query: params.query,
+    conversationSummary: params.conversationSummary,
+  });
+}
+
+function buildBearerHeaders(params: WebSearchRequestParams) {
+  return {
+    Authorization: `Bearer ${requireProviderKey(
+      params.provider,
+      params.apiKey,
+      params.language,
+    )}`,
+  };
+}
+
+function buildChatMessages(params: WebSearchRequestParams) {
+  return [
+    {
+      role: "user",
+      content: buildPromptForProvider(params),
+    },
+  ];
+}
+
+async function searchWithAnthropic(params: WebSearchRequestParams) {
+  const model = getWebSearchProviderModel(params.provider);
+  const maxOutputTokens = params.maxOutputTokens ?? 420;
+
+  return fetchJsonWebSearch(params, {
+    url: "https://api.anthropic.com/v1/messages",
+    model,
+    headers: {
+      "anthropic-version": "2023-06-01",
+      "x-api-key": requireProviderKey(
+        params.provider,
+        params.apiKey,
+        params.language,
+      ),
+    },
+    body: {
+      model,
+      max_tokens: maxOutputTokens,
+      messages: buildChatMessages(params),
+      tools: [
+        {
+          type: "web_search_20260318",
+          name: "web_search",
+          response_inclusion: "included",
+        },
+      ],
+    },
+  });
+}
+
+async function searchWithQwen(params: WebSearchRequestParams) {
+  const model = getWebSearchProviderModel(params.provider);
+  const maxOutputTokens = params.maxOutputTokens ?? 420;
+
+  return fetchJsonWebSearch(params, {
+    url: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+    model,
+    headers: buildBearerHeaders(params),
+    body: {
+      model,
+      messages: buildChatMessages(params),
+      enable_search: true,
+      max_tokens: maxOutputTokens,
+    },
+  });
+}
+
+async function searchWithResponsesTool(params: WebSearchRequestParams, url: string) {
+  const model = getWebSearchProviderModel(params.provider);
+  const maxOutputTokens = params.maxOutputTokens ?? 420;
+
+  return fetchJsonWebSearch(params, {
+    url,
+    model,
+    headers: buildBearerHeaders(params),
+    body: {
+      model,
+      input: [
+        {
+          role: "user",
+          content: buildPromptForProvider(params),
+        },
+      ],
+      tools: [{ type: "web_search" }],
+      max_output_tokens: maxOutputTokens,
+    },
+  });
+}
+
+async function searchWithGemini(params: WebSearchRequestParams) {
+  const model = getWebSearchProviderModel(params.provider);
+
+  return fetchJsonWebSearch(params, {
+    url: "https://generativelanguage.googleapis.com/v1beta/interactions",
+    model,
+    headers: {
+      "x-goog-api-key": requireProviderKey(
+        params.provider,
+        params.apiKey,
+        params.language,
+      ),
+    },
+    body: {
+      model,
+      input: buildPromptForProvider(params),
+      tools: [{ type: "google_search" }],
+    },
+  });
+}
+
+function getXaiMaxTurns(params: WebSearchRequestParams) {
+  const normalizedOptions = normalizeWebSearchProviderSettings(
+    params.provider,
+    params.options,
+  );
+
+  if (normalizedOptions.searchMode === "quick") {
+    return 2;
+  }
+
+  if (normalizedOptions.searchMode === "deep") {
+    return 8;
+  }
+
+  return 4;
+}
+
+async function searchWithXai(params: WebSearchRequestParams) {
+  const model = getWebSearchProviderModel(params.provider);
+  const maxOutputTokens = params.maxOutputTokens ?? 420;
+
+  return fetchJsonWebSearch(params, {
+    url: "https://api.x.ai/v1/responses",
+    model,
+    headers: buildBearerHeaders(params),
+    body: {
+      model,
+      input: [
+        {
+          role: "user",
+          content: buildPromptForProvider(params),
+        },
+      ],
+      tools: [{ type: "web_search" }],
+      max_output_tokens: maxOutputTokens,
+      max_turns: getXaiMaxTurns(params),
+    },
+  });
+}
+
+async function searchWithMistral(params: WebSearchRequestParams) {
+  const model = getWebSearchProviderModel(params.provider);
+
+  return fetchJsonWebSearch(params, {
+    url: "https://api.mistral.ai/v1/conversations",
+    model,
+    headers: buildBearerHeaders(params),
+    body: {
+      model,
+      inputs: buildChatMessages(params),
+      tools: [{ type: "web_search" }],
+      store: false,
+    },
+  });
+}
+
+function getKimiToolCalls(data: unknown) {
+  if (!data || typeof data !== "object") {
+    return [];
+  }
+
+  const choices =
+    "choices" in data && Array.isArray(data.choices) ? data.choices : [];
+  const firstChoice = choices[0];
+
+  if (!firstChoice || typeof firstChoice !== "object") {
+    return [];
+  }
+
+  const message =
+    "message" in firstChoice &&
+    firstChoice.message &&
+    typeof firstChoice.message === "object"
+      ? firstChoice.message
+      : null;
+  const toolCalls =
+    message && "tool_calls" in message && Array.isArray(message.tool_calls)
+      ? message.tool_calls
+      : [];
+
+  return toolCalls.filter(
+    (toolCall: unknown) => toolCall && typeof toolCall === "object",
+  ) as Array<{
+    id?: string;
+    function?: {
+      arguments?: string;
+      name?: string;
+    };
+  }>;
+}
+
+async function requestKimiChatCompletion(
+  params: WebSearchRequestParams,
+  messages: unknown[],
+) {
+  const model = getWebSearchProviderModel(params.provider);
+  const maxOutputTokens = params.maxOutputTokens ?? 420;
+
+  return fetchJsonWebSearch(params, {
+    url: "https://api.moonshot.ai/v1/chat/completions",
+    model,
+    headers: buildBearerHeaders(params),
+    body: {
+      model,
+      messages,
+      tools: [
+        {
+          type: "builtin_function",
+          function: { name: "$web_search" },
+        },
+      ],
+      thinking: { type: "disabled" },
+      max_tokens: maxOutputTokens,
+    },
+  });
+}
+
+async function searchWithKimi(params: WebSearchRequestParams) {
+  const initialMessages = buildChatMessages(params);
+  const firstResponse = await requestKimiChatCompletion(params, initialMessages);
+  const toolCalls = getKimiToolCalls(firstResponse.data);
+
+  if (toolCalls.length === 0) {
+    return firstResponse;
+  }
+
+  const firstChoice =
+    firstResponse.data &&
+    typeof firstResponse.data === "object" &&
+    "choices" in firstResponse.data &&
+    Array.isArray(firstResponse.data.choices)
+      ? firstResponse.data.choices[0]
+      : null;
+  const assistantMessage =
+    firstChoice &&
+    typeof firstChoice === "object" &&
+    "message" in firstChoice &&
+    firstChoice.message &&
+    typeof firstChoice.message === "object"
+      ? firstChoice.message
+      : {
+          role: "assistant",
+          content: null,
+          tool_calls: toolCalls,
+        };
+  const toolMessages = toolCalls.map((toolCall) => ({
+    role: "tool",
+    tool_call_id: toolCall.id,
+    name: toolCall.function?.name ?? "$web_search",
+    content: toolCall.function?.arguments ?? "{}",
+  }));
+
+  return requestKimiChatCompletion(params, [
+    ...initialMessages,
+    assistantMessage,
+    ...toolMessages,
+  ]);
 }
 
 async function searchWithPerplexity(params: WebSearchRequestParams) {
@@ -505,6 +1003,23 @@ async function requestWebSearch(params: WebSearchRequestParams) {
   switch (params.provider) {
     case "openai":
       return searchWithOpenAi(params);
+    case "anthropic":
+      return searchWithAnthropic(params);
+    case "alibaba-qwen-dashscope":
+      return searchWithQwen(params);
+    case "bytedance-doubao-seed":
+      return searchWithResponsesTool(
+        params,
+        "https://ark.cn-beijing.volces.com/api/v3/responses",
+      );
+    case "gemini":
+      return searchWithGemini(params);
+    case "xai":
+      return searchWithXai(params);
+    case "mistral":
+      return searchWithMistral(params);
+    case "moonshot-ai-kimi":
+      return searchWithKimi(params);
     case "perplexity":
       return searchWithPerplexity(params);
     default:
@@ -519,19 +1034,40 @@ function normalizeGroundedAnswerResult(params: {
   data: unknown;
   options?: WebSearchProviderSettings;
 }) {
-  const summary =
-    params.provider === "openai"
-      ? extractOpenAiOutputText(params.data)
-      : extractPerplexityOutputText(params.data);
+  let summary = "";
+
+  switch (params.provider) {
+    case "openai":
+    case "bytedance-doubao-seed":
+    case "xai":
+      summary = extractResponsesOutputText(params.data);
+      break;
+    case "anthropic":
+      summary = extractAnthropicOutputText(params.data);
+      break;
+    case "gemini":
+      summary = extractGeminiOutputText(params.data);
+      break;
+    case "mistral":
+      summary = extractMistralOutputText(params.data);
+      break;
+    case "alibaba-qwen-dashscope":
+    case "moonshot-ai-kimi":
+    case "perplexity":
+      summary = extractChatCompletionOutputText(params.data);
+      break;
+    default:
+      summary = "";
+  }
 
   if (!summary) {
     return null;
   }
 
   const sources =
-    params.provider === "openai"
-      ? extractOpenAiSources(params.data)
-      : extractPerplexitySources(params.data);
+    params.provider === "perplexity"
+      ? extractPerplexitySources(params.data)
+      : extractGenericSources(params.data);
 
   return {
     context: formatWebSearchContext({

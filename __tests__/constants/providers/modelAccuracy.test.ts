@@ -27,7 +27,17 @@ describe("provider model accuracy", () => {
       "moonshot-ai-kimi",
       "perplexity",
     ]);
-    expect(WEB_SEARCH_PROVIDER_IDS).toEqual(["openai", "perplexity"]);
+    expect(WEB_SEARCH_PROVIDER_IDS).toEqual([
+      "openai",
+      "anthropic",
+      "alibaba-qwen-dashscope",
+      "bytedance-doubao-seed",
+      "gemini",
+      "xai",
+      "mistral",
+      "moonshot-ai-kimi",
+      "perplexity",
+    ]);
     expect(PROVIDER_ORDER).toEqual(
       expect.not.arrayContaining([
         "brave",

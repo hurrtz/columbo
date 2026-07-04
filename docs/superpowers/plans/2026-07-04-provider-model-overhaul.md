@@ -32,8 +32,16 @@ against official docs and the app's current transports.
 
 ## Phase 3: Simplify Web Search Runtime
 
-- Keep web search wired only for:
+- Keep raw search vendors removed, but expose provider-native web search for
+  kept LLM providers whose search APIs are app-wired:
   - `openai`
+  - `anthropic`
+  - `alibaba-qwen-dashscope`
+  - `bytedance-doubao-seed`
+  - `gemini`
+  - `xai`
+  - `mistral`
+  - `moonshot-ai-kimi`
   - `perplexity`
 - Remove Tavily, Brave, Exa, Firecrawl, and SerpApi request builders,
   normalizers, timeout entries, provider-kind entries, and tests.

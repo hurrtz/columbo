@@ -370,6 +370,13 @@ describe("useSettings", () => {
     expect(result.current.settings.webSearchProvider).toBeNull();
     expect(Object.keys(result.current.settings.webSearchProviderSettings)).toEqual([
       "openai",
+      "anthropic",
+      "alibaba-qwen-dashscope",
+      "bytedance-doubao-seed",
+      "gemini",
+      "xai",
+      "mistral",
+      "moonshot-ai-kimi",
       "perplexity",
     ]);
   });

@@ -2,6 +2,15 @@ import {
   searchWeb,
   validateWebSearchConnection,
 } from "../../src/services/webSearch";
+import {
+  DEFAULT_WEB_SEARCH_PROVIDER_SETTINGS,
+  getWebSearchProviderModel,
+  type WebSearchProvider,
+  WEB_SEARCH_PROVIDER_IDS,
+  WEB_SEARCH_PROVIDER_KIND,
+  WEB_SEARCH_PROVIDER_MODELS,
+  WEB_SEARCH_TIMEOUT_MS_BY_PROVIDER,
+} from "../../src/constants/webSearch";
 
 jest.mock("../../src/services/debugLogCapture", () => ({
   recordDebugLogEvent: jest.fn(),
@@ -9,9 +18,49 @@ jest.mock("../../src/services/debugLogCapture", () => ({
 
 global.fetch = jest.fn();
 
+function fetchBody(callIndex = 0) {
+  return JSON.parse((fetch as jest.Mock).mock.calls[callIndex][1].body);
+}
+
 describe("webSearch", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it("keeps raw search vendors removed while exposing native search-capable LLM providers", () => {
+    expect(WEB_SEARCH_PROVIDER_IDS).toEqual([
+      "openai",
+      "anthropic",
+      "alibaba-qwen-dashscope",
+      "bytedance-doubao-seed",
+      "gemini",
+      "xai",
+      "mistral",
+      "moonshot-ai-kimi",
+      "perplexity",
+    ]);
+    expect(WEB_SEARCH_PROVIDER_IDS).toEqual(
+      expect.not.arrayContaining([
+        "brave",
+        "exa",
+        "firecrawl",
+        "serpapi",
+        "tavily",
+      ]),
+    );
+
+    for (const provider of WEB_SEARCH_PROVIDER_IDS) {
+      expect(WEB_SEARCH_PROVIDER_MODELS[provider]).toBeTruthy();
+      expect(WEB_SEARCH_PROVIDER_KIND[provider]).toBe("grounded-answer");
+      expect(WEB_SEARCH_TIMEOUT_MS_BY_PROVIDER[provider]).toBeGreaterThan(0);
+      expect(DEFAULT_WEB_SEARCH_PROVIDER_SETTINGS[provider]).toEqual(
+        expect.objectContaining({
+          resultLimit: 5,
+          depth: "standard",
+          searchMode: "balanced",
+        }),
+      );
+    }
   });
 
   it("returns a normalized summary and source list for OpenAI web search", async () => {
@@ -57,7 +106,7 @@ describe("webSearch", () => {
     );
     expect(result).toEqual(
       expect.objectContaining({
-        model: "gpt-4.1-mini",
+        model: "gpt-5.5",
         provider: "openai",
         summary: "Mars has water ice near its poles.",
         sources: [
@@ -69,6 +118,317 @@ describe("webSearch", () => {
       }),
     );
     expect(result?.context).toContain("Does Mars have water ice?");
+  });
+
+  it.each([
+    {
+      provider: "anthropic",
+      url: "https://api.anthropic.com/v1/messages",
+      response: {
+        content: [
+          {
+            type: "web_search_tool_result",
+            content: [
+              {
+                title: "Claude search result",
+                url: "https://example.com/claude-search",
+              },
+            ],
+          },
+          {
+            type: "text",
+            text: "Anthropic web search found the current answer.",
+          },
+        ],
+      },
+      assertBody: (body: Record<string, unknown>) => {
+        expect(body.tools).toEqual([
+          expect.objectContaining({
+            name: "web_search",
+            type: "web_search_20260318",
+          }),
+        ]);
+      },
+      expectedSummary: "Anthropic web search found the current answer.",
+      expectedSourceUrl: "https://example.com/claude-search",
+    },
+    {
+      provider: "alibaba-qwen-dashscope",
+      url: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+      response: {
+        choices: [
+          {
+            message: {
+              content: "Qwen web search found the current answer.",
+            },
+          },
+        ],
+        search_results: [
+          {
+            title: "Qwen search result",
+            url: "https://example.com/qwen-search",
+          },
+        ],
+      },
+      assertBody: (body: Record<string, unknown>) => {
+        expect(body.enable_search).toBe(true);
+        expect(body.model).toBe("qwen3.7-plus");
+      },
+      expectedSummary: "Qwen web search found the current answer.",
+      expectedSourceUrl: "https://example.com/qwen-search",
+    },
+    {
+      provider: "bytedance-doubao-seed",
+      url: "https://ark.cn-beijing.volces.com/api/v3/responses",
+      response: {
+        output_text: "Doubao web search found the current answer.",
+        output: [
+          {
+            type: "web_search_call",
+            action: {
+              sources: [
+                {
+                  title: "Doubao search result",
+                  url: "https://example.com/doubao-search",
+                },
+              ],
+            },
+          },
+        ],
+      },
+      assertBody: (body: Record<string, unknown>) => {
+        expect(body.tools).toEqual([{ type: "web_search" }]);
+        expect(body.model).toBe("doubao-seed-2-1-turbo-260628");
+      },
+      expectedSummary: "Doubao web search found the current answer.",
+      expectedSourceUrl: "https://example.com/doubao-search",
+    },
+    {
+      provider: "gemini",
+      url: "https://generativelanguage.googleapis.com/v1beta/interactions",
+      response: {
+        output: [
+          {
+            type: "model_output",
+            content: [
+              {
+                text: "Gemini web search found the current answer.",
+                annotations: [
+                  {
+                    title: "Gemini search result",
+                    url: "https://example.com/gemini-search",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      assertBody: (body: Record<string, unknown>) => {
+        expect(body.tools).toEqual([{ type: "google_search" }]);
+        expect(body.model).toBe("gemini-3.5-flash");
+      },
+      expectedSummary: "Gemini web search found the current answer.",
+      expectedSourceUrl: "https://example.com/gemini-search",
+    },
+    {
+      provider: "xai",
+      url: "https://api.x.ai/v1/responses",
+      response: {
+        output_text: "xAI web search found the current answer.",
+        output: [
+          {
+            type: "web_search_call",
+            action: {
+              sources: [
+                {
+                  title: "xAI search result",
+                  url: "https://example.com/xai-search",
+                },
+              ],
+            },
+          },
+        ],
+      },
+      assertBody: (body: Record<string, unknown>) => {
+        expect(body.tools).toEqual([{ type: "web_search" }]);
+        expect(body.model).toBe("grok-4.3");
+      },
+      expectedSummary: "xAI web search found the current answer.",
+      expectedSourceUrl: "https://example.com/xai-search",
+    },
+    {
+      provider: "mistral",
+      url: "https://api.mistral.ai/v1/conversations",
+      response: {
+        outputs: [
+          {
+            type: "message.output",
+            content: [
+              {
+                type: "text",
+                text: "Mistral web search found the current answer.",
+              },
+              {
+                type: "tool_reference",
+                title: "Mistral search result",
+                url: "https://example.com/mistral-search",
+              },
+            ],
+          },
+        ],
+      },
+      assertBody: (body: Record<string, unknown>) => {
+        expect(body.tools).toEqual([{ type: "web_search" }]);
+        expect(body.store).toBe(false);
+        expect(body.model).toBe("mistral-medium-3-5");
+      },
+      expectedSummary: "Mistral web search found the current answer.",
+      expectedSourceUrl: "https://example.com/mistral-search",
+    },
+  ] as Array<{
+    provider: WebSearchProvider;
+    url: string;
+    response: unknown;
+    assertBody: (body: Record<string, unknown>) => void;
+    expectedSummary: string;
+    expectedSourceUrl: string;
+  }>)(
+    "uses the native web search route for $provider",
+    async ({
+      provider,
+      url,
+      response,
+      assertBody,
+      expectedSummary,
+      expectedSourceUrl,
+    }) => {
+      (fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(response),
+      });
+
+      const result = await searchWeb({
+        provider,
+        apiKey: "provider-key",
+        language: "en",
+        query: "What changed today?",
+      });
+
+      expect(fetch).toHaveBeenCalledWith(
+        url,
+        expect.objectContaining({ method: "POST" }),
+      );
+      assertBody(fetchBody());
+      expect(result).toEqual(
+        expect.objectContaining({
+          model: getWebSearchProviderModel(provider),
+          provider,
+          summary: expectedSummary,
+          sources: [
+            expect.objectContaining({
+              url: expectedSourceUrl,
+            }),
+          ],
+        }),
+      );
+    },
+  );
+
+  it("runs Kimi built-in web search through the required tool handoff", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                finish_reason: "tool_calls",
+                message: {
+                  role: "assistant",
+                  content: null,
+                  tool_calls: [
+                    {
+                      id: "call_1",
+                      type: "builtin_function",
+                      function: {
+                        name: "$web_search",
+                        arguments: "{\"query\":\"current answer\"}",
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: "Kimi web search found the current answer.",
+                },
+              },
+            ],
+            citations: [
+              {
+                title: "Kimi search result",
+                url: "https://example.com/kimi-search",
+              },
+            ],
+          }),
+      });
+
+    const result = await searchWeb({
+      provider: "moonshot-ai-kimi",
+      apiKey: "kimi-key",
+      language: "en",
+      query: "What changed today?",
+    });
+
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(fetch).toHaveBeenNthCalledWith(
+      1,
+      "https://api.moonshot.ai/v1/chat/completions",
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchBody(0)).toEqual(
+      expect.objectContaining({
+        model: "kimi-k2.6",
+        thinking: { type: "disabled" },
+        tools: [
+          {
+            type: "builtin_function",
+            function: { name: "$web_search" },
+          },
+        ],
+      }),
+    );
+    expect(fetchBody(1).messages).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          role: "tool",
+          tool_call_id: "call_1",
+          content: "{\"query\":\"current answer\"}",
+        }),
+      ]),
+    );
+    expect(result).toEqual(
+      expect.objectContaining({
+        model: "kimi-k2.6",
+        provider: "moonshot-ai-kimi",
+        summary: "Kimi web search found the current answer.",
+        sources: [
+          {
+            title: "Kimi search result",
+            url: "https://example.com/kimi-search",
+          },
+        ],
+      }),
+    );
   });
 
   it("returns a normalized summary and search_results list for Perplexity", async () => {
