@@ -35,11 +35,18 @@ export type XaiRealtimeTranscriptionConfig = {
   defaultModel: string;
 };
 
+export type XaiRestSttTranscriptionConfig = {
+  kind: "xai-stt-rest";
+  endpoint: string;
+  defaultModel: string;
+};
+
 export type ProviderSttConfig =
   | MultipartTranscriptionConfig
   | OpenAiAudioInputTranscriptionConfig
   | BytedanceBigmodelFlashTranscriptionConfig
   | GoogleCloudSpeechV2TranscriptionConfig
+  | XaiRestSttTranscriptionConfig
   | XaiRealtimeTranscriptionConfig;
 
 export const STT_TIMEOUT_MS = 60000;
@@ -110,6 +117,14 @@ function buildConfigForTransport(params: {
       return params.endpoint
         ? {
             kind: "xai-realtime",
+            endpoint: params.endpoint,
+            defaultModel: params.defaultModel,
+          }
+        : null;
+    case "xai-stt-rest":
+      return params.endpoint
+        ? {
+            kind: "xai-stt-rest",
             endpoint: params.endpoint,
             defaultModel: params.defaultModel,
           }

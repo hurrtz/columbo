@@ -31,6 +31,7 @@ export type RuntimeSttTransport =
   | "bytedance-bigmodel-flash"
   | "google-cloud-speech-v2"
   | "openai-audio-input"
+  | "xai-stt-rest"
   | "xai-realtime";
 export type RuntimeTtsTransport =
   | "none"
@@ -886,12 +887,12 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     },
     stt: {
       support: "provider",
-      transport: "xai-realtime",
-      endpoint: "wss://api.x.ai/v1/realtime",
-      defaultModel: "voice-agent-api",
-      models: catalogModelSpecs("xai", "stt"),
+      transport: "xai-stt-rest",
+      endpoint: "https://api.x.ai/v1/stt",
+      defaultModel: "grok-stt",
+      models: catalogModelSpecs("xai", "stt", ["voice-agent-api"]),
       languageNote:
-        "xAI speech input is wired through the Voice Agent realtime WebSocket. SchnackAI streams recorded audio as PCM 16 kHz input and consumes the completed transcription event without requesting an assistant response.",
+        "xAI speech input uses the standalone Grok Speech-to-Text endpoint for recorded audio.",
     },
     tts: {
       support: "provider",

@@ -1,5 +1,6 @@
 import { DEFAULT_SETTINGS } from "../../src/types";
 import {
+  getNormalizedProviderSttModels,
   getNormalizedProviderTtsVoices,
   getNormalizedResponseModes,
   getNormalizedSttProvider,
@@ -86,6 +87,24 @@ describe("settingsRules", () => {
     );
 
     expect(nextProviderVoices?.openai).toBe("alloy");
+  });
+
+  it("repairs stored xAI voice-agent STT selections to standalone Grok STT", () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      sttMode: "provider" as const,
+      sttProvider: "xai" as const,
+      providerSttModels: {
+        ...DEFAULT_SETTINGS.providerSttModels,
+        xai: "voice-agent-api",
+      },
+    };
+
+    const nextProviderSttModels = getNormalizedProviderSttModels(settings, [
+      "xai",
+    ]);
+
+    expect(nextProviderSttModels?.xai).toBe("grok-stt");
   });
 
   it("leaves a valid provider voice selection untouched", () => {

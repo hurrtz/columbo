@@ -18,6 +18,7 @@ import type {
   GoogleCloudSpeechV2TranscriptionConfig,
   OpenAiAudioInputTranscriptionConfig,
   MultipartTranscriptionConfig,
+  XaiRestSttTranscriptionConfig,
 } from "./config";
 import {
   createSttTimeoutError,
@@ -381,3 +382,65 @@ export async function transcribeWithGoogleCloudSpeechV2Provider(
   return text ? text : null;
 }
 
+export async function transcribeWithXaiRestSttProvider(
+  params: SharedProviderParams & {
+    config: XaiRestSttTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider } = params;
+  const formData = new FormData();
+  formData.append("format", "true");
+  formData.append("language", normalizeXaiSttLanguage(language));
+  formData.append(
+    "file",
+    {
+      uri: fileUri,
+      type: getFileAudioMimeType(fileUri),
+      name: fileUri.split("/").pop() || "recording.m4a",
+    } as any,
+  );
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      config.endpoint,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${requireProviderKey(provider, apiKey, language)}`,
+        },
+        body: formData,
+      },
+      getProviderSttTimeoutMs(provider),
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const data = await response.json();
+  const text = typeof data?.text === "string" ? data.text.trim() : "";
+  return text ? text : null;
+}
+
+function normalizeXaiSttLanguage(language: AppLanguage) {
+  return language === "de" ? "de" : "en";
+}

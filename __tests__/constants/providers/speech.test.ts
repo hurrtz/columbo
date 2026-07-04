@@ -1,4 +1,5 @@
 import {
+  PROVIDER_DEFAULT_STT_MODELS,
   PROVIDER_DEFAULT_TTS_MODELS,
   getProviderSttModelOptions,
   getProviderTtsModelOptions,
@@ -51,14 +52,11 @@ describe("speech provider constants", () => {
     ]);
     expect(getProviderSttModelOptions("xai")).toEqual([
       {
-        id: "voice-agent-api",
-        name: "Voice Agent API (speech input inside realtime agent)",
-      },
-      {
         id: "grok-stt",
         name: "Grok Speech-to-Text",
       },
     ]);
+    expect(PROVIDER_DEFAULT_STT_MODELS.xai).toBe("grok-stt");
   });
 
   it("uses catalog labels for exact TTS model matches", () => {

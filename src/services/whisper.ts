@@ -14,6 +14,7 @@ import {
   transcribeWithGoogleCloudSpeechV2Provider,
   transcribeWithMultipartProvider,
   transcribeWithOpenAiAudioInputProvider,
+  transcribeWithXaiRestSttProvider,
 } from "./whisper/providers";
 import { transcribeWithXaiRealtimeProvider } from "./whisper/realtimeProviders";
 
@@ -150,6 +151,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "xai-realtime") {
     return transcribeWithXaiRealtimeProvider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
+    });
+  }
+
+  if (config.kind === "xai-stt-rest") {
+    return transcribeWithXaiRestSttProvider({
       abortSignal,
       apiKey,
       config,

@@ -282,48 +282,34 @@ describe("transcribeAudio", () => {
     });
   });
 
-  it("uses the xAI realtime socket for voice-agent STT", async () => {
-    const promise = transcribeAudio({
-      fileUri: "/tmp/recording.wav",
+  it("uses the xAI standalone REST STT endpoint for recorded audio", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ text: "Hello from xAI STT" }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
       mode: "provider",
       provider: "xai",
-      providerModel: "voice-agent-api",
+      providerModel: "grok-stt",
       apiKey: "xai-test",
       language: "en",
     });
 
-    const socket = await waitForMockSocket();
-    expect(socket.url).toBe("wss://api.x.ai/v1/realtime");
-    expect(socket.options.headers.Authorization).toBe("Bearer xai-test");
-    expect(socket.options.headers["Content-Type"]).toBe("application/json");
+    expect(result).toBe("Hello from xAI STT");
+    expect(MockWebSocket.instances).toHaveLength(0);
 
-    socket.emitOpen();
-    expect(JSON.parse(socket.sent[0])).toMatchObject({
-      type: "session.update",
-      session: {
-        turn_detection: { type: null },
-        audio: {
-          input: { format: { type: "audio/pcm", rate: 16000 } },
-          output: { format: { type: "audio/pcm", rate: 16000 } },
-        },
-      },
-    });
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.x.ai/v1/stt");
+    expect(options.headers.Authorization).toBe("Bearer xai-test");
+    const parts = Array.from((options.body as FormData).entries());
 
-    socket.emitMessage({ type: "session.updated" });
-    expect(JSON.parse(socket.sent[1])).toMatchObject({
-      type: "input_audio_buffer.append",
-      audio: expect.any(String),
-    });
-    expect(JSON.parse(socket.sent[2])).toEqual({
-      type: "input_audio_buffer.commit",
-    });
-
-    socket.emitMessage({
-      type: "conversation.item.input_audio_transcription.completed",
-      transcript: "Hello from xAI realtime",
-    });
-
-    await expect(promise).resolves.toBe("Hello from xAI realtime");
+    expect(parts.slice(0, 2)).toEqual([
+      ["format", "true"],
+      ["language", "en"],
+    ]);
+    expect(parts[2][0]).toBe("file");
   });
 
 
