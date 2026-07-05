@@ -1,4 +1,5 @@
 import React from "react";
+import { StyleSheet } from "react-native";
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 
 import { SettingsModal } from "../../src/components/SettingsModal";
@@ -19,10 +20,15 @@ jest.mock("@expo/vector-icons", () => ({
 }));
 
 jest.mock("expo-linear-gradient", () => ({
-  LinearGradient: ({ children }: { children: React.ReactNode }) => {
+  LinearGradient: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode;
+  }) => {
     const React = require("react");
     const { View } = require("react-native");
-    return React.createElement(View, null, children);
+    return React.createElement(View, props, children);
   },
 }));
 
@@ -102,7 +108,9 @@ describe("SettingsModal", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Settings")).toBeTruthy();
-      expect(screen.getByText("Runtime Readiness")).toBeTruthy();
+      expect(screen.getByTestId("settings-header-gradient")).toBeTruthy();
+      expect(screen.queryByTestId("settings-modal-gradient")).toBeNull();
+      expect(screen.queryByText("Runtime Readiness")).toBeNull();
       expect(screen.getByText("Connections")).toBeTruthy();
       expect(screen.getByText("Thinking")).toBeTruthy();
       expect(screen.getByText("Listening")).toBeTruthy();
@@ -118,15 +126,16 @@ describe("SettingsModal", () => {
     fireEvent.press(screen.getByText("Connections"));
 
     await waitFor(() => {
-      expect(screen.getByText("Back to overview")).toBeTruthy();
+      expect(screen.queryByText("Back to overview")).toBeNull();
+      expect(screen.getByLabelText("Back to overview")).toBeTruthy();
       expect(screen.getByPlaceholderText("Search services")).toBeTruthy();
       expect(screen.queryByText("System Prompt")).toBeNull();
     });
 
-    fireEvent.press(screen.getByText("Back to overview"));
+    fireEvent.press(screen.getByLabelText("Back to overview"));
 
     await waitFor(() => {
-      expect(screen.getByText("Runtime Readiness")).toBeTruthy();
+      expect(screen.queryByText("Runtime Readiness")).toBeNull();
       expect(screen.queryByPlaceholderText("Search services")).toBeNull();
     });
   });
@@ -135,10 +144,42 @@ describe("SettingsModal", () => {
     const screen = renderSettingsModal({ focusProvider: "openai" });
 
     await waitFor(() => {
-      expect(screen.getByText("Back to overview")).toBeTruthy();
+      expect(screen.queryByText("Back to overview")).toBeNull();
+      expect(screen.getByLabelText("Back to overview")).toBeTruthy();
       expect(screen.getByText("OpenAI")).toBeTruthy();
       expect(screen.getByText("Test key")).toBeTruthy();
       expect(screen.queryByText("System Prompt")).toBeNull();
+    });
+  });
+
+  it("uses color instead of configured copy for connected providers", async () => {
+    const screen = renderSettingsModal({
+      settings: {
+        ...DEFAULT_SETTINGS,
+        apiKeys: {
+          ...DEFAULT_SETTINGS.apiKeys,
+          openai: "test-key",
+        },
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeTruthy();
+    });
+
+    fireEvent.press(screen.getByText("Connections"));
+
+    await waitFor(() => {
+      expect(screen.getByText("OpenAI")).toBeTruthy();
+      const openAiRow = screen.getByTestId("provider-vault-row-openai");
+      expect(StyleSheet.flatten(openAiRow.props.style).backgroundColor).toBe(
+        "#2DAD7622",
+      );
+      expect(screen.queryByText("Configured")).toBeNull();
+      expect(screen.queryByText("Configured 1")).toBeNull();
+      expect(screen.queryByText("check")).toBeNull();
+      expect(screen.queryByText("Not set up")).toBeNull();
+      expect(screen.queryByText("minus")).toBeNull();
     });
   });
 
@@ -148,7 +189,8 @@ describe("SettingsModal", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText("Back to overview")).toBeTruthy();
+      expect(screen.queryByText("Back to overview")).toBeNull();
+      expect(screen.getByLabelText("Back to overview")).toBeTruthy();
       expect(screen.getByPlaceholderText("Search services")).toBeTruthy();
       expect(screen.queryByText("System Prompt")).toBeNull();
     });
@@ -166,7 +208,7 @@ describe("SettingsModal", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText("Runtime Readiness")).toBeTruthy();
+      expect(screen.getByText("Settings")).toBeTruthy();
     });
 
     fireEvent.press(screen.getByLabelText("Open Thinking"));
@@ -178,7 +220,7 @@ describe("SettingsModal", () => {
       expect(screen.queryByText("Response Tone")).toBeNull();
     });
 
-    fireEvent.press(screen.getByText("Back to overview"));
+    fireEvent.press(screen.getByLabelText("Back to overview"));
     fireEvent.press(screen.getByLabelText("Open Search"));
 
     await waitFor(() => {
@@ -186,7 +228,7 @@ describe("SettingsModal", () => {
       expect(screen.queryByText("Response Modes")).toBeNull();
     });
 
-    fireEvent.press(screen.getByText("Back to overview"));
+    fireEvent.press(screen.getByLabelText("Back to overview"));
     fireEvent.press(screen.getByLabelText("Open App & diagnostics"));
 
     await waitFor(() => {

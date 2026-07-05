@@ -72,4 +72,24 @@ describe("settings readiness", () => {
 
     expectStatus(readiness.speak, "off");
   });
+
+  it("marks search ready when a selected search-capable provider has credentials even if search is disabled", () => {
+    const settings = withSettings({
+      webSearchMode: "off",
+      webSearchProvider: "openai",
+      apiKeys: {
+        ...DEFAULT_SETTINGS.apiKeys,
+        openai: "sk-test",
+      },
+    });
+
+    const readiness = getSettingsReadiness(settings, {
+      llmProviders: ["openai"],
+      sttProviders: [],
+      ttsProviders: [],
+      searchProviders: ["openai"],
+    });
+
+    expectStatus(readiness.search, "ready");
+  });
 });

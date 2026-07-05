@@ -77,9 +77,9 @@ function getReadinessColor(
   switch (status.state) {
     case "ready":
       return {
-        backgroundColor: colors.accentSoft,
-        borderColor: colors.borderStrong,
-        textColor: colors.accent,
+        backgroundColor: `${colors.success}22`,
+        borderColor: `${colors.success}99`,
+        textColor: colors.success,
       };
     case "attention":
       return {
@@ -114,6 +114,8 @@ function ReadinessPill({
   const { colors } = useTheme();
   const { t } = useLocalization();
   const meta = getReadinessColor(status, colors);
+  const summary = t(status.summaryKey);
+  const showSummary = status.state !== "ready" && status.state !== "off";
 
   return (
     <TouchableOpacity
@@ -127,14 +129,22 @@ function ReadinessPill({
       activeOpacity={0.85}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={`${label}: ${summary}`}
     >
-      <Text style={[styles.readinessPillTitle, { color: meta.textColor }]}>
+      <Text
+        style={[styles.readinessPillTitle, { color: meta.textColor }]}
+        numberOfLines={1}
+      >
         {label}
       </Text>
-      <Text style={[styles.readinessPillSummary, { color: meta.textColor }]}>
-        {t(status.summaryKey)}
-      </Text>
+      {showSummary ? (
+        <Text
+          style={[styles.readinessPillSummary, { color: meta.textColor }]}
+          numberOfLines={1}
+        >
+          {summary}
+        </Text>
+      ) : null}
     </TouchableOpacity>
   );
 }
@@ -151,37 +161,27 @@ export function SettingsOverview({
 
   return (
     <View style={styles.tabPane}>
-      <View
-        style={[
-          styles.readinessCard,
-          { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
-        ]}
-      >
-        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
-          {t("settingsRuntimeReadiness")}
-        </Text>
-        <View style={styles.readinessGrid}>
-          <ReadinessPill
-            label={t("settingsReadinessThink")}
-            status={readiness.think}
-            onPress={() => onOpenPage("thinking")}
-          />
-          <ReadinessPill
-            label={t("settingsReadinessListen")}
-            status={readiness.listen}
-            onPress={() => onOpenPage("listening")}
-          />
-          <ReadinessPill
-            label={t("settingsReadinessSpeak")}
-            status={readiness.speak}
-            onPress={() => onOpenPage("speaking")}
-          />
-          <ReadinessPill
-            label={t("settingsReadinessSearch")}
-            status={readiness.search}
-            onPress={() => onOpenPage("search")}
-          />
-        </View>
+      <View style={styles.readinessGrid}>
+        <ReadinessPill
+          label={t("settingsReadinessThink")}
+          status={readiness.think}
+          onPress={() => onOpenPage("thinking")}
+        />
+        <ReadinessPill
+          label={t("settingsReadinessListen")}
+          status={readiness.listen}
+          onPress={() => onOpenPage("listening")}
+        />
+        <ReadinessPill
+          label={t("settingsReadinessSpeak")}
+          status={readiness.speak}
+          onPress={() => onOpenPage("speaking")}
+        />
+        <ReadinessPill
+          label={t("settingsReadinessSearch")}
+          status={readiness.search}
+          onPress={() => onOpenPage("search")}
+        />
       </View>
 
       <View style={styles.overviewRowList}>

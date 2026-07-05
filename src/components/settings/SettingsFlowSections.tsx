@@ -136,10 +136,10 @@ function getStatusMeta(
     case "configured":
       return {
         label: t("providerStatusConfigured"),
-        backgroundColor: colors.accentSoft,
-        borderColor: colors.borderStrong,
-        textColor: colors.accent,
-        icon: "check" as const,
+        backgroundColor: `${colors.success}22`,
+        borderColor: `${colors.success}99`,
+        textColor: colors.success,
+        icon: null,
       };
     default:
       return {
@@ -278,15 +278,23 @@ function ProviderVaultRow({
   const { t, language } = useLocalization();
   const capabilities = getProviderCapabilities(provider);
   const statusMeta = getStatusMeta(healthState, t, colors);
+  const isConnected = healthState === "configured" || healthState === "healthy";
+  const showStatusPill = healthState === "validating" || healthState === "failing";
   const secureApiKey = !!apiKey.trim() && !visibleApiKey;
   const showValidationMessage =
     validationState.status === "success" || validationState.status === "error";
 
   return (
     <View
+      testID={`provider-vault-row-${provider}`}
       style={[
         styles.providerVaultRow,
-        { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
+        {
+          backgroundColor: isConnected
+            ? `${colors.success}22`
+            : colors.surfaceElevated,
+          borderColor: isConnected ? `${colors.success}99` : colors.border,
+        },
       ]}
     >
       <TouchableOpacity
@@ -336,26 +344,30 @@ function ProviderVaultRow({
         </View>
 
         <View style={styles.providerVaultHeaderMeta}>
-          <View
-            style={[
-              styles.providerStatusPill,
-              {
-                backgroundColor: statusMeta.backgroundColor,
-                borderColor: statusMeta.borderColor,
-              },
-            ]}
-          >
-            <Feather
-              name={statusMeta.icon}
-              size={12}
-              color={statusMeta.textColor}
-            />
-            <Text
-              style={[styles.providerStatusText, { color: statusMeta.textColor }]}
+          {showStatusPill ? (
+            <View
+              style={[
+                styles.providerStatusPill,
+                {
+                  backgroundColor: statusMeta.backgroundColor,
+                  borderColor: statusMeta.borderColor,
+                },
+              ]}
             >
-              {statusMeta.label}
-            </Text>
-          </View>
+              {statusMeta.icon ? (
+                <Feather
+                  name={statusMeta.icon}
+                  size={12}
+                  color={statusMeta.textColor}
+                />
+              ) : null}
+              <Text
+                style={[styles.providerStatusText, { color: statusMeta.textColor }]}
+              >
+                {statusMeta.label}
+              </Text>
+            </View>
+          ) : null}
           <Feather
             name={expanded ? "chevron-up" : "chevron-down"}
             size={18}

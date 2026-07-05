@@ -165,6 +165,7 @@ export function SettingsModal(props: SettingsModalProps) {
       settings,
     ],
   );
+  const showsBackButton = activePage !== "overview";
 
   React.useEffect(() => {
     if (!visible) {
@@ -234,19 +235,6 @@ export function SettingsModal(props: SettingsModalProps) {
     (page: DrillInSettingsPage, children: React.ReactNode) => (
       <View style={styles.tabPane}>
         <View style={styles.drillInHeader}>
-          <TouchableOpacity
-            style={[
-              styles.drillInBackButton,
-              { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
-            ]}
-            activeOpacity={0.85}
-            onPress={() => setActivePage("overview")}
-          >
-            <Feather name="chevron-left" size={16} color={colors.accent} />
-            <Text style={[styles.tabButtonText, { color: colors.accent }]}>
-              {t("settingsBackToOverview")}
-            </Text>
-          </TouchableOpacity>
           <View style={styles.drillInTitleBlock}>
             <Text style={[styles.drillInTitle, { color: colors.text }]}>
               {getPageTitle(page)}
@@ -259,7 +247,7 @@ export function SettingsModal(props: SettingsModalProps) {
         {children}
       </View>
     ),
-    [colors, getPageSummary, getPageTitle, t],
+    [colors.text, colors.textMuted, getPageSummary, getPageTitle],
   );
 
   const activeContent = (() => {
@@ -394,18 +382,45 @@ export function SettingsModal(props: SettingsModalProps) {
             modalAnimStyle,
           ]}
         >
-          <LinearGradient
-            colors={[colors.accentSoft, "rgba(255, 255, 255, 0)"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.heroGlow}
-          />
-
-          <View style={[styles.header, { borderBottomColor: colors.border }]}>
-            <View style={styles.headerCopy}>
-              <Text style={[styles.title, { color: colors.text }]}>
-                {t("settings")}
-              </Text>
+          <View
+            style={[
+              styles.header,
+              {
+                backgroundColor: colors.surface,
+                borderBottomColor: colors.border,
+              },
+            ]}
+          >
+            <LinearGradient
+              testID="settings-header-gradient"
+              colors={[colors.accentSoft, "rgba(255, 255, 255, 0)"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroGlow}
+            />
+            <View style={styles.headerLeading}>
+              {showsBackButton ? (
+                <TouchableOpacity
+                  style={[
+                    styles.headerBackButton,
+                    {
+                      backgroundColor: colors.surfaceElevated,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                  activeOpacity={0.85}
+                  onPress={() => setActivePage("overview")}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("settingsBackToOverview")}
+                >
+                  <Feather name="chevron-left" size={20} color={colors.accent} />
+                </TouchableOpacity>
+              ) : null}
+              <View style={styles.headerCopy}>
+                <Text style={[styles.title, { color: colors.text }]}>
+                  {t("settings")}
+                </Text>
+              </View>
             </View>
             <TouchableOpacity
               style={[

@@ -115,13 +115,12 @@ function getSearchReadiness(
   settings: Settings,
   context: SettingsReadinessContext,
 ) {
-  if (settings.webSearchMode === "off") {
-    return status("off");
+  const provider = settings.webSearchProvider;
+  if (!provider) {
+    return settings.webSearchMode === "off" ? status("off") : status("broken");
   }
 
-  const provider = settings.webSearchProvider;
   if (
-    !provider ||
     !context.searchProviders.includes(provider) ||
     !settings.apiKeys[provider]?.trim()
   ) {

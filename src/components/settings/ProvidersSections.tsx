@@ -353,12 +353,7 @@ export function ProviderSelectionGrid<TProvider extends Provider>({
     | null => {
     switch (healthState) {
       case "healthy":
-        return {
-          icon: "check",
-          backgroundColor: colors.accent,
-          borderColor: colors.borderStrong,
-          iconColor: colors.surface,
-        };
+        return null;
       case "validating":
         return {
           icon: "loader",
@@ -374,12 +369,7 @@ export function ProviderSelectionGrid<TProvider extends Provider>({
           iconColor: colors.danger,
         };
       case "configured":
-        return {
-          icon: "minus",
-          backgroundColor: colors.surface,
-          borderColor: colors.borderStrong,
-          iconColor: colors.textSecondary,
-        };
+        return null;
       default:
         return null;
     }
@@ -416,19 +406,25 @@ export function ProviderSelectionGrid<TProvider extends Provider>({
                 styles.providerButton,
                 {
                   backgroundColor: active
-                    ? colors.accentSoft
+                    ? configured
+                      ? `${colors.success}22`
+                      : colors.accentSoft
                     : configured
-                      ? colors.surface
+                      ? `${colors.success}22`
                       : colors.surfaceElevated,
                   borderColor: active
-                    ? colors.accent
+                    ? configured
+                      ? colors.success
+                      : colors.accent
                     : configured
-                      ? colors.borderStrong
+                      ? colors.success
                       : colors.border,
                   shadowColor: active
-                    ? colors.accent
+                    ? configured
+                      ? colors.success
+                      : colors.accent
                     : configured
-                      ? colors.glow
+                      ? colors.success
                       : "transparent",
                   opacity: providerButton.catalogOnly ? 0.84 : 1,
                 },
@@ -475,36 +471,6 @@ export function ProviderSelectionGrid<TProvider extends Provider>({
 
       {getProviderHealthState ? (
         <View style={styles.providerHealthSummary}>
-          <View
-            style={[
-              styles.providerHealthPill,
-              {
-                backgroundColor: colors.surface,
-                borderColor: colors.borderStrong,
-              },
-            ]}
-          >
-            <Text style={[styles.providerHealthPillText, { color: colors.text }]}>
-              {t("providerHealthSummaryReady", { count: healthSummary.healthy })}
-            </Text>
-          </View>
-          <View
-            style={[
-              styles.providerHealthPill,
-              {
-                backgroundColor: colors.surface,
-                borderColor: colors.borderStrong,
-              },
-            ]}
-          >
-            <Text
-              style={[styles.providerHealthPillText, { color: colors.textSecondary }]}
-            >
-              {t("providerHealthSummaryConfigured", {
-                count: healthSummary.configured,
-              })}
-            </Text>
-          </View>
           <View
             style={[
               styles.providerHealthPill,

@@ -1,4 +1,5 @@
 import React from "react";
+import { StyleSheet } from "react-native";
 import { fireEvent, render } from "@testing-library/react-native";
 
 import {
@@ -133,11 +134,44 @@ describe("ProviderSelectionGrid", () => {
       </ThemeProvider>,
     );
 
-    expect(screen.getByText("Ready 1")).toBeTruthy();
-    expect(screen.getByText("Configured 1")).toBeTruthy();
+    expect(screen.queryByText("Ready 1")).toBeNull();
+    expect(screen.queryByText("Configured 1")).toBeNull();
     expect(screen.getByText("Checking 1")).toBeTruthy();
     expect(screen.getByText("Failing 1")).toBeTruthy();
     expect(screen.getByText("Missing 1")).toBeTruthy();
+  });
+
+  it("uses green container color without check icons for connected providers", () => {
+    const screen = render(
+      <ThemeProvider mode="light">
+        <LocalizationProvider language="en">
+          <ProviderSelectionGrid
+            settings={DEFAULT_SETTINGS}
+            selectedCatalogProviderId="mistral-ai"
+            visibleProviders={["openai", "anthropic"]}
+            includeCatalogOnly={false}
+            getProviderHealthState={(provider) =>
+              ({
+                openai: "healthy",
+                anthropic: "configured",
+              })[provider] as "healthy" | "configured"
+            }
+            onSelectCatalogProvider={jest.fn()}
+          />
+        </LocalizationProvider>
+      </ThemeProvider>,
+    );
+
+    const openAiButton = screen.getByLabelText("Open OpenAI settings");
+    const anthropicButton = screen.getByLabelText("Open Anthropic settings");
+
+    expect(StyleSheet.flatten(openAiButton.props.style).backgroundColor).toBe(
+      "#2DAD7622",
+    );
+    expect(StyleSheet.flatten(anthropicButton.props.style).backgroundColor).toBe(
+      "#2DAD7622",
+    );
+    expect(screen.queryByText("check")).toBeNull();
   });
 });
 
