@@ -3,54 +3,10 @@
     "name": "SchnackAI",
     "slug": "schnackai",
     "version": "2.1.2",
-    "orientation": "default",
-    "userInterfaceStyle": "automatic",
-    "ios": {
-      "buildNumber": "5",
-      "supportsTablet": false,
-      "bundleIdentifier": "com.tobiaswinkler.app.schnackai",
-      "infoPlist": {
-        "UIBackgroundModes": [
-          "audio"
-        ],
-        "NSMicrophoneUsageDescription": "SchnackAI needs microphone access to record your voice for conversations.",
-        "NSPhotoLibraryUsageDescription": "SchnackAI may request access to your photo library only when an iOS system sharing or attachment flow requires it. SchnackAI does not scan your photo library.",
-        "NSPhotoLibraryAddUsageDescription": "SchnackAI may request permission to save user-initiated exported content to your photo library."
-      },
-      "appleTeamId": "Y295UCE38G"
-    },
-    "plugins": [
-      "expo-router",
-      "expo-secure-store",
-      "expo-audio",
-      [
-        "expo-speech-recognition",
-        {
-          "microphonePermission": "Allow SchnackAI to use the microphone for native speech input.",
-          "speechRecognitionPermission": "Allow SchnackAI to transcribe your voice with the system speech recognizer."
-        }
-      ],
-      "./plugins/withDisableDevClientInspector"
-    ],
-    "scheme": "schnackai",
-    "icon": "./assets/appIcon.png",
-    "android": {
-      "package": "com.tobiaswinkler.schnackai",
-      "versionCode": 5,
-      "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS",
-        "android.permission.FOREGROUND_SERVICE",
-        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
-      ],
-      "blockedPermissions": [
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.SYSTEM_ALERT_WINDOW",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
-      ],
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/appIcon.png",
-        "backgroundColor": "#FFFFFF"
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "69eda592-2cfa-484d-92c3-77bc4504b1a0"
       }
     }
   }
