@@ -40,7 +40,7 @@ import {
 
 export { buildSystemPrompt } from "./llm/prompts";
 
-const LLM_REPLY_INACTIVITY_TIMEOUT_MS = 45_000;
+const LLM_REPLY_INACTIVITY_TIMEOUT_MS = 5 * 60_000;
 const LOCAL_ANDROID_DEV_API_KEY = "sk-test-android-local-dev";
 
 interface StreamChatParams {
@@ -397,6 +397,7 @@ export async function streamChat({
 }: StreamChatParams): Promise<void> {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
   let timedOut = false;
+  let releaseAbortSignal: (() => void) | null = null;
 
   try {
     const systemPrompt = buildSystemPrompt({
@@ -428,6 +429,18 @@ export async function streamChat({
 
     const config = getLlmProviderConfigOrThrow(provider, model, language);
     const timeoutError = buildProviderReplyTimeoutError(provider, language);
+    const requestAbortController = new AbortController();
+
+    if (abortSignal?.aborted) {
+      requestAbortController.abort();
+    } else if (abortSignal) {
+      const handleAbort = () => requestAbortController.abort();
+      abortSignal.addEventListener("abort", handleAbort, { once: true });
+      releaseAbortSignal = () => {
+        abortSignal.removeEventListener("abort", handleAbort);
+      };
+    }
+
     let rejectTimeout: ((reason?: unknown) => void) | null = null;
     const armTimeout = () => {
       if (timeoutId) {
@@ -437,6 +450,7 @@ export async function streamChat({
       timeoutId = setTimeout(() => {
         timedOut = true;
         rejectTimeout?.(timeoutError);
+        requestAbortController.abort();
       }, LLM_REPLY_INACTIVITY_TIMEOUT_MS);
     };
     const onChunkWithTimeout = (text: string) => {
@@ -462,7 +476,7 @@ export async function streamChat({
               language,
               systemPrompt,
               onChunk: onChunkWithTimeout,
-              abortSignal,
+              abortSignal: requestAbortController.signal,
             },
             config,
           );
@@ -478,7 +492,7 @@ export async function streamChat({
               language,
               systemPrompt,
               onChunk: onChunkWithTimeout,
-              abortSignal,
+              abortSignal: requestAbortController.signal,
             },
             config,
           );
@@ -493,7 +507,7 @@ export async function streamChat({
             language,
             systemPrompt,
             onChunk: onChunkWithTimeout,
-            abortSignal,
+            abortSignal: requestAbortController.signal,
           });
           break;
         case "gemini-live":
@@ -505,7 +519,7 @@ export async function streamChat({
             language,
             systemPrompt,
             onChunk: onChunkWithTimeout,
-            abortSignal,
+            abortSignal: requestAbortController.signal,
           });
           break;
         case "anthropic":
@@ -518,7 +532,7 @@ export async function streamChat({
             language,
             systemPrompt,
             onChunk: onChunkWithTimeout,
-            abortSignal,
+            abortSignal: requestAbortController.signal,
           });
           break;
         default:
@@ -530,7 +544,7 @@ export async function streamChat({
             apiKey,
             language,
             systemPrompt,
-            abortSignal,
+            abortSignal: requestAbortController.signal,
           });
 
           if (fullText) {
@@ -578,5 +592,7 @@ export async function streamChat({
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
+
+    releaseAbortSignal?.();
   }
 }

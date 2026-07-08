@@ -96,7 +96,18 @@ describe("streamChat", () => {
 
   it("times out stalled reply generation requests", async () => {
     jest.useFakeTimers();
-    (fetch as jest.Mock).mockImplementation(() => new Promise(() => undefined));
+    let requestSignal: AbortSignal | undefined;
+    (fetch as jest.Mock).mockImplementation((_url, options) => {
+      requestSignal = options?.signal;
+
+      return new Promise((_resolve, reject) => {
+        requestSignal?.addEventListener("abort", () => {
+          const error = new Error("Aborted");
+          error.name = "AbortError";
+          reject(error);
+        });
+      });
+    });
     const onDone = jest.fn();
     const onError = jest.fn();
 
@@ -115,15 +126,70 @@ describe("streamChat", () => {
         onError,
       });
 
-      await jest.advanceTimersByTimeAsync(45_000);
+      await jest.advanceTimersByTimeAsync(5 * 60_000);
       await promise;
 
       expect(onDone).not.toHaveBeenCalled();
+      expect(requestSignal).toBeDefined();
+      expect(requestSignal?.aborted).toBe(true);
       expect(onError).toHaveBeenCalledWith(
         expect.objectContaining({
           message: "OpenAI took too long during reply generation. Try again.",
         }),
       );
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it("allows a slow initial reply before enforcing inactivity", async () => {
+    jest.useFakeTimers();
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        setTimeout(() => {
+          controller.enqueue(
+            encoder.encode(
+              'data: {"choices":[{"delta":{"content":"Delayed reply"}}]}\n\n',
+            ),
+          );
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          controller.close();
+        }, 4 * 60_000);
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+    const onDone = jest.fn();
+    const onError = jest.fn();
+
+    try {
+      const promise = streamChat({
+        messages: mockMessages,
+        model: "gpt-4o",
+        provider: "openai",
+        apiKey: "sk-test-key",
+        modelEffort: "enabled",
+        assistantInstructions: "",
+        responseLength: "normal",
+        responseTone: "professional",
+        language: "en",
+        onChunk: (text) => chunks.push(text),
+        onDone,
+        onError,
+      });
+
+      await jest.advanceTimersByTimeAsync(4 * 60_000);
+      await promise;
+
+      expect(chunks).toEqual(["Delayed reply"]);
+      expect(onDone).toHaveBeenCalledWith(
+        "Delayed reply",
+        expect.objectContaining({
+          totalTokens: expect.any(Number),
+        }),
+      );
+      expect(onError).not.toHaveBeenCalled();
     } finally {
       jest.useRealTimers();
     }
