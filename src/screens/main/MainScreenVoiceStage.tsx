@@ -8,6 +8,7 @@ import { PipelinePhase } from "../../hooks/useVoicePipeline";
 import { Colors } from "../../theme/colors";
 import {
   InputMode,
+  VoicePhaseProgress,
   VoiceVisualPhase,
 } from "../../types";
 
@@ -57,6 +58,7 @@ interface MainScreenVoiceStageProps {
   onResumePlayback?: () => void | Promise<void>;
   onStopPlayback?: () => void | Promise<void>;
   pausePlaybackLabel?: string;
+  phaseProgress?: VoicePhaseProgress | null;
   pipelinePhase: PipelinePhase;
   playbackActive?: boolean;
   playbackPaused?: boolean;
@@ -252,6 +254,7 @@ export function MainScreenVoiceStage({
   onResumePlayback,
   onStopPlayback,
   pausePlaybackLabel,
+  phaseProgress,
   pipelinePhase,
   playbackActive = false,
   playbackPaused = false,
@@ -291,6 +294,7 @@ export function MainScreenVoiceStage({
         isActive={isActive}
         phase={visualPhase}
         providerLabel={providerLabel}
+        phaseProgress={phaseProgress}
         size={circleSize}
         inputMode={inputMode}
         maxRecordingMs={maxRecordingMs}

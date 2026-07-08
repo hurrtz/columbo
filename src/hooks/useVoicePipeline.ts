@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 
 import { useReplyReplayController } from "./voicePipeline/useReplyReplayController";
 import { useVoiceCaptureHandler } from "./voicePipeline/useVoiceCaptureHandler";
+import type { VoicePhaseProgress } from "../types";
 import type {
   PipelinePhase,
   UseVoicePipelineParams,
@@ -16,6 +17,8 @@ export function useVoicePipeline(
 ): UseVoicePipelineResult {
   const [pipelinePhase, setPipelinePhase] = useState<PipelinePhase>("idle");
   const [streamingText, setStreamingText] = useState("");
+  const [phaseProgress, setPhaseProgress] =
+    useState<VoicePhaseProgress | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const lastCompletedReplyRef = useRef("");
   const isBusy = pipelinePhase !== "idle";
@@ -49,6 +52,7 @@ export function useVoicePipeline(
     abortRef,
     handleRepeatLastReply,
     lastCompletedReplyRef,
+    setPhaseProgress,
     setPipelinePhase,
     setStreamingText,
   });
@@ -58,6 +62,7 @@ export function useVoicePipeline(
     setPipelinePhase,
     streamingText,
     setStreamingText,
+    phaseProgress,
     abortRef,
     lastCompletedReplyRef,
     replayPhase,

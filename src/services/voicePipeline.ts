@@ -219,6 +219,7 @@ export async function runVoicePipeline(
         webSearchContextLength: webSearchContext?.length ?? 0,
       },
     });
+    callbacks.onLlmStart?.();
 
     await streamChat({
       messages: allMessages,

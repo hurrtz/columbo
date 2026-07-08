@@ -1,11 +1,27 @@
-import { useCallback, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 
 import { recordDebugLogEvent } from "../../services/debugLogCapture";
+import {
+  createLatencyRouteKey,
+  getDefaultLatencyEstimateMs,
+  getLatencyProgress,
+  loadLatencyEstimate,
+  recordLatencySample,
+  type LatencyRouteDescriptor,
+} from "../../services/latencyStats";
 import { runVoicePipeline } from "../../services/voicePipeline";
 import type {
   MessageMetadata,
   MessagePipelineNotice,
   UsageEstimate,
+  VoicePhaseProgress,
+  VoicePhaseProgressPhase,
 } from "../../types";
 import type { PipelinePhase, UseVoicePipelineParams } from "./types";
 
@@ -37,9 +53,21 @@ type VoiceCaptureHandlerParams = Omit<UseVoicePipelineParams, "isRecording"> & {
     messageId?: string,
   ) => Promise<void>;
   lastCompletedReplyRef: React.MutableRefObject<string>;
+  setPhaseProgress: Dispatch<SetStateAction<VoicePhaseProgress | null>>;
   setPipelinePhase: (phase: PipelinePhase) => void;
   setStreamingText: (text: string | ((prev: string) => string)) => void;
 };
+
+interface ActiveLatencyProgress {
+  phase: VoicePhaseProgressPhase;
+  key: string;
+  startedAt: number;
+  estimatedMs: number;
+  sampleCount: number;
+  learned: boolean;
+  interval: ReturnType<typeof setInterval>;
+  runId: number;
+}
 
 export function useVoiceCaptureHandler({
   abortRef,
@@ -61,6 +89,7 @@ export function useVoiceCaptureHandler({
   selectedSttModel,
   selectedTtsModel,
   selectedTtsVoice,
+  setPhaseProgress,
   setPipelinePhase,
   setStreamingText,
   showToast,
@@ -85,6 +114,9 @@ export function useVoiceCaptureHandler({
   const lastUserMessageIdRef = useRef<string | null>(null);
   const lastAssistantMessageIdRef = useRef<string | null>(null);
   const pendingAssistantNoticesRef = useRef<MessagePipelineNotice[]>([]);
+  const firstChunkTrackedRef = useRef(false);
+  const activeLatencyProgressRef = useRef<ActiveLatencyProgress | null>(null);
+  const latencyRunIdRef = useRef(0);
 
   const appendNoticeMetadata = useCallback(
     (
@@ -107,6 +139,119 @@ export function useVoiceCaptureHandler({
     [],
   );
 
+  const updateLatencyProgress = useCallback(
+    (active: ActiveLatencyProgress) => {
+      const elapsedMs = Date.now() - active.startedAt;
+      const progress = getLatencyProgress(elapsedMs, active.estimatedMs);
+
+      setPhaseProgress({
+        phase: active.phase,
+        progress: progress.progress,
+        elapsedMs,
+        startedAt: active.startedAt,
+        estimatedMs: active.estimatedMs,
+        sampleCount: active.sampleCount,
+        learned: active.learned,
+        overEstimate: progress.overEstimate,
+      });
+    },
+    [setPhaseProgress],
+  );
+
+  const clearLatencyProgress = useCallback(() => {
+    const active = activeLatencyProgressRef.current;
+
+    if (active) {
+      clearInterval(active.interval);
+    }
+
+    latencyRunIdRef.current += 1;
+    activeLatencyProgressRef.current = null;
+    setPhaseProgress(null);
+  }, [setPhaseProgress]);
+
+  const startLatencyProgress = useCallback(
+    (
+      phase: VoicePhaseProgressPhase,
+      descriptor: LatencyRouteDescriptor,
+    ) => {
+      clearLatencyProgress();
+
+      const runId = latencyRunIdRef.current + 1;
+      latencyRunIdRef.current = runId;
+      const startedAt = Date.now();
+      const fallbackEstimateMs = getDefaultLatencyEstimateMs(descriptor);
+      const key = createLatencyRouteKey(descriptor);
+      const active: ActiveLatencyProgress = {
+        phase,
+        key,
+        startedAt,
+        estimatedMs: fallbackEstimateMs,
+        sampleCount: 0,
+        learned: false,
+        interval: setInterval(() => {
+          const current = activeLatencyProgressRef.current;
+
+          if (current?.runId === runId) {
+            updateLatencyProgress(current);
+          }
+        }, 250),
+        runId,
+      };
+
+      activeLatencyProgressRef.current = active;
+      updateLatencyProgress(active);
+
+      void loadLatencyEstimate(descriptor).then((estimate) => {
+        const current = activeLatencyProgressRef.current;
+
+        if (current?.runId !== runId) {
+          return;
+        }
+
+        current.estimatedMs = estimate.estimatedMs;
+        current.sampleCount = estimate.sampleCount;
+        current.learned = estimate.learned;
+        updateLatencyProgress(current);
+      });
+    },
+    [clearLatencyProgress, updateLatencyProgress],
+  );
+
+  const recordLatencyProgressSample = useCallback(
+    (phase: VoicePhaseProgressPhase) => {
+      const active = activeLatencyProgressRef.current;
+
+      if (!active || active.phase !== phase) {
+        return;
+      }
+
+      const durationMs = Date.now() - active.startedAt;
+      const key = active.key;
+
+      void recordLatencySample(key, durationMs);
+      recordDebugLogEvent({
+        event: "adaptive-latency-sample-recorded",
+        payload: {
+          durationMs,
+          key,
+          phase,
+        },
+      });
+    },
+    [],
+  );
+
+  const finishLatencyProgress = useCallback(
+    (phase: VoicePhaseProgressPhase) => {
+      recordLatencyProgressSample(phase);
+      clearLatencyProgress();
+    },
+    [clearLatencyProgress, recordLatencyProgressSample],
+  );
+
+  useEffect(() => clearLatencyProgress, [clearLatencyProgress]);
+
   const handleVoiceCaptureDone = useCallback(
     async ({
       audioUri,
@@ -127,9 +272,11 @@ export function useVoiceCaptureHandler({
       setStreamingText("");
       ttsFallbackToastShownRef.current = false;
       playbackStartedRef.current = false;
+      firstChunkTrackedRef.current = false;
       lastUserMessageIdRef.current = null;
       lastAssistantMessageIdRef.current = null;
       pendingAssistantNoticesRef.current = [];
+      clearLatencyProgress();
       abortRef.current = new AbortController();
       player.resetCancellation();
 
@@ -206,12 +353,18 @@ export function useVoiceCaptureHandler({
               recordDebugLogEvent({
                 event: "voice-pipeline-web-search-start",
               });
+              startLatencyProgress("searching", {
+                phase: "web-search",
+                provider: webSearchProvider ?? null,
+                webSearchMode,
+              });
               setPipelinePhase("searching");
             },
             onWebSearchComplete: () => {
               recordDebugLogEvent({
                 event: "voice-pipeline-web-search-complete",
               });
+              finishLatencyProgress("searching");
               setPipelinePhase(
                 playbackStartedRef.current ? "speaking" : "thinking",
               );
@@ -239,6 +392,19 @@ export function useVoiceCaptureHandler({
               ];
               showToast(formatNoticeToast(notice));
             },
+            onLlmStart: () => {
+              firstChunkTrackedRef.current = false;
+              startLatencyProgress("thinking", {
+                phase: "llm-first-output",
+                provider,
+                model,
+                effort: modelEffort,
+                responseLength,
+                responseTone,
+                webSearchMode,
+                webSearchProvider,
+              });
+            },
             onChunk: (text) => {
               recordDebugLogEvent({
                 event: "voice-pipeline-stream-chunk",
@@ -246,6 +412,10 @@ export function useVoiceCaptureHandler({
                   chunkLength: text.length,
                 },
               });
+              if (!firstChunkTrackedRef.current) {
+                firstChunkTrackedRef.current = true;
+                recordLatencyProgressSample("thinking");
+              }
               setPipelinePhase(
                 playbackStartedRef.current ? "speaking" : "thinking",
               );
@@ -264,6 +434,9 @@ export function useVoiceCaptureHandler({
                 },
               });
               setStreamingText("");
+              if (!spokenRepliesEnabled) {
+                clearLatencyProgress();
+              }
               setPipelinePhase(
                 playbackStartedRef.current
                   ? "speaking"
@@ -308,6 +481,7 @@ export function useVoiceCaptureHandler({
                 },
               });
               playbackStartedRef.current = true;
+              clearLatencyProgress();
               setPipelinePhase("speaking");
               player.enqueueAudio(audioData, diagnostics);
             },
@@ -320,6 +494,7 @@ export function useVoiceCaptureHandler({
                 },
               });
               playbackStartedRef.current = true;
+              clearLatencyProgress();
               setPipelinePhase("speaking");
               player.speakText(text, {
                 diagnostics,
@@ -371,6 +546,7 @@ export function useVoiceCaptureHandler({
                 },
               });
               await player.stopPlayback();
+              clearLatencyProgress();
               setPipelinePhase("idle");
               const retryAction = lastCompletedReplyRef.current.trim()
                 ? () => {
@@ -397,6 +573,7 @@ export function useVoiceCaptureHandler({
         }
       } catch (error) {
         if (abortRef.current?.signal.aborted) {
+          clearLatencyProgress();
           recordDebugLogEvent({
             event: "voice-pipeline-aborted",
             payload: {
@@ -477,6 +654,7 @@ export function useVoiceCaptureHandler({
         if (player.hasPendingPlaybackNow()) {
           await player.waitForDrain();
         }
+        clearLatencyProgress();
         setPipelinePhase("idle");
         recordDebugLogEvent({
           event: "voice-pipeline-finished",
@@ -492,7 +670,9 @@ export function useVoiceCaptureHandler({
       addMessage,
       appendNoticeMetadata,
       assistantInstructions,
+      clearLatencyProgress,
       createConversation,
+      finishLatencyProgress,
       handleRepeatLastReply,
       language,
       lastCompletedReplyRef,
@@ -503,12 +683,14 @@ export function useVoiceCaptureHandler({
       replyPlayback,
       responseLength,
       responseTone,
+      recordLatencyProgressSample,
       selectedSttModel,
       selectedTtsModel,
       selectedTtsVoice,
       setPipelinePhase,
       setStreamingText,
       showToast,
+      startLatencyProgress,
       spokenRepliesEnabled,
       sttApiKey,
       sttMode,

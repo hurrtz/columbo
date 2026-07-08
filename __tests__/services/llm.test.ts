@@ -94,6 +94,42 @@ describe("streamChat", () => {
     expect((fetch as jest.Mock).mock.calls[0][0]).toBe("https://api.anthropic.com/v1/messages");
   });
 
+  it("reports an error when a provider stream completes without text", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode('event: message_stop\ndata: {"type":"message_stop"}\n\n'),
+        );
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const onDone = jest.fn();
+    const onError = jest.fn();
+
+    await streamChat({
+      messages: mockMessages,
+      model: "claude-opus-4-7",
+      provider: "anthropic",
+      apiKey: "sk-ant-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: () => undefined,
+      onDone,
+      onError,
+    });
+
+    expect(onDone).not.toHaveBeenCalled();
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Anthropic finished without returning a reply. Try again.",
+      }),
+    );
+  });
+
   it("times out stalled reply generation requests", async () => {
     jest.useFakeTimers();
     let requestSignal: AbortSignal | undefined;

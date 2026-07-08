@@ -246,6 +246,7 @@ export function MainScreen() {
     setStreamingText,
     abortRef,
     lastCompletedReplyRef,
+    phaseProgress,
     replayPhase,
     activeReplayMessageId,
     handleRepeatLastReply,
@@ -1099,6 +1100,7 @@ export function MainScreen() {
                   onResumePlayback={handleResumePlayback}
                   onStopPlayback={handleStopPlayback}
                   pausePlaybackLabel={t("pause")}
+                  phaseProgress={phaseProgress}
                   pipelinePhase={pipelinePhase}
                   playbackActive={player.isPlaying}
                   playbackPaused={player.isPlaybackPaused}
@@ -1209,6 +1211,7 @@ export function MainScreen() {
                 onResumePlayback={handleResumePlayback}
                 onStopPlayback={handleStopPlayback}
                 pausePlaybackLabel={t("pause")}
+                phaseProgress={phaseProgress}
                 pipelinePhase={pipelinePhase}
                 playbackActive={player.isPlaying}
                 playbackPaused={player.isPlaybackPaused}

@@ -22,6 +22,11 @@ export const styles = StyleSheet.create({
     height: 208,
     borderRadius: 104,
   },
+  phaseProgressRing: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   shadowWrap: {
     width: 188,
     height: 188,

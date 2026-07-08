@@ -576,6 +576,8 @@ export const en: TranslationDictionary = {
       `${provider} took too long during ${action}. Try again.`,
     providerTemporaryError: ({ provider, action }) =>
       `${provider} had a temporary problem during ${action}. Try again shortly.`,
+    providerEmptyReplyError: ({ provider }) =>
+      `${provider} finished without returning a reply. Try again.`,
     providerContextTooLong: ({ provider }) =>
       `${provider} rejected the reply because the conversation got too long. Start a fresh thread or shorten the request.`,
     providerRequestRejected: ({ provider, action, detail }) =>

@@ -5,13 +5,20 @@ import {
   GestureResponderEvent,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import Animated from "react-native-reanimated";
+import Animated, {
+  Easing,
+  useAnimatedProps,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
+import Svg, { Circle as SvgCircle } from "react-native-svg";
 import { Waveform } from "./Waveform";
 import { styles } from "./WaveformCircle.styles";
 import { NativeWaveformView } from "./NativeWaveformView";
 import {
   InputMode,
+  VoicePhaseProgress,
   VoiceVisualPhase,
 } from "../types";
 import { RippleRing } from "./waveform/RippleRing";
@@ -26,6 +33,7 @@ interface WaveformCircleProps {
   providerLabel: string;
   size?: number;
   inputMode: InputMode;
+  phaseProgress?: VoicePhaseProgress | null;
   /** Auto-send cap (ms) for the current recording; drives the "glass filling" fill. */
   maxRecordingMs?: number;
   onPressIn?: (e: GestureResponderEvent) => void;
@@ -39,6 +47,7 @@ const DISABLED_GRADIENT_COLORS: [string, string, string] = [
   "rgba(100, 116, 139, 0.82)",
   "rgba(71, 85, 105, 0.88)",
 ];
+const AnimatedSvgCircle: any = Animated.createAnimatedComponent(SvgCircle);
 
 function scaleBy(size: number, value: number) {
   return (size / BASE_SIZE) * value;
@@ -48,6 +57,7 @@ export function WaveformCircle({
   isActive,
   disabled = false,
   phase,
+  phaseProgress,
   providerLabel: _providerLabel,
   size = BASE_SIZE,
   inputMode,
@@ -81,6 +91,10 @@ export function WaveformCircle({
   const scale = size / BASE_SIZE;
   const outerRingSize = scaleBy(size, 244);
   const innerRingSize = scaleBy(size, 208);
+  const progressRingSize = scaleBy(size, 236);
+  const progressRingStrokeWidth = Math.max(3, scaleBy(size, 4.5));
+  const progressRingRadius = (progressRingSize - progressRingStrokeWidth) / 2;
+  const progressRingCircumference = progressRingRadius * Math.PI * 2;
   const circleSize = scaleBy(size, 188);
   const innerFrameInset = scaleBy(size, 14);
   const waveformMarginTop = scaleBy(size, 18);
@@ -97,6 +111,62 @@ export function WaveformCircle({
   const gradientColors: [string, string, string] = disabled
     ? DISABLED_GRADIENT_COLORS
     : state.gradientColors;
+  const showPhaseProgress =
+    !disabled &&
+    !!phaseProgress &&
+    state.shouldAnimate &&
+    (state.phase === "thinking" || state.phase === "searching");
+  const progressRingColor = phaseProgress?.overEstimate
+    ? "rgba(255, 216, 128, 0.95)"
+    : phaseProgress?.phase === "searching"
+      ? "rgba(125, 211, 252, 0.92)"
+      : "rgba(255, 255, 255, 0.94)";
+  const phaseProgressValue = useSharedValue(0);
+  React.useEffect(() => {
+    if (!showPhaseProgress || !phaseProgress) {
+      phaseProgressValue.value = withTiming(0, {
+        duration: 180,
+        easing: Easing.out(Easing.cubic),
+      });
+      return;
+    }
+
+    const elapsedMs = Math.max(0, Date.now() - phaseProgress.startedAt);
+    const estimatedMs = Math.max(1, phaseProgress.estimatedMs);
+    const currentProgress =
+      elapsedMs <= estimatedMs
+        ? Math.min(0.9, 0.06 + Math.pow(elapsedMs / estimatedMs, 0.78) * 0.84)
+        : Math.min(
+            0.97,
+            0.9 +
+              (1 - Math.exp(-(elapsedMs - estimatedMs) / estimatedMs)) * 0.07,
+          );
+
+    phaseProgressValue.value = currentProgress;
+
+    if (currentProgress < 0.9) {
+      phaseProgressValue.value = withTiming(0.9, {
+        duration: Math.max(180, estimatedMs - elapsedMs),
+        easing: Easing.out(Easing.cubic),
+      });
+      return;
+    }
+
+    phaseProgressValue.value = withTiming(0.97, {
+      duration: Math.max(1_000, estimatedMs),
+      easing: Easing.out(Easing.cubic),
+    });
+  }, [
+    phaseProgress?.estimatedMs,
+    phaseProgress?.phase,
+    phaseProgress?.startedAt,
+    phaseProgressValue,
+    showPhaseProgress,
+  ]);
+  const progressRingAnimatedProps = useAnimatedProps(() => ({
+    strokeDashoffset:
+      progressRingCircumference * (1 - phaseProgressValue.value),
+  }));
 
   return (
     <View style={[styles.container, { width: size, height: size }]}>
@@ -134,6 +204,44 @@ export function WaveformCircle({
           animations.innerRingStyle,
         ]}
       />
+      {showPhaseProgress ? (
+        <View
+          pointerEvents="none"
+          style={[
+            styles.phaseProgressRing,
+            {
+              width: progressRingSize,
+              height: progressRingSize,
+              borderRadius: progressRingSize / 2,
+            },
+          ]}
+        >
+          <Svg width={progressRingSize} height={progressRingSize}>
+            <SvgCircle
+              cx={progressRingSize / 2}
+              cy={progressRingSize / 2}
+              r={progressRingRadius}
+              stroke="rgba(255, 255, 255, 0.13)"
+              strokeWidth={progressRingStrokeWidth}
+              fill="none"
+            />
+            <AnimatedSvgCircle
+              cx={progressRingSize / 2}
+              cy={progressRingSize / 2}
+              r={progressRingRadius}
+              stroke={progressRingColor}
+              strokeWidth={progressRingStrokeWidth}
+              fill="none"
+              strokeDasharray={`${progressRingCircumference} ${progressRingCircumference}`}
+              animatedProps={progressRingAnimatedProps}
+              strokeLinecap="round"
+              transform={`rotate(-90 ${progressRingSize / 2} ${
+                progressRingSize / 2
+              })`}
+            />
+          </Svg>
+        </View>
+      ) : null}
       <RippleRing
         delay={0}
         color={disabled ? "rgba(148, 163, 184, 0.42)" : state.ringColor}

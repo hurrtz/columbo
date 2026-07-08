@@ -4,6 +4,11 @@ import { translate } from "../../src/i18n";
 import { useVoicePipeline } from "../../src/hooks/useVoicePipeline";
 import { DEFAULT_SETTINGS, type UsageEstimate } from "../../src/types";
 
+jest.mock("@react-native-async-storage/async-storage", () => ({
+  getItem: jest.fn(() => Promise.resolve(null)),
+  setItem: jest.fn(() => Promise.resolve()),
+}));
+
 jest.mock("expo-clipboard", () => ({
   setStringAsync: jest.fn(async () => undefined),
 }));

@@ -16,6 +16,7 @@ import type {
   TtsBackendMode,
   TtsListenLanguage,
   UsageEstimate,
+  VoicePhaseProgress,
 } from "../../types";
 import type { useAudioPlayer } from "../useAudioPlayer";
 
@@ -88,6 +89,7 @@ export interface UseVoicePipelineResult {
   setPipelinePhase: (phase: PipelinePhase) => void;
   streamingText: string;
   setStreamingText: (text: string) => void;
+  phaseProgress: VoicePhaseProgress | null;
   abortRef: React.MutableRefObject<AbortController | null>;
   lastCompletedReplyRef: React.MutableRefObject<string>;
   replayPhase: ReplayPhase;

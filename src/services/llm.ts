@@ -96,6 +96,14 @@ function buildProviderReplyTimeoutError(
   );
 }
 
+function buildProviderEmptyReplyError(provider: Provider, language: AppLanguage) {
+  return new Error(
+    translate(language, "providerEmptyReplyError", {
+      provider: PROVIDER_LABELS[provider],
+    }),
+  );
+}
+
 function isLocalAndroidDevReplyEnabled(apiKey: string) {
   return (
     typeof __DEV__ !== "undefined" &&
@@ -569,6 +577,10 @@ export async function streamChat({
 
     if (timedOut) {
       return;
+    }
+
+    if (!fullText.trim()) {
+      throw buildProviderEmptyReplyError(provider, language);
     }
 
     await onDone(

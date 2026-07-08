@@ -82,6 +82,17 @@ export type VoiceVisualPhase =
   | "thinking"
   | "synthesizing"
   | "speaking";
+export type VoicePhaseProgressPhase = "searching" | "thinking";
+export interface VoicePhaseProgress {
+  phase: VoicePhaseProgressPhase;
+  progress: number;
+  elapsedMs: number;
+  startedAt: number;
+  estimatedMs: number;
+  sampleCount: number;
+  learned: boolean;
+  overEstimate: boolean;
+}
 export type WaveformVisualizationVariant = "bars" | "oscilloscope";
 
 export interface Settings {

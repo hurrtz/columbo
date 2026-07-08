@@ -28,6 +28,7 @@ export interface PipelineCallbacks {
   onWebSearchStart?: () => void;
   onWebSearchComplete?: () => void;
   onWebSearchFallback?: (error: Error) => void;
+  onLlmStart?: () => void;
   onChunk: (text: string) => void;
   onResponseDone: (
     fullText: string,

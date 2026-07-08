@@ -592,6 +592,8 @@ export const de: TranslationDictionary = {
       `${provider} hat für ${action} zu lange gebraucht. Versuch es erneut.`,
     providerTemporaryError: ({ provider, action }) =>
       `${provider} hatte während ${action} ein vorübergehendes Problem. Versuch es in Kürze erneut.`,
+    providerEmptyReplyError: ({ provider }) =>
+      `${provider} hat beendet, ohne eine Antwort zurückzugeben. Versuch es erneut.`,
     providerContextTooLong: ({ provider }) =>
       `${provider} hat die Antwort abgelehnt, weil der Schnack zu lang geworden ist. Starte einen neuen Schnack oder kürze die Anfrage.`,
     providerRequestRejected: ({ provider, action, detail }) =>
