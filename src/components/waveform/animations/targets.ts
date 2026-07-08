@@ -4,6 +4,7 @@ type WaveformAnimationContext = {
   phase: VoiceVisualPhase;
   isRecording: boolean;
   isSpeaking: boolean;
+  isProcessing?: boolean;
   shouldAnimate: boolean;
   usesPreciseWaveform: boolean;
 };
@@ -72,6 +73,13 @@ export function getOuterRingMetrics(
     };
   }
 
+  if (context.isProcessing) {
+    return {
+      opacity: 0.34 + pulse * 0.17,
+      scale: 0.975 + pulse * 0.045,
+    };
+  }
+
   return {
     opacity: 0.32 + pulse * 0.12,
     scale: 0.986 + pulse * 0.025,
@@ -110,6 +118,13 @@ export function getInnerRingMetrics(
     };
   }
 
+  if (context.isProcessing) {
+    return {
+      opacity: 0.48 + pulse * 0.14,
+      scale: 0.988 + pulse * 0.04,
+    };
+  }
+
   return {
     opacity: 0.44 + pulse * 0.1,
     scale: 0.994 + pulse * 0.02,
@@ -137,6 +152,10 @@ export function getCircleShellScale(
 
   if (context.isSpeaking) {
     return 0.994 + pulse * 0.026 + energy * 0.04;
+  }
+
+  if (context.isProcessing) {
+    return 0.982 + pulse * 0.045;
   }
 
   return 0.994 + pulse * 0.018;
@@ -358,6 +377,14 @@ export function getControlIconMetrics(
   energy: number,
 ) {
   "worklet";
+
+  if (context.isProcessing && context.shouldAnimate) {
+    return {
+      opacity: 0.92,
+      scale: 0.965 + pulse * 0.075,
+      translateY: -1 - pulse * 2.5,
+    };
+  }
 
   if (!context.isRecording || !context.shouldAnimate) {
     return {

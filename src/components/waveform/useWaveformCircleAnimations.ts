@@ -31,9 +31,11 @@ export function useWaveformCircleAnimations(params: {
   gradientColors: [string, string, string];
   intensity: number;
   isRecording: boolean;
+  isProcessing: boolean;
   isSpeaking: boolean;
   maxRecordingMs?: number;
   phase: VoiceVisualPhase;
+  processingMotion: boolean;
   richMotion: boolean;
   shouldAnimate: boolean;
   usesPreciseWaveform: boolean;
@@ -43,9 +45,11 @@ export function useWaveformCircleAnimations(params: {
     gradientColors,
     intensity,
     isRecording,
+    isProcessing,
     isSpeaking,
     maxRecordingMs,
     phase,
+    processingMotion,
     richMotion,
     shouldAnimate,
     usesPreciseWaveform,
@@ -60,27 +64,24 @@ export function useWaveformCircleAnimations(params: {
     useGradientTransition(gradientColors);
 
   useEffect(() => {
-    // Orbit drives the aura motion; only run it during the rich (recording /
-    // speaking) phases. During the waiting phases it settles to a static
-    // position so the aura/sheen stop moving.
-    if (!richMotion) {
+    if (!richMotion && !processingMotion) {
       cancelAnimation(orbit);
       orbit.value = 0;
       return;
     }
 
     orbit.value = withRepeat(
-      withTiming(1, { duration: 4600, easing: Easing.inOut(Easing.ease) }),
+      withTiming(1, {
+        duration: processingMotion ? 3400 : 4600,
+        easing: Easing.inOut(Easing.ease),
+      }),
       -1,
       true,
     );
-  }, [orbit, richMotion]);
+  }, [orbit, processingMotion, richMotion]);
 
   useEffect(() => {
-    // Spin drives the gradient/activity-overlay/sheen rotation; only run it
-    // during the rich phases so the waiting phases stay cheap (no per-frame
-    // gradient transforms).
-    if (!richMotion) {
+    if (!richMotion && !processingMotion) {
       cancelAnimation(spin);
       spin.value = 0;
       return;
@@ -88,13 +89,19 @@ export function useWaveformCircleAnimations(params: {
 
     spin.value = withRepeat(
       withTiming(1, {
-        duration: isRecording ? 2800 : isSpeaking ? 3600 : 4400,
+        duration: isRecording
+          ? 2800
+          : isSpeaking
+            ? 3600
+            : processingMotion
+              ? 5200
+              : 4400,
         easing: Easing.linear,
       }),
       -1,
       false,
     );
-  }, [isRecording, isSpeaking, richMotion, spin]);
+  }, [isRecording, isSpeaking, processingMotion, richMotion, spin]);
 
   useEffect(() => {
     energy.value = withTiming(shouldAnimate ? intensity : 0, {
@@ -172,6 +179,7 @@ export function useWaveformCircleAnimations(params: {
       {
         phase,
         isRecording,
+        isProcessing,
         isSpeaking,
         shouldAnimate,
         usesPreciseWaveform,
@@ -185,6 +193,7 @@ export function useWaveformCircleAnimations(params: {
           {
             phase,
             isRecording,
+            isProcessing,
             isSpeaking,
             shouldAnimate,
             usesPreciseWaveform,
@@ -201,6 +210,7 @@ export function useWaveformCircleAnimations(params: {
       {
         phase,
         isRecording,
+        isProcessing,
         isSpeaking,
         shouldAnimate,
         usesPreciseWaveform,
@@ -214,6 +224,7 @@ export function useWaveformCircleAnimations(params: {
           {
             phase,
             isRecording,
+            isProcessing,
             isSpeaking,
             shouldAnimate,
             usesPreciseWaveform,
@@ -232,6 +243,7 @@ export function useWaveformCircleAnimations(params: {
           {
             phase,
             isRecording,
+            isProcessing,
             isSpeaking,
             shouldAnimate,
             usesPreciseWaveform,
@@ -248,6 +260,7 @@ export function useWaveformCircleAnimations(params: {
       {
         phase,
         isRecording,
+        isProcessing,
         isSpeaking,
         shouldAnimate,
         usesPreciseWaveform,
@@ -284,6 +297,7 @@ export function useWaveformCircleAnimations(params: {
       {
         phase,
         isRecording,
+        isProcessing,
         isSpeaking,
         shouldAnimate,
         usesPreciseWaveform,
@@ -315,6 +329,7 @@ export function useWaveformCircleAnimations(params: {
       {
         phase,
         isRecording,
+        isProcessing,
         isSpeaking,
         shouldAnimate,
         usesPreciseWaveform,
@@ -339,6 +354,7 @@ export function useWaveformCircleAnimations(params: {
       {
         phase,
         isRecording,
+        isProcessing,
         isSpeaking,
         shouldAnimate,
         usesPreciseWaveform,
@@ -363,6 +379,7 @@ export function useWaveformCircleAnimations(params: {
       {
         phase,
         isRecording,
+        isProcessing,
         isSpeaking,
         shouldAnimate,
         usesPreciseWaveform,
@@ -399,6 +416,7 @@ export function useWaveformCircleAnimations(params: {
         {
           phase,
           isRecording,
+          isProcessing,
           isSpeaking,
           shouldAnimate,
           usesPreciseWaveform,
@@ -406,6 +424,11 @@ export function useWaveformCircleAnimations(params: {
         pulse.value,
         energy.value,
       );
+      const processingRotationDeg = isProcessing && shouldAnimate
+        ? phase === "thinking"
+          ? spin.value * 360
+          : Math.sin(spin.value * Math.PI * 2) * 10
+        : 0;
 
       return {
         opacity: metrics.opacity,
@@ -416,10 +439,13 @@ export function useWaveformCircleAnimations(params: {
           {
             translateY: metrics.translateY,
           } as const,
+          {
+            rotate: `${processingRotationDeg}deg`,
+          } as const,
         ],
       };
     },
-    [phase],
+    [isProcessing, phase, shouldAnimate],
   );
 
   return {

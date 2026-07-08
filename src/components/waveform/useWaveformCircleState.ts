@@ -28,6 +28,7 @@ export function useWaveformCircleState(params: {
   const isRecording = phase === "recording";
   const isBlockingPhase = isWaveformProcessingPhase(phase);
   const isSpeaking = phase === "speaking";
+  const isProcessing = isBlockingPhase;
   const showsStaticControlState =
     phase === "idle" || isRecording || isBlockingPhase;
   const showsOutputBars = isSpeaking && waveformVariant === "oscilloscope";
@@ -142,10 +143,7 @@ export function useWaveformCircleState(params: {
     getWaveformControlIconName(phase);
   const controlIconSize = 40;
   const shouldAnimate = appState === "active" && isActive;
-  // Only run the heavy continuous motion (orbit/spin + the spin-driven
-  // gradient/aura/sheen movement) during recording and speaking. The waiting
-  // phases (transcribing/searching/thinking/synthesizing) keep just the gentle
-  // pulse so the circle still breathes while staying cheap.
+  const processingMotion = shouldAnimate && isProcessing;
   const richMotion = shouldAnimate && (isRecording || isSpeaking);
 
   return {
@@ -159,10 +157,12 @@ export function useWaveformCircleState(params: {
     inputMode,
     intensity,
     isBlockingPhase,
+    isProcessing,
     isRecording,
     isSpeaking,
     nativeWaveformChannel,
     phase,
+    processingMotion,
     richMotion,
     ringBorderColor,
     ringColor,

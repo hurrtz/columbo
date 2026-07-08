@@ -1,6 +1,8 @@
 import {
   getActivityGradientMetrics,
+  getCircleShellScale,
   getControlIconMetrics,
+  getInnerRingMetrics,
   getOuterRingMetrics,
   getPulseAnimationConfig,
   getTopAuraMetrics,
@@ -96,5 +98,39 @@ describe("waveform animation targets", () => {
     expect(metrics.opacity).toBe(0.92);
     expect(metrics.scale).toBeCloseTo(1.005);
     expect(metrics.translateY).toBeCloseTo(-1.5);
+  });
+
+  it("breathes the control icon during processing animation", () => {
+    const metrics = getControlIconMetrics(
+      {
+        phase: "thinking",
+        isRecording: false,
+        isSpeaking: false,
+        isProcessing: true,
+        shouldAnimate: true,
+        usesPreciseWaveform: false,
+      },
+      0.5,
+      0,
+    );
+
+    expect(metrics.opacity).toBe(0.92);
+    expect(metrics.scale).toBeCloseTo(1.0025);
+    expect(metrics.translateY).toBeCloseTo(-2.25);
+  });
+
+  it("uses stronger ring and shell motion during processing animation", () => {
+    const context = {
+      phase: "thinking" as const,
+      isRecording: false,
+      isSpeaking: false,
+      isProcessing: true,
+      shouldAnimate: true,
+      usesPreciseWaveform: false,
+    };
+
+    expect(getOuterRingMetrics(context, 0.5, 0).scale).toBeCloseTo(0.9975);
+    expect(getInnerRingMetrics(context, 0.5, 0).opacity).toBeCloseTo(0.55);
+    expect(getCircleShellScale(context, 0.5, 0)).toBeCloseTo(1.0045);
   });
 });
