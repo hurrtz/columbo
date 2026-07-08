@@ -2,6 +2,7 @@
   "expo": {
     "name": "SchnackAI",
     "slug": "schnackai",
+    "scheme": "schnackai",
     "version": "2.1.2",
     "extra": {
       "router": {},
