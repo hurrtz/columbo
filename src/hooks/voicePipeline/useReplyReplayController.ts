@@ -8,16 +8,6 @@ import type {
   UseVoicePipelineParams,
 } from "./types";
 
-function formatFallbackToast(message: string, error?: Error) {
-  const detail = error?.message.trim();
-
-  if (!detail || detail === message) {
-    return message;
-  }
-
-  return `${message} ${detail}`;
-}
-
 type ReplayControllerParams = Pick<
   UseVoicePipelineParams,
   | "isRecording"
@@ -29,7 +19,6 @@ type ReplayControllerParams = Pick<
   | "ttsApiKey"
   | "ttsListenLanguages"
   | "ttsMode"
-  | "replyPlayback"
   | "spokenRepliesEnabled"
   | "ttsProvider"
 > & {
@@ -51,7 +40,6 @@ export function useReplyReplayController({
   ttsApiKey,
   ttsListenLanguages,
   ttsMode,
-  replyPlayback,
   spokenRepliesEnabled,
   ttsProvider,
 }: ReplayControllerParams) {
@@ -115,7 +103,6 @@ export function useReplyReplayController({
           return;
         }
 
-        let fallbackToastShown = false;
         const replayQueue = createVoicePipelineTtsQueue({
           abortSignal: replayAbortRef.current.signal,
           callbacks: {
@@ -140,19 +127,6 @@ export function useReplyReplayController({
                 diagnostics,
               });
             },
-            onTtsFallback: (error) => {
-              if (
-                replaySessionRef.current !== replaySession ||
-                fallbackToastShown
-              ) {
-                return;
-              }
-
-              fallbackToastShown = true;
-              showToast(
-                formatFallbackToast(t("providerVoiceFallback"), error),
-              );
-            },
             onError: (error) => {
               if (
                 replaySessionRef.current !== replaySession ||
@@ -165,8 +139,11 @@ export function useReplyReplayController({
             },
           },
           diagnosticsSource: "repeat",
+          fallbackToNativeOnProviderError: false,
           language,
-          replyPlayback,
+          // A replay already has the complete text. Treat it as a completed
+          // response instead of feeding it back through the live-stream buffer.
+          replyPlayback: "wait",
           ttsApiKey,
           ttsListenLanguages,
           ttsMode,
@@ -175,7 +152,6 @@ export function useReplyReplayController({
           ttsVoice: selectedTtsVoice,
         });
 
-        replayQueue.handleStreamChunk(trimmed);
         await replayQueue.handleResponseDone(trimmed);
 
         if (replaySessionRef.current !== replaySession) {
@@ -205,7 +181,6 @@ export function useReplyReplayController({
       ttsApiKey,
       ttsListenLanguages,
       ttsMode,
-      replyPlayback,
       spokenRepliesEnabled,
       ttsProvider,
     ],

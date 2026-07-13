@@ -12,6 +12,7 @@ interface CreateVoicePipelineTtsQueueParams {
   abortSignal?: AbortSignal;
   callbacks: RunVoicePipelineParams["callbacks"];
   diagnosticsSource?: SpeechDiagnosticSource;
+  fallbackToNativeOnProviderError?: boolean;
   language: RunVoicePipelineParams["language"];
   replyPlayback: RunVoicePipelineParams["replyPlayback"];
   spokenRepliesEnabled?: RunVoicePipelineParams["spokenRepliesEnabled"];
@@ -27,6 +28,7 @@ export function createVoicePipelineTtsQueue({
   abortSignal,
   callbacks,
   diagnosticsSource = "conversation",
+  fallbackToNativeOnProviderError = true,
   language,
   replyPlayback,
   spokenRepliesEnabled = true,
@@ -37,14 +39,13 @@ export function createVoicePipelineTtsQueue({
   ttsProvider,
   ttsVoice,
 }: CreateVoicePipelineTtsQueueParams) {
-  const STREAM_TTS_FOLLOW_UP_MIN_CHARS = 160;
   const PROVIDER_TTS_TARGET_CHUNK_CHARS = 1200;
   let sentenceBuffer = "";
-  let streamReadyBuffer = "";
   let ttsChain = Promise.resolve();
   const ttsQueue: Promise<void>[] = [];
-  let hasQueuedSpeech = false;
   let fallbackNotified = false;
+  let fatalProviderError = false;
+  let fatalProviderErrorNotified = false;
   const effectiveReplyPlayback = replyPlayback;
   const speechDiagnostics = {
     requestId: createSpeechRequestId(diagnosticsSource),
@@ -74,6 +75,10 @@ export function createVoicePipelineTtsQueue({
         return;
       }
 
+      if (fatalProviderError) {
+        return;
+      }
+
       if (!spokenRepliesEnabled) {
         return;
       }
@@ -94,9 +99,10 @@ export function createVoicePipelineTtsQueue({
           language,
           listenLanguages: ttsListenLanguages,
           diagnostics: speechDiagnostics,
-          onProviderFallback: (error) => {
-            notifyTtsFallback(error);
-          },
+          abortSignal,
+          onProviderFallback: fallbackToNativeOnProviderError
+            ? notifyTtsFallback
+            : undefined,
         });
 
         if (!abortSignal?.aborted) {
@@ -106,15 +112,23 @@ export function createVoicePipelineTtsQueue({
         const normalizedError =
           error instanceof Error ? error : new Error(String(error));
 
-        notifyTtsFallback(normalizedError);
-
-        if (!abortSignal?.aborted) {
+        if (fallbackToNativeOnProviderError && !abortSignal?.aborted) {
+          notifyTtsFallback(normalizedError);
           callbacks.onSpeechTextReady(trimmed, undefined, speechDiagnostics);
+          return;
         }
+
+        fatalProviderError = true;
+        throw normalizedError;
       }
     });
 
     ttsChain = task.catch((error) => {
+      if (fatalProviderErrorNotified) {
+        return;
+      }
+
+      fatalProviderErrorNotified = true;
       callbacks.onError(
         error instanceof Error ? error : new Error(String(error)),
       );
@@ -141,29 +155,7 @@ export function createVoicePipelineTtsQueue({
       return;
     }
 
-    hasQueuedSpeech = true;
     segments.forEach(enqueueTtsChunk);
-  };
-
-  const flushStreamReadyBuffer = (force = false) => {
-    const trimmed = streamReadyBuffer.trim();
-
-    if (!trimmed) {
-      streamReadyBuffer = "";
-      return;
-    }
-
-    if (
-      !force &&
-      hasQueuedSpeech &&
-      trimmed.length < STREAM_TTS_FOLLOW_UP_MIN_CHARS &&
-      !/\n\s*\n/.test(streamReadyBuffer)
-    ) {
-      return;
-    }
-
-    enqueueTts(streamReadyBuffer);
-    streamReadyBuffer = "";
   };
 
   const handleStreamChunk = (text: string) => {
@@ -178,8 +170,7 @@ export function createVoicePipelineTtsQueue({
       extractCompleteSentences(sentenceBuffer);
 
     if (completeSentences.length > 0) {
-      streamReadyBuffer += completeSentences.join("");
-      flushStreamReadyBuffer();
+      enqueueTts(completeSentences.join(""));
     }
     sentenceBuffer = remainder;
   };
@@ -187,9 +178,8 @@ export function createVoicePipelineTtsQueue({
   const handleResponseDone = async (fullText: string) => {
     if (effectiveReplyPlayback === "stream") {
       if (sentenceBuffer.trim()) {
-        streamReadyBuffer += sentenceBuffer;
+        enqueueTts(sentenceBuffer);
       }
-      flushStreamReadyBuffer(true);
     } else {
       enqueueTts(fullText);
     }

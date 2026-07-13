@@ -190,7 +190,7 @@ describe("useVoicePipeline", () => {
     expect(params.player.enqueueAudio).not.toHaveBeenCalled();
   });
 
-  it("falls back to native speech when replay synthesis fails", async () => {
+  it("reports replay synthesis failures without falling back to native speech", async () => {
     const params = createParams({
       ttsMode: "provider",
       player: createPlayer(),
@@ -205,17 +205,9 @@ describe("useVoicePipeline", () => {
       await result.current.playReplyText("Replay this", "message-1");
     });
 
-    expect(params.player.speakText).toHaveBeenCalledWith(
-      "Replay this",
-      expect.objectContaining({
-        diagnostics: expect.objectContaining({
-          requestId: "speech-request-1",
-          source: "repeat",
-        }),
-      }),
-    );
+    expect(params.player.speakText).not.toHaveBeenCalled();
     expect(params.showToast).toHaveBeenCalledWith(
-      `${translate("en", "providerVoiceFallback")} Provider TTS unavailable`,
+      "Provider TTS unavailable",
     );
     expect(result.current.replayPhase).toBe("idle");
     expect(result.current.activeReplayMessageId).toBeNull();

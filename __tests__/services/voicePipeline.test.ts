@@ -544,6 +544,50 @@ describe("runVoicePipeline", () => {
     expect(callbacks.onSpeechTextReady).not.toHaveBeenCalled();
   });
 
+  it("starts synthesizing each completed follow-up sentence before the reply ends", async () => {
+    (synthesizeSpeech as jest.Mock).mockResolvedValue("/tmp/tts.wav");
+    (streamChat as jest.Mock).mockImplementation(
+      async ({ onChunk }: { onChunk: (text: string) => void }) => {
+        onChunk("Sentence one.");
+        await Promise.resolve();
+        await Promise.resolve();
+        expect(synthesizeSpeech).toHaveBeenCalledTimes(1);
+
+        onChunk(" Sentence two.");
+        await Promise.resolve();
+        await Promise.resolve();
+        await Promise.resolve();
+        expect(synthesizeSpeech).toHaveBeenCalledTimes(2);
+      },
+    );
+
+    await runVoicePipeline({
+      transcriptionOverride: "Explain glass.",
+      messages: [],
+      model: "gpt-5.4",
+      provider: "openai",
+      providerApiKey: "sk-test",
+      sttMode: "native",
+      ttsMode: "provider",
+      ttsProvider: "openai",
+      ttsApiKey: "sk-test",
+      ttsVoice: "alloy",
+      replyPlayback: "stream",
+      assistantInstructions: "You are a voice assistant.",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      callbacks: {
+        onTranscription: jest.fn(),
+        onChunk: jest.fn(),
+        onResponseDone: jest.fn(),
+        onAudioReady: jest.fn(),
+        onSpeechTextReady: jest.fn(),
+        onError: jest.fn(),
+      },
+    });
+  });
+
   it("flushes a trailing partial sentence for provider TTS when the stream finishes", async () => {
     (streamChat as jest.Mock).mockImplementation(
       async ({
