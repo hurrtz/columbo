@@ -5,9 +5,23 @@ import {
 } from "../../providerErrors";
 import { AppLanguage } from "../../../types";
 import { getModelEffortRequestBody } from "../../../utils/modelEffort";
+import { translate } from "../../../i18n";
 
 import { readEventStream } from "../eventStream";
 import { ChatMessage, requireProviderKey, toAPIMessages } from "../shared";
+
+const ANTHROPIC_MAX_OUTPUT_TOKENS = 16_384;
+const ANTHROPIC_MAX_CONTINUATIONS = 2;
+const ANTHROPIC_CONTINUATION_PROMPT =
+  "Continue exactly where the previous response stopped. Do not repeat any prior text or add a preamble. Finish the answer.";
+
+function buildIncompleteReplyError(language: AppLanguage) {
+  return new Error(
+    translate(language, "providerIncompleteReplyError", {
+      provider: "Anthropic",
+    }),
+  );
+}
 
 export async function requestAnthropicChat(params: {
   model: string;
@@ -32,7 +46,7 @@ export async function requestAnthropicChat(params: {
       },
       body: JSON.stringify({
         model,
-        max_tokens: 4096,
+        max_tokens: ANTHROPIC_MAX_OUTPUT_TOKENS,
         ...getModelEffortRequestBody("anthropic", model, modelEffort),
         system: systemPrompt,
         messages: toAPIMessages(messages),
@@ -60,13 +74,17 @@ export async function requestAnthropicChat(params: {
   }
 
   const data = await response.json();
+  if (data.stop_reason === "max_tokens") {
+    throw buildIncompleteReplyError(params.language);
+  }
+
   return (
     data.content?.map((part: { text?: string }) => part.text || "").join("") ||
     ""
   );
 }
 
-export async function requestAnthropicChatStream(params: {
+async function requestAnthropicChatStreamOnce(params: {
   model: string;
   modelEffort?: string;
   messages: ChatMessage[];
@@ -97,7 +115,7 @@ export async function requestAnthropicChatStream(params: {
       },
       body: JSON.stringify({
         model,
-        max_tokens: 4096,
+        max_tokens: ANTHROPIC_MAX_OUTPUT_TOKENS,
         ...getModelEffortRequestBody("anthropic", model, modelEffort),
         system: systemPrompt,
         stream: true,
@@ -140,31 +158,132 @@ export async function requestAnthropicChatStream(params: {
       onChunk(fullText);
     }
 
-    return fullText;
+    return {
+      fullText,
+      sawMessageStop: true,
+      stopReason: null,
+    };
   }
 
   let fullText = "";
+  let sawMessageStop = false;
+  let stopReason: string | null = null;
 
-  await readEventStream(response.body, async ({ type, data }) => {
-    if (!data || type !== "content_block_delta") {
-      return;
+  try {
+    await readEventStream(response.body, async ({ type, data }) => {
+      if (!data) {
+        return;
+      }
+
+      const payload = JSON.parse(data);
+
+      if (type === "error") {
+        throw new Error(
+          typeof payload?.error?.message === "string"
+            ? payload.error.message
+            : "Anthropic stream failed.",
+        );
+      }
+
+      if (type === "message_delta") {
+        stopReason =
+          typeof payload?.delta?.stop_reason === "string"
+            ? payload.delta.stop_reason
+            : stopReason;
+        return;
+      }
+
+      if (type === "message_stop") {
+        sawMessageStop = true;
+        return;
+      }
+
+      if (type !== "content_block_delta") {
+        return;
+      }
+
+      const delta =
+        payload?.type === "content_block_delta" &&
+        payload?.delta?.type === "text_delta" &&
+        typeof payload.delta.text === "string"
+          ? payload.delta.text
+          : "";
+
+      if (!delta) {
+        return;
+      }
+
+      fullText += delta;
+      onChunk(delta);
+    });
+  } catch (error) {
+    if (abortSignal?.aborted) {
+      throw error;
     }
 
-    const payload = JSON.parse(data);
-    const delta =
-      payload?.type === "content_block_delta" &&
-      payload?.delta?.type === "text_delta" &&
-      typeof payload.delta.text === "string"
-        ? payload.delta.text
-        : "";
+    // A 200 stream can still fail mid-flight. Preserve any emitted text and
+    // let the outer continuation loop resume from it instead of accepting a
+    // partial reply as complete.
+    sawMessageStop = false;
+    stopReason = null;
+  }
 
-    if (!delta) {
-      return;
+  return {
+    fullText,
+    sawMessageStop,
+    stopReason,
+  };
+}
+
+export async function requestAnthropicChatStream(params: {
+  model: string;
+  modelEffort?: string;
+  messages: ChatMessage[];
+  apiKey: string;
+  language: AppLanguage;
+  systemPrompt: string;
+  onChunk: (text: string) => void;
+  abortSignal?: AbortSignal;
+}) {
+  let fullText = "";
+  let requestMessages = params.messages;
+
+  for (
+    let attempt = 0;
+    attempt <= ANTHROPIC_MAX_CONTINUATIONS;
+    attempt += 1
+  ) {
+    const result = await requestAnthropicChatStreamOnce({
+      ...params,
+      messages: requestMessages,
+    });
+    fullText += result.fullText;
+
+    const needsContinuation =
+      result.stopReason === "max_tokens" || !result.sawMessageStop;
+
+    if (!needsContinuation) {
+      return fullText;
     }
 
-    fullText += delta;
-    onChunk(delta);
-  });
+    if (attempt >= ANTHROPIC_MAX_CONTINUATIONS) {
+      throw buildIncompleteReplyError(params.language);
+    }
 
-  return fullText;
+    requestMessages = fullText.trim()
+      ? [
+          ...params.messages,
+          {
+            role: "assistant",
+            content: fullText,
+          },
+          {
+            role: "user",
+            content: ANTHROPIC_CONTINUATION_PROMPT,
+          },
+        ]
+      : params.messages;
+  }
+
+  throw buildIncompleteReplyError(params.language);
 }

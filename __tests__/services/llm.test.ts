@@ -92,6 +92,135 @@ describe("streamChat", () => {
     await streamChat({ messages: mockMessages, model: "claude-opus-4-7", provider: "anthropic", apiKey: "sk-ant-test-key", assistantInstructions: "", responseLength: "normal", responseTone: "professional", language: "en", onChunk: (text) => chunks.push(text), onDone: () => {}, onError: () => {} });
     expect(chunks).toEqual(["Hi"]);
     expect((fetch as jest.Mock).mock.calls[0][0]).toBe("https://api.anthropic.com/v1/messages");
+    expect(JSON.parse((fetch as jest.Mock).mock.calls[0][1].body).max_tokens).toBe(
+      16_384,
+    );
+  });
+
+  it("continues Anthropic replies that reach the output-token limit", async () => {
+    const encoder = new TextEncoder();
+    const firstStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'event: content_block_delta\ndata: {"type":"content_block_delta","delta":{"type":"text_delta","text":"First half"}}\n\n',
+          ),
+        );
+        controller.enqueue(
+          encoder.encode(
+            'event: message_delta\ndata: {"type":"message_delta","delta":{"stop_reason":"max_tokens"}}\n\n',
+          ),
+        );
+        controller.enqueue(
+          encoder.encode('event: message_stop\ndata: {"type":"message_stop"}\n\n'),
+        );
+        controller.close();
+      },
+    });
+    const continuationStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'event: content_block_delta\ndata: {"type":"content_block_delta","delta":{"type":"text_delta","text":" continued."}}\n\n',
+          ),
+        );
+        controller.enqueue(
+          encoder.encode(
+            'event: message_delta\ndata: {"type":"message_delta","delta":{"stop_reason":"end_turn"}}\n\n',
+          ),
+        );
+        controller.enqueue(
+          encoder.encode('event: message_stop\ndata: {"type":"message_stop"}\n\n'),
+        );
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({ ok: true, body: firstStream })
+      .mockResolvedValueOnce({ ok: true, body: continuationStream });
+    const chunks: string[] = [];
+    const onDone = jest.fn();
+
+    await streamChat({
+      messages: mockMessages,
+      model: "claude-fable-5",
+      provider: "anthropic",
+      apiKey: "sk-ant-test-key",
+      modelEffort: "max",
+      assistantInstructions: "",
+      responseLength: "thorough",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone,
+      onError: jest.fn(),
+    });
+
+    expect(chunks).toEqual(["First half", " continued."]);
+    expect(onDone).toHaveBeenCalledWith(
+      "First half continued.",
+      expect.any(Object),
+    );
+    const continuationBody = JSON.parse(
+      (fetch as jest.Mock).mock.calls[1][1].body,
+    );
+    expect(continuationBody.messages.slice(-2)).toEqual([
+      { role: "assistant", content: "First half" },
+      expect.objectContaining({
+        role: "user",
+        content: expect.stringContaining("Continue exactly"),
+      }),
+    ]);
+  });
+
+  it("continues Anthropic replies when the stream closes without a terminal event", async () => {
+    const encoder = new TextEncoder();
+    const interruptedStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'event: content_block_delta\ndata: {"type":"content_block_delta","delta":{"type":"text_delta","text":"Interrupted mid"}}\n\n',
+          ),
+        );
+        controller.close();
+      },
+    });
+    const continuationStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'event: content_block_delta\ndata: {"type":"content_block_delta","delta":{"type":"text_delta","text":"sentence, now complete."}}\n\n',
+          ),
+        );
+        controller.enqueue(
+          encoder.encode('event: message_stop\ndata: {"type":"message_stop"}\n\n'),
+        );
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({ ok: true, body: interruptedStream })
+      .mockResolvedValueOnce({ ok: true, body: continuationStream });
+    const onDone = jest.fn();
+
+    await streamChat({
+      messages: mockMessages,
+      model: "claude-fable-5",
+      provider: "anthropic",
+      apiKey: "sk-ant-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: jest.fn(),
+      onDone,
+      onError: jest.fn(),
+    });
+
+    expect(onDone).toHaveBeenCalledWith(
+      "Interrupted midsentence, now complete.",
+      expect.any(Object),
+    );
   });
 
   it("reports an error when a provider stream completes without text", async () => {
