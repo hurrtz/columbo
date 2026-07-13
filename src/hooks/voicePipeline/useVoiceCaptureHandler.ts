@@ -114,7 +114,6 @@ export function useVoiceCaptureHandler({
   const lastUserMessageIdRef = useRef<string | null>(null);
   const lastAssistantMessageIdRef = useRef<string | null>(null);
   const pendingAssistantNoticesRef = useRef<MessagePipelineNotice[]>([]);
-  const firstChunkTrackedRef = useRef(false);
   const activeLatencyProgressRef = useRef<ActiveLatencyProgress | null>(null);
   const latencyRunIdRef = useRef(0);
 
@@ -272,7 +271,6 @@ export function useVoiceCaptureHandler({
       setStreamingText("");
       ttsFallbackToastShownRef.current = false;
       playbackStartedRef.current = false;
-      firstChunkTrackedRef.current = false;
       lastUserMessageIdRef.current = null;
       lastAssistantMessageIdRef.current = null;
       pendingAssistantNoticesRef.current = [];
@@ -393,9 +391,8 @@ export function useVoiceCaptureHandler({
               showToast(formatNoticeToast(notice));
             },
             onLlmStart: () => {
-              firstChunkTrackedRef.current = false;
               startLatencyProgress("thinking", {
-                phase: "llm-first-output",
+                phase: "llm-response",
                 provider,
                 model,
                 effort: modelEffort,
@@ -412,10 +409,6 @@ export function useVoiceCaptureHandler({
                   chunkLength: text.length,
                 },
               });
-              if (!firstChunkTrackedRef.current) {
-                firstChunkTrackedRef.current = true;
-                recordLatencyProgressSample("thinking");
-              }
               setPipelinePhase(
                 playbackStartedRef.current ? "speaking" : "thinking",
               );
@@ -433,10 +426,8 @@ export function useVoiceCaptureHandler({
                   totalTokens: usage?.totalTokens ?? null,
                 },
               });
+              finishLatencyProgress("thinking");
               setStreamingText("");
-              if (!spokenRepliesEnabled) {
-                clearLatencyProgress();
-              }
               setPipelinePhase(
                 playbackStartedRef.current
                   ? "speaking"
@@ -481,7 +472,6 @@ export function useVoiceCaptureHandler({
                 },
               });
               playbackStartedRef.current = true;
-              clearLatencyProgress();
               setPipelinePhase("speaking");
               player.enqueueAudio(audioData, diagnostics);
             },
@@ -494,7 +484,6 @@ export function useVoiceCaptureHandler({
                 },
               });
               playbackStartedRef.current = true;
-              clearLatencyProgress();
               setPipelinePhase("speaking");
               player.speakText(text, {
                 diagnostics,
@@ -683,7 +672,6 @@ export function useVoiceCaptureHandler({
       replyPlayback,
       responseLength,
       responseTone,
-      recordLatencyProgressSample,
       selectedSttModel,
       selectedTtsModel,
       selectedTtsVoice,

@@ -1,4 +1,5 @@
-import { act, renderHook } from "@testing-library/react-native";
+import { act, renderHook, waitFor } from "@testing-library/react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { translate } from "../../src/i18n";
 import { useVoicePipeline } from "../../src/hooks/useVoicePipeline";
@@ -335,6 +336,37 @@ describe("useVoicePipeline", () => {
     expect(result.current.pipelinePhase).toBe("idle");
     expect(result.current.streamingText).toBe("");
     expect(result.current.lastCompletedReplyRef.current).toBe("Completed reply");
+  });
+
+  it("learns the full LLM response time instead of first-chunk latency", async () => {
+    const params = createParams({
+      spokenRepliesEnabled: false,
+    });
+    (runVoicePipeline as jest.Mock).mockImplementation(
+      async ({ callbacks }: any) => {
+        callbacks.onLlmStart();
+        jest.advanceTimersByTime(1_000);
+        callbacks.onChunk("First token");
+        jest.advanceTimersByTime(4_000);
+        callbacks.onResponseDone("First token and the completed reply.");
+        return "Hello from the microphone";
+      },
+    );
+
+    const { result } = renderHook(() => useVoicePipeline(params));
+
+    await act(async () => {
+      await result.current.handleVoiceCaptureDone({
+        transcriptionOverride: "Hello from the microphone",
+      });
+    });
+
+    await waitFor(() => {
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+        "@schnackai/latency_stats",
+        expect.stringContaining("5000"),
+      );
+    });
   });
 
   it("shows the retry toast when no transcription is produced", async () => {

@@ -11,9 +11,9 @@ import type {
 const STORAGE_KEY = "@schnackai/latency_stats";
 const MAX_SAMPLES_PER_ROUTE = 24;
 const MIN_SAMPLE_MS = 250;
-const MAX_SAMPLE_MS = 180_000;
+const MAX_SAMPLE_MS = 10 * 60_000;
 
-export type LatencyStatsPhase = "llm-first-output" | "web-search";
+export type LatencyStatsPhase = "llm-response" | "web-search";
 
 export interface LatencyRouteDescriptor {
   phase: LatencyStatsPhase;
@@ -58,7 +58,10 @@ export function createLatencyRouteKey(descriptor: LatencyRouteDescriptor) {
   }
 
   return [
-    "llm",
+    // v2 deliberately does not reuse the old first-token samples. The ring is
+    // visible until the whole LLM response is ready, so it must learn that same
+    // duration rather than an unrelated time-to-first-token metric.
+    "llm-response-v2",
     normalizeKeyPart(descriptor.provider),
     normalizeKeyPart(descriptor.model),
     normalizeKeyPart(descriptor.effort),
