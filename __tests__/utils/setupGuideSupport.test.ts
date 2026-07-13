@@ -1,6 +1,7 @@
 import { DEFAULT_SETTINGS } from "../../src/types";
 import {
   getCurrentSetupGuideValidationState,
+  getSetupGuideValidationModel,
   resolveSetupGuideRoutes,
 } from "../../src/screens/main/setupGuideSupport";
 
@@ -14,6 +15,24 @@ function createSettings() {
 }
 
 describe("setupGuideSupport", () => {
+  it("validates Gemini onboarding with the stable REST default", () => {
+    const settings = createSettings();
+    settings.responseModes = [
+      {
+        id: "mode-1",
+        route: {
+          provider: "gemini",
+          model: "gemini-live-2.5-flash-native-audio",
+        },
+      },
+    ];
+    settings.activeResponseMode = "mode-1";
+
+    expect(getSetupGuideValidationModel("gemini")).toBe(
+      "gemini-2.5-flash",
+    );
+  });
+
   it("prefers on-device STT over provider STT when both are available", () => {
     const settings = createSettings();
     settings.apiKeys.openai = "test-openai-key";

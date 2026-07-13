@@ -21,7 +21,7 @@ import type {
   Settings,
 } from "../../types";
 import { normalizeResponseModeRouteEffort } from "../../utils/modelEffort";
-import { getDefaultModelForProvider, getProviderValidationModel } from "../../utils/responseModes";
+import { getDefaultModelForProvider } from "../../utils/responseModes";
 import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
 
 export type SetupGuideStep = "intro" | "provider" | "voice-test" | "summary";
@@ -114,12 +114,13 @@ export function getSetupGuideInitialProvider(settings: Settings): Provider {
   return providerOptions[0]?.value ?? settings.lastProvider;
 }
 
-export function getSetupGuideValidationModel(
-  settings: Settings,
-  provider: Provider,
-) {
-  return getProviderValidationModel(settings, provider).trim() ||
-    getDefaultModelForProvider(provider);
+export function getSetupGuideValidationModel(provider: Provider) {
+  // The first key update auto-derives response modes. Some providers put a
+  // realtime model first in their picker, which is a poor connection-test
+  // target and made fresh Gemini setups validate over Gemini Live. Keep the
+  // wizard on the provider's stable default REST model; Settings can still
+  // validate a user's explicitly selected route.
+  return getDefaultModelForProvider(provider);
 }
 
 export function getCurrentSetupGuideValidationState(params: {
@@ -148,7 +149,7 @@ export function resolveSetupGuideRoutes(params: {
 }): SetupGuideResolvedRoutes {
   const { nativeSttAvailable, provider, settings } = params;
   const apiKey = settings.apiKeys[provider].trim();
-  const llmModel = getSetupGuideValidationModel(settings, provider);
+  const llmModel = getSetupGuideValidationModel(provider);
   const providerSttModel = settings.providerSttModels[provider]?.trim() || "";
   const providerTtsModel =
     settings.providerTtsModels[provider]?.trim() ||

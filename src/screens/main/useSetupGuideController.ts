@@ -76,7 +76,7 @@ export function useSetupGuideController({
     ? settings.apiKeys[selectedProvider].trim()
     : "";
   const selectedProviderModel = selectedProvider
-    ? getSetupGuideValidationModel(settings, selectedProvider)
+    ? getSetupGuideValidationModel(selectedProvider)
     : "";
   const currentValidationState = useMemo(
     () => {
