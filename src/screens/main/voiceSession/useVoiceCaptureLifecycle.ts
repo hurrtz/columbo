@@ -167,6 +167,7 @@ export function useVoiceCaptureLifecycle({
             sttMode,
           },
         });
+        showToast(t("couldntCatchThatTryAgain"));
       }
 
       return;
@@ -197,7 +198,9 @@ export function useVoiceCaptureLifecycle({
     nativeStt,
     processCapturedVoiceTurn,
     recorder,
+    showToast,
     sttMode,
+    t,
   ]);
 
   stopVoiceCaptureRef.current = stopVoiceCapture;

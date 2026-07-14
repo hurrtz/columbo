@@ -106,4 +106,24 @@ describe("useVoiceCaptureLifecycle auto-stop", () => {
     expect(params.recorder.stopRecording).toHaveBeenCalledTimes(1);
     expect(params.showToast).not.toHaveBeenCalled();
   });
+
+  it("shows feedback when system speech recognition returns no transcript", async () => {
+    const nativeStt = {
+      ...buildParams().nativeStt,
+      stopRecognition: jest.fn(async () => null),
+    };
+    const params = buildParams({
+      nativeStt,
+      sttMode: "native" as const,
+    });
+    const { result } = renderHook(() => useVoiceCaptureLifecycle(params));
+
+    await act(async () => {
+      await result.current.startVoiceCapture();
+      await result.current.stopVoiceCapture();
+    });
+
+    expect(params.processCapturedVoiceTurn).not.toHaveBeenCalled();
+    expect(params.showToast).toHaveBeenCalledWith("couldntCatchThatTryAgain");
+  });
 });
