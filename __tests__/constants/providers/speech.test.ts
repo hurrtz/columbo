@@ -29,12 +29,11 @@ describe("speech provider constants", () => {
     ).toBeUndefined();
   });
 
-  it("surfaces the remaining simple Mistral STT rows from the runtime manifest", () => {
+  it("surfaces Gemini audio transcription and the Mistral STT model", () => {
     expect(getProviderSttModelOptions("gemini")).toEqual([
-      { id: "chirp_3", name: "Chirp 3: Transcription" },
-      { id: "chirp_2", name: "Chirp 2: Transcription" },
-      { id: "telephony", name: "Telephony" },
+      { id: "gemini-3.5-flash", name: "Gemini 3.5 Flash" },
     ]);
+    expect(PROVIDER_DEFAULT_STT_MODELS.gemini).toBe("gemini-3.5-flash");
     expect(getProviderSttModelOptions("mistral")).toEqual(
       [{ id: "voxtral-mini-2602", name: "Voxtral Mini Transcribe 2" }],
     );

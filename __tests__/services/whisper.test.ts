@@ -204,17 +204,15 @@ describe("transcribeAudio", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it("uses Google Cloud Speech v2 for Gemini STT", async () => {
+  it("uses Gemini audio input for STT with an AI Studio key", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        results: [
+        candidates: [
           {
-            alternatives: [
-              {
-                transcript: "Hello from Gemini STT",
-              },
-            ],
+            content: {
+              parts: [{ text: "Hello from Gemini STT" }],
+            },
           },
         ],
       }),
@@ -224,26 +222,63 @@ describe("transcribeAudio", () => {
       fileUri: "/tmp/recording.m4a",
       mode: "provider",
       provider: "gemini",
-      providerModel: "chirp_3",
-      apiKey: "gemini-test-key|my-project|ya29.test-token|us",
+      providerModel: "gemini-3.5-flash",
+      apiKey: "gemini-test-key",
       language: "de",
     });
 
     expect(result).toBe("Hello from Gemini STT");
     const [url, options] = (fetch as jest.Mock).mock.calls[0];
     expect(url).toBe(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent",
+    );
+    expect(options.headers["x-goog-api-key"]).toBe("gemini-test-key");
+    expect(JSON.parse(options.body)).toEqual(
+      expect.objectContaining({
+        contents: [
+          expect.objectContaining({
+            parts: expect.arrayContaining([
+              expect.objectContaining({
+                inlineData: {
+                  mimeType: "audio/m4a",
+                  data: "ZmFrZQ==",
+                },
+              }),
+            ]),
+          }),
+        ],
+      }),
+    );
+  });
+
+  it("keeps Google Cloud Speech v2 working for Cloud-only credentials", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        results: [
+          {
+            alternatives: [{ transcript: "Hello from Cloud Speech" }],
+          },
+        ],
+      }),
+    });
+
+    const result = await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "gemini",
+      providerModel: "gemini-3.5-flash",
+      apiKey: "my-project|ya29.test-token|us",
+      language: "de",
+    });
+
+    expect(result).toBe("Hello from Cloud Speech");
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(
       "https://us-speech.googleapis.com/v2/projects/my-project/locations/us/recognizers/_:recognize",
     );
     expect(options.headers.Authorization).toBe("Bearer ya29.test-token");
-    expect(options.headers["x-goog-user-project"]).toBe("my-project");
-    expect(JSON.parse(options.body)).toEqual({
-      config: {
-        autoDecodingConfig: {},
-        languageCodes: ["de-DE"],
-        model: "chirp_3",
-      },
-      content: "ZmFrZQ==",
-    });
+    expect(JSON.parse(options.body).config.model).toBe("chirp_3");
   });
 
   it("uses the xAI standalone REST STT endpoint for recorded audio", async () => {

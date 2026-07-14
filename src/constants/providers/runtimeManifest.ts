@@ -24,6 +24,7 @@ export type RuntimeSttTransport =
   | "none"
   | "bytedance-bigmodel-flash"
   | "multipart"
+  | "google-speech"
   | "google-cloud-speech-v2"
   | "openai-audio-input"
   | "xai-stt-rest"
@@ -624,7 +625,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     shortLabel: "GOOGLE",
     apiKeyPlaceholder: "Gemini API key|project-id|access-token|us",
     apiKeyHint:
-      "Use an AI Studio Gemini API key for chat and TTS, Google Cloud Speech STT as <project-id>|<access-token>|<location>, or combine both as <Gemini API key>|<project-id>|<access-token>|<location>.",
+      "Use an AI Studio Gemini API key for chat, speech transcription, and TTS. Existing Google Cloud Speech credentials remain supported as <project-id>|<access-token>|<location>, or combined as <Gemini API key>|<project-id>|<access-token>|<location>.",
     apiKeyUrl: "https://aistudio.google.com/app/apikey",
     llm: {
       support: "provider",
@@ -664,11 +665,12 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     },
     stt: {
       support: "provider",
-      transport: "google-cloud-speech-v2",
-      defaultModel: "chirp_3",
-      models: catalogModelSpecs("google-vertex-ai-studio", "stt"),
+      transport: "google-speech",
+      endpointBase: "https://generativelanguage.googleapis.com/v1beta/models",
+      defaultModel: "gemini-3.5-flash",
+      models: [namedModel("gemini-3.5-flash", "Gemini 3.5 Flash")],
       languageNote:
-        "Google Cloud Speech-to-Text is a separate credential path from the Gemini API key. Use <project-id>|<access-token>|<location> for STT-only, or combine it as <Gemini API key>|<project-id>|<access-token>|<location>.",
+        "AI Studio keys transcribe recorded speech with Gemini. Existing Cloud Speech-only credentials continue to use Chirp 3.",
     },
     tts: {
       support: "provider",

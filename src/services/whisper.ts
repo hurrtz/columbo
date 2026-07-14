@@ -12,6 +12,7 @@ import { waitForRecordedFileReady } from "./whisper/recordedFileReady";
 import {
   transcribeWithBytedanceBigmodelFlashProvider,
   transcribeWithGoogleCloudSpeechV2Provider,
+  transcribeWithGoogleSpeechProvider,
   transcribeWithMultipartProvider,
   transcribeWithOpenAiAudioInputProvider,
   transcribeWithXaiRestSttProvider,
@@ -139,6 +140,18 @@ export async function transcribeAudio(params: {
 
   if (config.kind === "google-cloud-speech-v2") {
     return transcribeWithGoogleCloudSpeechV2Provider({
+      abortSignal,
+      apiKey,
+      config,
+      fileUri,
+      language,
+      provider,
+      providerModel: resolvedModel,
+    });
+  }
+
+  if (config.kind === "google-speech") {
+    return transcribeWithGoogleSpeechProvider({
       abortSignal,
       apiKey,
       config,

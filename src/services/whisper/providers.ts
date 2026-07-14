@@ -8,6 +8,7 @@ import {
 } from "../bytedance";
 import {
   buildGoogleCloudSpeechRecognizeEndpoint,
+  parseGoogleAiStudioCredentials,
   requireGoogleCloudSpeechCredentials,
 } from "../google";
 import { getDeviceLocale, getFileAudioMimeType } from "../../utils/speechLanguage";
@@ -16,6 +17,7 @@ import { getProviderSttTimeoutMs } from "./config";
 import type {
   BytedanceBigmodelFlashTranscriptionConfig,
   GoogleCloudSpeechV2TranscriptionConfig,
+  GoogleSpeechTranscriptionConfig,
   OpenAiAudioInputTranscriptionConfig,
   MultipartTranscriptionConfig,
   XaiRestSttTranscriptionConfig,
@@ -43,6 +45,21 @@ function getGoogleCloudSpeechLanguageCode(language: AppLanguage) {
   }
 
   return deviceLocale.toLowerCase().startsWith("en-") ? deviceLocale : "en-US";
+}
+
+function extractGeminiTranscription(data: any) {
+  const parts = data?.candidates?.[0]?.content?.parts;
+
+  if (!Array.isArray(parts)) {
+    return "";
+  }
+
+  return parts
+    .map((part: any) =>
+      part?.thought !== true && typeof part?.text === "string" ? part.text : "",
+    )
+    .join("")
+    .trim();
 }
 
 export async function transcribeWithMultipartProvider(
@@ -380,6 +397,94 @@ export async function transcribeWithGoogleCloudSpeechV2Provider(
     : "";
 
   return text ? text : null;
+}
+
+export async function transcribeWithGoogleSpeechProvider(
+  params: SharedProviderParams & {
+    config: GoogleSpeechTranscriptionConfig;
+  },
+) {
+  const { abortSignal, apiKey, config, fileUri, language, provider, providerModel } =
+    params;
+  const aiStudioCredentials = parseGoogleAiStudioCredentials(apiKey);
+
+  if (!aiStudioCredentials) {
+    return transcribeWithGoogleCloudSpeechV2Provider({
+      ...params,
+      config: {
+        kind: "google-cloud-speech-v2",
+        defaultModel: config.cloudDefaultModel,
+      },
+      providerModel: config.cloudDefaultModel,
+    });
+  }
+
+  const selectedModel = providerModel || config.defaultModel;
+  const audioData = await FileSystem.readAsStringAsync(fileUri, {
+    encoding: "base64",
+  });
+  const mimeType = getFileAudioMimeType(fileUri);
+  let response: Awaited<ReturnType<typeof fetch>>;
+
+  try {
+    response = await fetchWithTimeout(
+      `${config.endpointBase.replace(/\/$/, "")}/${encodeURIComponent(
+        selectedModel.replace(/^models\//, ""),
+      )}:generateContent`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": aiStudioCredentials.apiKey,
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: "Transcribe the speech in this audio exactly. Return only the transcript in the spoken language and do not translate or add commentary.",
+                },
+                {
+                  inlineData: {
+                    mimeType,
+                    data: audioData,
+                  },
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0,
+          },
+        }),
+      },
+      getProviderSttTimeoutMs(provider),
+      () => createSttTimeoutError({ provider, language }),
+      abortSignal,
+    );
+  } catch (error) {
+    throw normalizeProviderTransportError({
+      provider,
+      language,
+      error,
+      action: "transcription",
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw buildProviderHttpError({
+      provider,
+      language,
+      status: response.status,
+      errorText,
+      action: "transcription",
+    });
+  }
+
+  const text = extractGeminiTranscription(await response.json());
+  return text || null;
 }
 
 export async function transcribeWithXaiRestSttProvider(

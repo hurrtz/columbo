@@ -25,6 +25,7 @@ describe("provider capability selectors", () => {
       "mistral",
     ]);
     expect(getEnabledSttProviders(settings)).toEqual([
+      "gemini",
       "xai",
       "mistral",
     ]);
@@ -104,7 +105,7 @@ describe("provider capability selectors", () => {
     expect(getEnabledTtsProviders(settings)).toEqual(["gemini"]);
   });
 
-  it("treats any non-empty Gemini key as ready for llm and tts validation", () => {
+  it("treats any non-empty Gemini key as ready for llm, stt, and tts validation", () => {
     const settings = {
       ...DEFAULT_SETTINGS,
       apiKeys: {
@@ -114,7 +115,7 @@ describe("provider capability selectors", () => {
     };
 
     expect(getEnabledProviders(settings)).toEqual(["gemini"]);
-    expect(getEnabledSttProviders(settings)).toEqual([]);
+    expect(getEnabledSttProviders(settings)).toEqual(["gemini"]);
     expect(getEnabledTtsProviders(settings)).toEqual(["gemini"]);
   });
 });

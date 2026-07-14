@@ -51,7 +51,10 @@ export function hasProviderCredentialForCapability(
       case "tts":
         return parseGoogleAiStudioCredentials(trimmedApiKey) !== null;
       case "stt":
-        return parseGoogleCloudSpeechCredentials(trimmedApiKey) !== null;
+        return (
+          parseGoogleAiStudioCredentials(trimmedApiKey) !== null ||
+          parseGoogleCloudSpeechCredentials(trimmedApiKey) !== null
+        );
       case "search":
         return false;
     }

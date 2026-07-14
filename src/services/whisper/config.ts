@@ -29,6 +29,13 @@ export type GoogleCloudSpeechV2TranscriptionConfig = {
   defaultModel: string;
 };
 
+export type GoogleSpeechTranscriptionConfig = {
+  kind: "google-speech";
+  endpointBase: string;
+  defaultModel: string;
+  cloudDefaultModel: string;
+};
+
 export type XaiRealtimeTranscriptionConfig = {
   kind: "xai-realtime";
   endpoint: string;
@@ -45,6 +52,7 @@ export type ProviderSttConfig =
   | MultipartTranscriptionConfig
   | OpenAiAudioInputTranscriptionConfig
   | BytedanceBigmodelFlashTranscriptionConfig
+  | GoogleSpeechTranscriptionConfig
   | GoogleCloudSpeechV2TranscriptionConfig
   | XaiRestSttTranscriptionConfig
   | XaiRealtimeTranscriptionConfig;
@@ -105,6 +113,15 @@ function buildConfigForTransport(params: {
         kind: "google-cloud-speech-v2",
         defaultModel: params.defaultModel,
       };
+    case "google-speech":
+      return params.endpointBase
+        ? {
+            kind: "google-speech",
+            endpointBase: params.endpointBase,
+            defaultModel: params.defaultModel,
+            cloudDefaultModel: "chirp_3",
+          }
+        : null;
     case "openai-audio-input":
       return params.endpoint
         ? {
