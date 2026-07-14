@@ -179,17 +179,17 @@ export function resolveSetupGuideRoutes(params: {
       provider,
       model: llmModel,
     },
-    stt: nativeSttAvailable
+    stt: providerSttEnabled
       ? {
           enabled: true,
-          kind: "on-device",
+          kind: "provider",
+          provider,
+          model: providerSttModel,
         }
-      : providerSttEnabled
+      : nativeSttAvailable
         ? {
             enabled: true,
-            kind: "provider",
-            provider,
-            model: providerSttModel,
+            kind: "on-device",
           }
         : {
             enabled: false,

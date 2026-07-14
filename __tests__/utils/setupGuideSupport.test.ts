@@ -33,12 +33,12 @@ describe("setupGuideSupport", () => {
     );
   });
 
-  it("prefers on-device STT over provider STT when both are available", () => {
+  it("prefers selected-provider STT over system recognition", () => {
     const settings = createSettings();
-    settings.apiKeys.openai = "test-openai-key";
+    settings.apiKeys.gemini = "test-gemini-key";
 
     const routes = resolveSetupGuideRoutes({
-      provider: "openai",
+      provider: "gemini",
       settings,
       nativeSttAvailable: true,
     });
@@ -46,15 +46,33 @@ describe("setupGuideSupport", () => {
     expect(routes.llm.enabled).toBe(true);
     expect(routes.stt).toEqual({
       enabled: true,
-      kind: "on-device",
+      kind: "provider",
+      provider: "gemini",
+      model: "gemini-3.5-flash",
     });
     expect(routes.tts).toEqual(
       expect.objectContaining({
         enabled: true,
         kind: "provider",
-        provider: "openai",
+        provider: "gemini",
       }),
     );
+  });
+
+  it("falls back to system STT when the selected provider has no speech route", () => {
+    const settings = createSettings();
+    settings.apiKeys.anthropic = "test-anthropic-key";
+
+    const routes = resolveSetupGuideRoutes({
+      provider: "anthropic",
+      settings,
+      nativeSttAvailable: true,
+    });
+
+    expect(routes.stt).toEqual({
+      enabled: true,
+      kind: "on-device",
+    });
   });
 
   it("disables TTS when the provider key does not unlock provider speech", () => {
