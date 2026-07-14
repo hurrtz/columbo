@@ -40,7 +40,7 @@ describe("setupGuideSupport", () => {
     const routes = resolveSetupGuideRoutes({
       provider: "gemini",
       settings,
-      nativeSttAvailable: true,
+      systemSttAvailable: true,
     });
 
     expect(routes.llm.enabled).toBe(true);
@@ -66,12 +66,12 @@ describe("setupGuideSupport", () => {
     const routes = resolveSetupGuideRoutes({
       provider: "anthropic",
       settings,
-      nativeSttAvailable: true,
+      systemSttAvailable: true,
     });
 
     expect(routes.stt).toEqual({
       enabled: true,
-      kind: "on-device",
+      kind: "system",
     });
   });
 
@@ -82,7 +82,7 @@ describe("setupGuideSupport", () => {
     const routes = resolveSetupGuideRoutes({
       provider: "deepseek",
       settings,
-      nativeSttAvailable: false,
+      systemSttAvailable: false,
     });
 
     expect(routes.llm.enabled).toBe(true);

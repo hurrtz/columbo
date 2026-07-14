@@ -102,7 +102,7 @@ export function useSetupGuideController({
       resolveSetupGuideRoutes({
         provider: routeProvider,
         settings,
-        nativeSttAvailable: nativeStt.isAvailable,
+        systemSttAvailable: nativeStt.isAvailable,
       }),
     [nativeStt.isAvailable, routeProvider, settings],
   );

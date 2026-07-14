@@ -48,7 +48,7 @@ export interface SetupGuideResolvedRoutes {
   stt:
     | {
         enabled: true;
-        kind: "on-device";
+        kind: "system";
       }
     | {
         enabled: true;
@@ -145,9 +145,9 @@ export function getCurrentSetupGuideValidationState(params: {
 export function resolveSetupGuideRoutes(params: {
   provider: Provider;
   settings: Settings;
-  nativeSttAvailable: boolean;
+  systemSttAvailable: boolean;
 }): SetupGuideResolvedRoutes {
-  const { nativeSttAvailable, provider, settings } = params;
+  const { provider, settings, systemSttAvailable } = params;
   const apiKey = settings.apiKeys[provider].trim();
   const llmModel = getSetupGuideValidationModel(provider);
   const providerSttModel = settings.providerSttModels[provider]?.trim() || "";
@@ -186,10 +186,10 @@ export function resolveSetupGuideRoutes(params: {
           provider,
           model: providerSttModel,
         }
-      : nativeSttAvailable
+      : systemSttAvailable
         ? {
             enabled: true,
-            kind: "on-device",
+            kind: "system",
           }
         : {
             enabled: false,

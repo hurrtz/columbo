@@ -40,7 +40,7 @@ const defaultProps = {
     },
     stt: {
       enabled: true,
-      kind: "on-device" as const,
+      kind: "system" as const,
     },
     tts: {
       enabled: false,

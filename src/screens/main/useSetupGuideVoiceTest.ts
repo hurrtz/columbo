@@ -194,7 +194,7 @@ export function useSetupGuideVoiceTest(params: {
       await player.stopPlayback();
     }
 
-    if (routes.stt.kind === "on-device") {
+    if (routes.stt.kind === "system") {
       await nativeStt.startRecognition();
     } else {
       await recorder.startRecording();
@@ -206,7 +206,7 @@ export function useSetupGuideVoiceTest(params: {
   const stopRecording = useCallback(async () => {
     let nextTranscript = "";
 
-    if (routes.stt.kind === "on-device") {
+    if (routes.stt.kind === "system") {
       setPhase("transcribing");
       nextTranscript = (await nativeStt.stopRecognition())?.trim() ?? "";
     } else if (routes.stt.kind === "provider") {

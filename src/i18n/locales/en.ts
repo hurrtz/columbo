@@ -166,9 +166,9 @@ export const en: TranslationDictionary = {
     toggleToTalkDescription:
       "Tap once to start recording and tap again when you are done.",
     speechToText: "Speech to Text",
-    appNative: "App Native",
+    appNative: "System Recognition",
     nativeSttDescription:
-      "Use the system speech recognizer built into the device. No provider key is required.",
+      "Use the operating system's speech recognizer. Depending on device settings, recognition may run on-device or through the system service. No provider key is required.",
     provider: "Provider",
     webSearchProvider: "Web Search Provider",
     webSearchProviderHint:
@@ -210,7 +210,7 @@ export const en: TranslationDictionary = {
     sttProviderMissingHint:
       "Add credentials for a service with STT support to choose it here.",
     nativeSttHint:
-      "Native STT uses the device speech recognizer directly and works independently of your provider keys.",
+      "System recognition works independently of your provider keys and may be processed on-device or by the operating system's speech service.",
     replyPlayback: "Reply Playback",
     sentencesArrive: "Sentences Arrive",
     sentencesArriveDescription:
@@ -345,7 +345,7 @@ export const en: TranslationDictionary = {
     maxRecordingLengthReached:
       "Maximum recording length reached — sending what I have.",
     sttRecordingTooLarge: ({ provider, limit }) =>
-      `That recording is too long for ${provider} speech-to-text (max ${limit}). Try a shorter message, or switch Speech-to-Text to App Native.`,
+      `That recording is too long for ${provider} speech-to-text (max ${limit}). Try a shorter message, or switch Speech-to-Text to System Recognition.`,
     addProviderKeyToEnableProvider: ({ provider }) =>
       `Add credentials for ${provider} in Settings before using this route.`,
     stopSessionBeforePreview:
@@ -506,7 +506,7 @@ export const en: TranslationDictionary = {
     setupGuideSummaryTts: "Text to speech",
     setupGuideSummaryWebSearch: "Web search",
     setupGuideRouteProviderLlm: ({ provider }) => `Enabled via ${provider}`,
-    setupGuideRouteOnDeviceStt: "Enabled via on-device speech recognition",
+    setupGuideRouteOnDeviceStt: "Enabled via system speech recognition",
     setupGuideRouteProviderStt: ({ provider }) =>
       `Enabled via ${provider} speech transcription`,
     setupGuideRouteProviderTts: ({ provider }) =>
@@ -624,7 +624,7 @@ export const en: TranslationDictionary = {
       "Voice input could not be captured cleanly. Please try again.",
     ttsDidNotReturnAudio: ({ provider }) =>
       `${provider} TTS did not return audio.`,
-    nativeSttHandledInApp: "Native STT is handled directly in the app.",
+    nativeSttHandledInApp: "System STT is handled directly in the app.",
     chooseSpeechToTextProviderInSettings:
       "Choose a speech-to-text provider in Settings.",
     sttNotSupportedYet: ({ provider }) =>

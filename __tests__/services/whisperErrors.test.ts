@@ -26,7 +26,7 @@ describe("createSttRecordingTooLargeError", () => {
 
     expect(error).toBeInstanceOf(Error);
     expect(error.message).toMatch(/speech-to-text \(max 25 MB\)/);
-    expect(error.message).toContain("App Native");
+    expect(error.message).toContain("System Recognition");
   });
 
   it("builds a localized message in German", () => {
@@ -38,6 +38,6 @@ describe("createSttRecordingTooLargeError", () => {
     });
 
     expect(error.message).toContain("25 MB");
-    expect(error.message).toContain("App-intern");
+    expect(error.message).toContain("Systemerkennung");
   });
 });

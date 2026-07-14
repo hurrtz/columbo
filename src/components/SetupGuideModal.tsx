@@ -103,7 +103,7 @@ function getSttRouteCopy(
   t: ReturnType<typeof useLocalization>["t"],
   routes: SetupGuideResolvedRoutes,
 ) {
-  if (routes.stt.kind === "on-device") {
+  if (routes.stt.kind === "system") {
     return t("setupGuideRouteOnDeviceStt");
   }
 

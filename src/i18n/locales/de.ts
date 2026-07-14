@@ -173,9 +173,9 @@ export const de: TranslationDictionary = {
     toggleToTalkDescription:
       "Button einmal drücken zum Losschnacken und dann noch einmal, wenn du fertig bist.",
     speechToText: "Sprache zu Text",
-    appNative: "App-intern",
+    appNative: "Systemerkennung",
     nativeSttDescription:
-      "Verwende die eingebaute Spracherkennung deines Handys. Kein API-Key nötig.",
+      "Verwende die Spracherkennung des Betriebssystems. Je nach Geräteeinstellung läuft sie lokal oder über den Systemdienst. Kein API-Key nötig.",
     provider: "Anbieter",
     webSearchProvider: "Websuche-Anbieter",
     webSearchProviderHint:
@@ -218,7 +218,7 @@ export const de: TranslationDictionary = {
     sttProviderMissingHint:
       "Füge Zugangsdaten für einen Dienst mit STT-Unterstützung hinzu, um ihn hier auszuwählen.",
     nativeSttHint:
-      "Native STT nutzt die Spracherkennung des Geräts direkt und funktioniert unabhängig von deinen API-Keys.",
+      "Die Systemerkennung funktioniert unabhängig von deinen API-Keys und kann lokal oder über den Spracherkennungsdienst des Betriebssystems laufen.",
     replyPlayback: "Wiedergabe",
     sentencesArrive: "Satzweise",
     sentencesArriveDescription:
@@ -354,7 +354,7 @@ export const de: TranslationDictionary = {
     maxRecordingLengthReached:
       "Maximale Aufnahmelänge erreicht – ich sende, was ich habe.",
     sttRecordingTooLarge: ({ provider, limit }) =>
-      `Diese Aufnahme ist zu lang für die Spr-zu-Text-Funktion von ${provider} (max. ${limit}). Probier eine kürzere Nachricht oder stell Sprache-zu-Text auf App-intern um.`,
+      `Diese Aufnahme ist zu lang für die Spr-zu-Text-Funktion von ${provider} (max. ${limit}). Probier eine kürzere Nachricht oder stell Sprache-zu-Text auf Systemerkennung um.`,
     addProviderKeyToEnableProvider: ({ provider }) =>
       `Füge in den Einstellungen Zugangsdaten für ${provider} hinzu, bevor du diese Route nutzt.`,
     stopSessionBeforePreview:
@@ -519,7 +519,7 @@ export const de: TranslationDictionary = {
     setupGuideSummaryWebSearch: "Websuche",
     setupGuideRouteProviderLlm: ({ provider }) => `Aktiv über ${provider}`,
     setupGuideRouteOnDeviceStt:
-      "Aktiv über geräteinterne Spracherkennung",
+      "Aktiv über die Spracherkennung des Betriebssystems",
     setupGuideRouteProviderStt: ({ provider }) =>
       `Aktiv über ${provider}-Transkription`,
     setupGuideRouteProviderTts: ({ provider }) =>
@@ -642,7 +642,7 @@ export const de: TranslationDictionary = {
       "Die Spracheingabe konnte nicht sauber aufgenommen werden. Bitte versuch es noch einmal.",
     ttsDidNotReturnAudio: ({ provider }) =>
       `${provider} hat kein Audio zurückgegeben.`,
-    nativeSttHandledInApp: "Native STT wird direkt in der App verarbeitet.",
+    nativeSttHandledInApp: "System-STT wird direkt in der App verarbeitet.",
     chooseSpeechToTextProviderInSettings:
       "Wähle in den Einstellungen einen STT-Anbieter.",
     sttNotSupportedYet: ({ provider }) =>
