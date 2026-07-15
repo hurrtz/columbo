@@ -4,6 +4,7 @@ import {
   Linking,
   View,
   Text,
+  TextInput,
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
@@ -157,12 +158,27 @@ export function ChatBubble({
         </View>
       ) : null}
       {hasContent ? (
-        <Text
-          selectable={selectable}
-          style={[styles.content, { color: isUser ? "#F5FBFF" : colors.text }]}
-        >
-          {message.content}
-        </Text>
+        selectable ? (
+          <TextInput
+            value={message.content}
+            multiline
+            readOnly
+            scrollEnabled={false}
+            selectionColor={colors.accent}
+            testID={`selectable-message-${message.id}`}
+            style={[
+              styles.content,
+              styles.selectableContent,
+              { color: isUser ? "#F5FBFF" : colors.text },
+            ]}
+          />
+        ) : (
+          <Text
+            style={[styles.content, { color: isUser ? "#F5FBFF" : colors.text }]}
+          >
+            {message.content}
+          </Text>
+        )
       ) : null}
       {notices.length > 0 ? (
         <View style={styles.noticeList}>
@@ -398,6 +414,7 @@ export function ChatBubble({
               style={[
                 styles.bubble,
                 styles.bubbleUser,
+                selectable ? styles.bubbleSelectable : null,
                 {
                   borderColor: "rgba(255, 255, 255, 0.14)",
                   shadowColor: colors.glowStrong,
@@ -411,6 +428,7 @@ export function ChatBubble({
               style={[
                 styles.bubble,
                 styles.bubbleAssistant,
+                selectable ? styles.bubbleSelectable : null,
                 {
                   backgroundColor: colors.bubbleAssistant,
                   borderColor: colors.border,
@@ -430,6 +448,7 @@ export function ChatBubble({
           style={[
             styles.bubble,
             styles.bubbleUser,
+            selectable ? styles.bubbleSelectable : null,
             {
               borderColor: "rgba(255, 255, 255, 0.14)",
               shadowColor: colors.glowStrong,
@@ -443,6 +462,7 @@ export function ChatBubble({
           style={[
             styles.bubble,
             styles.bubbleAssistant,
+            selectable ? styles.bubbleSelectable : null,
             {
               backgroundColor: colors.bubbleAssistant,
               borderColor: colors.border,
@@ -477,6 +497,9 @@ const styles = StyleSheet.create({
   },
   bubbleAssistant: {
     borderBottomLeftRadius: 8,
+  },
+  bubbleSelectable: {
+    width: "86%",
   },
   metaRow: {
     flexDirection: "row",
@@ -525,6 +548,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     fontFamily: fonts.body,
+  },
+  selectableContent: {
+    width: "100%",
+    padding: 0,
   },
   noticeList: {
     gap: 8,

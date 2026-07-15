@@ -82,6 +82,31 @@ describe("ChatBubble", () => {
     expect(queryByText("Sources")).toBeNull();
   });
 
+  it("uses a read-only text input for direct message text selection", () => {
+    const { getByTestId } = renderWithProviders(
+      <ChatBubble
+        selectable
+        message={{
+          id: "assistant-selectable",
+          role: "assistant",
+          content: "Select only the words you need.",
+          model: "claude-opus-4-6",
+          provider: "anthropic",
+          timestamp: "2026-03-25T12:07:00.000Z",
+        }}
+      />,
+    );
+
+    expect(getByTestId("selectable-message-assistant-selectable").props).toEqual(
+      expect.objectContaining({
+        multiline: true,
+        readOnly: true,
+        scrollEnabled: false,
+        value: "Select only the words you need.",
+      }),
+    );
+  });
+
   it("renders durable pipeline notices without requiring message content", () => {
     const { getByText, queryByText } = renderWithProviders(
       <ChatBubble
