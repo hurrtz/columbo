@@ -3,7 +3,7 @@
     "name": "Schnack",
     "slug": "schnackai",
     "scheme": "schnackai",
-    "version": "2.1.3",
+    "version": "2.3.0",
     "extra": {
       "router": {},
       "eas": {
