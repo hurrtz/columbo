@@ -440,6 +440,9 @@ export const en: TranslationDictionary = {
     defaultTranscriptEmptyDescription:
       "Press and hold the voice control, then speak naturally. Schnack will keep the thread and speak back.",
     delete: "Delete",
+    deleteConversationConfirmationTitle: ({ title }) => `Delete “${title}”?`,
+    deleteConversationConfirmationMessage:
+      "This permanently deletes the conversation and all its messages. This action cannot be undone.",
     memory: "Memory",
     conversations: "Conversations",
     drawerSubtitle: "Jump between live threads or start a fresh room.",

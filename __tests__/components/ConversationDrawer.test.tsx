@@ -1,4 +1,5 @@
 import React from "react";
+import { Alert } from "react-native";
 import { fireEvent, waitFor } from "@testing-library/react-native";
 
 import { ConversationDrawer } from "../../src/components/ConversationDrawer";
@@ -26,10 +27,21 @@ jest.mock("expo-linear-gradient", () => ({
 }));
 
 jest.mock("react-native-gesture-handler", () => ({
-  Swipeable: ({ children }: { children: React.ReactNode }) => {
+  Swipeable: ({
+    children,
+    renderRightActions,
+  }: {
+    children: React.ReactNode;
+    renderRightActions?: () => React.ReactNode;
+  }) => {
     const React = require("react");
     const { View } = require("react-native");
-    return React.createElement(View, null, children);
+    return React.createElement(
+      View,
+      null,
+      children,
+      renderRightActions?.(),
+    );
   },
 }));
 
@@ -96,6 +108,10 @@ function renderConversationDrawer(
 }
 
 describe("ConversationDrawer", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it("renders the drawer shell and existing conversations", () => {
     const screen = renderConversationDrawer();
 
@@ -151,5 +167,68 @@ describe("ConversationDrawer", () => {
       expect(onNewSession).toHaveBeenCalledTimes(1);
       expect(onClose).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("requires destructive confirmation before deleting a conversation", async () => {
+    const alertSpy = jest
+      .spyOn(Alert, "alert")
+      .mockImplementation(() => undefined);
+    const onDelete = jest.fn();
+    const screen = renderConversationDrawer({ onDelete });
+
+    fireEvent.press(screen.getByTestId("conversation-drawer-menu-one"));
+    fireEvent.press(await screen.findByTestId("conversation-action-delete"));
+
+    expect(onDelete).not.toHaveBeenCalled();
+    expect(alertSpy).toHaveBeenCalledWith(
+      "Delete “Morning briefing”?",
+      "This permanently deletes the conversation and all its messages. This action cannot be undone.",
+      expect.arrayContaining([
+        expect.objectContaining({ text: "Cancel", style: "cancel" }),
+        expect.objectContaining({ text: "Delete", style: "destructive" }),
+      ]),
+    );
+
+    const cancelAction = alertSpy.mock.calls[0]?.[2]?.find(
+      (action) => action.style === "cancel",
+    );
+    cancelAction?.onPress?.();
+    expect(onDelete).not.toHaveBeenCalled();
+
+    fireEvent.press(screen.getByTestId("conversation-drawer-menu-one"));
+    fireEvent.press(await screen.findByTestId("conversation-action-delete"));
+
+    const destructiveAction = alertSpy.mock.calls[1]?.[2]?.find(
+      (action) => action.style === "destructive",
+    );
+    destructiveAction?.onPress?.();
+    expect(onDelete).toHaveBeenCalledWith("one");
+    expect(onDelete).toHaveBeenCalledTimes(1);
+  });
+
+  it("also confirms deletion from a swiped session row", () => {
+    const alertSpy = jest
+      .spyOn(Alert, "alert")
+      .mockImplementation(() => undefined);
+    const onDelete = jest.fn();
+    const screen = renderConversationDrawer({ onDelete });
+
+    fireEvent.press(screen.getByTestId("conversation-drawer-delete-two"));
+
+    expect(onDelete).not.toHaveBeenCalled();
+    expect(alertSpy).toHaveBeenCalledWith(
+      "Delete “Travel planning”?",
+      expect.any(String),
+      expect.arrayContaining([
+        expect.objectContaining({ text: "Delete", style: "destructive" }),
+      ]),
+    );
+
+    const destructiveAction = alertSpy.mock.calls[0]?.[2]?.find(
+      (action) => action.style === "destructive",
+    );
+    destructiveAction?.onPress?.();
+    expect(onDelete).toHaveBeenCalledWith("two");
+    expect(onDelete).toHaveBeenCalledTimes(1);
   });
 });

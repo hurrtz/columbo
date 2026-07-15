@@ -1,6 +1,13 @@
 import React from "react";
-import { Modal, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import {
+  Alert,
+  Modal,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useLocalization } from "../i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { ConversationActionSheet } from "./conversationDrawer/ConversationActionSheet";
 import { ConversationDrawerHeader } from "./conversationDrawer/ConversationDrawerHeader";
@@ -27,6 +34,7 @@ export function ConversationDrawer({
   onDismiss,
 }: ConversationDrawerProps) {
   const { colors } = useTheme();
+  const { t } = useLocalization();
   const { height, width } = useWindowDimensions();
   const isLandscape = width > height;
   const drawerMaxWidth = isLandscape ? Math.min(width * 0.44, 520) : 380;
@@ -39,6 +47,36 @@ export function ConversationDrawer({
     onSearchConversations,
     onSelect,
   });
+  const handleDelete = React.useCallback(
+    (conversationId: string) => {
+      const conversation = conversations.find(
+        (entry) => entry.id === conversationId,
+      );
+
+      if (!conversation) {
+        return;
+      }
+
+      Alert.alert(
+        t("deleteConversationConfirmationTitle", {
+          title: conversation.title,
+        }),
+        t("deleteConversationConfirmationMessage"),
+        [
+          {
+            text: t("cancel"),
+            style: "cancel",
+          },
+          {
+            text: t("delete"),
+            style: "destructive",
+            onPress: () => onDelete(conversationId),
+          },
+        ],
+      );
+    },
+    [conversations, onDelete, t],
+  );
 
   return (
     <Modal visible={visible} transparent animationType="fade" onDismiss={onDismiss}>
@@ -71,7 +109,7 @@ export function ConversationDrawer({
             activeId={activeId}
             conversations={controller.visibleConversations}
             searchQuery={controller.searchQuery}
-            onDeleteConversation={onDelete}
+            onDeleteConversation={handleDelete}
             onOpenActionConversation={controller.openActionConversation}
             onSelectConversation={controller.handleSelectConversation}
           />
@@ -87,7 +125,7 @@ export function ConversationDrawer({
         conversation={controller.actionConversation}
         onClose={controller.closeActionModal}
         onCopyThread={onCopyThread}
-        onDelete={onDelete}
+        onDelete={handleDelete}
         onManageMemory={onManageMemory}
         onOpenRenameModal={controller.openRenameModal}
         onShareThread={onShareThread}

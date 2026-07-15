@@ -44,8 +44,11 @@ export function ConversationDrawerItem({
 
   const renderRightActions = () => (
     <TouchableOpacity
+      testID={`conversation-drawer-delete-${conversation.id}`}
       style={[styles.deleteAction, { backgroundColor: colors.danger }]}
       onPress={() => onDelete(conversation.id)}
+      accessibilityRole="button"
+      accessibilityLabel={t("delete")}
     >
       <Feather name="trash-2" size={16} color="#FFFFFF" />
       <Text style={styles.deleteText}>{t("delete")}</Text>

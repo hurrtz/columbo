@@ -451,6 +451,9 @@ export const de: TranslationDictionary = {
     defaultTranscriptEmptyDescription:
       "Halte die Sprachsteuerung gedrückt und sprich ganz natürlich. Schnack behält den Schnack und antwortet dir per Stimme.",
     delete: "Löschen",
+    deleteConversationConfirmationTitle: ({ title }) => `„${title}“ löschen?`,
+    deleteConversationConfirmationMessage:
+      "Dadurch werden der Schnack und alle seine Nachrichten dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
     memory: "Speicher",
     conversations: "Schnacks",
     drawerSubtitle:
