@@ -25,6 +25,7 @@ import {
   ThinkingSection,
 } from "./settings/SettingsFlowSections";
 import { SettingsOverview } from "./settings/SettingsOverview";
+import { Toast } from "./Toast";
 import { getSettingsReadiness } from "./settings/readiness";
 import { SpeechDiagnosticsSection } from "./settings/shared";
 import { styles } from "./settings/styles";
@@ -103,6 +104,8 @@ export function SettingsModal(props: SettingsModalProps) {
       focusTab,
     }),
   );
+  const [validationToastMessage, setValidationToastMessage] =
+    React.useState<string | null>(null);
   const {
     contentScrollRef,
     providerPreviewTexts,
@@ -148,7 +151,15 @@ export function SettingsModal(props: SettingsModalProps) {
     settings,
     onValidateProvider,
     onValidateWebSearchProvider,
+    onValidationError: setValidationToastMessage,
   });
+  const handleValidateProviderForSettings = React.useCallback(
+    async (provider: Provider) => {
+      setValidationToastMessage(null);
+      await validateProviderForSettings(provider);
+    },
+    [validateProviderForSettings],
+  );
   const readiness = React.useMemo(
     () =>
       getSettingsReadiness(settings, {
@@ -269,7 +280,7 @@ export function SettingsModal(props: SettingsModalProps) {
             getProviderHealthState={getHealthState}
             getProviderValidationState={getValidationState}
             canValidateProvider={canValidateProvider}
-            onValidateProvider={validateProviderForSettings}
+            onValidateProvider={handleValidateProviderForSettings}
             onUpdateApiKey={onUpdateApiKey}
             onTextInputFocus={handleTextInputFocus}
           />,
@@ -453,6 +464,11 @@ export function SettingsModal(props: SettingsModalProps) {
             {activeContent}
           </ScrollView>
         </Animated.View>
+        <Toast
+          message={validationToastMessage ?? ""}
+          visible={validationToastMessage !== null}
+          onDismiss={() => setValidationToastMessage(null)}
+        />
       </View>
     </Modal>
   );

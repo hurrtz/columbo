@@ -1,6 +1,11 @@
 import React from "react";
 import { StyleSheet } from "react-native";
-import { fireEvent, render, waitFor } from "@testing-library/react-native";
+import {
+  fireEvent,
+  render,
+  waitFor,
+  within,
+} from "@testing-library/react-native";
 
 import { SettingsModal } from "../../src/components/SettingsModal";
 import { LocalizationProvider } from "../../src/i18n";
@@ -43,6 +48,7 @@ jest.mock("react-native-reanimated", () => {
     },
     useSharedValue: (value: number) => ({ value }),
     useAnimatedStyle: (factory: () => unknown) => factory(),
+    withDelay: (_delay: number, value: unknown) => value,
     withTiming: (value: number) => value,
     Easing: {
       out: (value: unknown) => value,
@@ -149,6 +155,46 @@ describe("SettingsModal", () => {
       expect(screen.getByText("OpenAI")).toBeTruthy();
       expect(screen.getByText("Test key")).toBeTruthy();
       expect(screen.queryByText("System Prompt")).toBeNull();
+    });
+  });
+
+  it("shows provider validation failures in a toast inside the modal", async () => {
+    const errorMessage =
+      "OpenAI rejected the credentials for reply generation. Check the API key and permissions.";
+    const onValidateProvider = jest.fn(async () => {
+      throw new Error(errorMessage);
+    });
+    const screen = renderSettingsModal({
+      focusProvider: "openai",
+      settings: {
+        ...DEFAULT_SETTINGS,
+        apiKeys: {
+          ...DEFAULT_SETTINGS.apiKeys,
+          openai: "invalid-key",
+        },
+      },
+      onValidateProvider,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Test key")).toBeTruthy();
+    });
+
+    fireEvent.press(screen.getByText("Test key"));
+
+    await waitFor(() => {
+      expect(onValidateProvider).toHaveBeenCalledWith("openai");
+      expect(
+        within(screen.getByTestId("toast")).getByText(errorMessage),
+      ).toBeTruthy();
+    });
+
+    fireEvent.press(
+      within(screen.getByTestId("toast")).getByLabelText("Dismiss"),
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("toast")).toBeNull();
     });
   });
 

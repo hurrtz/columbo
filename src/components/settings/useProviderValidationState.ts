@@ -20,8 +20,14 @@ export function useProviderValidationState(params: {
   settings: Settings;
   onValidateProvider: (provider: Provider) => Promise<void>;
   onValidateWebSearchProvider: (provider: WebSearchProvider) => Promise<void>;
+  onValidationError?: (message: string) => void;
 }) {
-  const { settings, onValidateProvider, onValidateWebSearchProvider } = params;
+  const {
+    settings,
+    onValidateProvider,
+    onValidateWebSearchProvider,
+    onValidationError,
+  } = params;
   const { t } = useLocalization();
   const [validationStateByProvider, setValidationStateByProvider] = useState<
     Partial<Record<Provider, ProviderValidationState>>
@@ -121,26 +127,26 @@ export function useProviderValidationState(params: {
           },
         }));
       } catch (error) {
+        const message =
+          error instanceof Error ? error.message : t("providerValidationFailed");
+
         setValidationStateByProvider((previous) => ({
           ...previous,
           [provider]: {
             status: "error",
-            message:
-              error instanceof Error
-                ? error.message
-                : t("providerValidationFailed"),
+            message,
             apiKey: trimmedApiKey,
             model: target.model,
             configKey: target.configKey,
           },
         }));
-
-        throw error;
+        onValidationError?.(message);
       }
     },
     [
       onValidateProvider,
       onValidateWebSearchProvider,
+      onValidationError,
       settings,
       t,
     ],

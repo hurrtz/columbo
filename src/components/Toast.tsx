@@ -61,6 +61,7 @@ export function Toast({
 
   return (
     <Animated.View
+      testID="toast"
       style={[
         styles.container,
         { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
