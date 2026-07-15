@@ -84,6 +84,7 @@ export function usePlaybackLifecycle(params: {
       playingRef.current = true;
       if (currentAudioRef.current && !hasSeenAudioPlayingRef.current) {
         hasSeenAudioPlayingRef.current = true;
+        currentAudioRef.current.onPlaybackStarted?.();
         recordSpeechDiagnostic({
           requestId: currentAudioRef.current.diagnostics?.requestId,
           source: currentAudioRef.current.diagnostics?.source ?? "unknown",

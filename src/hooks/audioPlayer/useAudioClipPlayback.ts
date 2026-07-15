@@ -140,7 +140,11 @@ export function useAudioClipPlayback(params: {
   ]);
 
   const enqueueAudio = useCallback(
-    (audioUri: string, diagnostics?: SpeechDiagnosticsContext) => {
+    (
+      audioUri: string,
+      diagnostics?: SpeechDiagnosticsContext,
+      onPlaybackStarted?: () => void,
+    ) => {
       if (cancelledRef.current) {
         return;
       }
@@ -157,6 +161,7 @@ export function useAudioClipPlayback(params: {
         nativeAudioQueueContextsRef.current.set(itemId, {
           uri: audioUri,
           diagnostics,
+          onPlaybackStarted,
           waveformAnalysis: getWaveformAnalysis(audioUri),
         });
         nativeAudioQueuePendingCountRef.current += 1;
@@ -183,6 +188,7 @@ export function useAudioClipPlayback(params: {
         id: nextPlaybackJobId("audio"),
         uri: audioUri,
         diagnostics,
+        onPlaybackStarted,
       });
       recordSpeechDiagnostic({
         requestId: diagnostics?.requestId,

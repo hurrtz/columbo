@@ -102,6 +102,9 @@ export function useNativeSpeechPlayback(params: {
         voice: next.voice,
         rate: 0.96,
         useApplicationAudioSession: true,
+        onStart: () => {
+          next.onPlaybackStarted?.();
+        },
         onDone: () => {
           nativeSpeakingRef.current = false;
           setNativeSpeaking(false);
@@ -221,7 +224,11 @@ export function useNativeSpeechPlayback(params: {
   const speakText = useCallback(
     (
       text: string,
-      options?: { voice?: string; diagnostics?: SpeechDiagnosticsContext },
+      options?: {
+        voice?: string;
+        diagnostics?: SpeechDiagnosticsContext;
+        onPlaybackStarted?: () => void;
+      },
     ) => {
       if (cancelledRef.current) {
         return;
@@ -232,6 +239,7 @@ export function useNativeSpeechPlayback(params: {
         text,
         voice: options?.voice,
         diagnostics: options?.diagnostics,
+        onPlaybackStarted: options?.onPlaybackStarted,
       });
       recordSpeechDiagnostic({
         requestId: options?.diagnostics?.requestId,

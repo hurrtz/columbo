@@ -34,6 +34,7 @@ describe("useNativeAudioQueueSubscription", () => {
     const startNativeOutputWaveform = jest.fn();
     const stopNativeOutputWaveform = jest.fn();
     const setNativeAudioQueuePlaying = jest.fn();
+    const onPlaybackStarted = jest.fn();
     const waveformAnalysis = Promise.resolve({
       samples: [0.1, 0.4, 0.2],
       durationMs: 900,
@@ -44,6 +45,7 @@ describe("useNativeAudioQueueSubscription", () => {
           "reply-1",
           {
             uri: "file:///tmp/reply-1.m4a",
+            onPlaybackStarted,
             waveformAnalysis,
             diagnostics: {
               requestId: "request-1",
@@ -92,6 +94,7 @@ describe("useNativeAudioQueueSubscription", () => {
     });
 
     expect(stopNativeOutputWaveform).toHaveBeenCalledTimes(1);
+    expect(onPlaybackStarted).toHaveBeenCalledTimes(1);
     expect(startNativeOutputWaveform).toHaveBeenCalledWith("reply-1", {
       samples: [0.1, 0.4, 0.2],
       durationMs: 900,

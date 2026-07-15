@@ -105,6 +105,7 @@ export function useNativeAudioQueueSubscription(params: {
           setNativeAudioQueuePlaying(true);
           nativeOutputWaveformItemIdRef.current = itemId;
           nativeOutputWaveformStartedAtRef.current = Date.now();
+          context?.onPlaybackStarted?.();
           recordSpeechDiagnostic({
             requestId:
               context?.diagnostics?.requestId ?? event.requestId ?? undefined,

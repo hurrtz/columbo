@@ -1,4 +1,5 @@
 import { act, renderHook } from "@testing-library/react-native";
+import * as Speech from "expo-speech";
 import {
   clearSpeechDiagnostics,
   getSpeechDiagnostics,
@@ -176,6 +177,54 @@ describe("useAudioPlayer", () => {
       "playback-enqueued",
     ]);
     expect(diagnostics.every((event) => event.source === "preview")).toBe(true);
+  });
+
+  it("reports when queued clip playback actually starts", async () => {
+    const onPlaybackStarted = jest.fn();
+    const { result, rerender } = renderHook(() => useAudioPlayer());
+
+    await act(async () => {
+      result.current.enqueueAudio(
+        "reply.wav",
+        undefined,
+        onPlaybackStarted,
+      );
+      await Promise.resolve();
+    });
+
+    expect(onPlaybackStarted).not.toHaveBeenCalled();
+
+    await act(async () => {
+      mockStatus = {
+        ...mockStatus,
+        playing: true,
+        playbackState: "playing",
+        timeControlStatus: "playing",
+      };
+      rerender(undefined);
+      await Promise.resolve();
+    });
+
+    expect(onPlaybackStarted).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports when system speech actually starts", async () => {
+    const onPlaybackStarted = jest.fn();
+    const { result } = renderHook(() => useAudioPlayer());
+
+    await act(async () => {
+      result.current.speakText("Hello there", { onPlaybackStarted });
+      await Promise.resolve();
+    });
+
+    expect(onPlaybackStarted).not.toHaveBeenCalled();
+
+    const speechOptions = (Speech.speak as jest.Mock).mock.calls[0][1];
+    act(() => {
+      speechOptions.onStart();
+    });
+
+    expect(onPlaybackStarted).toHaveBeenCalledTimes(1);
   });
 
   it("pauses and resumes the current clip without draining playback", async () => {

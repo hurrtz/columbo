@@ -5,6 +5,7 @@ export type AudioQueueItem = {
   id: string;
   uri: string;
   diagnostics?: SpeechDiagnosticsContext;
+  onPlaybackStarted?: () => void;
 };
 
 export type NativeSpeechQueueItem = {
@@ -12,10 +13,12 @@ export type NativeSpeechQueueItem = {
   text: string;
   voice?: string;
   diagnostics?: SpeechDiagnosticsContext;
+  onPlaybackStarted?: () => void;
 };
 
 export type NativeAudioQueueContext = {
   uri: string;
   diagnostics?: SpeechDiagnosticsContext;
+  onPlaybackStarted?: () => void;
   waveformAnalysis?: Promise<NativeWaveformAnalysis | null>;
 };
