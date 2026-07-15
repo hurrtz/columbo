@@ -31,6 +31,7 @@ export function RadioGroup<T extends string>({
   options,
   value,
   onChange,
+  helperText,
 }: {
   label: string;
   options: {
@@ -41,6 +42,7 @@ export function RadioGroup<T extends string>({
   }[];
   value: T;
   onChange: (value: T) => void;
+  helperText?: string;
 }) {
   const { colors } = useTheme();
   const activeOption = options.find((option) => option.value === value);
@@ -107,6 +109,11 @@ export function RadioGroup<T extends string>({
       {activeOption?.description ? (
         <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
           {activeOption.description}
+        </Text>
+      ) : null}
+      {helperText ? (
+        <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
+          {helperText}
         </Text>
       ) : null}
     </View>

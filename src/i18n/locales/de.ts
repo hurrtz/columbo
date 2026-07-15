@@ -423,6 +423,8 @@ export const de: TranslationDictionary = {
       "Blende den LOG-Button auf der Hauptseite aus, solange kein Mitschnitt läuft.",
     debugLogButtonVisibleDescription:
       "Zeige den LOG-Button auf der Hauptseite, um Debug-Mitschnitte zu starten und zu stoppen.",
+    debugLogButtonUsageDescription:
+      "So verwendest du den Button: Beim Einschalten beginnt die Log-Aufzeichnung. Beim Ausschalten endet sie und die aufgezeichneten Logs werden in die Zwischenablage kopiert.",
     estimatedUsageTitle: "Geschätzte Nutzung",
     estimatedUsageCounts: ({ replies, summaries }) =>
       `${replies} Antworten · ${summaries} Speicher-Updates`,

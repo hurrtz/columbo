@@ -412,6 +412,8 @@ export const en: TranslationDictionary = {
       "Keep the home-screen LOG button hidden unless a capture is already running.",
     debugLogButtonVisibleDescription:
       "Show the home-screen LOG button for starting and stopping debug captures.",
+    debugLogButtonUsageDescription:
+      "How to use the button: toggling it on will start capturing logs. Toggling it off will stop capturing logs and move the captured ones into the clipboard.",
     estimatedUsageTitle: "Estimated Usage",
     estimatedUsageCounts: ({ replies, summaries }) =>
       `${replies} replies · ${summaries} memory updates`,

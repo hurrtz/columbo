@@ -442,6 +442,11 @@ describe("SettingsModal", () => {
       );
       expect(screen.getByText("Theme")).toBeTruthy();
       expect(screen.getByText("Usage Stats")).toBeTruthy();
+      expect(
+        screen.getByText(
+          "How to use the button: toggling it on will start capturing logs. Toggling it off will stop capturing logs and move the captured ones into the clipboard.",
+        ),
+      ).toBeTruthy();
       expect(screen.getByText("Recent Speech Activity")).toBeTruthy();
       expect(screen.queryByText("Web Search Provider")).toBeNull();
     });

@@ -74,6 +74,7 @@ export function UiTab({ settings, onUpdate }: UiTabProps) {
         onChange={(value) =>
           onUpdate({ showDebugLogButton: value === "show" })
         }
+        helperText={t("debugLogButtonUsageDescription")}
       />
     </>
   );
