@@ -149,11 +149,30 @@ export function createApiKeyUpdater(setSettings: SetSettings) {
     const nextValue = value.trim();
 
     setSettings((prev) => {
+      const previousValue = prev.apiKeys[provider].trim();
       const nextApiKeys = {
         ...prev.apiKeys,
         [provider]: nextValue,
       };
-      const withKey: Settings = { ...prev, apiKeys: nextApiKeys };
+      const nextProviderValidationResults = {
+        ...prev.providerValidationResults,
+      };
+      const previousValidationResult =
+        nextProviderValidationResults[provider];
+
+      if (
+        !nextValue ||
+        (previousValue !== nextValue &&
+          previousValidationResult?.status === "success")
+      ) {
+        delete nextProviderValidationResults[provider];
+      }
+
+      const withKey: Settings = {
+        ...prev,
+        apiKeys: nextApiKeys,
+        providerValidationResults: nextProviderValidationResults,
+      };
 
       // On the very first provider configuration the user has no response mode
       // backed by a credentialed LLM provider yet. In that case derive all

@@ -149,6 +149,14 @@ describe("useSetupGuideController", () => {
       }),
     );
     expect(result.current.currentValidationState.status).toBe("success");
+    expect(params.updateSettings).toHaveBeenCalledWith({
+      providerValidationResults: {
+        openai: expect.objectContaining({
+          status: "success",
+          model: expect.any(String),
+        }),
+      },
+    });
 
     act(() => {
       result.current.handleContinueFromProvider();
@@ -212,6 +220,36 @@ describe("useSetupGuideController", () => {
         message: "Add an API key to continue, or cancel the setup guide.",
       }),
     );
+  });
+
+  it("persists a rejected provider validation", async () => {
+    const errorMessage = "OpenAI rejected the stored credentials.";
+    validateProviderConnection.mockRejectedValueOnce(new Error(errorMessage));
+    const params = createControllerParams();
+    const { result } = renderHook(() => useSetupGuideController(params), {
+      wrapper,
+    });
+
+    act(() => {
+      result.current.handleOpenSetupGuide("provider");
+      result.current.handleSelectProvider("openai");
+    });
+
+    await act(async () => {
+      await expect(result.current.handleValidateProviderKey()).resolves.toBe(
+        false,
+      );
+    });
+
+    expect(params.updateSettings).toHaveBeenCalledWith({
+      providerValidationResults: {
+        openai: expect.objectContaining({
+          status: "error",
+          message: errorMessage,
+          model: expect.any(String),
+        }),
+      },
+    });
   });
 
   it("reports missing provider and key before validating", async () => {

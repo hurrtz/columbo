@@ -141,7 +141,7 @@ describe("ProviderSelectionGrid", () => {
     expect(screen.getByText("Missing 1")).toBeTruthy();
   });
 
-  it("uses green container color without check icons for connected providers", () => {
+  it("reserves green container color for validated providers", () => {
     const screen = render(
       <ThemeProvider mode="light">
         <LocalizationProvider language="en">
@@ -169,7 +169,7 @@ describe("ProviderSelectionGrid", () => {
       "#2DAD7622",
     );
     expect(StyleSheet.flatten(anthropicButton.props.style).backgroundColor).toBe(
-      "#2DAD7622",
+      "#FFFDFC",
     );
     expect(screen.queryByText("check")).toBeNull();
   });

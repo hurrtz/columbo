@@ -55,6 +55,15 @@ export interface ResponseModeConfig {
   route: ResponseModeRoute;
 }
 export type ProviderApiKeys = Record<Provider, string>;
+export interface ProviderValidationResult {
+  status: "success" | "error";
+  message?: string;
+  model: string;
+  configKey?: string;
+}
+export type ProviderValidationResults = Partial<
+  Record<Provider, ProviderValidationResult>
+>;
 export type ProviderModelSelections = Record<Provider, string>;
 export type ProviderSttModelSelections = Record<Provider, string>;
 export type ProviderTtsVoiceSelections = Record<Provider, string>;
@@ -105,6 +114,7 @@ export interface Settings {
   providerSttModels: ProviderSttModelSelections;
   providerTtsModels: ProviderTtsModelSelections;
   providerTtsVoices: ProviderTtsVoiceSelections;
+  providerValidationResults: ProviderValidationResults;
   language: AppLanguage;
   theme: ThemeMode;
   setupGuideDismissed: boolean;
@@ -195,6 +205,7 @@ export const DEFAULT_SETTINGS: Settings = {
   providerSttModels: DEFAULT_PROVIDER_STT_MODELS,
   providerTtsModels: DEFAULT_PROVIDER_TTS_MODELS,
   providerTtsVoices: DEFAULT_PROVIDER_TTS_VOICES,
+  providerValidationResults: {},
   language: "en",
   theme: "system",
   setupGuideDismissed: false,

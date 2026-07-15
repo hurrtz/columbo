@@ -14,7 +14,11 @@ import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useLocalization } from "../i18n";
-import { Provider, TtsListenLanguage } from "../types";
+import {
+  Provider,
+  ProviderValidationResult,
+  TtsListenLanguage,
+} from "../types";
 import { useTheme } from "../theme/ThemeContext";
 
 import {
@@ -106,6 +110,17 @@ export function SettingsModal(props: SettingsModalProps) {
   );
   const [validationToastMessage, setValidationToastMessage] =
     React.useState<string | null>(null);
+  const handleProviderValidationResult = React.useCallback(
+    (provider: Provider, result: ProviderValidationResult) => {
+      onUpdate({
+        providerValidationResults: {
+          ...settings.providerValidationResults,
+          [provider]: result,
+        },
+      });
+    },
+    [onUpdate, settings.providerValidationResults],
+  );
   const {
     contentScrollRef,
     providerPreviewTexts,
@@ -152,6 +167,7 @@ export function SettingsModal(props: SettingsModalProps) {
     onValidateProvider,
     onValidateWebSearchProvider,
     onValidationError: setValidationToastMessage,
+    onValidationResult: handleProviderValidationResult,
   });
   const handleValidateProviderForSettings = React.useCallback(
     async (provider: Provider) => {

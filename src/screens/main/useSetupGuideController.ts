@@ -7,7 +7,11 @@ import type { useAudioRecorder } from "../../hooks/useAudioRecorder";
 import type { useNativeSpeechRecognizer } from "../../hooks/useNativeSpeechRecognizer";
 import { useLocalization } from "../../i18n";
 import { validateProviderConnection } from "../../services/llm";
-import type { Provider, Settings } from "../../types";
+import type {
+  Provider,
+  ProviderValidationResult,
+  Settings,
+} from "../../types";
 import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
 
 import {
@@ -240,24 +244,50 @@ export function useSetupGuideController({
         language: settings.language,
       });
 
+      const message = t("providerValidationSuccess", {
+        provider: PROVIDER_LABELS[selectedProvider],
+      });
+      const result: ProviderValidationResult = {
+        status: "success",
+        message,
+        model: selectedProviderModel,
+      };
+
       setValidationState({
         status: "success",
         provider: selectedProvider,
         apiKey: selectedProviderApiKey,
         model: selectedProviderModel,
-        message: t("providerValidationSuccess", {
-          provider: PROVIDER_LABELS[selectedProvider],
-        }),
+        message,
+      });
+      updateSettings({
+        providerValidationResults: {
+          ...settings.providerValidationResults,
+          [selectedProvider]: result,
+        },
       });
       return true;
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : t("providerValidationFailed");
+      const result: ProviderValidationResult = {
+        status: "error",
+        message,
+        model: selectedProviderModel,
+      };
+
       setValidationState({
         status: "error",
         provider: selectedProvider,
         apiKey: selectedProviderApiKey,
         model: selectedProviderModel,
-        message:
-          error instanceof Error ? error.message : t("providerValidationFailed"),
+        message,
+      });
+      updateSettings({
+        providerValidationResults: {
+          ...settings.providerValidationResults,
+          [selectedProvider]: result,
+        },
       });
       return false;
     }
@@ -266,7 +296,9 @@ export function useSetupGuideController({
     selectedProviderApiKey,
     selectedProviderModel,
     settings.language,
+    settings.providerValidationResults,
     t,
+    updateSettings,
   ]);
 
   const handleContinueFromProvider = useCallback(() => {

@@ -10,6 +10,7 @@ import {
 import { SettingsModal } from "../../src/components/SettingsModal";
 import { LocalizationProvider } from "../../src/i18n";
 import { ThemeProvider } from "../../src/theme/ThemeContext";
+import { lightColors } from "../../src/theme/colors";
 import { DEFAULT_SETTINGS } from "../../src/types";
 
 jest.mock("react-native-safe-area-context", () => ({
@@ -164,6 +165,7 @@ describe("SettingsModal", () => {
     const onValidateProvider = jest.fn(async () => {
       throw new Error(errorMessage);
     });
+    const onUpdate = jest.fn();
     const screen = renderSettingsModal({
       focusProvider: "openai",
       settings: {
@@ -173,6 +175,7 @@ describe("SettingsModal", () => {
           openai: "invalid-key",
         },
       },
+      onUpdate,
       onValidateProvider,
     });
 
@@ -187,6 +190,15 @@ describe("SettingsModal", () => {
       expect(
         within(screen.getByTestId("toast")).getByText(errorMessage),
       ).toBeTruthy();
+      expect(onUpdate).toHaveBeenCalledWith({
+        providerValidationResults: {
+          openai: expect.objectContaining({
+            status: "error",
+            message: errorMessage,
+            model: expect.any(String),
+          }),
+        },
+      });
     });
 
     fireEvent.press(
@@ -198,7 +210,7 @@ describe("SettingsModal", () => {
     });
   });
 
-  it("uses color instead of configured copy for connected providers", async () => {
+  it("keeps an untested stored provider neutral", async () => {
     const screen = renderSettingsModal({
       settings: {
         ...DEFAULT_SETTINGS,
@@ -219,13 +231,114 @@ describe("SettingsModal", () => {
       expect(screen.getByText("OpenAI")).toBeTruthy();
       const openAiRow = screen.getByTestId("provider-vault-row-openai");
       expect(StyleSheet.flatten(openAiRow.props.style).backgroundColor).toBe(
-        "#2DAD7622",
+        lightColors.surfaceElevated,
       );
       expect(screen.queryByText("Configured")).toBeNull();
       expect(screen.queryByText("Configured 1")).toBeNull();
       expect(screen.queryByText("check")).toBeNull();
       expect(screen.queryByText("Not set up")).toBeNull();
       expect(screen.queryByText("minus")).toBeNull();
+    });
+  });
+
+  it("shows a persisted validation success in green", async () => {
+    const screen = renderSettingsModal({
+      settings: {
+        ...DEFAULT_SETTINGS,
+        apiKeys: {
+          ...DEFAULT_SETTINGS.apiKeys,
+          openai: "working-key",
+        },
+        providerValidationResults: {
+          openai: {
+            status: "success",
+            model: DEFAULT_SETTINGS.providerModels.openai,
+          },
+        },
+      },
+    });
+
+    fireEvent.press(screen.getByText("Connections"));
+
+    await waitFor(() => {
+      const openAiRow = screen.getByTestId("provider-vault-row-openai");
+      expect(StyleSheet.flatten(openAiRow.props.style).backgroundColor).toBe(
+        `${lightColors.success}22`,
+      );
+    });
+  });
+
+  it("restores a persisted validation failure after reload", async () => {
+    const errorMessage = "OpenAI rejected the stored credentials.";
+    const screen = renderSettingsModal({
+      focusProvider: "openai",
+      settings: {
+        ...DEFAULT_SETTINGS,
+        apiKeys: {
+          ...DEFAULT_SETTINGS.apiKeys,
+          openai: "invalid-key",
+        },
+        providerValidationResults: {
+          openai: {
+            status: "error",
+            message: errorMessage,
+            model: DEFAULT_SETTINGS.providerModels.openai,
+          },
+        },
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Invalid")).toBeTruthy();
+      expect(screen.getByText(errorMessage)).toBeTruthy();
+      const openAiRow = screen.getByTestId("provider-vault-row-openai");
+      expect(StyleSheet.flatten(openAiRow.props.style).backgroundColor).toBe(
+        `${lightColors.danger}12`,
+      );
+    });
+  });
+
+  it("replaces a persisted failure after a successful retest", async () => {
+    const onUpdate = jest.fn();
+    const screen = renderSettingsModal({
+      focusProvider: "openai",
+      settings: {
+        ...DEFAULT_SETTINGS,
+        apiKeys: {
+          ...DEFAULT_SETTINGS.apiKeys,
+          openai: "replacement-key",
+        },
+        providerValidationResults: {
+          openai: {
+            status: "error",
+            message: "Rejected credentials",
+            model: DEFAULT_SETTINGS.providerModels.openai,
+          },
+        },
+      },
+      onUpdate,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Test key")).toBeTruthy();
+    });
+
+    fireEvent.press(screen.getByText("Test key"));
+
+    await waitFor(() => {
+      expect(onUpdate).toHaveBeenCalledWith({
+        providerValidationResults: {
+          openai: expect.objectContaining({
+            status: "success",
+            model: expect.any(String),
+          }),
+        },
+      });
+      const openAiRow = screen.getByTestId("provider-vault-row-openai");
+      expect(StyleSheet.flatten(openAiRow.props.style).backgroundColor).toBe(
+        `${lightColors.success}22`,
+      );
+      expect(screen.queryByText("Invalid")).toBeNull();
     });
   });
 

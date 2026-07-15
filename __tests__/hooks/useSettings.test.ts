@@ -85,6 +85,36 @@ describe("useSettings", () => {
     expect(result.current.settings.setupGuideDismissed).toBe(true);
   });
 
+  it("restores persisted provider validation failures", async () => {
+    const errorMessage = "OpenAI rejected the stored credentials.";
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
+      JSON.stringify({
+        ...DEFAULT_SETTINGS,
+        providerValidationResults: {
+          openai: {
+            status: "error",
+            message: errorMessage,
+            model: DEFAULT_SETTINGS.providerModels.openai,
+          },
+        },
+      }),
+    );
+    (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) =>
+      Promise.resolve(
+        key === "schnackai.provider_key.openai" ? "invalid-key" : null,
+      ),
+    );
+
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    expect(result.current.settings.providerValidationResults.openai).toEqual({
+      status: "error",
+      message: errorMessage,
+      model: DEFAULT_SETTINGS.providerModels.openai,
+    });
+  });
+
   it("migrates legacy ttsPlayback into replyPlayback", async () => {
     const legacyStored: Record<string, unknown> = { ...DEFAULT_SETTINGS };
     delete legacyStored.replyPlayback;
@@ -532,6 +562,98 @@ describe("useSettings", () => {
       "gemini-live-key",
     );
     expect(result.current.settings.apiKeys.gemini).toBe("gemini-live-key");
+  });
+
+  it("persists non-secret provider validation results in public settings", async () => {
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    act(() => {
+      result.current.updateSettings({
+        providerValidationResults: {
+          openai: {
+            status: "error",
+            message: "Rejected credentials",
+            model: DEFAULT_SETTINGS.providerModels.openai,
+          },
+        },
+      });
+    });
+
+    expect(result.current.settings.providerValidationResults.openai?.status).toBe(
+      "error",
+    );
+    const setItemCalls = (AsyncStorage.setItem as jest.Mock).mock.calls;
+    const persisted = JSON.parse(
+      setItemCalls[setItemCalls.length - 1][1],
+    ) as Record<string, unknown>;
+    expect(persisted.providerValidationResults).toEqual({
+      openai: expect.objectContaining({ status: "error" }),
+    });
+    expect(persisted.apiKeys).toBeUndefined();
+  });
+
+  it("keeps a failed validation across key edits until the key is deleted", async () => {
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
+      JSON.stringify({
+        ...DEFAULT_SETTINGS,
+        providerValidationResults: {
+          openai: {
+            status: "error",
+            message: "Rejected credentials",
+            model: DEFAULT_SETTINGS.providerModels.openai,
+          },
+        },
+      }),
+    );
+    (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) =>
+      Promise.resolve(
+        key === "schnackai.provider_key.openai" ? "invalid-key" : null,
+      ),
+    );
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    act(() => {
+      result.current.updateApiKey("openai", "replacement-key");
+    });
+
+    expect(result.current.settings.providerValidationResults.openai?.status).toBe(
+      "error",
+    );
+
+    act(() => {
+      result.current.updateApiKey("openai", "");
+    });
+
+    expect(result.current.settings.providerValidationResults.openai).toBeUndefined();
+  });
+
+  it("invalidates a successful validation when its key changes", async () => {
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
+      JSON.stringify({
+        ...DEFAULT_SETTINGS,
+        providerValidationResults: {
+          openai: {
+            status: "success",
+            model: DEFAULT_SETTINGS.providerModels.openai,
+          },
+        },
+      }),
+    );
+    (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) =>
+      Promise.resolve(
+        key === "schnackai.provider_key.openai" ? "working-key" : null,
+      ),
+    );
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    act(() => {
+      result.current.updateApiKey("openai", "different-key");
+    });
+
+    expect(result.current.settings.providerValidationResults.openai).toBeUndefined();
   });
 
   it("exposes no usable response mode on a fresh install without keys", async () => {

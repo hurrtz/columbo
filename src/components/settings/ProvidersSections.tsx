@@ -392,8 +392,10 @@ export function ProviderSelectionGrid<TProvider extends Provider>({
                     ? "configured"
                     : "unconfigured")
               : null;
-          const configured =
+          const hasCredential =
             runtimeProvider !== null && healthState !== "unconfigured";
+          const healthy = healthState === "healthy";
+          const failing = healthState === "failing";
           const healthBadge =
             healthState && runtimeProvider
               ? getHealthBadge(healthState)
@@ -406,26 +408,30 @@ export function ProviderSelectionGrid<TProvider extends Provider>({
                 styles.providerButton,
                 {
                   backgroundColor: active
-                    ? configured
+                    ? healthy
                       ? `${colors.success}22`
-                      : colors.accentSoft
-                    : configured
+                      : failing
+                        ? `${colors.danger}18`
+                        : colors.accentSoft
+                    : healthy
                       ? `${colors.success}22`
-                      : colors.surfaceElevated,
-                  borderColor: active
-                    ? configured
-                      ? colors.success
-                      : colors.accent
-                    : configured
-                      ? colors.success
-                      : colors.border,
-                  shadowColor: active
-                    ? configured
-                      ? colors.success
-                      : colors.accent
-                    : configured
-                      ? colors.success
-                      : "transparent",
+                      : failing
+                        ? `${colors.danger}18`
+                        : colors.surfaceElevated,
+                  borderColor: healthy
+                    ? colors.success
+                    : failing
+                      ? colors.danger
+                      : active
+                        ? colors.accent
+                        : colors.border,
+                  shadowColor: healthy
+                    ? colors.success
+                    : failing
+                      ? colors.danger
+                      : active
+                        ? colors.accent
+                        : "transparent",
                   opacity: providerButton.catalogOnly ? 0.84 : 1,
                 },
               ]}
@@ -445,7 +451,9 @@ export function ProviderSelectionGrid<TProvider extends Provider>({
               <ProviderIcon
                 provider={providerButton.iconProvider}
                 label={providerButton.providerName}
-                color={active || configured ? colors.text : colors.textSecondary}
+                color={
+                  active || hasCredential ? colors.text : colors.textSecondary
+                }
               />
               {healthBadge ? (
                 <View

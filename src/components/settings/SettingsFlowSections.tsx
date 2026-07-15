@@ -133,12 +133,19 @@ function getStatusMeta(
         icon: "loader" as const,
       };
     case "healthy":
-    case "configured":
       return {
         label: t("providerStatusConfigured"),
         backgroundColor: `${colors.success}22`,
         borderColor: `${colors.success}99`,
         textColor: colors.success,
+        icon: null,
+      };
+    case "configured":
+      return {
+        label: t("providerStatusConfigured"),
+        backgroundColor: colors.surface,
+        borderColor: colors.borderStrong,
+        textColor: colors.textSecondary,
         icon: null,
       };
     default:
@@ -278,7 +285,8 @@ function ProviderVaultRow({
   const { t, language } = useLocalization();
   const capabilities = getProviderCapabilities(provider);
   const statusMeta = getStatusMeta(healthState, t, colors);
-  const isConnected = healthState === "configured" || healthState === "healthy";
+  const isConnected = healthState === "healthy";
+  const isFailing = healthState === "failing";
   const showStatusPill = healthState === "validating" || healthState === "failing";
   const secureApiKey = !!apiKey.trim() && !visibleApiKey;
   const showValidationMessage =
@@ -292,8 +300,14 @@ function ProviderVaultRow({
         {
           backgroundColor: isConnected
             ? `${colors.success}22`
-            : colors.surfaceElevated,
-          borderColor: isConnected ? `${colors.success}99` : colors.border,
+            : isFailing
+              ? `${colors.danger}12`
+              : colors.surfaceElevated,
+          borderColor: isConnected
+            ? `${colors.success}99`
+            : isFailing
+              ? `${colors.danger}55`
+              : colors.border,
         },
       ]}
     >

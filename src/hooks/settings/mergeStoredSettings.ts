@@ -24,6 +24,7 @@ import {
   type ProviderSttModelSelections,
   type ProviderTtsModelSelections,
   type ProviderTtsVoiceSelections,
+  type ProviderValidationResults,
   type ResponseModeConfig,
   type ResponseMode,
   type ResponseModeRoute,
@@ -149,6 +150,11 @@ function migrateLegacyProviders(
           | Partial<Record<string, string>>
           | undefined,
       ) as LegacyStoredSettings["providerModels"],
+      providerValidationResults: migrateLegacyProviderRecord(
+        storedSettings.providerValidationResults as
+          | Partial<Record<string, unknown>>
+          | undefined,
+      ) as LegacyStoredSettings["providerValidationResults"],
     },
     storedApiKeys: migratedApiKeys,
   };
@@ -238,6 +244,46 @@ function extractStoredProviderSttModels(
   return extractRuntimeProviderStringRecord(
     storedSettings?.providerSttModels,
   ) as Partial<ProviderSttModelSelections>;
+}
+
+function extractStoredProviderValidationResults(
+  storedSettings?: LegacyStoredSettings,
+): ProviderValidationResults {
+  const storedResults = storedSettings?.providerValidationResults;
+
+  if (!storedResults || typeof storedResults !== "object") {
+    return {};
+  }
+
+  return PROVIDER_ORDER.reduce((results, provider) => {
+    const candidate = storedResults[provider] as unknown;
+
+    if (!candidate || typeof candidate !== "object") {
+      return results;
+    }
+
+    const value = candidate as Record<string, unknown>;
+
+    if (
+      (value.status !== "success" && value.status !== "error") ||
+      typeof value.model !== "string"
+    ) {
+      return results;
+    }
+
+    results[provider] = {
+      status: value.status,
+      model: value.model,
+      ...(typeof value.message === "string"
+        ? { message: value.message }
+        : {}),
+      ...(typeof value.configKey === "string"
+        ? { configKey: value.configKey }
+        : {}),
+    };
+
+    return results;
+  }, {} as ProviderValidationResults);
 }
 
 function getLegacyResponseModeRoute(
@@ -550,6 +596,8 @@ export function mergeSettings(
       ...DEFAULT_SETTINGS.providerTtsVoices,
       ...extractStoredProviderTtsVoices(storedSettings),
     },
+    providerValidationResults:
+      extractStoredProviderValidationResults(storedSettings),
     apiKeys: mergedApiKeys,
   };
 }

@@ -129,14 +129,24 @@ export function getProviderHealthState(params: {
   }
 
   const validationState = validationStateByProvider[provider];
+
+  if (!validationState) {
+    return "configured";
+  }
+
+  if (validationState.status === "error") {
+    return "failing";
+  }
+
   const target = getProviderValidationTarget(settings, provider);
 
-  if (!validationState || !target.kind) {
+  if (!target.kind) {
     return "configured";
   }
 
   const stateMatchesCurrentConfig =
-    validationState.apiKey === settings.apiKeys[provider].trim() &&
+    (!validationState.apiKey ||
+      validationState.apiKey === settings.apiKeys[provider].trim()) &&
     validationState.model === target.model &&
     validationState.configKey === target.configKey;
 
@@ -150,10 +160,6 @@ export function getProviderHealthState(params: {
 
   if (validationState.status === "success") {
     return "healthy";
-  }
-
-  if (validationState.status === "error") {
-    return "failing";
   }
 
   return "configured";
