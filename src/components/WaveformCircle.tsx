@@ -9,6 +9,7 @@ import Animated, {
   Easing,
   useAnimatedProps,
   useSharedValue,
+  withSequence,
   withTiming,
 } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
@@ -123,6 +124,25 @@ export function WaveformCircle({
       ? "rgba(125, 211, 252, 0.92)"
       : "rgba(255, 255, 255, 0.94)";
   const phaseProgressValue = useSharedValue(0);
+  const progressFloorRef = React.useRef(0);
+  const progressRunStartedAtRef = React.useRef<number | null>(null);
+
+  React.useEffect(() => {
+    const startedAt = phaseProgress?.startedAt ?? null;
+
+    if (progressRunStartedAtRef.current !== startedAt) {
+      progressRunStartedAtRef.current = startedAt;
+      progressFloorRef.current = 0;
+    }
+
+    if (phaseProgress) {
+      progressFloorRef.current = Math.max(
+        progressFloorRef.current,
+        phaseProgress.progress,
+      );
+    }
+  }, [phaseProgress?.progress, phaseProgress?.startedAt]);
+
   React.useEffect(() => {
     if (!showPhaseProgress || !phaseProgress) {
       phaseProgressValue.value = withTiming(0, {
@@ -143,17 +163,23 @@ export function WaveformCircle({
               (1 - Math.exp(-(elapsedMs - estimatedMs) / estimatedMs)) * 0.07,
           );
     const currentProgress = Math.max(
-      phaseProgress.progress,
+      progressFloorRef.current,
       estimatedProgress,
     );
 
     phaseProgressValue.value = currentProgress;
 
     if (currentProgress < 0.9) {
-      phaseProgressValue.value = withTiming(0.9, {
-        duration: Math.max(180, estimatedMs - elapsedMs),
-        easing: Easing.out(Easing.cubic),
-      });
+      phaseProgressValue.value = withSequence(
+        withTiming(0.9, {
+          duration: Math.max(180, estimatedMs - elapsedMs),
+          easing: Easing.out(Easing.cubic),
+        }),
+        withTiming(0.97, {
+          duration: Math.max(1_000, estimatedMs),
+          easing: Easing.out(Easing.cubic),
+        }),
+      );
       return;
     }
 
@@ -164,7 +190,6 @@ export function WaveformCircle({
   }, [
     phaseProgress?.estimatedMs,
     phaseProgress?.phase,
-    phaseProgress?.progress,
     phaseProgress?.startedAt,
     phaseProgressValue,
     showPhaseProgress,
