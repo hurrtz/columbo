@@ -19,7 +19,7 @@ import {
   writeBlobAudioFile,
 } from "./shared";
 
-const GEMINI_TTS_RETRY_DELAYS_MS = [400, 1200];
+const TTS_RETRY_DELAYS_MS = [400, 1200];
 
 function wait(ms: number) {
   return new Promise<void>((resolve) => {
@@ -27,7 +27,7 @@ function wait(ms: number) {
   });
 }
 
-function isRetryableGeminiTransportError(error: unknown) {
+function isRetryableTtsTransportError(error: unknown) {
   if (!(error instanceof Error)) {
     return false;
   }
@@ -51,6 +51,61 @@ function isRetryableGeminiTransportError(error: unknown) {
     normalized.includes("failed to fetch") ||
     normalized.includes("load failed")
   );
+}
+
+async function withTransientTtsRetries<T>(request: () => Promise<T>) {
+  for (let attempt = 0; attempt <= TTS_RETRY_DELAYS_MS.length; attempt += 1) {
+    try {
+      return await request();
+    } catch (error) {
+      const shouldRetry =
+        attempt < TTS_RETRY_DELAYS_MS.length &&
+        isRetryableTtsTransportError(error);
+
+      if (!shouldRetry) {
+        throw error;
+      }
+
+      await wait(TTS_RETRY_DELAYS_MS[attempt]);
+    }
+  }
+
+  throw new Error("Speech synthesis retry loop ended unexpectedly.");
+}
+
+async function fetchTtsWithRetries(params: {
+  abortSignal?: AbortSignal;
+  init: RequestInit;
+  input: RequestInfo | URL;
+  language: AppLanguage;
+  provider: Provider;
+  timeoutMs: number;
+}) {
+  return withTransientTtsRetries(async () => {
+    const response = await fetchWithTimeout(
+      params.input,
+      params.init,
+      params.timeoutMs,
+      () =>
+        createTtsTimeoutError({
+          provider: params.provider,
+          language: params.language,
+        }),
+      params.abortSignal,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw buildTtsRequestError({
+        provider: params.provider,
+        status: response.status,
+        errorText,
+        language: params.language,
+      });
+    }
+
+    return response;
+  });
 }
 
 function buildBinaryTtsRequestBody(params: {
@@ -136,94 +191,68 @@ export async function synthesizeProviderSpeech(params: {
     config,
   });
 
-
   if (config.kind === "gemini") {
-    for (let attempt = 0; attempt <= GEMINI_TTS_RETRY_DELAYS_MS.length; attempt += 1) {
-      try {
-        const response = await fetchWithTimeout(
-          `${config.endpointBase}/${selectedModel}:generateContent`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-goog-api-key": requireProviderKey(provider, apiKey, language),
-            },
-            body: JSON.stringify({
-              contents: [
+    const response = await fetchTtsWithRetries({
+      input: `${config.endpointBase}/${selectedModel}:generateContent`,
+      init: {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": requireProviderKey(provider, apiKey, language),
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
                 {
-                  parts: [
-                    {
-                      text: `Read the following text aloud exactly as written without adding or removing words:\n\n${text}`,
-                    },
-                  ],
+                  text: `Read the following text aloud exactly as written without adding or removing words:\n\n${text}`,
                 },
               ],
-              generationConfig: {
-                responseModalities: ["AUDIO"],
-                speechConfig: {
-                  voiceConfig: {
-                    prebuiltVoiceConfig: {
-                      voiceName: selectedVoice,
-                    },
-                  },
+            },
+          ],
+          generationConfig: {
+            responseModalities: ["AUDIO"],
+            speechConfig: {
+              voiceConfig: {
+                prebuiltVoiceConfig: {
+                  voiceName: selectedVoice,
                 },
               },
-            }),
+            },
           },
-          timeoutMs,
-          () => createTtsTimeoutError({ provider, language }),
-          abortSignal,
-        );
+        }),
+      },
+      timeoutMs,
+      provider,
+      language,
+      abortSignal,
+    });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw buildTtsRequestError({
-            provider,
-            status: response.status,
-            errorText,
-            language,
-          });
-        }
+    const data = await response.json();
+    const audioPart = getGeminiAudioPart(data);
+    const pcmBase64 = audioPart?.data;
 
-        const data = await response.json();
-        const audioPart = getGeminiAudioPart(data);
-        const pcmBase64 = audioPart?.data;
-
-        if (!pcmBase64) {
-          throw new Error(
-            translate(language, "ttsDidNotReturnAudio", {
-              provider: PROVIDER_LABELS[provider],
-            }),
-          );
-        }
-
-        const mimeType = audioPart?.mimeType as string | undefined;
-        const sampleRate = Number(mimeType?.match(/rate=(\d+)/i)?.[1]) || 24000;
-        return buildWavAudioFileFromPcm({
-          pcmBase64,
-          sampleRate,
-          language,
-        });
-      } catch (error) {
-        const shouldRetry =
-          attempt < GEMINI_TTS_RETRY_DELAYS_MS.length &&
-          isRetryableGeminiTransportError(error);
-
-        if (!shouldRetry) {
-          throw error;
-        }
-
-        await wait(GEMINI_TTS_RETRY_DELAYS_MS[attempt]);
-      }
+    if (!pcmBase64) {
+      throw new Error(
+        translate(language, "ttsDidNotReturnAudio", {
+          provider: PROVIDER_LABELS[provider],
+        }),
+      );
     }
 
-    throw createTtsTimeoutError({ provider, language });
+    const mimeType = audioPart?.mimeType as string | undefined;
+    const sampleRate = Number(mimeType?.match(/rate=(\d+)/i)?.[1]) || 24000;
+    return buildWavAudioFileFromPcm({
+      pcmBase64,
+      sampleRate,
+      language,
+    });
   }
 
   if (config.kind === "dashscope") {
-    const response = await fetchWithTimeout(
-      config.endpoint,
-      {
+    const response = await fetchTtsWithRetries({
+      input: config.endpoint,
+      init: {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -238,19 +267,10 @@ export async function synthesizeProviderSpeech(params: {
         }),
       },
       timeoutMs,
-      () => createTtsTimeoutError({ provider, language }),
+      provider,
+      language,
       abortSignal,
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw buildTtsRequestError({
-        provider,
-        status: response.status,
-        errorText,
-        language,
-      });
-    }
+    });
 
     const data = await response.json();
     const audioUrl = getDashScopeAudioUrl(data);
@@ -263,25 +283,16 @@ export async function synthesizeProviderSpeech(params: {
       );
     }
 
-    const audioResponse = await fetchWithTimeout(
-      audioUrl,
-      {
+    const audioResponse = await fetchTtsWithRetries({
+      input: audioUrl,
+      init: {
         method: "GET",
       },
       timeoutMs,
-      () => createTtsTimeoutError({ provider, language }),
+      provider,
+      language,
       abortSignal,
-    );
-
-    if (!audioResponse.ok) {
-      const errorText = await audioResponse.text();
-      throw buildTtsRequestError({
-        provider,
-        status: audioResponse.status,
-        errorText,
-        language,
-      });
-    }
+    });
 
     return writeBlobAudioFile(await audioResponse.blob(), "wav");
   }
@@ -301,9 +312,9 @@ export async function synthesizeProviderSpeech(params: {
     text,
   });
 
-  const response = await fetchWithTimeout(
-    endpoint,
-    {
+  const response = await fetchTtsWithRetries({
+    input: endpoint,
+    init: {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -312,19 +323,10 @@ export async function synthesizeProviderSpeech(params: {
       body: JSON.stringify(requestBody),
     },
     timeoutMs,
-    () => createTtsTimeoutError({ provider, language }),
+    provider,
+    language,
     abortSignal,
-  );
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw buildTtsRequestError({
-      provider,
-      status: response.status,
-      errorText,
-      language,
-    });
-  }
+  });
 
   return writeBlobAudioFile(
     await response.blob(),

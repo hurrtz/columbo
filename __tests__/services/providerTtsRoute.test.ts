@@ -91,4 +91,91 @@ describe("synthesizeProviderSpeech", () => {
     expect(body.language).toBe("auto");
     expect(body.output_format).toBeUndefined();
   });
+
+  it("retries xAI TTS after a transient server failure", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        text: () => Promise.resolve("Service temporarily unavailable"),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        blob: () => Promise.resolve(new Blob(["fake-audio"])),
+      });
+
+    await expect(
+      synthesizeProviderSpeech({
+        text: "Please retry this speech.",
+        voice: "eve",
+        provider: "xai",
+        apiKey: "xai-test",
+        language: "en",
+      }),
+    ).resolves.toMatch(/^\/tmp\/tts-.*\.mp3$/);
+
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not retry a permanent xAI authentication failure", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      status: 401,
+      text: () => Promise.resolve("Invalid API key"),
+    });
+
+    await expect(
+      synthesizeProviderSpeech({
+        text: "Do not retry this speech.",
+        voice: "eve",
+        provider: "xai",
+        apiKey: "invalid-xai-test",
+        language: "en",
+      }),
+    ).rejects.toThrow();
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("retries a transient DashScope audio download failure", async () => {
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            output: {
+              audio: {
+                url: "https://dashscope.example/audio.wav",
+              },
+            },
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        text: () => Promise.resolve("Temporary download failure"),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        blob: () => Promise.resolve(new Blob(["fake-audio"])),
+      });
+
+    await expect(
+      synthesizeProviderSpeech({
+        text: "Please retry this download.",
+        voice: "Cherry",
+        provider: "alibaba-qwen-dashscope",
+        apiKey: "dashscope-test",
+        language: "en",
+      }),
+    ).resolves.toMatch(/^\/tmp\/tts-.*\.wav$/);
+
+    expect(fetch).toHaveBeenCalledTimes(3);
+    expect((fetch as jest.Mock).mock.calls[1][0]).toBe(
+      "https://dashscope.example/audio.wav",
+    );
+    expect((fetch as jest.Mock).mock.calls[2][0]).toBe(
+      "https://dashscope.example/audio.wav",
+    );
+  });
 });
