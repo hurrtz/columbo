@@ -91,7 +91,7 @@ export type VoiceVisualPhase =
   | "thinking"
   | "synthesizing"
   | "speaking";
-export type VoicePhaseProgressPhase = "searching" | "thinking";
+export type VoicePhaseProgressPhase = "searching" | "thinking" | "turn";
 export interface VoicePhaseProgress {
   phase: VoicePhaseProgressPhase;
   progress: number;

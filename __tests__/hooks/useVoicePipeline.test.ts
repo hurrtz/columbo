@@ -360,11 +360,9 @@ describe("useVoicePipeline", () => {
     const { result } = renderHook(() => useVoicePipeline(params));
 
     await act(async () => {
-      const pending = result.current.handleVoiceCaptureDone({
+      await result.current.handleVoiceCaptureDone({
         audioUri: "file://capture.wav",
       });
-      jest.runAllTimers();
-      await pending;
     });
 
     expect(params.createConversation).toHaveBeenCalledWith(
@@ -398,6 +396,7 @@ describe("useVoicePipeline", () => {
         requestId: "speech-request-1",
         source: "conversation",
       },
+      expect.any(Function),
     );
     expect(result.current.pipelinePhase).toBe("idle");
     expect(result.current.streamingText).toBe("");
@@ -439,13 +438,12 @@ describe("useVoicePipeline", () => {
     );
   });
 
-  it("learns the full LLM response time instead of first-chunk latency", async () => {
+  it("learns the complete text turn instead of first-chunk latency", async () => {
     const params = createParams({
       spokenRepliesEnabled: false,
     });
     (runVoicePipeline as jest.Mock).mockImplementation(
       async ({ callbacks }: any) => {
-        callbacks.onLlmStart();
         jest.advanceTimersByTime(1_000);
         callbacks.onChunk("First token");
         jest.advanceTimersByTime(4_000);
@@ -467,6 +465,83 @@ describe("useVoicePipeline", () => {
         "@schnackai/latency_stats",
         expect.stringContaining("5000"),
       );
+    });
+  });
+
+  it("keeps one progress estimate through every phase until playback starts", async () => {
+    let onPlaybackStarted: (() => void) | undefined;
+    let resolveRun: (() => void) | null = null;
+    const player = createPlayer({
+      enqueueAudio: jest.fn(
+        (
+          _uri: string,
+          _diagnostics: unknown,
+          callback?: () => void,
+        ) => {
+          onPlaybackStarted = callback;
+        },
+      ),
+    });
+    const params = createParams({ player });
+
+    (runVoicePipeline as jest.Mock).mockImplementation(
+      async ({ callbacks }: any) => {
+        jest.advanceTimersByTime(1_000);
+        callbacks.onTranscription("Hello from the microphone");
+        callbacks.onWebSearchStart();
+        jest.advanceTimersByTime(1_000);
+        callbacks.onWebSearchComplete();
+        jest.advanceTimersByTime(3_000);
+        callbacks.onChunk("A complete reply is forming.");
+        callbacks.onResponseDone("A complete reply is forming.");
+        jest.advanceTimersByTime(2_000);
+        callbacks.onAudioReady("file://reply.wav", {
+          requestId: "speech-request-1",
+          source: "conversation",
+        });
+
+        await new Promise<void>((resolve) => {
+          resolveRun = resolve;
+        });
+
+        return "Hello from the microphone";
+      },
+    );
+
+    const { result } = renderHook(() => useVoicePipeline(params));
+    let pending: Promise<void> | null = null;
+
+    await act(async () => {
+      pending = result.current.handleVoiceCaptureDone({
+        audioUri: "file://capture.wav",
+      });
+      await Promise.resolve();
+    });
+
+    expect(result.current.pipelinePhase).toBe("synthesizing");
+    expect(result.current.phaseProgress).toMatchObject({
+      phase: "turn",
+      elapsedMs: 7_000,
+    });
+    expect(onPlaybackStarted).toEqual(expect.any(Function));
+
+    act(() => {
+      onPlaybackStarted?.();
+    });
+
+    expect(result.current.pipelinePhase).toBe("speaking");
+    expect(result.current.phaseProgress).toBeNull();
+
+    await waitFor(() => {
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+        "@schnackai/latency_stats",
+        expect.stringContaining("7000"),
+      );
+    });
+
+    await act(async () => {
+      resolveRun?.();
+      await pending;
     });
   });
 
@@ -597,6 +672,13 @@ describe("useVoicePipeline", () => {
     const params = createParams({
       player: createPlayer({
         hasPendingPlaybackNow: jest.fn(() => false),
+        enqueueAudio: jest.fn(
+          (
+            _uri: string,
+            _diagnostics: unknown,
+            onPlaybackStarted?: () => void,
+          ) => onPlaybackStarted?.(),
+        ),
       }),
     });
     let resolveRun: (() => void) | null = null;
@@ -639,6 +721,13 @@ describe("useVoicePipeline", () => {
     const params = createParams({
       player: createPlayer({
         hasPendingPlaybackNow: jest.fn(() => false),
+        enqueueAudio: jest.fn(
+          (
+            _uri: string,
+            _diagnostics: unknown,
+            onPlaybackStarted?: () => void,
+          ) => onPlaybackStarted?.(),
+        ),
       }),
     });
     let resolveRun: (() => void) | null = null;

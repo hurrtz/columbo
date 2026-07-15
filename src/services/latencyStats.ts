@@ -5,6 +5,9 @@ import type {
   AssistantResponseLength,
   AssistantResponseTone,
   Provider,
+  ReplyPlayback,
+  SttBackendMode,
+  TtsBackendMode,
   VoicePhaseProgress,
 } from "../types";
 
@@ -13,7 +16,10 @@ const MAX_SAMPLES_PER_ROUTE = 24;
 const MIN_SAMPLE_MS = 250;
 const MAX_SAMPLE_MS = 10 * 60_000;
 
-export type LatencyStatsPhase = "llm-response" | "web-search";
+export type LatencyStatsPhase =
+  | "llm-response"
+  | "web-search"
+  | "turn-to-first-speech";
 
 export interface LatencyRouteDescriptor {
   phase: LatencyStatsPhase;
@@ -24,6 +30,15 @@ export interface LatencyRouteDescriptor {
   responseTone?: AssistantResponseTone;
   webSearchMode?: WebSearchMode;
   webSearchProvider?: WebSearchProvider | null;
+  inputSource?: "text" | "voice";
+  sttMode?: SttBackendMode;
+  sttProvider?: Provider | null;
+  sttModel?: string | null;
+  ttsMode?: TtsBackendMode;
+  ttsProvider?: Provider | null;
+  ttsModel?: string | null;
+  replyPlayback?: ReplyPlayback;
+  spokenRepliesEnabled?: boolean;
 }
 
 export interface LatencyRouteStats {
@@ -54,6 +69,28 @@ export function createLatencyRouteKey(descriptor: LatencyRouteDescriptor) {
       "web",
       normalizeKeyPart(descriptor.provider),
       normalizeKeyPart(descriptor.webSearchMode),
+    ].join(":");
+  }
+
+  if (descriptor.phase === "turn-to-first-speech") {
+    return [
+      "turn-to-first-speech-v1",
+      normalizeKeyPart(descriptor.provider),
+      normalizeKeyPart(descriptor.model),
+      normalizeKeyPart(descriptor.effort),
+      normalizeKeyPart(descriptor.responseLength),
+      normalizeKeyPart(descriptor.responseTone),
+      normalizeKeyPart(descriptor.inputSource),
+      normalizeKeyPart(descriptor.sttMode),
+      normalizeKeyPart(descriptor.sttProvider),
+      normalizeKeyPart(descriptor.sttModel),
+      descriptor.spokenRepliesEnabled ? "spoken" : "text-only",
+      normalizeKeyPart(descriptor.ttsMode),
+      normalizeKeyPart(descriptor.ttsProvider),
+      normalizeKeyPart(descriptor.ttsModel),
+      normalizeKeyPart(descriptor.replyPlayback),
+      normalizeKeyPart(descriptor.webSearchMode),
+      normalizeKeyPart(descriptor.webSearchProvider),
     ].join(":");
   }
 
@@ -110,6 +147,38 @@ export function getDefaultLatencyEstimateMs(
     descriptor.webSearchProvider
   ) {
     estimateMs += 4_000;
+  }
+
+  if (descriptor.phase === "llm-response") {
+    return Math.max(5_000, estimateMs);
+  }
+
+  if (descriptor.inputSource === "voice") {
+    estimateMs += descriptor.sttMode === "provider" ? 7_000 : 3_500;
+  }
+
+  if (descriptor.spokenRepliesEnabled) {
+    if (descriptor.ttsMode === "provider") {
+      const providerSpeechMs =
+        descriptor.ttsProvider === "xai"
+          ? 18_000
+          : descriptor.ttsProvider === "gemini"
+            ? 15_000
+            : 12_000;
+
+      if (descriptor.replyPlayback === "wait") {
+        estimateMs +=
+          descriptor.responseLength === "thorough"
+            ? providerSpeechMs + 45_000
+            : descriptor.responseLength === "brief"
+              ? providerSpeechMs + 12_000
+              : providerSpeechMs + 25_000;
+      } else {
+        estimateMs += providerSpeechMs;
+      }
+    } else {
+      estimateMs += descriptor.replyPlayback === "wait" ? 2_500 : 1_000;
+    }
   }
 
   return Math.max(5_000, estimateMs);

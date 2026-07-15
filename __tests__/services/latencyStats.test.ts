@@ -44,6 +44,32 @@ describe("latencyStats", () => {
     ).toBeGreaterThan(55_000);
   });
 
+  it("keys and estimates the complete turn to first speech", () => {
+    const descriptor = {
+      phase: "turn-to-first-speech" as const,
+      provider: "anthropic" as const,
+      model: "claude-fable-5",
+      effort: "max",
+      responseLength: "thorough" as const,
+      responseTone: "professional" as const,
+      inputSource: "voice" as const,
+      sttMode: "provider" as const,
+      sttProvider: "gemini" as const,
+      sttModel: "gemini-3.5-flash",
+      spokenRepliesEnabled: true,
+      ttsMode: "provider" as const,
+      ttsProvider: "gemini" as const,
+      ttsModel: "gemini-2.5-flash-preview-tts",
+      replyPlayback: "wait" as const,
+      webSearchMode: "off" as const,
+    };
+
+    expect(createLatencyRouteKey(descriptor)).toBe(
+      "turn-to-first-speech-v1:anthropic:claude-fable-5:max:thorough:professional:voice:provider:gemini:gemini-3.5-flash:spoken:provider:gemini:gemini-2.5-flash-preview-tts:wait:off:none",
+    );
+    expect(getDefaultLatencyEstimateMs(descriptor)).toBeGreaterThan(120_000);
+  });
+
   it("derives learned estimates from recent upper-percentile samples", () => {
     expect(
       getLearnedLatencyEstimateMs([

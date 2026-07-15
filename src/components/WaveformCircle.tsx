@@ -22,6 +22,7 @@ import {
   VoiceVisualPhase,
 } from "../types";
 import { RippleRing } from "./waveform/RippleRing";
+import { isWaveformProcessingPhase } from "./waveform/phaseAppearance";
 import { useWaveformCircleAnimations } from "./waveform/useWaveformCircleAnimations";
 import { useWaveformCircleState } from "./waveform/useWaveformCircleState";
 import { useWaveformFrame } from "../state/waveformFeed";
@@ -115,10 +116,10 @@ export function WaveformCircle({
     !disabled &&
     !!phaseProgress &&
     state.shouldAnimate &&
-    (state.phase === "thinking" || state.phase === "searching");
+    isWaveformProcessingPhase(state.phase);
   const progressRingColor = phaseProgress?.overEstimate
     ? "rgba(255, 216, 128, 0.95)"
-    : phaseProgress?.phase === "searching"
+    : state.phase === "searching"
       ? "rgba(125, 211, 252, 0.92)"
       : "rgba(255, 255, 255, 0.94)";
   const phaseProgressValue = useSharedValue(0);
@@ -133,7 +134,7 @@ export function WaveformCircle({
 
     const elapsedMs = Math.max(0, Date.now() - phaseProgress.startedAt);
     const estimatedMs = Math.max(1, phaseProgress.estimatedMs);
-    const currentProgress =
+    const estimatedProgress =
       elapsedMs <= estimatedMs
         ? Math.min(0.9, 0.06 + Math.pow(elapsedMs / estimatedMs, 0.78) * 0.84)
         : Math.min(
@@ -141,6 +142,10 @@ export function WaveformCircle({
             0.9 +
               (1 - Math.exp(-(elapsedMs - estimatedMs) / estimatedMs)) * 0.07,
           );
+    const currentProgress = Math.max(
+      phaseProgress.progress,
+      estimatedProgress,
+    );
 
     phaseProgressValue.value = currentProgress;
 
@@ -159,6 +164,7 @@ export function WaveformCircle({
   }, [
     phaseProgress?.estimatedMs,
     phaseProgress?.phase,
+    phaseProgress?.progress,
     phaseProgress?.startedAt,
     phaseProgressValue,
     showPhaseProgress,

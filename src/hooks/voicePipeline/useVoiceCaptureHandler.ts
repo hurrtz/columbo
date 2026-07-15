@@ -65,6 +65,7 @@ interface ActiveLatencyProgress {
   estimatedMs: number;
   sampleCount: number;
   learned: boolean;
+  progress: number;
   interval: ReturnType<typeof setInterval>;
   runId: number;
 }
@@ -110,6 +111,7 @@ export function useVoiceCaptureHandler({
   webSearchProvider,
 }: VoiceCaptureHandlerParams) {
   const ttsFallbackToastShownRef = useRef(false);
+  const producedAudioRef = useRef(false);
   const playbackStartedRef = useRef(false);
   const lastUserMessageIdRef = useRef<string | null>(null);
   const lastAssistantMessageIdRef = useRef<string | null>(null);
@@ -142,10 +144,11 @@ export function useVoiceCaptureHandler({
     (active: ActiveLatencyProgress) => {
       const elapsedMs = Date.now() - active.startedAt;
       const progress = getLatencyProgress(elapsedMs, active.estimatedMs);
+      active.progress = Math.max(active.progress, progress.progress);
 
       setPhaseProgress({
         phase: active.phase,
-        progress: progress.progress,
+        progress: active.progress,
         elapsedMs,
         startedAt: active.startedAt,
         estimatedMs: active.estimatedMs,
@@ -188,6 +191,7 @@ export function useVoiceCaptureHandler({
         estimatedMs: fallbackEstimateMs,
         sampleCount: 0,
         learned: false,
+        progress: 0,
         interval: setInterval(() => {
           const current = activeLatencyProgressRef.current;
 
@@ -249,6 +253,19 @@ export function useVoiceCaptureHandler({
     [clearLatencyProgress, recordLatencyProgressSample],
   );
 
+  const handleFirstPlaybackStarted = useCallback(() => {
+    if (playbackStartedRef.current) {
+      return;
+    }
+
+    playbackStartedRef.current = true;
+    recordDebugLogEvent({
+      event: "voice-pipeline-first-playback-started",
+    });
+    finishLatencyProgress("turn");
+    setPipelinePhase("speaking");
+  }, [finishLatencyProgress, setPipelinePhase]);
+
   useEffect(() => clearLatencyProgress, [clearLatencyProgress]);
 
   const handleVoiceCaptureDone = useCallback(
@@ -270,13 +287,32 @@ export function useVoiceCaptureHandler({
       setPipelinePhase(transcriptionOverride ? "thinking" : "transcribing");
       setStreamingText("");
       ttsFallbackToastShownRef.current = false;
+      producedAudioRef.current = false;
       playbackStartedRef.current = false;
       lastUserMessageIdRef.current = null;
       lastAssistantMessageIdRef.current = null;
       pendingAssistantNoticesRef.current = [];
-      clearLatencyProgress();
       abortRef.current = new AbortController();
       player.resetCancellation();
+      startLatencyProgress("turn", {
+        phase: "turn-to-first-speech",
+        provider,
+        model,
+        effort: modelEffort,
+        responseLength,
+        responseTone,
+        inputSource: transcriptionOverride ? "text" : "voice",
+        sttMode,
+        sttProvider,
+        sttModel: selectedSttModel,
+        spokenRepliesEnabled,
+        ttsMode,
+        ttsProvider,
+        ttsModel: selectedTtsModel,
+        replyPlayback,
+        webSearchMode,
+        webSearchProvider,
+      });
 
       try {
         const transcription = await runVoicePipeline({
@@ -351,18 +387,12 @@ export function useVoiceCaptureHandler({
               recordDebugLogEvent({
                 event: "voice-pipeline-web-search-start",
               });
-              startLatencyProgress("searching", {
-                phase: "web-search",
-                provider: webSearchProvider ?? null,
-                webSearchMode,
-              });
               setPipelinePhase("searching");
             },
             onWebSearchComplete: () => {
               recordDebugLogEvent({
                 event: "voice-pipeline-web-search-complete",
               });
-              finishLatencyProgress("searching");
               setPipelinePhase(
                 playbackStartedRef.current ? "speaking" : "thinking",
               );
@@ -390,18 +420,6 @@ export function useVoiceCaptureHandler({
               ];
               showToast(formatNoticeToast(notice));
             },
-            onLlmStart: () => {
-              startLatencyProgress("thinking", {
-                phase: "llm-response",
-                provider,
-                model,
-                effort: modelEffort,
-                responseLength,
-                responseTone,
-                webSearchMode,
-                webSearchProvider,
-              });
-            },
             onChunk: (text) => {
               recordDebugLogEvent({
                 event: "voice-pipeline-stream-chunk",
@@ -426,15 +444,15 @@ export function useVoiceCaptureHandler({
                   totalTokens: usage?.totalTokens ?? null,
                 },
               });
-              finishLatencyProgress("thinking");
+              if (!spokenRepliesEnabled) {
+                finishLatencyProgress("turn");
+              }
               setStreamingText("");
               setPipelinePhase(
                 playbackStartedRef.current
                   ? "speaking"
                   : spokenRepliesEnabled
-                    ? ttsMode === "native"
-                      ? "speaking"
-                      : "synthesizing"
+                    ? "synthesizing"
                     : "thinking",
               );
               lastCompletedReplyRef.current = fullText;
@@ -471,9 +489,15 @@ export function useVoiceCaptureHandler({
                   uri: audioData,
                 },
               });
-              playbackStartedRef.current = true;
-              setPipelinePhase("speaking");
-              player.enqueueAudio(audioData, diagnostics);
+              producedAudioRef.current = true;
+              if (!playbackStartedRef.current) {
+                setPipelinePhase("synthesizing");
+              }
+              player.enqueueAudio(
+                audioData,
+                diagnostics,
+                handleFirstPlaybackStarted,
+              );
             },
             onSpeechTextReady: (text, _voice, diagnostics) => {
               recordDebugLogEvent({
@@ -483,10 +507,13 @@ export function useVoiceCaptureHandler({
                   textLength: text.trim().length,
                 },
               });
-              playbackStartedRef.current = true;
-              setPipelinePhase("speaking");
+              producedAudioRef.current = true;
+              if (!playbackStartedRef.current) {
+                setPipelinePhase("synthesizing");
+              }
               player.speakText(text, {
                 diagnostics,
+                onPlaybackStarted: handleFirstPlaybackStarted,
               });
             },
             onTtsFallback: (error) => {
@@ -526,7 +553,7 @@ export function useVoiceCaptureHandler({
             },
             onError: async (error) => {
               const preserveProducedAudio =
-                playbackStartedRef.current &&
+                producedAudioRef.current &&
                 (player.isPlaying || player.hasPendingPlaybackNow());
               recordDebugLogEvent({
                 event: "voice-pipeline-error",
@@ -540,9 +567,15 @@ export function useVoiceCaptureHandler({
               });
               if (!preserveProducedAudio) {
                 await player.stopPlayback();
+                clearLatencyProgress();
               }
-              clearLatencyProgress();
-              setPipelinePhase(preserveProducedAudio ? "speaking" : "idle");
+              setPipelinePhase(
+                preserveProducedAudio
+                  ? playbackStartedRef.current
+                    ? "speaking"
+                    : "synthesizing"
+                  : "idle",
+              );
               const retryAction = lastCompletedReplyRef.current.trim()
                 ? () => {
                     void handleRepeatLastReply(lastCompletedReplyRef.current);
@@ -643,7 +676,9 @@ export function useVoiceCaptureHandler({
           },
         });
         if (player.hasPendingPlaybackNow()) {
-          setPipelinePhase("speaking");
+          setPipelinePhase(
+            playbackStartedRef.current ? "speaking" : "synthesizing",
+          );
         }
 
         if (player.hasPendingPlaybackNow()) {
@@ -668,6 +703,7 @@ export function useVoiceCaptureHandler({
       clearLatencyProgress,
       createConversation,
       finishLatencyProgress,
+      handleFirstPlaybackStarted,
       handleRepeatLastReply,
       language,
       lastCompletedReplyRef,
