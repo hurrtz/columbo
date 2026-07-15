@@ -112,7 +112,6 @@ export const de: TranslationDictionary = {
       `Zugangsdaten für ${provider} bearbeiten`,
     useProvider: ({ provider }) => `${provider} verwenden`,
     createApiKey: "Zugangsdaten",
-    searchProviders: "Dienste suchen",
     aboutThisProvider: "Über diesen Anbieter",
     providerStatusInvalid: "Ungültig",
     providerStatusTesting: "Prüfe",

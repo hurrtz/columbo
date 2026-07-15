@@ -8,10 +8,11 @@ import {
 } from "@testing-library/react-native";
 
 import { SettingsModal } from "../../src/components/SettingsModal";
+import { PROVIDER_LABELS } from "../../src/constants/models";
 import { LocalizationProvider } from "../../src/i18n";
 import { ThemeProvider } from "../../src/theme/ThemeContext";
 import { lightColors } from "../../src/theme/colors";
-import { DEFAULT_SETTINGS } from "../../src/types";
+import { DEFAULT_SETTINGS, type Provider } from "../../src/types";
 
 jest.mock("react-native-safe-area-context", () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
@@ -135,7 +136,7 @@ describe("SettingsModal", () => {
     await waitFor(() => {
       expect(screen.queryByText("Back to overview")).toBeNull();
       expect(screen.getByLabelText("Back to overview")).toBeTruthy();
-      expect(screen.getByPlaceholderText("Search services")).toBeTruthy();
+      expect(screen.queryByPlaceholderText("Search services")).toBeNull();
       expect(screen.queryByText("System Prompt")).toBeNull();
     });
 
@@ -145,6 +146,29 @@ describe("SettingsModal", () => {
       expect(screen.queryByText("Runtime Readiness")).toBeNull();
       expect(screen.queryByPlaceholderText("Search services")).toBeNull();
     });
+  });
+
+  it("sorts provider connections alphabetically", async () => {
+    const screen = renderSettingsModal();
+
+    fireEvent.press(screen.getByText("Connections"));
+
+    await waitFor(() => {
+      expect(screen.getByText("OpenAI")).toBeTruthy();
+    });
+
+    const renderedProviders = screen
+      .getAllByTestId(/^provider-vault-row-/)
+      .map((row) =>
+        String(row.props.testID).replace("provider-vault-row-", ""),
+      );
+    const expectedProviders = (
+      Object.keys(DEFAULT_SETTINGS.apiKeys) as Provider[]
+    ).sort((left, right) =>
+      PROVIDER_LABELS[left].localeCompare(PROVIDER_LABELS[right]),
+    );
+
+    expect(renderedProviders).toEqual(expectedProviders);
   });
 
   it("opens Connections when a focus provider is supplied", async () => {
@@ -289,7 +313,7 @@ describe("SettingsModal", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText("Invalid")).toBeTruthy();
+      expect(screen.queryByText("Invalid")).toBeNull();
       expect(screen.getByText(errorMessage)).toBeTruthy();
       const openAiRow = screen.getByTestId("provider-vault-row-openai");
       expect(StyleSheet.flatten(openAiRow.props.style).backgroundColor).toBe(
@@ -350,7 +374,7 @@ describe("SettingsModal", () => {
     await waitFor(() => {
       expect(screen.queryByText("Back to overview")).toBeNull();
       expect(screen.getByLabelText("Back to overview")).toBeTruthy();
-      expect(screen.getByPlaceholderText("Search services")).toBeTruthy();
+      expect(screen.queryByPlaceholderText("Search services")).toBeNull();
       expect(screen.queryByText("System Prompt")).toBeNull();
     });
   });

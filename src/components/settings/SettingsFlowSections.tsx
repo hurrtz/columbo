@@ -287,7 +287,7 @@ function ProviderVaultRow({
   const statusMeta = getStatusMeta(healthState, t, colors);
   const isConnected = healthState === "healthy";
   const isFailing = healthState === "failing";
-  const showStatusPill = healthState === "validating" || healthState === "failing";
+  const showStatusPill = healthState === "validating";
   const secureApiKey = !!apiKey.trim() && !visibleApiKey;
   const showValidationMessage =
     validationState.status === "success" || validationState.status === "error";
@@ -564,7 +564,6 @@ export function ApiKeysSection({
 }) {
   const { colors } = useTheme();
   const { t } = useLocalization();
-  const [query, setQuery] = React.useState("");
   const [filter, setFilter] = React.useState<CapabilityFilter>("all");
   const [expandedProvider, setExpandedProvider] = React.useState<Provider | null>(
     focusProvider ??
@@ -587,23 +586,20 @@ export function ApiKeysSection({
     }
   }, [preferredFocusProvider]);
 
-  const rows = React.useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-
-    return Object.keys(settings.apiKeys)
-      .map((provider) => provider as Provider)
-      .filter((provider) => {
-        if (filter !== "all" && !getProviderCapabilities(provider).includes(filter)) {
-          return false;
-        }
-
-        if (!normalizedQuery) {
-          return true;
-        }
-
-        return PROVIDER_LABELS[provider].toLowerCase().includes(normalizedQuery);
-      });
-  }, [filter, query, settings.apiKeys]);
+  const rows = React.useMemo(
+    () =>
+      Object.keys(settings.apiKeys)
+        .map((provider) => provider as Provider)
+        .filter(
+          (provider) =>
+            filter === "all" ||
+            getProviderCapabilities(provider).includes(filter),
+        )
+        .sort((left, right) =>
+          PROVIDER_LABELS[left].localeCompare(PROVIDER_LABELS[right]),
+        ),
+    [filter, settings.apiKeys],
+  );
 
   const capabilityFilters: { value: CapabilityFilter; label: string }[] = [
     { value: "all", label: t("all") },
@@ -615,23 +611,6 @@ export function ApiKeysSection({
 
   return (
     <View style={styles.tabPane}>
-      <View
-        style={[
-          styles.searchFieldWrap,
-          { backgroundColor: colors.surface, borderColor: colors.border },
-        ]}
-      >
-        <Feather name="search" size={16} color={colors.textSecondary} />
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder={t("searchProviders")}
-          placeholderTextColor={colors.textMuted}
-          selectionColor={colors.accent}
-          style={[styles.searchFieldInput, { color: colors.text }]}
-        />
-      </View>
-
       <View style={styles.filterChipRow}>
         {capabilityFilters.map((option) => {
           const active = filter === option.value;

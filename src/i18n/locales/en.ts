@@ -106,7 +106,6 @@ export const en: TranslationDictionary = {
     createProviderApiKey: ({ provider }) => `Edit ${provider} credentials`,
     useProvider: ({ provider }) => `Use ${provider}`,
     createApiKey: "Credentials",
-    searchProviders: "Search services",
     aboutThisProvider: "About this provider",
     providerStatusInvalid: "Invalid",
     providerStatusTesting: "Testing",

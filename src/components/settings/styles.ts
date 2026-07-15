@@ -210,21 +210,6 @@ export const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 12,
   },
-  searchFieldWrap: {
-    minHeight: 48,
-    borderRadius: 16,
-    borderWidth: 1,
-    paddingHorizontal: 14,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 12,
-  },
-  searchFieldInput: {
-    flex: 1,
-    fontSize: 14,
-    fontFamily: fonts.body,
-  },
   filterChipRow: {
     flexDirection: "row",
     flexWrap: "wrap",
