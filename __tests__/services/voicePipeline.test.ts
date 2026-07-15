@@ -721,7 +721,7 @@ describe("runVoicePipeline", () => {
     );
 
     expect(synthesizedTexts.length).toBeGreaterThan(1);
-    expect(synthesizedTexts.every((text: string) => text.length <= 3500)).toBe(
+    expect(synthesizedTexts.every((text: string) => text.length <= 1200)).toBe(
       true,
     );
     expect(synthesizedTexts.join(" ")).toBe(longReply);
@@ -729,6 +729,163 @@ describe("runVoicePipeline", () => {
       synthesizedTexts.length,
     );
     expect(callbacks.onError).not.toHaveBeenCalled();
+  });
+
+  it("uses smaller Gemini TTS chunks for completed replies", async () => {
+    const longReply = Array.from(
+      { length: 70 },
+      () => "Gemini should receive a modest speech segment.",
+    ).join(" ");
+
+    (streamChat as jest.Mock).mockImplementation(
+      async ({ onDone }: { onDone: (text: string) => Promise<void> }) => {
+        await onDone(longReply);
+      },
+    );
+    (synthesizeSpeech as jest.Mock).mockImplementation(
+      async ({ text }: { text: string }) => `/tmp/tts-${text.length}.wav`,
+    );
+
+    await runVoicePipeline({
+      transcriptionOverride: "Read the answer.",
+      messages: [],
+      model: "gpt-5.4",
+      provider: "openai",
+      providerApiKey: "sk-test",
+      sttMode: "native",
+      ttsMode: "provider",
+      ttsProvider: "gemini",
+      ttsApiKey: "gemini-test",
+      ttsModel: "gemini-2.5-flash-preview-tts",
+      ttsVoice: "Kore",
+      replyPlayback: "wait",
+      assistantInstructions: "You are a voice assistant.",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      callbacks: {
+        onTranscription: jest.fn(),
+        onChunk: jest.fn(),
+        onResponseDone: jest.fn(),
+        onAudioReady: jest.fn(),
+        onSpeechTextReady: jest.fn(),
+        onError: jest.fn(),
+      },
+    });
+
+    const synthesizedTexts = (synthesizeSpeech as jest.Mock).mock.calls.map(
+      ([params]: [{ text: string }]) => params.text,
+    );
+
+    expect(synthesizedTexts.length).toBeGreaterThan(1);
+    expect(synthesizedTexts.every((text: string) => text.length <= 450)).toBe(
+      true,
+    );
+    expect(synthesizedTexts.join(" ")).toBe(longReply);
+  });
+
+  it("keeps native fallback active for the rest of a reply", async () => {
+    const longReply = Array.from(
+      { length: 70 },
+      () => "Fallback should remain on one voice route.",
+    ).join(" ");
+    (streamChat as jest.Mock).mockImplementation(
+      async ({ onDone }: { onDone: (text: string) => Promise<void> }) => {
+        await onDone(longReply);
+      },
+    );
+    (synthesizeSpeech as jest.Mock).mockRejectedValueOnce(
+      new Error("Gemini timed out"),
+    );
+    const callbacks = {
+      onTranscription: jest.fn(),
+      onChunk: jest.fn(),
+      onResponseDone: jest.fn(),
+      onAudioReady: jest.fn(),
+      onSpeechTextReady: jest.fn(),
+      onTtsFallback: jest.fn(),
+      onError: jest.fn(),
+    };
+
+    await runVoicePipeline({
+      transcriptionOverride: "Read the answer.",
+      messages: [],
+      model: "gpt-5.4",
+      provider: "openai",
+      providerApiKey: "sk-test",
+      sttMode: "native",
+      ttsMode: "provider",
+      ttsProvider: "gemini",
+      ttsApiKey: "gemini-test",
+      ttsVoice: "Kore",
+      replyPlayback: "wait",
+      assistantInstructions: "You are a voice assistant.",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      callbacks,
+    });
+
+    const nativeSegments = callbacks.onSpeechTextReady.mock.calls.map(
+      ([text]: [string]) => text,
+    );
+    expect(synthesizeSpeech).toHaveBeenCalledTimes(1);
+    expect(callbacks.onTtsFallback).toHaveBeenCalledTimes(1);
+    expect(callbacks.onAudioReady).not.toHaveBeenCalled();
+    expect(nativeSegments.length).toBeGreaterThan(1);
+    expect(nativeSegments.join(" ")).toBe(longReply);
+    expect(callbacks.onError).not.toHaveBeenCalled();
+  });
+
+  it("does not switch to native after provider playback has started", async () => {
+    const longReply = Array.from(
+      { length: 40 },
+      () => "Provider playback must remain the only voice route.",
+    ).join(" ");
+    (streamChat as jest.Mock).mockImplementation(
+      async ({ onDone }: { onDone: (text: string) => Promise<void> }) => {
+        await onDone(longReply);
+      },
+    );
+    (synthesizeSpeech as jest.Mock)
+      .mockResolvedValueOnce("/tmp/provider-1.wav")
+      .mockRejectedValueOnce(new Error("Gemini timed out"));
+    const callbacks = {
+      onTranscription: jest.fn(),
+      onChunk: jest.fn(),
+      onResponseDone: jest.fn(),
+      onAudioReady: jest.fn(),
+      onSpeechTextReady: jest.fn(),
+      onTtsFallback: jest.fn(),
+      onError: jest.fn(),
+    };
+
+    await runVoicePipeline({
+      transcriptionOverride: "Read the answer.",
+      messages: [],
+      model: "gpt-5.4",
+      provider: "openai",
+      providerApiKey: "sk-test",
+      sttMode: "native",
+      ttsMode: "provider",
+      ttsProvider: "gemini",
+      ttsApiKey: "gemini-test",
+      ttsVoice: "Kore",
+      replyPlayback: "wait",
+      assistantInstructions: "You are a voice assistant.",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      callbacks,
+    });
+
+    expect(synthesizeSpeech).toHaveBeenCalledTimes(2);
+    expect(callbacks.onAudioReady).toHaveBeenCalledTimes(1);
+    expect(callbacks.onSpeechTextReady).not.toHaveBeenCalled();
+    expect(callbacks.onTtsFallback).not.toHaveBeenCalled();
+    expect(callbacks.onError).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "Gemini timed out" }),
+    );
   });
 
   it("falls back to native speech when provider TTS fails in wait mode", async () => {

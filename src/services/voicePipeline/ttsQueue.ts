@@ -24,6 +24,9 @@ interface CreateVoicePipelineTtsQueueParams {
   ttsVoice: string;
 }
 
+const PROVIDER_TTS_TARGET_CHUNK_CHARS = 1200;
+const GEMINI_TTS_TARGET_CHUNK_CHARS = 450;
+
 export function createVoicePipelineTtsQueue({
   abortSignal,
   callbacks,
@@ -39,13 +42,14 @@ export function createVoicePipelineTtsQueue({
   ttsProvider,
   ttsVoice,
 }: CreateVoicePipelineTtsQueueParams) {
-  const PROVIDER_TTS_TARGET_CHUNK_CHARS = 1200;
   let sentenceBuffer = "";
   let ttsChain = Promise.resolve();
   const ttsQueue: Promise<void>[] = [];
   let fallbackNotified = false;
   let fatalProviderError = false;
   let fatalProviderErrorNotified = false;
+  let playbackRoute: "native" | "provider" | null =
+    ttsMode === "native" ? "native" : null;
   const effectiveReplyPlayback = replyPlayback;
   const speechDiagnostics = {
     requestId: createSpeechRequestId(diagnosticsSource),
@@ -83,7 +87,7 @@ export function createVoicePipelineTtsQueue({
         return;
       }
 
-      if (ttsMode === "native") {
+      if (playbackRoute === "native") {
         callbacks.onSpeechTextReady(trimmed, undefined, speechDiagnostics);
         return;
       }
@@ -106,13 +110,19 @@ export function createVoicePipelineTtsQueue({
         });
 
         if (!abortSignal?.aborted) {
+          playbackRoute = "provider";
           callbacks.onAudioReady(audio, speechDiagnostics);
         }
       } catch (error) {
         const normalizedError =
           error instanceof Error ? error : new Error(String(error));
 
-        if (fallbackToNativeOnProviderError && !abortSignal?.aborted) {
+        if (
+          fallbackToNativeOnProviderError &&
+          !abortSignal?.aborted &&
+          playbackRoute !== "provider"
+        ) {
+          playbackRoute = "native";
           notifyTtsFallback(normalizedError);
           callbacks.onSpeechTextReady(trimmed, undefined, speechDiagnostics);
           return;
@@ -146,9 +156,13 @@ export function createVoicePipelineTtsQueue({
       return;
     }
 
+    const targetChunkChars =
+      ttsProvider === "gemini"
+        ? GEMINI_TTS_TARGET_CHUNK_CHARS
+        : PROVIDER_TTS_TARGET_CHUNK_CHARS;
     const segments = splitTextForTts(
       text,
-      Math.min(PROVIDER_TTS_MAX_INPUT_CHARS, PROVIDER_TTS_TARGET_CHUNK_CHARS),
+      Math.min(PROVIDER_TTS_MAX_INPUT_CHARS, targetChunkChars),
     );
 
     if (segments.length === 0) {
