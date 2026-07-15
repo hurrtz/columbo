@@ -61,6 +61,10 @@ export function createVoicePipelineTtsQueue({
   let playbackRoute: "native" | "provider" | null =
     ttsMode === "native" ? "native" : null;
   const effectiveReplyPlayback = replyPlayback;
+  const bufferProviderAudioUntilComplete =
+    ttsMode === "provider" && effectiveReplyPlayback === "wait";
+  const bufferedProviderAudio: string[] = [];
+  const bufferedTtsTexts: string[] = [];
   const speechDiagnostics = {
     requestId: createSpeechRequestId(diagnosticsSource),
     source: diagnosticsSource,
@@ -125,6 +129,10 @@ export function createVoicePipelineTtsQueue({
       return;
     }
 
+    if (bufferProviderAudioUntilComplete) {
+      bufferedTtsTexts.push(trimmed);
+    }
+
     const providerSynthesis =
       ttsMode === "provider" ? startProviderSynthesis(trimmed) : null;
     const task = ttsChain.then(async () => {
@@ -141,7 +149,9 @@ export function createVoicePipelineTtsQueue({
       }
 
       if (playbackRoute === "native") {
-        callbacks.onSpeechTextReady(trimmed, undefined, speechDiagnostics);
+        if (!bufferProviderAudioUntilComplete) {
+          callbacks.onSpeechTextReady(trimmed, undefined, speechDiagnostics);
+        }
         return;
       }
 
@@ -152,6 +162,11 @@ export function createVoicePipelineTtsQueue({
       }
 
       if (synthesisResult.kind === "audio") {
+        if (bufferProviderAudioUntilComplete) {
+          bufferedProviderAudio.push(synthesisResult.audio);
+          return;
+        }
+
         playbackRoute = "provider";
         callbacks.onAudioReady(synthesisResult.audio, speechDiagnostics);
         return;
@@ -163,7 +178,9 @@ export function createVoicePipelineTtsQueue({
       ) {
         playbackRoute = "native";
         notifyTtsFallback(synthesisResult.error);
-        callbacks.onSpeechTextReady(trimmed, undefined, speechDiagnostics);
+        if (!bufferProviderAudioUntilComplete) {
+          callbacks.onSpeechTextReady(trimmed, undefined, speechDiagnostics);
+        }
         return;
       }
 
@@ -237,6 +254,26 @@ export function createVoicePipelineTtsQueue({
 
     await Promise.all(ttsQueue);
     await Promise.all(providerSynthesisSlots);
+
+    if (
+      !bufferProviderAudioUntilComplete ||
+      fatalProviderError ||
+      abortSignal?.aborted
+    ) {
+      return;
+    }
+
+    if (playbackRoute === "native") {
+      bufferedTtsTexts.forEach((text) => {
+        callbacks.onSpeechTextReady(text, undefined, speechDiagnostics);
+      });
+      return;
+    }
+
+    playbackRoute = "provider";
+    bufferedProviderAudio.forEach((audio) => {
+      callbacks.onAudioReady(audio, speechDiagnostics);
+    });
   };
 
   return {

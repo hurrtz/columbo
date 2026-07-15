@@ -797,6 +797,66 @@ describe("runVoicePipeline", () => {
     expect(callbacks.onError).not.toHaveBeenCalled();
   });
 
+  it("buffers wait-mode provider audio until every chunk is ready", async () => {
+    const sentenceOne = `First ${"carefully buffered word ".repeat(22)}.`;
+    const sentenceTwo = `Second ${"carefully buffered word ".repeat(22)}.`;
+    const longReply = `${sentenceOne} ${sentenceTwo}`;
+    const audioEvents: string[] = [];
+    let resolveSecond: (value: string) => void = () => undefined;
+
+    (synthesizeSpeech as jest.Mock)
+      .mockResolvedValueOnce("/tmp/provider-1.wav")
+      .mockImplementationOnce(
+        () =>
+          new Promise<string>((resolve) => {
+            resolveSecond = resolve;
+          }),
+      );
+    (streamChat as jest.Mock).mockImplementation(
+      async ({ onDone }: { onDone: (text: string) => Promise<void> }) => {
+        const pendingDone = onDone(longReply);
+        await Promise.resolve();
+        await Promise.resolve();
+
+        expect(audioEvents).toEqual([]);
+
+        resolveSecond("/tmp/provider-2.wav");
+        await pendingDone;
+      },
+    );
+
+    await runVoicePipeline({
+      transcriptionOverride: "Read the complete answer.",
+      messages: [],
+      model: "gpt-5.4",
+      provider: "openai",
+      providerApiKey: "sk-test",
+      sttMode: "native",
+      ttsMode: "provider",
+      ttsProvider: "openai",
+      ttsApiKey: "sk-test",
+      ttsVoice: "alloy",
+      replyPlayback: "wait",
+      assistantInstructions: "You are a voice assistant.",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      callbacks: {
+        onTranscription: jest.fn(),
+        onChunk: jest.fn(),
+        onResponseDone: jest.fn(),
+        onAudioReady: (audioUri) => audioEvents.push(audioUri),
+        onSpeechTextReady: jest.fn(),
+        onError: jest.fn(),
+      },
+    });
+
+    expect(audioEvents).toEqual([
+      "/tmp/provider-1.wav",
+      "/tmp/provider-2.wav",
+    ]);
+  });
+
   it("keeps long Gemini TTS replies within a practical request budget", async () => {
     const longReply = Array.from(
       { length: 70 },
@@ -910,7 +970,14 @@ describe("runVoicePipeline", () => {
       () => "Provider playback must remain the only voice route.",
     ).join(" ");
     (streamChat as jest.Mock).mockImplementation(
-      async ({ onDone }: { onDone: (text: string) => Promise<void> }) => {
+      async ({
+        onChunk,
+        onDone,
+      }: {
+        onChunk: (text: string) => void;
+        onDone: (text: string) => Promise<void>;
+      }) => {
+        onChunk(longReply);
         await onDone(longReply);
       },
     );
@@ -938,7 +1005,7 @@ describe("runVoicePipeline", () => {
       ttsProvider: "gemini",
       ttsApiKey: "gemini-test",
       ttsVoice: "Kore",
-      replyPlayback: "wait",
+      replyPlayback: "stream",
       assistantInstructions: "You are a voice assistant.",
       responseLength: "normal",
       responseTone: "professional",

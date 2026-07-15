@@ -218,6 +218,31 @@ describe("useVoicePipeline", () => {
     expect(result.current.activeReplayMessageId).toBeNull();
   });
 
+  it("does not start a long replay when a later provider chunk fails", async () => {
+    const firstSentence = `First ${"buffered replay word ".repeat(24)}.`;
+    const secondSentence = `Second ${"buffered replay word ".repeat(24)}.`;
+    const params = createParams({
+      ttsMode: "provider",
+      player: createPlayer(),
+    });
+    (synthesizeSpeech as jest.Mock)
+      .mockResolvedValueOnce("file://reply-1.wav")
+      .mockRejectedValueOnce(new Error("Provider TTS unavailable"));
+
+    const { result } = renderHook(() => useVoicePipeline(params));
+
+    await act(async () => {
+      await result.current.playReplyText(
+        `${firstSentence} ${secondSentence}`,
+        "message-1",
+      );
+    });
+
+    expect(params.player.enqueueAudio).not.toHaveBeenCalled();
+    expect(params.player.speakText).not.toHaveBeenCalled();
+    expect(params.showToast).toHaveBeenCalledWith("Provider TTS unavailable");
+  });
+
   it("keeps replay stream text together when the full reply is already available", async () => {
     const params = createParams({
       replyPlayback: "stream",
