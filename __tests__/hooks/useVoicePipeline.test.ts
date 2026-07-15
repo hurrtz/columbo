@@ -260,6 +260,43 @@ describe("useVoicePipeline", () => {
     expect(synthesizeSpeechSequence).not.toHaveBeenCalled();
   });
 
+  it("replays long Gemini replies in reliable provider-sized chunks", async () => {
+    const reply = Array.from(
+      { length: 50 },
+      () => "Replay this sentence with the selected provider voice.",
+    ).join(" ");
+    const params = createParams({
+      ttsMode: "provider",
+      ttsProvider: "gemini",
+      ttsApiKey: "gemini-test",
+      selectedTtsModel: "gemini-2.5-flash-preview-tts",
+      selectedTtsVoice: "Kore",
+      player: createPlayer(),
+    });
+    (synthesizeSpeech as jest.Mock).mockImplementation(
+      async ({ text }: { text: string }) => `file://reply-${text.length}.wav`,
+    );
+
+    const { result } = renderHook(() => useVoicePipeline(params));
+
+    await act(async () => {
+      await result.current.playReplyText(reply, "message-1");
+    });
+
+    const synthesizedTexts = (synthesizeSpeech as jest.Mock).mock.calls.map(
+      ([ttsParams]: [{ text: string }]) => ttsParams.text,
+    );
+    expect(synthesizedTexts.length).toBeGreaterThan(1);
+    expect(synthesizedTexts.every((text: string) => text.length <= 400)).toBe(
+      true,
+    );
+    expect(synthesizedTexts.join(" ")).toBe(reply);
+    expect(params.player.enqueueAudio).toHaveBeenCalledTimes(
+      synthesizedTexts.length,
+    );
+    expect(params.player.speakText).not.toHaveBeenCalled();
+  });
+
   it("runs the full voice pipeline and updates conversation state", async () => {
     const params = createParams();
     const summaryUsage: UsageEstimate = {

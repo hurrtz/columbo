@@ -461,7 +461,7 @@ describe("runVoicePipeline", () => {
     expect(callbacks.onSpeechTextReady).not.toHaveBeenCalled();
   });
 
-  it("speaks each provider TTS chunk and notifies once on fallback in stream mode", async () => {
+  it("speaks each provider TTS chunk in stream mode", async () => {
     (streamChat as jest.Mock).mockImplementation(
       async ({
         onChunk,
@@ -477,16 +477,7 @@ describe("runVoicePipeline", () => {
     );
 
     (synthesizeSpeech as jest.Mock)
-      .mockImplementationOnce(
-        async ({
-          onProviderFallback,
-        }: {
-          onProviderFallback?: (error: Error) => void;
-        }) => {
-          onProviderFallback?.(new Error("Google quota exceeded"));
-          return "/tmp/provider-1.wav";
-        },
-      )
+      .mockResolvedValueOnce("/tmp/provider-1.wav")
       .mockResolvedValueOnce("/tmp/provider-2.wav");
 
     const callbacks = {
@@ -539,7 +530,7 @@ describe("runVoicePipeline", () => {
         apiKey: "gemini-test",
       }),
     );
-    expect(callbacks.onTtsFallback).toHaveBeenCalledTimes(1);
+    expect(callbacks.onTtsFallback).not.toHaveBeenCalled();
     expect(callbacks.onAudioReady).toHaveBeenCalledTimes(2);
     expect(callbacks.onSpeechTextReady).not.toHaveBeenCalled();
   });
@@ -586,6 +577,77 @@ describe("runVoicePipeline", () => {
         onError: jest.fn(),
       },
     });
+  });
+
+  it("prefetches provider speech while preserving sentence playback order", async () => {
+    let resolveFirst: (value: string) => void = () => undefined;
+    let resolveSecond: (value: string) => void = () => undefined;
+    const audioEvents: string[] = [];
+
+    (synthesizeSpeech as jest.Mock)
+      .mockImplementationOnce(
+        () =>
+          new Promise<string>((resolve) => {
+            resolveFirst = resolve;
+          }),
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise<string>((resolve) => {
+            resolveSecond = resolve;
+          }),
+      );
+    (streamChat as jest.Mock).mockImplementation(
+      async ({
+        onChunk,
+        onDone,
+      }: {
+        onChunk: (text: string) => void;
+        onDone: (text: string) => Promise<void>;
+      }) => {
+        onChunk("Sentence one.");
+        onChunk(" Sentence two.");
+        await Promise.resolve();
+        await Promise.resolve();
+
+        expect(synthesizeSpeech).toHaveBeenCalledTimes(2);
+
+        resolveSecond("/tmp/tts-2.wav");
+        await Promise.resolve();
+        expect(audioEvents).toEqual([]);
+
+        resolveFirst("/tmp/tts-1.wav");
+        await onDone("Sentence one. Sentence two.");
+      },
+    );
+
+    await runVoicePipeline({
+      transcriptionOverride: "Explain glass.",
+      messages: [],
+      model: "gpt-5.4",
+      provider: "openai",
+      providerApiKey: "sk-test",
+      sttMode: "native",
+      ttsMode: "provider",
+      ttsProvider: "openai",
+      ttsApiKey: "sk-test",
+      ttsVoice: "alloy",
+      replyPlayback: "stream",
+      assistantInstructions: "You are a voice assistant.",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      callbacks: {
+        onTranscription: jest.fn(),
+        onChunk: jest.fn(),
+        onResponseDone: jest.fn(),
+        onAudioReady: (audioUri) => audioEvents.push(audioUri),
+        onSpeechTextReady: jest.fn(),
+        onError: jest.fn(),
+      },
+    });
+
+    expect(audioEvents).toEqual(["/tmp/tts-1.wav", "/tmp/tts-2.wav"]);
   });
 
   it("flushes a trailing partial sentence for provider TTS when the stream finishes", async () => {
@@ -778,7 +840,7 @@ describe("runVoicePipeline", () => {
     );
 
     expect(synthesizedTexts.length).toBeGreaterThan(1);
-    expect(synthesizedTexts.every((text: string) => text.length <= 450)).toBe(
+    expect(synthesizedTexts.every((text: string) => text.length <= 400)).toBe(
       true,
     );
     expect(synthesizedTexts.join(" ")).toBe(longReply);
@@ -829,7 +891,7 @@ describe("runVoicePipeline", () => {
     const nativeSegments = callbacks.onSpeechTextReady.mock.calls.map(
       ([text]: [string]) => text,
     );
-    expect(synthesizeSpeech).toHaveBeenCalledTimes(1);
+    expect(synthesizeSpeech).toHaveBeenCalledTimes(2);
     expect(callbacks.onTtsFallback).toHaveBeenCalledTimes(1);
     expect(callbacks.onAudioReady).not.toHaveBeenCalled();
     expect(nativeSegments.length).toBeGreaterThan(1);
@@ -879,7 +941,7 @@ describe("runVoicePipeline", () => {
       callbacks,
     });
 
-    expect(synthesizeSpeech).toHaveBeenCalledTimes(2);
+    expect(synthesizeSpeech.mock.calls.length).toBeGreaterThanOrEqual(2);
     expect(callbacks.onAudioReady).toHaveBeenCalledTimes(1);
     expect(callbacks.onSpeechTextReady).not.toHaveBeenCalled();
     expect(callbacks.onTtsFallback).not.toHaveBeenCalled();

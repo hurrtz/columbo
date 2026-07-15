@@ -25,7 +25,13 @@ interface CreateVoicePipelineTtsQueueParams {
 }
 
 const PROVIDER_TTS_TARGET_CHUNK_CHARS = 1200;
-const GEMINI_TTS_TARGET_CHUNK_CHARS = 450;
+const GEMINI_TTS_TARGET_CHUNK_CHARS = 400;
+const PROVIDER_TTS_PREFETCH_CONCURRENCY = 2;
+
+type ProviderSynthesisResult =
+  | { kind: "audio"; audio: string }
+  | { kind: "error"; error: Error }
+  | null;
 
 export function createVoicePipelineTtsQueue({
   abortSignal,
@@ -45,6 +51,11 @@ export function createVoicePipelineTtsQueue({
   let sentenceBuffer = "";
   let ttsChain = Promise.resolve();
   const ttsQueue: Promise<void>[] = [];
+  const providerSynthesisSlots = Array.from(
+    { length: PROVIDER_TTS_PREFETCH_CONCURRENCY },
+    () => Promise.resolve(),
+  );
+  let nextProviderSynthesisSlot = 0;
   let fallbackNotified = false;
   let fatalProviderError = false;
   let fatalProviderErrorNotified = false;
@@ -67,6 +78,47 @@ export function createVoicePipelineTtsQueue({
     callbacks.onTtsFallback?.(error);
   };
 
+  const startProviderSynthesis = (text: string) => {
+    const slotIndex = nextProviderSynthesisSlot;
+    nextProviderSynthesisSlot =
+      (nextProviderSynthesisSlot + 1) % PROVIDER_TTS_PREFETCH_CONCURRENCY;
+
+    const synthesisTask: Promise<ProviderSynthesisResult> =
+      providerSynthesisSlots[slotIndex].then(async () => {
+        if (
+          abortSignal?.aborted ||
+          fatalProviderError ||
+          playbackRoute === "native"
+        ) {
+          return null;
+        }
+
+        try {
+          const audio = await synthesizeSpeech({
+            text,
+            voice: ttsVoice,
+            mode: "provider",
+            provider: ttsProvider,
+            providerModel: ttsModel,
+            apiKey: ttsApiKey,
+            language,
+            listenLanguages: ttsListenLanguages,
+            diagnostics: speechDiagnostics,
+            abortSignal,
+          });
+          return { kind: "audio", audio };
+        } catch (error) {
+          return {
+            kind: "error",
+            error: error instanceof Error ? error : new Error(String(error)),
+          };
+        }
+      });
+
+    providerSynthesisSlots[slotIndex] = synthesisTask.then(() => undefined);
+    return synthesisTask;
+  };
+
   const enqueueTtsChunk = (text: string) => {
     const trimmed = text.trim();
 
@@ -74,6 +126,8 @@ export function createVoicePipelineTtsQueue({
       return;
     }
 
+    const providerSynthesis =
+      ttsMode === "provider" ? startProviderSynthesis(trimmed) : null;
     const task = ttsChain.then(async () => {
       if (abortSignal?.aborted) {
         return;
@@ -92,45 +146,30 @@ export function createVoicePipelineTtsQueue({
         return;
       }
 
-      try {
-        const audio = await synthesizeSpeech({
-          text: trimmed,
-          voice: ttsVoice,
-          mode: "provider",
-          provider: ttsProvider,
-          providerModel: ttsModel,
-          apiKey: ttsApiKey,
-          language,
-          listenLanguages: ttsListenLanguages,
-          diagnostics: speechDiagnostics,
-          abortSignal,
-          onProviderFallback: fallbackToNativeOnProviderError
-            ? notifyTtsFallback
-            : undefined,
-        });
+      const synthesisResult = await providerSynthesis;
 
-        if (!abortSignal?.aborted) {
-          playbackRoute = "provider";
-          callbacks.onAudioReady(audio, speechDiagnostics);
-        }
-      } catch (error) {
-        const normalizedError =
-          error instanceof Error ? error : new Error(String(error));
-
-        if (
-          fallbackToNativeOnProviderError &&
-          !abortSignal?.aborted &&
-          playbackRoute !== "provider"
-        ) {
-          playbackRoute = "native";
-          notifyTtsFallback(normalizedError);
-          callbacks.onSpeechTextReady(trimmed, undefined, speechDiagnostics);
-          return;
-        }
-
-        fatalProviderError = true;
-        throw normalizedError;
+      if (!synthesisResult || abortSignal?.aborted) {
+        return;
       }
+
+      if (synthesisResult.kind === "audio") {
+        playbackRoute = "provider";
+        callbacks.onAudioReady(synthesisResult.audio, speechDiagnostics);
+        return;
+      }
+
+      if (
+        fallbackToNativeOnProviderError &&
+        playbackRoute !== "provider"
+      ) {
+        playbackRoute = "native";
+        notifyTtsFallback(synthesisResult.error);
+        callbacks.onSpeechTextReady(trimmed, undefined, speechDiagnostics);
+        return;
+      }
+
+      fatalProviderError = true;
+      throw synthesisResult.error;
     });
 
     ttsChain = task.catch((error) => {
@@ -199,6 +238,7 @@ export function createVoicePipelineTtsQueue({
     }
 
     await Promise.all(ttsQueue);
+    await Promise.all(providerSynthesisSlots);
   };
 
   return {
