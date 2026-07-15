@@ -30,14 +30,10 @@ export function ResponseModeToggle({
 
   return (
     <View
+      testID="response-mode-list"
       style={[
         styles.container,
         compact ? styles.containerCompact : null,
-        {
-          backgroundColor: colors.surface,
-          borderColor: colors.border,
-          shadowColor: colors.glow,
-        },
       ]}
     >
       {modes.map(({ id, route }) => {
@@ -177,17 +173,9 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     gap: 8,
-    borderRadius: 26,
-    padding: 6,
-    borderWidth: 1,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    elevation: 8,
   },
   containerCompact: {
     gap: 6,
-    padding: 5,
   },
   option: {
     flex: 1,

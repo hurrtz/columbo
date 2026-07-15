@@ -97,4 +97,30 @@ describe("ResponseModeToggle", () => {
     expect(screen.queryByText(/Effort:/)).toBeNull();
     expect(screen.queryByTestId("response-mode-effort-divider")).toBeNull();
   });
+
+  it("lays out model cards without a visible wrapper", () => {
+    const screen = renderWithProviders(
+      <ResponseModeToggle
+        selected="mode-1"
+        onSelect={jest.fn()}
+        modes={[
+          {
+            id: "mode-1",
+            route: { provider: "gemini", model: "gemini-2.5-flash" },
+          },
+        ]}
+      />,
+    );
+
+    const wrapperStyle = StyleSheet.flatten(
+      screen.getByTestId("response-mode-list").props.style,
+    );
+
+    expect(wrapperStyle.flexDirection).toBe("row");
+    expect(wrapperStyle.backgroundColor).toBeUndefined();
+    expect(wrapperStyle.borderWidth).toBeUndefined();
+    expect(wrapperStyle.padding).toBeUndefined();
+    expect(wrapperStyle.shadowOpacity).toBeUndefined();
+    expect(wrapperStyle.elevation).toBeUndefined();
+  });
 });
