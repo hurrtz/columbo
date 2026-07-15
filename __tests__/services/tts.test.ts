@@ -15,6 +15,7 @@ jest.mock("expo-file-system/legacy", () => ({
 
 import {
   getProviderTtsTimeoutMs,
+  getProviderTtsTargetChunkChars,
   PROVIDER_TTS_MAX_TIMEOUT_MS,
   PROVIDER_TTS_TIMEOUT_MS,
   PROVIDER_TTS_MAX_INPUT_CHARS,
@@ -434,7 +435,9 @@ describe("synthesizeSpeech", () => {
         "OpenAI speech output took too long.",
       );
 
-      await jest.advanceTimersByTimeAsync(getProviderTtsTimeoutMs(text) + 1);
+      await jest.advanceTimersByTimeAsync(
+        getProviderTtsTimeoutMs(text, "openai") + 1,
+      );
 
       await expectation;
     } finally {
@@ -451,11 +454,19 @@ describe("synthesizeSpeech", () => {
     );
   });
 
-  it("gives Gemini TTS a larger timeout budget for longer synthesis jobs", () => {
-    const text = "x".repeat(1597);
+  it("uses provider-specific TTS chunk targets", () => {
+    expect(getProviderTtsTargetChunkChars("gemini")).toBe(400);
+    expect(getProviderTtsTargetChunkChars("alibaba-qwen-dashscope")).toBe(550);
+    expect(getProviderTtsTargetChunkChars("openai")).toBe(600);
+    expect(getProviderTtsTargetChunkChars("xai")).toBe(600);
+  });
 
-    expect(getProviderTtsTimeoutMs(text, "gemini")).toBeGreaterThan(
-      getProviderTtsTimeoutMs(text, "openai"),
-    );
+  it("gives slower provider TTS routes realistic timeout budgets", () => {
+    const text = "x".repeat(600);
+
+    expect(getProviderTtsTimeoutMs(text, "openai")).toBe(32000);
+    expect(getProviderTtsTimeoutMs(text, "gemini")).toBe(34000);
+    expect(getProviderTtsTimeoutMs(text, "alibaba-qwen-dashscope")).toBe(42000);
+    expect(getProviderTtsTimeoutMs(text, "xai")).toBe(48000);
   });
 });

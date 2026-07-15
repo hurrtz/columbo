@@ -95,7 +95,7 @@ export const tts = providerContext.defineTtsModels([
       "status": "Documented active/current",
       "catalogScope": "Mostly exhaustive",
       "pricingSummary": "$0.115 / 10K characters. Output not charged.",
-      "limitsSummary": "Instruction field supports max 1600 tokens; the cited API parameter note limits instructions to Chinese and English only. Max raw text length for the main text field is not cleanly stated on the cited rows.",
+      "limitsSummary": "Main text input is limited to 600 characters. The instruction field supports max 1600 tokens and instruction text is limited to Chinese and English.",
       "regionSummary": "Documented in pricing, voice list, and rate-limit docs.",
       "languagesSummary": "Speech output supported for Chinese (Mandarin), English, Spanish, Russian, Italian, French, Korean, Japanese, German, Portuguese.",
       "notes": "Use as the controllable non-realtime TTS picker. Instruction text support is narrower than synthesis language coverage.",
@@ -116,6 +116,14 @@ export const tts = providerContext.defineTtsModels([
         }
       ],
       "constraints": [
+        {
+          "metric": "other",
+          "comparator": "<=",
+          "value": 600,
+          "unit": "other",
+          "scope": "model",
+          "sourceText": "Max input characters 600"
+        },
         {
           "metric": "context_tokens",
           "comparator": "<=",

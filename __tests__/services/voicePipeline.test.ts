@@ -45,6 +45,11 @@ jest.mock("../../src/services/tts", () => ({
   },
   LOCAL_TTS_MAX_INPUT_CHARS: 420,
   PROVIDER_TTS_MAX_INPUT_CHARS: 3500,
+  getProviderTtsTargetChunkChars: (provider?: string | null) => {
+    if (provider === "gemini") return 400;
+    if (provider === "alibaba-qwen-dashscope") return 550;
+    return 600;
+  },
   splitTextForTts: (text: string, maxChars = 3500) => {
     const normalized = text.trim();
 
@@ -783,7 +788,7 @@ describe("runVoicePipeline", () => {
     );
 
     expect(synthesizedTexts.length).toBeGreaterThan(1);
-    expect(synthesizedTexts.every((text: string) => text.length <= 1200)).toBe(
+    expect(synthesizedTexts.every((text: string) => text.length <= 600)).toBe(
       true,
     );
     expect(synthesizedTexts.join(" ")).toBe(longReply);

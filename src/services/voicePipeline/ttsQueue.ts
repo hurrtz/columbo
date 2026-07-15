@@ -1,6 +1,7 @@
 import { createSpeechRequestId } from "../speech/diagnostics";
 import type { SpeechDiagnosticSource } from "../speech/diagnostics";
 import {
+  getProviderTtsTargetChunkChars,
   PROVIDER_TTS_MAX_INPUT_CHARS,
   splitTextForTts,
   synthesizeSpeech,
@@ -24,8 +25,6 @@ interface CreateVoicePipelineTtsQueueParams {
   ttsVoice: string;
 }
 
-const PROVIDER_TTS_TARGET_CHUNK_CHARS = 1200;
-const GEMINI_TTS_TARGET_CHUNK_CHARS = 400;
 const PROVIDER_TTS_PREFETCH_CONCURRENCY = 2;
 
 type ProviderSynthesisResult =
@@ -195,13 +194,12 @@ export function createVoicePipelineTtsQueue({
       return;
     }
 
-    const targetChunkChars =
-      ttsProvider === "gemini"
-        ? GEMINI_TTS_TARGET_CHUNK_CHARS
-        : PROVIDER_TTS_TARGET_CHUNK_CHARS;
     const segments = splitTextForTts(
       text,
-      Math.min(PROVIDER_TTS_MAX_INPUT_CHARS, targetChunkChars),
+      Math.min(
+        PROVIDER_TTS_MAX_INPUT_CHARS,
+        getProviderTtsTargetChunkChars(ttsProvider),
+      ),
     );
 
     if (segments.length === 0) {

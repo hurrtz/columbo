@@ -25,6 +25,11 @@ jest.mock("../../src/services/voicePipeline", () => ({
 jest.mock("../../src/services/tts", () => ({
   LOCAL_TTS_MAX_INPUT_CHARS: 420,
   PROVIDER_TTS_MAX_INPUT_CHARS: 3500,
+  getProviderTtsTargetChunkChars: (provider?: string | null) => {
+    if (provider === "gemini") return 400;
+    if (provider === "alibaba-qwen-dashscope") return 550;
+    return 600;
+  },
   splitIntoSentences: (text: string): string[] => {
     const result: string[] = [];
     let current = "";

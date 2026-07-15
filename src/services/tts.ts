@@ -17,11 +17,13 @@ import {
 import { synthesizeProviderSpeech } from "./tts/providerRoute";
 import {
   getProviderTtsTimeoutMs,
+  getProviderTtsTargetChunkChars,
   getSelectedProviderModel,
   PROVIDER_TTS_MAX_INPUT_CHARS,
   PROVIDER_TTS_MAX_TIMEOUT_MS,
   PROVIDER_TTS_TIMEOUT_MS,
   PROVIDER_TTS_TIMEOUT_MS_PER_CHAR,
+  PROVIDER_TTS_TARGET_CHUNK_CHARS,
   TTS_PROVIDER_CONFIGS,
   TtsRequestError,
   writeBytesAudioFile,
@@ -29,10 +31,12 @@ import {
 
 export {
   getProviderTtsTimeoutMs,
+  getProviderTtsTargetChunkChars,
   PROVIDER_TTS_MAX_INPUT_CHARS,
   PROVIDER_TTS_MAX_TIMEOUT_MS,
   PROVIDER_TTS_TIMEOUT_MS,
   PROVIDER_TTS_TIMEOUT_MS_PER_CHAR,
+  PROVIDER_TTS_TARGET_CHUNK_CHARS,
   splitIntoSentences,
   splitTextForTts,
   TtsRequestError,
@@ -235,7 +239,13 @@ export async function synthesizeSpeechSequence(params: {
   diagnostics?: SpeechDiagnosticsContext;
   abortSignal?: AbortSignal;
 }) {
-  const segments = splitTextForTts(params.text, PROVIDER_TTS_MAX_INPUT_CHARS);
+  const segments = splitTextForTts(
+    params.text,
+    Math.min(
+      PROVIDER_TTS_MAX_INPUT_CHARS,
+      getProviderTtsTargetChunkChars(params.provider),
+    ),
+  );
 
   if (segments.length === 0) {
     return [];

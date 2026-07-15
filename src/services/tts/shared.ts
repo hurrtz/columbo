@@ -14,12 +14,31 @@ import { AppLanguage, Provider } from "../../types";
 import { extractProviderErrorMessage } from "../providerErrors";
 
 export const PROVIDER_TTS_MAX_INPUT_CHARS = 3500;
+export const PROVIDER_TTS_TARGET_CHUNK_CHARS = 600;
 export const PROVIDER_TTS_TIMEOUT_MS = 12000;
 export const PROVIDER_TTS_TIMEOUT_MS_PER_CHAR = 8;
 export const PROVIDER_TTS_MAX_TIMEOUT_MS = 40000;
-const GEMINI_PROVIDER_TTS_TIMEOUT_MS = 18000;
-const GEMINI_PROVIDER_TTS_TIMEOUT_MS_PER_CHAR = 12;
-const GEMINI_PROVIDER_TTS_MAX_TIMEOUT_MS = 50000;
+
+const PROVIDER_TTS_CHUNK_CHAR_LIMITS: Partial<Record<Provider, number>> = {
+  "alibaba-qwen-dashscope": 550,
+  gemini: 400,
+};
+
+const PROVIDER_TTS_TIMEOUT_POLICIES: Partial<
+  Record<
+    Provider,
+    { baseMs: number; maxMs: number; perCharacterMs: number }
+  >
+> = {
+  openai: { baseMs: 20000, maxMs: 60000, perCharacterMs: 20 },
+  gemini: { baseMs: 22000, maxMs: 60000, perCharacterMs: 20 },
+  xai: { baseMs: 30000, maxMs: 120000, perCharacterMs: 30 },
+  "alibaba-qwen-dashscope": {
+    baseMs: 30000,
+    maxMs: 90000,
+    perCharacterMs: 20,
+  },
+};
 
 export class TtsRequestError extends Error {
   readonly provider: Provider;
@@ -325,12 +344,12 @@ export function getProviderTtsTimeoutMs(
   provider?: Provider | null,
 ) {
   const normalizedLength = text.trim().length;
+  const policy = provider ? PROVIDER_TTS_TIMEOUT_POLICIES[provider] : undefined;
 
-  if (provider === "gemini") {
+  if (policy) {
     return Math.min(
-      GEMINI_PROVIDER_TTS_MAX_TIMEOUT_MS,
-      GEMINI_PROVIDER_TTS_TIMEOUT_MS +
-        normalizedLength * GEMINI_PROVIDER_TTS_TIMEOUT_MS_PER_CHAR,
+      policy.maxMs,
+      policy.baseMs + normalizedLength * policy.perCharacterMs,
     );
   }
 
@@ -339,6 +358,13 @@ export function getProviderTtsTimeoutMs(
     PROVIDER_TTS_TIMEOUT_MS +
       normalizedLength * PROVIDER_TTS_TIMEOUT_MS_PER_CHAR,
   );
+}
+
+export function getProviderTtsTargetChunkChars(provider?: Provider | null) {
+  return provider
+    ? PROVIDER_TTS_CHUNK_CHAR_LIMITS[provider] ??
+        PROVIDER_TTS_TARGET_CHUNK_CHARS
+    : PROVIDER_TTS_TARGET_CHUNK_CHARS;
 }
 
 export async function fetchWithTimeout(
