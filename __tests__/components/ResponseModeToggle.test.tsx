@@ -2,13 +2,19 @@ import React from "react";
 import { StyleSheet } from "react-native";
 
 import { ResponseModeToggle } from "../../src/components/ResponseModeToggle";
+import { lightColors } from "../../src/theme/colors";
 import { renderWithProviders } from "../test-utils/renderWithProviders";
 
 jest.mock("expo-linear-gradient", () => ({
-  LinearGradient: ({ children }: { children: React.ReactNode }) => {
+  LinearGradient: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode;
+  }) => {
     const React = require("react");
     const { View } = require("react-native");
-    return React.createElement(View, null, children);
+    return React.createElement(View, props, children);
   },
 }));
 
@@ -59,6 +65,12 @@ describe("ResponseModeToggle", () => {
     expect(screen.queryByText("Reason")).toBeNull();
     expect(screen.queryByText("Research")).toBeNull();
     expect(screen.getByText("Gemini 3.5 Flash")).toBeTruthy();
+    expect(
+      screen.getByTestId("response-mode-option-gradient-mode-2"),
+    ).toBeTruthy();
+    expect(
+      screen.getByTestId("response-mode-model-mode-2").props.numberOfLines,
+    ).toBe(2);
     expect(screen.getAllByText("High").length).toBeGreaterThan(0);
     const dividers = screen.getAllByTestId("response-mode-effort-divider");
     expect(dividers).toHaveLength(2);
@@ -123,4 +135,46 @@ describe("ResponseModeToggle", () => {
     expect(wrapperStyle.shadowOpacity).toBeUndefined();
     expect(wrapperStyle.elevation).toBeUndefined();
   });
+
+  it.each([
+    { compact: false, minHeight: 88 },
+    { compact: true, minHeight: 76 },
+  ])(
+    "shows one model as a neutral, shorter, one-line card when compact is $compact",
+    ({ compact, minHeight }) => {
+      const screen = renderWithProviders(
+        <ResponseModeToggle
+          compact={compact}
+          selected="mode-1"
+          onSelect={jest.fn()}
+          modes={[
+            {
+              id: "mode-1",
+              route: { provider: "gemini", model: "gemini-2.5-flash" },
+            },
+          ]}
+        />,
+      );
+
+      const card = screen.getByTestId("response-mode-option-mode-1");
+      const cardStyle = StyleSheet.flatten(card.props.style);
+      const innerStyle = StyleSheet.flatten(
+        screen.getByTestId("response-mode-option-inner-mode-1").props.style,
+      );
+
+      expect(card.props.onPress).toBeUndefined();
+      expect(card.props.accessibilityState).toEqual({
+        disabled: true,
+        selected: true,
+      });
+      expect(cardStyle.backgroundColor).toBe(lightColors.surfaceElevated);
+      expect(
+        screen.queryByTestId("response-mode-option-gradient-mode-1"),
+      ).toBeNull();
+      expect(innerStyle.minHeight).toBe(minHeight);
+      expect(
+        screen.getByTestId("response-mode-model-mode-1").props.numberOfLines,
+      ).toBe(1);
+    },
+  );
 });

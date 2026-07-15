@@ -27,6 +27,7 @@ export function ResponseModeToggle({
 }: ResponseModeToggleProps) {
   const { colors } = useTheme();
   const { language, t } = useLocalization();
+  const singleMode = modes.length === 1;
 
   return (
     <View
@@ -38,6 +39,7 @@ export function ResponseModeToggle({
     >
       {modes.map(({ id, route }) => {
         const active = id === selected;
+        const highlighted = active && !singleMode;
         const ready = readyModes.includes(id);
         const providerLabel = PROVIDER_LABELS[route.provider];
         const modelLabel = getProviderModelName(route.provider, route.model);
@@ -64,21 +66,25 @@ export function ResponseModeToggle({
               style={[
                 styles.modelRow,
                 compact ? styles.modelRowCompact : null,
+                singleMode ? styles.modelRowSingle : null,
+                compact && singleMode ? styles.modelRowSingleCompact : null,
               ]}
             >
               <View
                 style={[
                   styles.modelTextSlot,
                   compact ? styles.modelTextSlotCompact : null,
+                  singleMode ? styles.modelTextSlotSingle : null,
                 ]}
               >
                 <Text
+                  testID={`response-mode-model-${id}`}
                   style={[
                     styles.modelText,
                     compact ? styles.modelTextCompact : null,
                     { color: active ? colors.text : colors.textMuted },
                   ]}
-                  numberOfLines={2}
+                  numberOfLines={singleMode ? 1 : 2}
                 >
                   {modelLabel}
                 </Text>
@@ -123,40 +129,55 @@ export function ResponseModeToggle({
         return (
           <Pressable
             key={id}
+            testID={`response-mode-option-${id}`}
             style={[
               styles.option,
               !ready ? styles.optionDisabled : null,
-              active
+              highlighted
                 ? styles.optionActiveShell
                 : {
                     backgroundColor: colors.surfaceElevated,
                     borderColor: colors.border,
                   },
             ]}
-            onPress={() => onSelect(id)}
+            disabled={singleMode}
+            onPress={singleMode ? undefined : () => onSelect(id)}
             accessibilityRole="button"
             accessibilityLabel={`${t("useResponseMode", {
               mode: accessibilityRouteLabel,
             })}`}
-            accessibilityState={{ disabled: !ready, selected: active }}
+            accessibilityState={{
+              disabled: !ready || singleMode,
+              selected: active,
+            }}
           >
-            {active ? (
+            {highlighted ? (
               <LinearGradient
+                testID={`response-mode-option-gradient-${id}`}
                 colors={[colors.accentGradientStart, colors.accentGradientEnd]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={[
                   styles.optionInner,
                   compact ? styles.optionInnerCompact : null,
+                  singleMode ? styles.optionInnerSingle : null,
+                  compact && singleMode
+                    ? styles.optionInnerSingleCompact
+                    : null,
                 ]}
               >
                 {content}
               </LinearGradient>
             ) : (
               <View
+                testID={`response-mode-option-inner-${id}`}
                 style={[
                   styles.optionInner,
                   compact ? styles.optionInnerCompact : null,
+                  singleMode ? styles.optionInnerSingle : null,
+                  compact && singleMode
+                    ? styles.optionInnerSingleCompact
+                    : null,
                 ]}
               >
                 {content}
@@ -204,6 +225,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 8,
   },
+  optionInnerSingle: {
+    minHeight: 88,
+    paddingVertical: 8,
+  },
+  optionInnerSingleCompact: {
+    minHeight: 76,
+    paddingVertical: 6,
+  },
   optionContent: {
     width: "100%",
     alignItems: "center",
@@ -225,6 +254,12 @@ const styles = StyleSheet.create({
   modelRowCompact: {
     height: 46,
   },
+  modelRowSingle: {
+    height: 38,
+  },
+  modelRowSingleCompact: {
+    height: 34,
+  },
   modelTextSlot: {
     flex: 1,
     width: "100%",
@@ -233,6 +268,9 @@ const styles = StyleSheet.create({
   },
   modelTextSlotCompact: {
     minHeight: 28,
+  },
+  modelTextSlotSingle: {
+    minHeight: 16,
   },
   modelText: {
     fontSize: 12,
