@@ -438,6 +438,10 @@ describe("synthesizeSpeech", () => {
       await jest.advanceTimersByTimeAsync(
         getProviderTtsTimeoutMs(text, "openai") + 1,
       );
+      await jest.advanceTimersByTimeAsync(401);
+      await jest.advanceTimersByTimeAsync(
+        getProviderTtsTimeoutMs(text, "openai") + 1,
+      );
 
       await expectation;
     } finally {
@@ -455,7 +459,7 @@ describe("synthesizeSpeech", () => {
   });
 
   it("uses provider-specific TTS chunk targets", () => {
-    expect(getProviderTtsTargetChunkChars("gemini")).toBe(400);
+    expect(getProviderTtsTargetChunkChars("gemini")).toBe(300);
     expect(getProviderTtsTargetChunkChars("alibaba-qwen-dashscope")).toBe(550);
     expect(getProviderTtsTargetChunkChars("openai")).toBe(600);
     expect(getProviderTtsTargetChunkChars("xai")).toBe(600);
@@ -465,7 +469,7 @@ describe("synthesizeSpeech", () => {
     const text = "x".repeat(600);
 
     expect(getProviderTtsTimeoutMs(text, "openai")).toBe(32000);
-    expect(getProviderTtsTimeoutMs(text, "gemini")).toBe(34000);
+    expect(getProviderTtsTimeoutMs(text, "gemini")).toBe(60000);
     expect(getProviderTtsTimeoutMs(text, "alibaba-qwen-dashscope")).toBe(42000);
     expect(getProviderTtsTimeoutMs(text, "xai")).toBe(48000);
   });

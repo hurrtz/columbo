@@ -37,7 +37,7 @@ function isRetryableTtsTransportError(error: unknown) {
   }
 
   if (error instanceof TtsTimeoutError) {
-    return false;
+    return true;
   }
 
   if (error instanceof TtsRequestError) {
@@ -58,8 +58,10 @@ async function withTransientTtsRetries<T>(request: () => Promise<T>) {
     try {
       return await request();
     } catch (error) {
+      const retryLimit =
+        error instanceof TtsTimeoutError ? 1 : TTS_RETRY_DELAYS_MS.length;
       const shouldRetry =
-        attempt < TTS_RETRY_DELAYS_MS.length &&
+        attempt < retryLimit &&
         isRetryableTtsTransportError(error);
 
       if (!shouldRetry) {

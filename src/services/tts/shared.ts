@@ -21,7 +21,7 @@ export const PROVIDER_TTS_MAX_TIMEOUT_MS = 40000;
 
 const PROVIDER_TTS_CHUNK_CHAR_LIMITS: Partial<Record<Provider, number>> = {
   "alibaba-qwen-dashscope": 550,
-  gemini: 400,
+  gemini: 300,
 };
 
 const PROVIDER_TTS_TIMEOUT_POLICIES: Partial<
@@ -31,7 +31,7 @@ const PROVIDER_TTS_TIMEOUT_POLICIES: Partial<
   >
 > = {
   openai: { baseMs: 20000, maxMs: 60000, perCharacterMs: 20 },
-  gemini: { baseMs: 22000, maxMs: 60000, perCharacterMs: 20 },
+  gemini: { baseMs: 30000, maxMs: 90000, perCharacterMs: 50 },
   xai: { baseMs: 30000, maxMs: 120000, perCharacterMs: 30 },
   "alibaba-qwen-dashscope": {
     baseMs: 30000,

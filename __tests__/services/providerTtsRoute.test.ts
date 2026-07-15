@@ -117,6 +117,29 @@ describe("synthesizeProviderSpeech", () => {
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 
+  it("retries one provider TTS timeout", async () => {
+    const timeoutAbort = new Error("The request was aborted");
+    timeoutAbort.name = "AbortError";
+    (fetch as jest.Mock)
+      .mockRejectedValueOnce(timeoutAbort)
+      .mockResolvedValueOnce({
+        ok: true,
+        blob: () => Promise.resolve(new Blob(["fake-audio"])),
+      });
+
+    await expect(
+      synthesizeProviderSpeech({
+        text: "Please retry this timed-out speech.",
+        voice: "eve",
+        provider: "xai",
+        apiKey: "xai-test",
+        language: "en",
+      }),
+    ).resolves.toMatch(/^\/tmp\/tts-.*\.mp3$/);
+
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
   it("does not retry a permanent xAI authentication failure", async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
