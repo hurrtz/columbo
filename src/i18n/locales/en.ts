@@ -268,6 +268,9 @@ export const en: TranslationDictionary = {
       "Shows the latest speech requests, the route they asked for, the route they actually used, and any fallback reason.",
     speechDiagnosticsEmpty:
       "No recent speech requests yet. Preview a voice or play a reply to see routing details here.",
+    clearSpeechDiagnosticsConfirmationTitle: "Clear recent speech activity?",
+    clearSpeechDiagnosticsConfirmationMessage:
+      "This removes all captured speech-routing diagnostics. This action cannot be undone.",
     speechDiagnosticSourceConversation: "Conversation reply",
     speechDiagnosticSourceRepeat: "Repeat reply",
     speechDiagnosticSourcePreview: "Voice preview",

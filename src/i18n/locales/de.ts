@@ -276,6 +276,9 @@ export const de: TranslationDictionary = {
       "Zeigt die letzten Sprachanfragen, die angefragte Route, die tatsächlich genutzte Route und den Grund für einen Fallback.",
     speechDiagnosticsEmpty:
       "Noch keine aktuellen Aktivitäten. Teste eine Stimme oder spiele eine Antwort ab, um hier Routing-Details zu sehen.",
+    clearSpeechDiagnosticsConfirmationTitle: "Letzte Aktivität leeren?",
+    clearSpeechDiagnosticsConfirmationMessage:
+      "Dadurch werden alle erfassten Diagnoseinformationen zum Sprach-Routing gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
     speechDiagnosticSourceConversation: "Antwort aus dem Schnack",
     speechDiagnosticSourceRepeat: "Antwort wiederholen",
     speechDiagnosticSourcePreview: "Vorschau der Stimme",

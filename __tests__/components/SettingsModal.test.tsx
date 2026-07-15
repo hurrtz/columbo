@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet } from "react-native";
+import { Alert, StyleSheet } from "react-native";
 import {
   fireEvent,
   render,
@@ -13,6 +13,7 @@ import { LocalizationProvider } from "../../src/i18n";
 import { ThemeProvider } from "../../src/theme/ThemeContext";
 import { lightColors } from "../../src/theme/colors";
 import { DEFAULT_SETTINGS, type Provider } from "../../src/types";
+import { clearSpeechDiagnostics } from "../../src/services/speech/diagnostics";
 
 jest.mock("react-native-safe-area-context", () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
@@ -111,6 +112,10 @@ function renderSettingsModal(overrideProps: Partial<React.ComponentProps<typeof 
 }
 
 describe("SettingsModal", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it("renders readiness overview and drills into Connections", async () => {
     const screen = renderSettingsModal();
 
@@ -450,5 +455,49 @@ describe("SettingsModal", () => {
       expect(screen.getByText("Recent Speech Activity")).toBeTruthy();
       expect(screen.queryByText("Web Search Provider")).toBeNull();
     });
+  });
+
+  it("styles speech diagnostics clearing as destructive and requires confirmation", async () => {
+    const alertSpy = jest
+      .spyOn(Alert, "alert")
+      .mockImplementation(() => undefined);
+    const clearSpeechDiagnosticsMock = jest.mocked(clearSpeechDiagnostics);
+    const screen = renderSettingsModal();
+
+    fireEvent.press(screen.getByLabelText("Open App & diagnostics"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Recent Speech Activity")).toBeTruthy();
+    });
+
+    const clearLabel = screen.getByText("Clear");
+    expect(StyleSheet.flatten(clearLabel.props.style).color).toBe(
+      lightColors.danger,
+    );
+
+    fireEvent.press(clearLabel);
+
+    expect(clearSpeechDiagnosticsMock).not.toHaveBeenCalled();
+    expect(alertSpy).toHaveBeenCalledWith(
+      "Clear recent speech activity?",
+      "This removes all captured speech-routing diagnostics. This action cannot be undone.",
+      expect.arrayContaining([
+        expect.objectContaining({ text: "Cancel", style: "cancel" }),
+        expect.objectContaining({ text: "Clear", style: "destructive" }),
+      ]),
+    );
+
+    const cancelAction = alertSpy.mock.calls[0]?.[2]?.find(
+      (action) => action.style === "cancel",
+    );
+    cancelAction?.onPress?.();
+    expect(clearSpeechDiagnosticsMock).not.toHaveBeenCalled();
+
+    fireEvent.press(clearLabel);
+    const destructiveAction = alertSpy.mock.calls[1]?.[2]?.find(
+      (action) => action.style === "destructive",
+    );
+    destructiveAction?.onPress?.();
+    expect(clearSpeechDiagnosticsMock).toHaveBeenCalledTimes(1);
   });
 });
