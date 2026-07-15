@@ -46,7 +46,6 @@ jest.mock("../../src/services/tts", () => ({
   LOCAL_TTS_MAX_INPUT_CHARS: 420,
   PROVIDER_TTS_MAX_INPUT_CHARS: 3500,
   getProviderTtsTargetChunkChars: (provider?: string | null) => {
-    if (provider === "gemini") return 300;
     if (provider === "alibaba-qwen-dashscope") return 550;
     return 600;
   },
@@ -798,7 +797,7 @@ describe("runVoicePipeline", () => {
     expect(callbacks.onError).not.toHaveBeenCalled();
   });
 
-  it("uses smaller Gemini TTS chunks for completed replies", async () => {
+  it("keeps long Gemini TTS replies within a practical request budget", async () => {
     const longReply = Array.from(
       { length: 70 },
       () => "Gemini should receive a modest speech segment.",
@@ -845,9 +844,10 @@ describe("runVoicePipeline", () => {
     );
 
     expect(synthesizedTexts.length).toBeGreaterThan(1);
-    expect(synthesizedTexts.every((text: string) => text.length <= 300)).toBe(
+    expect(synthesizedTexts.every((text: string) => text.length <= 600)).toBe(
       true,
     );
+    expect(synthesizedTexts.length).toBeLessThanOrEqual(10);
     expect(synthesizedTexts.join(" ")).toBe(longReply);
   });
 

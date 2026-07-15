@@ -459,7 +459,7 @@ describe("synthesizeSpeech", () => {
   });
 
   it("uses provider-specific TTS chunk targets", () => {
-    expect(getProviderTtsTargetChunkChars("gemini")).toBe(300);
+    expect(getProviderTtsTargetChunkChars("gemini")).toBe(600);
     expect(getProviderTtsTargetChunkChars("alibaba-qwen-dashscope")).toBe(550);
     expect(getProviderTtsTargetChunkChars("openai")).toBe(600);
     expect(getProviderTtsTargetChunkChars("xai")).toBe(600);

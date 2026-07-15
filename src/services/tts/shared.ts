@@ -21,7 +21,6 @@ export const PROVIDER_TTS_MAX_TIMEOUT_MS = 40000;
 
 const PROVIDER_TTS_CHUNK_CHAR_LIMITS: Partial<Record<Provider, number>> = {
   "alibaba-qwen-dashscope": 550,
-  gemini: 300,
 };
 
 const PROVIDER_TTS_TIMEOUT_POLICIES: Partial<
