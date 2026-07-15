@@ -258,23 +258,21 @@ export function SettingsModal(props: SettingsModalProps) {
     [t],
   );
 
+  const modalTitle =
+    activePage === "overview" ? t("settings") : getPageTitle(activePage);
+
   const renderDrillInPage = React.useCallback(
     (page: DrillInSettingsPage, children: React.ReactNode) => (
       <View style={styles.tabPane}>
         <View style={styles.drillInHeader}>
-          <View style={styles.drillInTitleBlock}>
-            <Text style={[styles.drillInTitle, { color: colors.text }]}>
-              {getPageTitle(page)}
-            </Text>
-            <Text style={[styles.drillInSummary, { color: colors.textMuted }]}>
-              {getPageSummary(page)}
-            </Text>
-          </View>
+          <Text style={[styles.drillInSummary, { color: colors.textMuted }]}>
+            {getPageSummary(page)}
+          </Text>
         </View>
         {children}
       </View>
     ),
-    [colors.text, colors.textMuted, getPageSummary, getPageTitle],
+    [colors.textMuted, getPageSummary],
   );
 
   const activeContent = (() => {
@@ -444,8 +442,12 @@ export function SettingsModal(props: SettingsModalProps) {
                 </TouchableOpacity>
               ) : null}
               <View style={styles.headerCopy}>
-                <Text style={[styles.title, { color: colors.text }]}>
-                  {t("settings")}
+                <Text
+                  testID="settings-modal-title"
+                  accessibilityRole="header"
+                  style={[styles.title, { color: colors.text }]}
+                >
+                  {modalTitle}
                 </Text>
               </View>
             </View>

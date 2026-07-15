@@ -556,10 +556,6 @@ export const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   drillInHeader: {
-    minHeight: 46,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
     marginBottom: 2,
   },
   drillInBackButton: {
@@ -571,15 +567,6 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-  },
-  drillInTitleBlock: {
-    flex: 1,
-    gap: 2,
-  },
-  drillInTitle: {
-    fontSize: 20,
-    lineHeight: 24,
-    fontFamily: fonts.display,
   },
   drillInSummary: {
     fontSize: 12,

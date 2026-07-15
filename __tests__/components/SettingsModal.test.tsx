@@ -116,6 +116,9 @@ describe("SettingsModal", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Settings")).toBeTruthy();
+      expect(screen.getByTestId("settings-modal-title").props.children).toBe(
+        "Settings",
+      );
       expect(screen.getByTestId("settings-header-gradient")).toBeTruthy();
       expect(screen.queryByTestId("settings-modal-gradient")).toBeNull();
       expect(screen.queryByText("Runtime Readiness")).toBeNull();
@@ -136,6 +139,13 @@ describe("SettingsModal", () => {
     await waitFor(() => {
       expect(screen.queryByText("Back to overview")).toBeNull();
       expect(screen.getByLabelText("Back to overview")).toBeTruthy();
+      expect(screen.getByTestId("settings-modal-title").props.children).toBe(
+        "Connections",
+      );
+      expect(screen.getAllByText("Connections")).toHaveLength(1);
+      expect(
+        screen.getByText("Provider keys, validation, and capabilities."),
+      ).toBeTruthy();
       expect(screen.queryByPlaceholderText("Search services")).toBeNull();
       expect(screen.queryByText("System Prompt")).toBeNull();
     });
@@ -143,6 +153,9 @@ describe("SettingsModal", () => {
     fireEvent.press(screen.getByLabelText("Back to overview"));
 
     await waitFor(() => {
+      expect(screen.getByTestId("settings-modal-title").props.children).toBe(
+        "Settings",
+      );
       expect(screen.queryByText("Runtime Readiness")).toBeNull();
       expect(screen.queryByPlaceholderText("Search services")).toBeNull();
     });
@@ -177,6 +190,9 @@ describe("SettingsModal", () => {
     await waitFor(() => {
       expect(screen.queryByText("Back to overview")).toBeNull();
       expect(screen.getByLabelText("Back to overview")).toBeTruthy();
+      expect(screen.getByTestId("settings-modal-title").props.children).toBe(
+        "Connections",
+      );
       expect(screen.getByText("OpenAI")).toBeTruthy();
       expect(screen.getByText("Test key")).toBeTruthy();
       expect(screen.queryByText("System Prompt")).toBeNull();
@@ -397,6 +413,9 @@ describe("SettingsModal", () => {
     fireEvent.press(screen.getByLabelText("Open Thinking"));
 
     await waitFor(() => {
+      expect(screen.getByTestId("settings-modal-title").props.children).toBe(
+        "Thinking",
+      );
       expect(screen.getByText("Response Modes")).toBeTruthy();
       expect(screen.getByText("System Prompt")).toBeTruthy();
       expect(screen.queryByText("Adaptive Length")).toBeNull();
@@ -407,6 +426,9 @@ describe("SettingsModal", () => {
     fireEvent.press(screen.getByLabelText("Open Search"));
 
     await waitFor(() => {
+      expect(screen.getByTestId("settings-modal-title").props.children).toBe(
+        "Search",
+      );
       expect(screen.getByText("Web Search Provider")).toBeTruthy();
       expect(screen.queryByText("Response Modes")).toBeNull();
     });
@@ -415,6 +437,9 @@ describe("SettingsModal", () => {
     fireEvent.press(screen.getByLabelText("Open App & diagnostics"));
 
     await waitFor(() => {
+      expect(screen.getByTestId("settings-modal-title").props.children).toBe(
+        "App & diagnostics",
+      );
       expect(screen.getByText("Theme")).toBeTruthy();
       expect(screen.getByText("Usage Stats")).toBeTruthy();
       expect(screen.getByText("Recent Speech Activity")).toBeTruthy();
