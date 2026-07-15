@@ -259,7 +259,7 @@ export const de: TranslationDictionary = {
       "Dieser Anbieter nutzt aktuell seine Standardstimme für Vorschau und Sprachausgabe.",
     listenLanguages: "Sprachen",
     listenLanguagesHint:
-      "Wähle die Sprachen aus, die gut klingen sollen. SchnackAI probiert sie in dieser Reihenfolge für die Sprachausgabe.",
+      "Wähle die Sprachen aus, die gut klingen sollen. Schnack probiert sie in dieser Reihenfolge für die Sprachausgabe.",
     localVoicePacks: "Lokale Sprachpakete",
     localVoicePacksHint:
       "Jede Sprache bringt eigene Stimmen mit. Wähle zuerst eine Stimme pro Sprache aus und lade dann die Pakete herunter, die du brauchst.",
@@ -445,7 +445,7 @@ export const de: TranslationDictionary = {
     idle: "Bereit",
     yourConversationAppearsHere: "Dein Schnack erscheint hier",
     defaultTranscriptEmptyDescription:
-      "Halte die Sprachsteuerung gedrückt und sprich ganz natürlich. SchnackAI behält den Schnack und antwortet dir per Stimme.",
+      "Halte die Sprachsteuerung gedrückt und sprich ganz natürlich. Schnack behält den Schnack und antwortet dir per Stimme.",
     delete: "Löschen",
     memory: "Speicher",
     conversations: "Schnacks",
@@ -454,7 +454,7 @@ export const de: TranslationDictionary = {
     newSession: "Neue Sitzung",
     noSavedConversationsYet: "Noch keine gespeicherten Schnacks",
     drawerEmptyDescription:
-      "Sprich in der Hauptansicht los und SchnackAI erstellt automatisch einen Schnack.",
+      "Sprich in der Hauptansicht los und Schnack erstellt automatisch einen Schnack.",
     setupGuideTitle: "App konfigurieren",
     setupGuideSubtitle:
       "Füge Zugangsdaten hinzu und wähle Routen in den Einstellungen.",
@@ -468,9 +468,9 @@ export const de: TranslationDictionary = {
       "Danach öffnen wir die Einstellungen, damit du Zugangsdaten einfügen und prüfen kannst.",
     useThisSetup: "Dieses Setup nutzen",
     notNow: "Jetzt nicht",
-    setupGuideIntroTitle: "So funktioniert SchnackAI",
+    setupGuideIntroTitle: "So funktioniert Schnack",
     setupGuideIntroBody:
-      "SchnackAI startet leer. Füge Zugangsdaten für externe Dienste ein, die du bereits nutzt, und wähle danach aus, wie Antworten, Spracheingabe, Sprachausgabe und optionaler Web-Kontext geroutet werden.",
+      "Schnack startet leer. Füge Zugangsdaten für externe Dienste ein, die du bereits nutzt, und wähle danach aus, wie Antworten, Spracheingabe, Sprachausgabe und optionaler Web-Kontext geroutet werden.",
     setupGuideIntroNote:
       "Nach der Einrichtung startest und stoppst du Gespräche über die Sprachsteuerung auf der Hauptseite. Schnacks werden in der Seitenleiste gespeichert, und jede Route lässt sich später in den Einstellungen ändern.",
     setupGuideProviderTitle: "Zugangsdaten hinzufügen",
@@ -493,7 +493,7 @@ export const de: TranslationDictionary = {
       `Diese Zugangsdaten für ${provider} erlauben keine Antwortanfragen.`,
     setupGuideVoiceTestTitle: "Setup testen",
     setupGuideVoiceTestBody:
-      "Sprich einen kurzen Satz. SchnackAI testet Mikrofonzugriff, Transkription, die konfigurierte Antwortroute und gesprochene Ausgabe, wenn eine brauchbare Sprachroute verfügbar ist.",
+      "Sprich einen kurzen Satz. Schnack testet Mikrofonzugriff, Transkription, die konfigurierte Antwortroute und gesprochene Ausgabe, wenn eine brauchbare Sprachroute verfügbar ist.",
     setupGuideVoiceTestNoInputBody:
       "Spracheingabe ist mit diesem Setup nicht verfügbar. Fahr fort, um die erkannten Routen zu prüfen, und passe die Spracheinstellungen später bei Bedarf an.",
     setupGuideVoiceTestTextOnlyNote:
@@ -512,7 +512,7 @@ export const de: TranslationDictionary = {
       "Spracheingabe ist für dieses Setup auf diesem Gerät nicht verfügbar.",
     setupGuideSummaryTitle: "Setup abgeschlossen",
     setupGuideSummaryBody:
-      "Das ist die Route, die SchnackAI mit deiner aktuellen Konfiguration verwendet.",
+      "Das ist die Route, die Schnack mit deiner aktuellen Konfiguration verwendet.",
     setupGuideSummaryLlm: "LLM",
     setupGuideSummaryStt: "Sprache zu Text",
     setupGuideSummaryTts: "Text zu Sprache",
@@ -539,7 +539,7 @@ export const de: TranslationDictionary = {
       "Versuch es mit einem anderen Titel, einer anderen Route, einem Modell oder einem Satz aus dem Transkript.",
     memoryModalTitle: "Schnack-Erinnerung",
     memoryModalDescription:
-      "Das ist die kompakte Zusammenfassung, die SchnackAI weiterträgt, sobald ein Schnack lang genug wird und ältere Beiträge zusammengefasst werden.",
+      "Das ist die kompakte Zusammenfassung, die Schnack weiterträgt, sobald ein Schnack lang genug wird und ältere Beiträge zusammengefasst werden.",
     memorySummary: "Gespeicherte Zusammenfassung",
     memorySummaryEmpty:
       "Noch kein kompakter Speicher. Sobald dieser Schnack länger wird, werden ältere Beiträge hier zusammengefasst.",

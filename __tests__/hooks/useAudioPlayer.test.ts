@@ -88,6 +88,17 @@ describe("useAudioPlayer", () => {
 
     expect(mockPlayer.replace).toHaveBeenNthCalledWith(1, "first.mp3");
     expect(mockPlayer.play).toHaveBeenCalledTimes(1);
+    expect(mockPlayer.setActiveForLockScreen).toHaveBeenCalledWith(
+      true,
+      {
+        artist: "Schnack",
+        title: "Spoken reply",
+      },
+      {
+        showSeekBackward: false,
+        showSeekForward: false,
+      },
+    );
 
     await act(async () => {
       mockStatus = {

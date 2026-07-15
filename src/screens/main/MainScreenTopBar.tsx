@@ -56,13 +56,13 @@ export function MainScreenTopBar({
           ]}
         >
           <Text style={[styles.compactBrandText, { color: colors.text }]}>
-            SchnackAI
+            Schnack
           </Text>
         </View>
       ) : (
         <View style={styles.wordmark}>
           <Text style={[styles.wordmarkText, { color: colors.text }]}>
-            SchnackAI
+            Schnack
           </Text>
         </View>
       )}

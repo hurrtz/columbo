@@ -251,7 +251,7 @@ export const en: TranslationDictionary = {
       "This provider currently uses its default voice for preview and spoken replies.",
     listenLanguages: "Listen Languages",
     listenLanguagesHint:
-      "Pick the reply languages you want to sound good. SchnackAI tries them in this order when routing speech output.",
+      "Pick the reply languages you want to sound good. Schnack tries them in this order when routing speech output.",
     localVoicePacks: "Local Voice Packs",
     localVoicePacksHint:
       "Each language keeps its own local voice. Choose the voice you want for that language, then download only the packs you actually care about.",
@@ -434,7 +434,7 @@ export const en: TranslationDictionary = {
     idle: "Idle",
     yourConversationAppearsHere: "Your conversation appears here",
     defaultTranscriptEmptyDescription:
-      "Press and hold the voice control, then speak naturally. SchnackAI will keep the thread and speak back.",
+      "Press and hold the voice control, then speak naturally. Schnack will keep the thread and speak back.",
     delete: "Delete",
     memory: "Memory",
     conversations: "Conversations",
@@ -442,7 +442,7 @@ export const en: TranslationDictionary = {
     newSession: "New Session",
     noSavedConversationsYet: "No saved conversations yet",
     drawerEmptyDescription:
-      "Start speaking from the main view and SchnackAI will build a session automatically.",
+      "Start speaking from the main view and Schnack will build a session automatically.",
     setupGuideTitle: "Configure the app",
     setupGuideSubtitle:
       "Add credentials and choose routes in Settings.",
@@ -456,9 +456,9 @@ export const en: TranslationDictionary = {
       "We will open Settings next so you can paste and validate credentials.",
     useThisSetup: "Use this setup",
     notNow: "Not now",
-    setupGuideIntroTitle: "How SchnackAI works",
+    setupGuideIntroTitle: "How Schnack works",
     setupGuideIntroBody:
-      "SchnackAI starts blank. Add credentials for external services you already use, then choose how replies, speech input, spoken output, and optional web context are routed.",
+      "Schnack starts blank. Add credentials for external services you already use, then choose how replies, speech input, spoken output, and optional web context are routed.",
     setupGuideIntroNote:
       "After setup, use the main voice control to start and stop a conversation. Threads are saved in the drawer, and every route can be changed later in Settings.",
     setupGuideProviderTitle: "Add Credentials",
@@ -481,7 +481,7 @@ export const en: TranslationDictionary = {
       `These ${provider} credentials do not allow reply requests.`,
     setupGuideVoiceTestTitle: "Test Your Setup",
     setupGuideVoiceTestBody:
-      "Say a short sentence. SchnackAI will test microphone access, transcription, the configured reply route, and spoken output when an acceptable voice route is available.",
+      "Say a short sentence. Schnack will test microphone access, transcription, the configured reply route, and spoken output when an acceptable voice route is available.",
     setupGuideVoiceTestNoInputBody:
       "Voice input is not available with this setup. Continue to review the detected routes, then adjust speech settings later if needed.",
     setupGuideVoiceTestTextOnlyNote:
@@ -500,7 +500,7 @@ export const en: TranslationDictionary = {
       "Voice input is not available for this setup on this device.",
     setupGuideSummaryTitle: "Setup Complete",
     setupGuideSummaryBody:
-      "Here is the route SchnackAI will use with your current configuration.",
+      "Here is the route Schnack will use with your current configuration.",
     setupGuideSummaryLlm: "LLM",
     setupGuideSummaryStt: "Speech to text",
     setupGuideSummaryTts: "Text to speech",
@@ -525,7 +525,7 @@ export const en: TranslationDictionary = {
       "Try a different title, route, model, or phrase from the transcript.",
     memoryModalTitle: "Conversation memory",
     memoryModalDescription:
-      "This is the compact summary SchnackAI carries forward once a thread gets long enough to compress older turns.",
+      "This is the compact summary Schnack carries forward once a thread gets long enough to compress older turns.",
     memorySummary: "Saved summary",
     memorySummaryEmpty:
       "No compact memory yet. Once this thread gets longer, older turns will be summarized here.",

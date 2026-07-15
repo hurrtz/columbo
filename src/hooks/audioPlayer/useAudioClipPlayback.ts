@@ -99,7 +99,7 @@ export function useAudioClipPlayback(params: {
       player.setActiveForLockScreen?.(
         true,
         {
-          artist: "SchnackAI",
+          artist: "Schnack",
           title: "Spoken reply",
         },
         {

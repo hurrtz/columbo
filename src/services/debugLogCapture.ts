@@ -127,7 +127,7 @@ function formatDebugLogSession(
   status: "active" | "complete",
 ) {
   const lines = [
-    "# SchnackAI Debug Log Capture",
+    "# Schnack Debug Log Capture",
     `sessionId: ${session.id}`,
     `startedAt: ${session.startedAtIso}`,
     `endedAt: ${endedAtIso}`,

@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>SchnackAI</string>
+	<string>Schnack</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -46,15 +46,15 @@
 		<true/>
 	</dict>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to access your Face ID biometric data.</string>
+	<string>Allow Schnack to access your Face ID biometric data.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Allow SchnackAI to use the microphone for native speech input.</string>
+	<string>Allow Schnack to use the microphone for native speech input.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>SchnackAI may request permission to save user-initiated exported content to your photo library.</string>
+	<string>Schnack may request permission to save user-initiated exported content to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>SchnackAI may request access to your photo library only when an iOS system sharing or attachment flow requires it. SchnackAI does not scan your photo library.</string>
+	<string>Schnack may request access to your photo library only when an iOS system sharing or attachment flow requires it. Schnack does not scan your photo library.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Allow SchnackAI to transcribe your voice with the system speech recognizer.</string>
+	<string>Allow Schnack to transcribe your voice with the system speech recognizer.</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
