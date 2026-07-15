@@ -525,6 +525,9 @@ export function useVoiceCaptureHandler({
               showToast(formatNoticeToast(notice));
             },
             onError: async (error) => {
+              const preserveProducedAudio =
+                playbackStartedRef.current &&
+                (player.isPlaying || player.hasPendingPlaybackNow());
               recordDebugLogEvent({
                 event: "voice-pipeline-error",
                 level: "error",
@@ -532,11 +535,14 @@ export function useVoiceCaptureHandler({
                   hasAudioUri: !!audioUri,
                   hasTranscriptionOverride: !!transcriptionOverride,
                   message: error.message,
+                  preservedProducedAudio: preserveProducedAudio,
                 },
               });
-              await player.stopPlayback();
+              if (!preserveProducedAudio) {
+                await player.stopPlayback();
+              }
               clearLatencyProgress();
-              setPipelinePhase("idle");
+              setPipelinePhase(preserveProducedAudio ? "speaking" : "idle");
               const retryAction = lastCompletedReplyRef.current.trim()
                 ? () => {
                     void handleRepeatLastReply(lastCompletedReplyRef.current);

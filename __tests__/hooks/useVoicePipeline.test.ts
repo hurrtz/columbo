@@ -380,6 +380,41 @@ describe("useVoicePipeline", () => {
     expect(result.current.lastCompletedReplyRef.current).toBe("Completed reply");
   });
 
+  it("does not stop produced audio when a later speech chunk fails", async () => {
+    const player = createPlayer({
+      isPlaying: true,
+      hasPendingPlaybackNow: jest.fn(() => true),
+    });
+    const params = createParams({ player });
+    (runVoicePipeline as jest.Mock).mockImplementation(
+      async ({ callbacks }: any) => {
+        callbacks.onTranscription("Hello from the microphone");
+        callbacks.onResponseDone("A completed reply with several chunks.");
+        callbacks.onAudioReady("file://reply-1.wav", {
+          requestId: "speech-request-1",
+          source: "conversation",
+        });
+        await callbacks.onError(new Error("Gemini speech output took too long."));
+        return "Hello from the microphone";
+      },
+    );
+
+    const { result } = renderHook(() => useVoicePipeline(params));
+
+    await act(async () => {
+      await result.current.handleVoiceCaptureDone({
+        transcriptionOverride: "Hello from the microphone",
+      });
+    });
+
+    expect(player.stopPlayback).not.toHaveBeenCalled();
+    expect(player.waitForDrain).toHaveBeenCalled();
+    expect(params.showToast).toHaveBeenCalledWith(
+      "Gemini speech output took too long.",
+      expect.any(Function),
+    );
+  });
+
   it("learns the full LLM response time instead of first-chunk latency", async () => {
     const params = createParams({
       spokenRepliesEnabled: false,

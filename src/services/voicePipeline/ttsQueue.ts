@@ -171,13 +171,13 @@ export function createVoicePipelineTtsQueue({
       throw synthesisResult.error;
     });
 
-    ttsChain = task.catch((error) => {
+    ttsChain = task.catch(async (error) => {
       if (fatalProviderErrorNotified) {
         return;
       }
 
       fatalProviderErrorNotified = true;
-      callbacks.onError(
+      await callbacks.onError(
         error instanceof Error ? error : new Error(String(error)),
       );
     });

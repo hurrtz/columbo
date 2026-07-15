@@ -45,7 +45,7 @@ export interface PipelineCallbacks {
     diagnostics?: SpeechDiagnosticsContext,
   ) => void;
   onTtsFallback?: (error: Error) => void;
-  onError: (error: Error) => void;
+  onError: (error: Error) => void | Promise<void>;
 }
 
 export interface RunVoicePipelineParams {
