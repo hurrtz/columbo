@@ -179,6 +179,13 @@ export function SetupGuideModal({
   const { t } = useLocalization();
   const insets = useSafeAreaInsets();
   const { height, width } = useWindowDimensions();
+  const [isProviderApiKeyVisible, setIsProviderApiKeyVisible] =
+    React.useState(false);
+
+  React.useEffect(() => {
+    setIsProviderApiKeyVisible(false);
+  }, [selectedProvider, step, visible]);
+
   const isLandscape = width > height;
   const cardMaxWidth = isLandscape ? Math.min(width - 40, 760) : 460;
   const stepIndex = STEP_ORDER.indexOf(step);
@@ -375,23 +382,57 @@ export function SetupGuideModal({
                     <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>
                       {t("setupGuideApiKeyLabel")}
                     </Text>
-                    <TextInput
-                      value={selectedProviderApiKey}
-                      onChangeText={onChangeProviderApiKey}
-                      editable={Boolean(selectedProvider)}
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      placeholder={providerPlaceholder}
-                      placeholderTextColor={colors.textMuted}
-                      style={[
-                        styles.input,
-                        {
-                          backgroundColor: colors.surfaceElevated,
-                          borderColor: colors.border,
-                          color: colors.text,
-                        },
-                      ]}
-                    />
+                    <View style={styles.apiKeyInputRow}>
+                      <TextInput
+                        value={selectedProviderApiKey}
+                        onChangeText={onChangeProviderApiKey}
+                        editable={Boolean(selectedProvider)}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        autoComplete="off"
+                        textContentType="none"
+                        importantForAutofill="no"
+                        spellCheck={false}
+                        contextMenuHidden={false}
+                        selectTextOnFocus={isProviderApiKeyVisible}
+                        returnKeyType="done"
+                        secureTextEntry={
+                          selectedProviderApiKey.trim().length > 0 &&
+                          !isProviderApiKeyVisible
+                        }
+                        placeholder={providerPlaceholder}
+                        placeholderTextColor={colors.textMuted}
+                        selectionColor={colors.accent}
+                        style={[
+                          styles.input,
+                          {
+                            backgroundColor: colors.surfaceElevated,
+                            borderColor: colors.border,
+                            color: colors.text,
+                          },
+                        ]}
+                      />
+                      <TouchableOpacity
+                        style={[
+                          styles.apiKeyVisibilityButton,
+                          { backgroundColor: colors.surface },
+                        ]}
+                        onPress={() =>
+                          setIsProviderApiKeyVisible((previous) => !previous)
+                        }
+                        activeOpacity={0.85}
+                        accessibilityRole="button"
+                        accessibilityLabel={
+                          isProviderApiKeyVisible ? t("hideKey") : t("showKey")
+                        }
+                      >
+                        <Feather
+                          name={isProviderApiKeyVisible ? "eye-off" : "eye"}
+                          size={16}
+                          color={colors.textSecondary}
+                        />
+                      </TouchableOpacity>
+                    </View>
                     <Text style={[styles.helperText, { color: colors.textMuted }]}>
                       {providerHint}
                     </Text>
@@ -861,12 +902,28 @@ const styles = StyleSheet.create({
   },
   input: {
     minHeight: 54,
+    width: "100%",
     borderRadius: 18,
     borderWidth: 1,
     paddingHorizontal: 16,
+    paddingRight: 58,
     paddingVertical: 14,
     fontSize: 15,
     fontFamily: fonts.body,
+  },
+  apiKeyInputRow: {
+    position: "relative",
+    justifyContent: "center",
+  },
+  apiKeyVisibilityButton: {
+    position: "absolute",
+    top: 9,
+    right: 8,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
   helperText: {
     fontSize: 13,

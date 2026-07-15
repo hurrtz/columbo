@@ -75,6 +75,31 @@ const defaultProps = {
 };
 
 describe("SetupGuideModal", () => {
+  it("uses an eye button to reveal and hide the API key", () => {
+    const screen = renderWithProviders(
+      <SetupGuideModal
+        {...defaultProps}
+        selectedProviderApiKey="sk-test-secret"
+      />,
+    );
+    let input = screen.getByDisplayValue("sk-test-secret");
+
+    expect(input.props.secureTextEntry).toBe(true);
+
+    fireEvent(input, "focus");
+    input = screen.getByDisplayValue("sk-test-secret");
+    expect(input.props.secureTextEntry).toBe(true);
+
+    fireEvent.press(screen.getByLabelText("Show key"));
+    input = screen.getByDisplayValue("sk-test-secret");
+    expect(input.props.secureTextEntry).toBe(false);
+    expect(screen.getByLabelText("Hide key")).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText("Hide key"));
+    input = screen.getByDisplayValue("sk-test-secret");
+    expect(input.props.secureTextEntry).toBe(true);
+  });
+
   it("does not show missing API key guidance before validation is attempted", () => {
     const screen = renderWithProviders(<SetupGuideModal {...defaultProps} />);
 
