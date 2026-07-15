@@ -161,17 +161,17 @@ describe("useSetupGuideController", () => {
 
     expect(params.updateSettings).toHaveBeenCalledWith(
       expect.objectContaining({
-        activeResponseMode: "mode-2",
+        activeResponseMode: "mode-1",
         lastProvider: "openai",
-        responseModes: expect.arrayContaining([
+        responseModes: [
           expect.objectContaining({
-            id: "mode-2",
+            id: "mode-1",
             route: expect.objectContaining({
               provider: "openai",
               model: "gpt-5.5",
             }),
           }),
-        ]),
+        ],
         setupGuideDismissed: true,
         spokenRepliesEnabled: true,
         sttMode: "provider",

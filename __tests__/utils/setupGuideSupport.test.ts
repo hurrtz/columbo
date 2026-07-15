@@ -1,5 +1,6 @@
 import { DEFAULT_SETTINGS } from "../../src/types";
 import {
+  buildSetupGuideResponseModes,
   getCurrentSetupGuideValidationState,
   getSetupGuideValidationModel,
   resolveSetupGuideRoutes,
@@ -15,6 +16,18 @@ function createSettings() {
 }
 
 describe("setupGuideSupport", () => {
+  it("creates one home route for a one-provider setup", () => {
+    expect(buildSetupGuideResponseModes("openai")).toEqual([
+      expect.objectContaining({
+        id: "mode-1",
+        route: expect.objectContaining({
+          provider: "openai",
+          model: "gpt-5.5",
+        }),
+      }),
+    ]);
+  });
+
   it("validates Gemini onboarding with the stable REST default", () => {
     const settings = createSettings();
     settings.responseModes = [

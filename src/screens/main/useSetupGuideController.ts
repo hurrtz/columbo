@@ -286,9 +286,11 @@ export function useSetupGuideController({
       return;
     }
 
+    const responseModes = buildSetupGuideResponseModes(selectedProvider);
+
     updateSettings({
-      activeResponseMode: "mode-2",
-      responseModes: buildSetupGuideResponseModes(selectedProvider),
+      activeResponseMode: responseModes[0].id,
+      responseModes,
       setupGuideDismissed: true,
       lastProvider: selectedProvider,
       spokenRepliesEnabled: resolvedRoutes.tts.enabled,
