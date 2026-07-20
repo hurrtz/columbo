@@ -29,6 +29,7 @@ import { useWaveformCircleState } from "./waveform/useWaveformCircleState";
 import { useWaveformFrame } from "../state/waveformFeed";
 
 interface WaveformCircleProps {
+  accessibilityLabel?: string;
   isActive: boolean;
   disabled?: boolean;
   phase: VoiceVisualPhase;
@@ -56,6 +57,7 @@ function scaleBy(size: number, value: number) {
 }
 
 export function WaveformCircle({
+  accessibilityLabel,
   isActive,
   disabled = false,
   phase,
@@ -323,6 +325,7 @@ export function WaveformCircle({
           <TouchableOpacity
             activeOpacity={disabled ? 1 : 0.9}
             accessibilityRole="button"
+            accessibilityLabel={accessibilityLabel}
             accessibilityState={{ disabled }}
             disabled={disabled}
             onPressIn={

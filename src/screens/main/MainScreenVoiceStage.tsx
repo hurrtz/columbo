@@ -290,6 +290,7 @@ export function MainScreenVoiceStage({
         ]}
       />
       <WaveformCircle
+        accessibilityLabel={statusTitle}
         disabled={disabled}
         isActive={isActive}
         phase={visualPhase}

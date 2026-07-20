@@ -585,6 +585,7 @@ export const de: TranslationDictionary = {
       "Diese Sprachroute kann nicht pausiert werden. Stoppe sie oder wechsle zu Anbieter- oder lokaler Sprachausgabe.",
     holdToSpeak: "Zum Schnacken halten",
     tapToSpeak: "Bereit zum Losschnacken",
+    tapAgainToSend: "Zum Senden erneut tippen",
     waitingForReply: "Warte auf Antwort",
     parsingYourVoice: "Sprache wird verarbeitet",
     providerConfiguredInSettings: ({ provider }) =>

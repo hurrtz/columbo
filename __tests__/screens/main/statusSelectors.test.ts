@@ -53,6 +53,44 @@ describe("statusSelectors", () => {
     expect(status.actionLabel).toBe("Tap to speak");
   });
 
+  it("tells toggle-mode users to tap again while recording", () => {
+    const status = getStatusDisplayData({
+      inputMode: "toggle-to-talk",
+      messageCount: 0,
+      pipelinePhase: "idle",
+      providerLabel: "OpenAI",
+      t: (key) =>
+        ({
+          listening: "Listening",
+          listeningToYourVoice: "Listening to your voice",
+          tapAgainToSend: "Tap again to send",
+        }[key] ?? key),
+      ttsProviderLabel: "OpenAI",
+      visualPhase: "recording",
+    });
+
+    expect(status.actionLabel).toBe("Tap again to send");
+    expect(status.statusDetail).toBe("Listening to your voice");
+  });
+
+  it("keeps listening wording while push-to-talk is held", () => {
+    const status = getStatusDisplayData({
+      inputMode: "push-to-talk",
+      messageCount: 0,
+      pipelinePhase: "idle",
+      providerLabel: "OpenAI",
+      t: (key) =>
+        ({
+          listening: "Listening",
+          listeningToYourVoice: "Listening to your voice",
+        }[key] ?? key),
+      ttsProviderLabel: "OpenAI",
+      visualPhase: "recording",
+    });
+
+    expect(status.actionLabel).toBe("Listening");
+  });
+
   it("maps active phases to stable indicator tones", () => {
     expect(getStatusIndicatorTone("recording", "idle")).toBe("danger");
     expect(getStatusIndicatorTone("speaking", "speaking")).toBe("accent");

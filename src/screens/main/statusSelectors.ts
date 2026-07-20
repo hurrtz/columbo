@@ -21,7 +21,9 @@ export function getVisualPhaseActionLabel(params: {
   return playbackPaused && visualPhase === "speaking"
     ? t("paused")
     : visualPhase === "recording"
-    ? t("listening")
+    ? inputMode === "toggle-to-talk"
+      ? t("tapAgainToSend")
+      : t("listening")
     : visualPhase === "transcribing"
       ? t("parsing")
       : visualPhase === "searching"

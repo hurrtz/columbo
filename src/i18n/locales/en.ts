@@ -569,6 +569,7 @@ export const en: TranslationDictionary = {
       "This voice route can't be paused. Stop it or switch to provider/local voice output.",
     holdToSpeak: "Hold to speak",
     tapToSpeak: "Tap to speak",
+    tapAgainToSend: "Tap again to send",
     waitingForReply: "Waiting for reply",
     parsingYourVoice: "Parsing your voice",
     providerConfiguredInSettings: ({ provider }) =>
