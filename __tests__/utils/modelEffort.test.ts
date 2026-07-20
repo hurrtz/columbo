@@ -79,7 +79,7 @@ describe("model effort metadata", () => {
       getModelEffortOptions("openai", "gpt-5.6-sol").map(
         (option) => option.id,
       ),
-    ).toEqual(["none", "low", "medium", "high", "xhigh", "max"]);
+    ).toEqual(["none", "low", "medium", "high", "xhigh"]);
     expect(
       getModelEffortOptions("openai", "gpt-5.5").map((option) => option.id),
     ).toEqual(["none", "low", "medium", "high", "xhigh"]);
@@ -157,6 +157,18 @@ describe("model effort metadata", () => {
 
     expect(
       normalizeResponseModeRouteEffort({
+        provider: "openai",
+        model: "gpt-5.6-sol",
+        effort: "max",
+      }),
+    ).toEqual({
+      provider: "openai",
+      model: "gpt-5.6-sol",
+      effort: "xhigh",
+    });
+
+    expect(
+      normalizeResponseModeRouteEffort({
         provider: "gemini",
         model: "gemini-3.5-flash",
         effort: "not-real",
@@ -212,6 +224,9 @@ describe("model effort metadata", () => {
     expect(
       getModelEffortRequestBody("moonshot-ai-kimi", "kimi-k3", "high"),
     ).toEqual({ reasoning_effort: "high" });
+    expect(
+      getModelEffortRequestBody("openai", "gpt-5.6-sol", "max"),
+    ).toEqual({ reasoning_effort: "xhigh" });
   });
 
   it("enables adaptive thinking on Anthropic models that require it", () => {

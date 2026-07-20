@@ -344,7 +344,6 @@ const OPENAI_GPT_56_EFFORT = effortConfig("reasoning-effort", "medium", [
   "medium",
   "high",
   "xhigh",
-  "max",
 ]);
 
 const OPENAI_GPT_54_EFFORT = effortConfig("reasoning-effort", "none", [

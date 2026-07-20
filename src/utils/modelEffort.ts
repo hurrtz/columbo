@@ -33,9 +33,27 @@ function getModelEffortOption(
     return undefined;
   }
 
-  return getModelEffortOptions(provider, model).find(
+  const options = getModelEffortOptions(provider, model);
+  const exactOption = options.find(
     (option) => option.id === effort,
   );
+
+  if (exactOption) {
+    return exactOption;
+  }
+
+  // The live Chat Completions endpoint currently rejects `max` for GPT-5.6
+  // even though the public model guide lists it. Preserve existing users'
+  // quality-first choice at the nearest accepted level.
+  if (
+    provider === "openai" &&
+    (model === "gpt-5.6" || model.startsWith("gpt-5.6-")) &&
+    effort === "max"
+  ) {
+    return options.find((option) => option.id === "xhigh");
+  }
+
+  return undefined;
 }
 
 export function getDefaultModelEffort(

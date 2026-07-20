@@ -774,6 +774,12 @@ describe("streamChat", () => {
   it.each([
     {
       provider: "openai" as const,
+      model: "gpt-5.6-sol",
+      modelEffort: "max",
+      expected: { reasoning_effort: "xhigh" },
+    },
+    {
+      provider: "openai" as const,
       model: "gpt-5.5",
       modelEffort: "xhigh",
       expected: { reasoning_effort: "xhigh" },
