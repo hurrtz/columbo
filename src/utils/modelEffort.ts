@@ -3,6 +3,12 @@ import type { ModelEffortConfig, ModelEffortOption } from "../constants/models";
 import type { AppLanguage, Provider, ResponseModeRoute } from "../types";
 
 const GENERIC_DEFAULT_EFFORT_IDS = ["medium", "normal"];
+const ANTHROPIC_ADAPTIVE_THINKING_MODELS = new Set([
+  "claude-opus-4-8",
+  "claude-opus-4-7",
+  "claude-opus-4-6",
+  "claude-sonnet-4-6",
+]);
 
 export function getModelEffortConfig(
   provider: Provider,
@@ -130,17 +136,34 @@ export function getModelEffortRequestBody(
   const transportParam = getModelEffortTransportParam(provider, model);
   const value = getModelEffortTransportValue(provider, model, effort);
 
-  if (!transportParam || !value) {
+  if (!transportParam) {
+    return {};
+  }
+
+  if (transportParam === "anthropic-output-effort") {
+    return {
+      ...(value
+        ? {
+            output_config: {
+              effort: value,
+            },
+          }
+        : {}),
+      ...(ANTHROPIC_ADAPTIVE_THINKING_MODELS.has(model)
+        ? {
+            thinking: {
+              type: "adaptive",
+            },
+          }
+        : {}),
+    };
+  }
+
+  if (!value) {
     return {};
   }
 
   switch (transportParam) {
-    case "anthropic-output-effort":
-      return {
-        output_config: {
-          effort: value,
-        },
-      };
     case "deepseek-thinking-effort":
       if (value === "disabled") {
         return {

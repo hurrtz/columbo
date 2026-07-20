@@ -95,6 +95,9 @@ describe("streamChat", () => {
     expect(JSON.parse((fetch as jest.Mock).mock.calls[0][1].body).max_tokens).toBe(
       16_384,
     );
+    expect(JSON.parse((fetch as jest.Mock).mock.calls[0][1].body).thinking).toEqual({
+      type: "adaptive",
+    });
   });
 
   it("continues Anthropic replies that reach the output-token limit", async () => {
@@ -157,6 +160,9 @@ describe("streamChat", () => {
     });
 
     expect(chunks).toEqual(["First half", " continued."]);
+    expect(JSON.parse((fetch as jest.Mock).mock.calls[0][1].body).max_tokens).toBe(
+      65_536,
+    );
     expect(onDone).toHaveBeenCalledWith(
       "First half continued.",
       expect.any(Object),

@@ -292,13 +292,16 @@ const OPENAI_GPT_54_EFFORT = effortConfig("reasoning-effort", "none", [
   "xhigh",
 ]);
 
-const ANTHROPIC_OUTPUT_EFFORT = effortConfig("anthropic-output-effort", "high", [
-  "low",
-  "medium",
+const ANTHROPIC_EXTENDED_OUTPUT_EFFORT = effortConfig(
+  "anthropic-output-effort",
   "high",
-  "xhigh",
-  "max",
-]);
+  ["low", "medium", "high", "xhigh", "max"],
+);
+const ANTHROPIC_STANDARD_OUTPUT_EFFORT = effortConfig(
+  "anthropic-output-effort",
+  "high",
+  ["low", "medium", "high", "max"],
+);
 
 const XAI_GROK_43_EFFORT = effortConfig("reasoning-effort", "low", [
   "none",
@@ -485,17 +488,29 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: [
         withEffort(
           namedModel("claude-sonnet-5", "Claude Sonnet 5"),
-          ANTHROPIC_OUTPUT_EFFORT,
+          ANTHROPIC_EXTENDED_OUTPUT_EFFORT,
         ),
         withEffort(
           namedModel("claude-fable-5", "Claude Fable 5"),
-          ANTHROPIC_OUTPUT_EFFORT,
+          ANTHROPIC_EXTENDED_OUTPUT_EFFORT,
         ),
-        withEffort(model("claude-opus-4-8"), ANTHROPIC_OUTPUT_EFFORT),
+        withEffort(
+          model("claude-opus-4-8"),
+          ANTHROPIC_EXTENDED_OUTPUT_EFFORT,
+        ),
         model("claude-haiku-4-5-20251001"),
-        withEffort(model("claude-sonnet-4-6"), ANTHROPIC_OUTPUT_EFFORT),
-        withEffort(model("claude-opus-4-7"), ANTHROPIC_OUTPUT_EFFORT),
-        withEffort(model("claude-opus-4-6"), ANTHROPIC_OUTPUT_EFFORT),
+        withEffort(
+          model("claude-sonnet-4-6"),
+          ANTHROPIC_STANDARD_OUTPUT_EFFORT,
+        ),
+        withEffort(
+          model("claude-opus-4-7"),
+          ANTHROPIC_EXTENDED_OUTPUT_EFFORT,
+        ),
+        withEffort(
+          model("claude-opus-4-6"),
+          ANTHROPIC_STANDARD_OUTPUT_EFFORT,
+        ),
       ],
     },
     stt: {

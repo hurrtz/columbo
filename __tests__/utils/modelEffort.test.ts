@@ -1,6 +1,7 @@
 import {
   getDefaultModelEffort,
   getModelEffortOptions,
+  getModelEffortRequestBody,
   getModelEffortTransportValue,
   normalizeResponseModeRouteEffort,
 } from "../../src/utils/modelEffort";
@@ -57,6 +58,16 @@ describe("model effort metadata", () => {
         (option) => option.id,
       ),
     ).toEqual(["low", "medium", "high", "xhigh", "max"]);
+    expect(
+      getModelEffortOptions("anthropic", "claude-sonnet-4-6").map(
+        (option) => option.id,
+      ),
+    ).toEqual(["low", "medium", "high", "max"]);
+    expect(
+      getModelEffortOptions("anthropic", "claude-opus-4-6").map(
+        (option) => option.id,
+      ),
+    ).toEqual(["low", "medium", "high", "max"]);
     expect(
       getModelEffortOptions("xai", "grok-4.3").map((option) => option.id),
     ).toEqual(["none", "low", "medium", "high"]);
@@ -139,5 +150,17 @@ describe("model effort metadata", () => {
         "enabled",
       ),
     ).toBe("enabled");
+  });
+
+  it("enables adaptive thinking on Anthropic models that require it", () => {
+    expect(
+      getModelEffortRequestBody("anthropic", "claude-opus-4-7", "xhigh"),
+    ).toEqual({
+      output_config: { effort: "xhigh" },
+      thinking: { type: "adaptive" },
+    });
+    expect(
+      getModelEffortRequestBody("anthropic", "claude-sonnet-5", "high"),
+    ).toEqual({ output_config: { effort: "high" } });
   });
 });

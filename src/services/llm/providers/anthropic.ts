@@ -4,13 +4,17 @@ import {
   normalizeProviderTransportError,
 } from "../../providerErrors";
 import { AppLanguage } from "../../../types";
-import { getModelEffortRequestBody } from "../../../utils/modelEffort";
+import {
+  getDefaultModelEffort,
+  getModelEffortRequestBody,
+} from "../../../utils/modelEffort";
 import { translate } from "../../../i18n";
 
 import { readEventStream } from "../eventStream";
 import { ChatMessage, requireProviderKey, toAPIMessages } from "../shared";
 
 const ANTHROPIC_MAX_OUTPUT_TOKENS = 16_384;
+const ANTHROPIC_LONG_OUTPUT_TOKENS = 65_536;
 const ANTHROPIC_MAX_CONTINUATIONS = 2;
 const ANTHROPIC_CONTINUATION_PROMPT =
   "Continue exactly where the previous response stopped. Do not repeat any prior text or add a preamble. Finish the answer.";
@@ -21,6 +25,20 @@ function buildIncompleteReplyError(language: AppLanguage) {
       provider: "Anthropic",
     }),
   );
+}
+
+function getAnthropicMaxOutputTokens(model: string, effort?: string) {
+  const resolvedEffort = effort ?? getDefaultModelEffort("anthropic", model);
+
+  if (
+    resolvedEffort === "max" ||
+    resolvedEffort === "xhigh" ||
+    (model === "claude-fable-5" && resolvedEffort === "high")
+  ) {
+    return ANTHROPIC_LONG_OUTPUT_TOKENS;
+  }
+
+  return ANTHROPIC_MAX_OUTPUT_TOKENS;
 }
 
 export async function requestAnthropicChat(params: {
@@ -46,7 +64,7 @@ export async function requestAnthropicChat(params: {
       },
       body: JSON.stringify({
         model,
-        max_tokens: ANTHROPIC_MAX_OUTPUT_TOKENS,
+        max_tokens: getAnthropicMaxOutputTokens(model, modelEffort),
         ...getModelEffortRequestBody("anthropic", model, modelEffort),
         system: systemPrompt,
         messages: toAPIMessages(messages),
@@ -115,7 +133,7 @@ async function requestAnthropicChatStreamOnce(params: {
       },
       body: JSON.stringify({
         model,
-        max_tokens: ANTHROPIC_MAX_OUTPUT_TOKENS,
+        max_tokens: getAnthropicMaxOutputTokens(model, modelEffort),
         ...getModelEffortRequestBody("anthropic", model, modelEffort),
         system: systemPrompt,
         stream: true,
