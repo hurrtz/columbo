@@ -33,7 +33,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		13B07F961A680F5B00A75B9A /* SchnackAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SchnackAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07F961A680F5B00A75B9A /* Columbo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Columbo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SchnackAI/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = SchnackAI/Info.plist; sourceTree = "<group>"; };
 		4C2E18CB4910ACB38E443AFE /* libPods-SchnackAI.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SchnackAI.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -149,7 +149,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* SchnackAI.app */,
+				13B07F961A680F5B00A75B9A /* Columbo.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -210,8 +210,8 @@
 			dependencies = (
 			);
 			name = SchnackAI;
-			productName = SchnackAI;
-			productReference = 13B07F961A680F5B00A75B9A /* SchnackAI.app */;
+			productName = Columbo;
+			productReference = 13B07F961A680F5B00A75B9A /* Columbo.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -454,7 +454,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = SchnackAI/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Schnack AI";
+				INFOPLIST_KEY_CFBundleDisplayName = Columbo;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -468,8 +468,8 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.tobiaswinkler.app.schnackai;
-				PRODUCT_NAME = SchnackAI;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tobiaswinkler.app.columbo;
+				PRODUCT_NAME = Columbo;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -502,7 +502,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = SchnackAI/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Schnack AI";
+				INFOPLIST_KEY_CFBundleDisplayName = Columbo;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -516,8 +516,8 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.tobiaswinkler.app.schnackai;
-				PRODUCT_NAME = SchnackAI;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tobiaswinkler.app.columbo;
+				PRODUCT_NAME = Columbo;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;

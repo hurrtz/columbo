@@ -1,9 +1,15 @@
 {
   "expo": {
-    "name": "Schnack",
+    "name": "Columbo",
     "slug": "schnackai",
-    "scheme": "schnackai",
+    "scheme": "columbo",
     "version": "2.4.0",
+    "ios": {
+      "bundleIdentifier": "com.tobiaswinkler.app.columbo"
+    },
+    "android": {
+      "package": "com.tobiaswinkler.app.columbo"
+    },
     "extra": {
       "router": {},
       "eas": {

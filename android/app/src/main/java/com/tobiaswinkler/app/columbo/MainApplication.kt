@@ -1,4 +1,4 @@
-package com.tobiaswinkler.schnackai
+package com.tobiaswinkler.app.columbo
 
 import android.app.Application
 import android.content.res.Configuration

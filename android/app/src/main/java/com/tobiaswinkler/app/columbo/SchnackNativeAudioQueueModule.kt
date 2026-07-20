@@ -1,4 +1,4 @@
-package com.tobiaswinkler.schnackai
+package com.tobiaswinkler.app.columbo
 
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise

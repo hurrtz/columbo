@@ -99,7 +99,7 @@ export function useAudioClipPlayback(params: {
       player.setActiveForLockScreen?.(
         true,
         {
-          artist: "Schnack",
+          artist: "Columbo",
           title: "Spoken reply",
         },
         {

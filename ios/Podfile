@@ -51,10 +51,11 @@ def patch_fmt_consteval!(installer)
   return unless File.exist?(base_h)
 
   contents = File.read(base_h)
-  return if contents.include?('SchnackAI: force-disable consteval')
+  return if contents.include?('Columbo: force-disable consteval') ||
+            contents.include?('SchnackAI: force-disable consteval')
 
   marker = "#if FMT_USE_CONSTEVAL\n#  define FMT_CONSTEVAL consteval"
-  override = "// SchnackAI: force-disable consteval (broken under Apple clang 21 / Xcode 26)\n" \
+  override = "// Columbo: force-disable consteval (broken under Apple clang 21 / Xcode 26)\n" \
              "#undef FMT_USE_CONSTEVAL\n" \
              "#define FMT_USE_CONSTEVAL 0\n" \
              "#if FMT_USE_CONSTEVAL\n#  define FMT_CONSTEVAL consteval"

@@ -1,4 +1,4 @@
-package com.tobiaswinkler.schnackai
+package com.tobiaswinkler.app.columbo
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

@@ -41,7 +41,7 @@ describe("ByteDance credential helpers", () => {
     });
   });
 
-  it("generates request ids with the SchnackAI prefix", () => {
-    expect(createBytedanceRequestId()).toMatch(/^schnackai-\d+-[a-z0-9]+$/);
+  it("generates request ids with the Columbo prefix", () => {
+    expect(createBytedanceRequestId()).toMatch(/^columbo-\d+-[a-z0-9]+$/);
   });
 });

@@ -1,4 +1,4 @@
-package com.tobiaswinkler.schnackai
+package com.tobiaswinkler.app.columbo
 
 import android.os.Build
 import android.os.Bundle

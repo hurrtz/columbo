@@ -9,7 +9,7 @@ jest.mock("@expo/vector-icons", () => ({
 }));
 
 describe("MainScreenTopBar", () => {
-  it.each([false, true])("shows the Schnack brand when compact is %s", (compact) => {
+  it.each([false, true])("shows the Columbo brand when compact is %s", (compact) => {
     const screen = render(
       <MainScreenTopBar
         colors={lightColors}
@@ -19,7 +19,7 @@ describe("MainScreenTopBar", () => {
       />,
     );
 
-    expect(screen.getByText("Schnack")).toBeTruthy();
-    expect(screen.queryByText("SchnackAI")).toBeNull();
+    expect(screen.getByText("Columbo")).toBeTruthy();
+    expect(screen.queryByText("Schnack")).toBeNull();
   });
 });

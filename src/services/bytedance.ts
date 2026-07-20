@@ -92,5 +92,5 @@ export function requireBytedanceSpeechCredentials(
 }
 
 export function createBytedanceRequestId() {
-  return `schnackai-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  return `columbo-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }

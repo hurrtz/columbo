@@ -1,4 +1,4 @@
-package com.tobiaswinkler.schnackai
+package com.tobiaswinkler.app.columbo
 
 import android.net.Uri
 import androidx.test.core.app.ApplicationProvider

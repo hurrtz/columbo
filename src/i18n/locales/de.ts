@@ -170,7 +170,7 @@ export const de: TranslationDictionary = {
       "Lass den Button während des Sprechens gedrückt und lass ihn los, wenn du fertig bist.",
     toggleToTalk: "Toggle to talk",
     toggleToTalkDescription:
-      "Button einmal drücken zum Losschnacken und dann noch einmal, wenn du fertig bist.",
+      "Button einmal drücken, um loszusprechen, und dann noch einmal, wenn du fertig bist.",
     speechToText: "Sprache zu Text",
     appNative: "Systemerkennung",
     nativeSttDescription:
@@ -184,7 +184,7 @@ export const de: TranslationDictionary = {
     webSearchModelHint: ({ model }) =>
       `Verwendet im Hintergrund ${model} für die Live-Webrecherche.`,
     webSearchHomeHint:
-      "Nutze den Homescreen-Schalter, um Web-Grundierung für diesen Schnack ein- oder auszuschalten.",
+      "Nutze den Homescreen-Schalter, um Web-Grundierung für dieses Gespräch ein- oder auszuschalten.",
     settingsWebSearchCompactHint:
       "Optional wird vor der eigentlichen Antwort frischer Web-Kontext eingefügt.",
     webSearchAdvanced: "Erweiterte Suchregler",
@@ -258,7 +258,7 @@ export const de: TranslationDictionary = {
       "Dieser Anbieter nutzt aktuell seine Standardstimme für Vorschau und Sprachausgabe.",
     listenLanguages: "Sprachen",
     listenLanguagesHint:
-      "Wähle die Sprachen aus, die gut klingen sollen. Schnack probiert sie in dieser Reihenfolge für die Sprachausgabe.",
+      "Wähle die Sprachen aus, die gut klingen sollen. Columbo probiert sie in dieser Reihenfolge für die Sprachausgabe.",
     localVoicePacks: "Lokale Sprachpakete",
     localVoicePacksHint:
       "Jede Sprache bringt eigene Stimmen mit. Wähle zuerst eine Stimme pro Sprache aus und lade dann die Pakete herunter, die du brauchst.",
@@ -279,7 +279,7 @@ export const de: TranslationDictionary = {
     clearSpeechDiagnosticsConfirmationTitle: "Letzte Aktivität leeren?",
     clearSpeechDiagnosticsConfirmationMessage:
       "Dadurch werden alle erfassten Diagnoseinformationen zum Sprach-Routing gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
-    speechDiagnosticSourceConversation: "Antwort aus dem Schnack",
+    speechDiagnosticSourceConversation: "Antwort aus dem Gespräch",
     speechDiagnosticSourceRepeat: "Antwort wiederholen",
     speechDiagnosticSourcePreview: "Vorschau der Stimme",
     speechDiagnosticSourceUnknown: "Anfrage",
@@ -317,12 +317,12 @@ export const de: TranslationDictionary = {
     couldntShareText: "Der Text konnte nicht geteilt werden.",
     couldntReplayReply: "Die Antwort konnte nicht erneut abgespielt werden.",
     messageCopied: "Nachricht kopiert.",
-    noConversationToCopyYet: "Noch kein Schnack zum Kopieren.",
-    noConversationToShareYet: "Noch kein Schnack zum Teilen.",
+    noConversationToCopyYet: "Noch kein Gespräch zum Kopieren.",
+    noConversationToShareYet: "Noch kein Gespräch zum Teilen.",
     noReplyToRepeatYet: "Noch keine Antwort zum Wiederholen.",
-    threadCopied: "Schnack kopiert.",
-    threadRenamed: "Schnack umbenannt.",
-    threadPinned: "Schnack angeheftet.",
+    threadCopied: "Gespräch kopiert.",
+    threadRenamed: "Gespräch umbenannt.",
+    threadPinned: "Gespräch angeheftet.",
     threadUnpinned: "Nicht mehr angeheftet.",
     addProviderKeyToUseProvider: ({ provider }) =>
       `Füge in den Einstellungen Zugangsdaten für ${provider} hinzu, bevor du diese Route nutzt.`,
@@ -351,8 +351,8 @@ export const de: TranslationDictionary = {
       "Beende die laufende Sprachsitzung, bevor du die letzte Antwort erneut abspielst.",
     couldntCatchThatTryAgain:
       "Das wurde nicht richtig erkannt – versuch es noch einmal.",
-    couldntStartVoiceInput: "Schnack konnte nicht gestartet werden.",
-    couldntProcessVoiceInput: "Schnack konnte nicht verarbeitet werden.",
+    couldntStartVoiceInput: "Die Spracheingabe konnte nicht gestartet werden.",
+    couldntProcessVoiceInput: "Die Spracheingabe konnte nicht verarbeitet werden.",
     maxRecordingLengthReached:
       "Maximale Aufnahmelänge erreicht – ich sende, was ich habe.",
     sttRecordingTooLarge: ({ provider, limit }) =>
@@ -360,7 +360,7 @@ export const de: TranslationDictionary = {
     addProviderKeyToEnableProvider: ({ provider }) =>
       `Füge in den Einstellungen Zugangsdaten für ${provider} hinzu, bevor du diese Route nutzt.`,
     stopSessionBeforePreview:
-      "Beende den laufenden Schnack, bevor du eine Stimme testest.",
+      "Beende das laufende Gespräch, bevor du eine Stimme testest.",
     chooseTtsToPreviewVoices:
       "Wähle in den Einstellungen eine konfigurierte TTS-Route, um Stimmen zu testen.",
     downloadSelectedLocalVoiceFirst: ({ languageLabel }) =>
@@ -387,8 +387,8 @@ export const de: TranslationDictionary = {
       `Bereite Stimme mit ${provider} vor`,
     deepThinkingReassurance: "Gute Antworten brauchen einen Moment …",
     thinkingElapsed: ({ detail, seconds }) => `${detail} · ${seconds}s`,
-    speakingBackToYou: "Schnackt zurück",
-    freshSession: "Neuer Schnack",
+    speakingBackToYou: "Antwortet dir",
+    freshSession: "Neues Gespräch",
     messageCount: ({ count }) =>
       Number(count) === 1 ? "1 Nachricht" : `${count} Nachrichten`,
     speechInputRoute: ({ route }) => `Sprache rein: ${route}`,
@@ -396,21 +396,21 @@ export const de: TranslationDictionary = {
     voiceOutputRoute: ({ route }) => `Stimme raus: ${route}`,
     fallbackVoiceOutputRoute: ({ route }) =>
       `Fallback Stimme raus: ${route}`,
-    conversation: "Schnack",
+    conversation: "Gespräch",
     show: "Anzeigen",
-    showTranscript: "Schnack anzeigen",
+    showTranscript: "Gespräch anzeigen",
     hide: "Ausblenden",
-    copyThread: "Schnack kopieren",
-    shareThread: "Schnack teilen",
+    copyThread: "Gespräch kopieren",
+    shareThread: "Gespräch teilen",
     repeatReply: "Antwort wiederholen",
-    renameThread: "Schnack umbenennen",
+    renameThread: "Gespräch umbenennen",
     renameThreadHint:
-      "Gib diesem Schnack einen Titel, den du später schnell wiederfindest.",
-    threadTitle: "Titel vom Schnack",
+      "Gib diesem Gespräch einen Titel, den du später schnell wiederfindest.",
+    threadTitle: "Gesprächstitel",
     noTranscriptYet: "Noch kein Transkript",
     previewTranscriptEmptyDescription:
       "Starte oben mit der Sprachsteuerung. Deine Nachrichten und die Modellantwort erscheinen hier sofort.",
-    noConversationYet: "Noch kein Schnack",
+    noConversationYet: "Noch kein Gespräch",
     expandedTranscriptEmptyDescription:
       "Sprich über die Steuerung oben oder schreibe unten. Schließe diesen Bildschirm, wenn du zur Hauptansicht zurückkehren willst.",
     transcriptSelectionHint:
@@ -420,7 +420,7 @@ export const de: TranslationDictionary = {
     usageStatsHiddenDescription:
       "Blende Token-Schätzungen im Transkript aus.",
     usageStatsVisibleDescription:
-      "Zeige geschätzte Token-Nutzung pro Antwort sowie für den gesamten Schnack.",
+      "Zeige geschätzte Token-Nutzung pro Antwort sowie für das gesamte Gespräch.",
     debugLogButton: "Debug-Log-Button",
     debugLogButtonHiddenDescription:
       "Blende den LOG-Button auf der Hauptseite aus, solange kein Mitschnitt läuft.",
@@ -432,7 +432,7 @@ export const de: TranslationDictionary = {
     estimatedUsageCounts: ({ replies, summaries }) =>
       `${replies} Antworten · ${summaries} Speicher-Updates`,
     estimatedUsageConversationScope:
-      "Die Summen enthalten alle Routen und Modelle, die in diesem Schnack verwendet wurden.",
+      "Die Summen enthalten alle Routen und Modelle, die in diesem Gespräch verwendet wurden.",
     estimatedPromptTokens: ({ count }) => `Prompt: ${count}`,
     estimatedReplyTokens: ({ count }) => `Antwort: ${count}`,
     estimatedTotalTokens: ({ count }) => `Gesamt: ${count}`,
@@ -447,21 +447,21 @@ export const de: TranslationDictionary = {
     setupGuideConnectProviderDescription:
       "Füge Zugangsdaten in den Einstellungen hinzu und wähle danach die Routen aus, die du nutzen willst.",
     idle: "Bereit",
-    yourConversationAppearsHere: "Dein Schnack erscheint hier",
+    yourConversationAppearsHere: "Dein Gespräch erscheint hier",
     defaultTranscriptEmptyDescription:
-      "Halte die Sprachsteuerung gedrückt und sprich ganz natürlich. Schnack behält den Schnack und antwortet dir per Stimme.",
+      "Halte die Sprachsteuerung gedrückt und sprich ganz natürlich. Columbo behält den Gesprächsverlauf und antwortet dir per Stimme.",
     delete: "Löschen",
     deleteConversationConfirmationTitle: ({ title }) => `„${title}“ löschen?`,
     deleteConversationConfirmationMessage:
-      "Dadurch werden der Schnack und alle seine Nachrichten dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+      "Dadurch werden das Gespräch und alle seine Nachrichten dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
     memory: "Speicher",
-    conversations: "Schnacks",
+    conversations: "Gespräche",
     drawerSubtitle:
-      "Wechsle zwischen aktiven Schnacks oder starte einen neuen Raum.",
+      "Wechsle zwischen aktiven Gesprächen oder starte einen neuen Raum.",
     newSession: "Neue Sitzung",
-    noSavedConversationsYet: "Noch keine gespeicherten Schnacks",
+    noSavedConversationsYet: "Noch keine gespeicherten Gespräche",
     drawerEmptyDescription:
-      "Sprich in der Hauptansicht los und Schnack erstellt automatisch einen Schnack.",
+      "Sprich in der Hauptansicht los und Columbo erstellt automatisch ein Gespräch.",
     setupGuideTitle: "App konfigurieren",
     setupGuideSubtitle:
       "Füge Zugangsdaten hinzu und wähle Routen in den Einstellungen.",
@@ -475,11 +475,11 @@ export const de: TranslationDictionary = {
       "Danach öffnen wir die Einstellungen, damit du Zugangsdaten einfügen und prüfen kannst.",
     useThisSetup: "Dieses Setup nutzen",
     notNow: "Jetzt nicht",
-    setupGuideIntroTitle: "So funktioniert Schnack",
+    setupGuideIntroTitle: "So funktioniert Columbo",
     setupGuideIntroBody:
-      "Schnack startet leer. Füge Zugangsdaten für externe Dienste ein, die du bereits nutzt, und wähle danach aus, wie Antworten, Spracheingabe, Sprachausgabe und optionaler Web-Kontext geroutet werden.",
+      "Columbo startet leer. Füge Zugangsdaten für externe Dienste ein, die du bereits nutzt, und wähle danach aus, wie Antworten, Spracheingabe, Sprachausgabe und optionaler Web-Kontext geroutet werden.",
     setupGuideIntroNote:
-      "Nach der Einrichtung startest und stoppst du Gespräche über die Sprachsteuerung auf der Hauptseite. Schnacks werden in der Seitenleiste gespeichert, und jede Route lässt sich später in den Einstellungen ändern.",
+      "Nach der Einrichtung startest und stoppst du Gespräche über die Sprachsteuerung auf der Hauptseite. Gespräche werden in der Seitenleiste gespeichert, und jede Route lässt sich später in den Einstellungen ändern.",
     setupGuideProviderTitle: "Zugangsdaten hinzufügen",
     setupGuideProviderBody:
       "Wähle den externen Dienst, den du konfigurieren willst, und füge Zugangsdaten mit Antwortzugriff ein.",
@@ -500,7 +500,7 @@ export const de: TranslationDictionary = {
       `Diese Zugangsdaten für ${provider} erlauben keine Antwortanfragen.`,
     setupGuideVoiceTestTitle: "Setup testen",
     setupGuideVoiceTestBody:
-      "Sprich einen kurzen Satz. Schnack testet Mikrofonzugriff, Transkription, die konfigurierte Antwortroute und gesprochene Ausgabe, wenn eine brauchbare Sprachroute verfügbar ist.",
+      "Sprich einen kurzen Satz. Columbo testet Mikrofonzugriff, Transkription, die konfigurierte Antwortroute und gesprochene Ausgabe, wenn eine brauchbare Sprachroute verfügbar ist.",
     setupGuideVoiceTestNoInputBody:
       "Spracheingabe ist mit diesem Setup nicht verfügbar. Fahr fort, um die erkannten Routen zu prüfen, und passe die Spracheinstellungen später bei Bedarf an.",
     setupGuideVoiceTestTextOnlyNote:
@@ -519,7 +519,7 @@ export const de: TranslationDictionary = {
       "Spracheingabe ist für dieses Setup auf diesem Gerät nicht verfügbar.",
     setupGuideSummaryTitle: "Setup abgeschlossen",
     setupGuideSummaryBody:
-      "Das ist die Route, die Schnack mit deiner aktuellen Konfiguration verwendet.",
+      "Das ist die Route, die Columbo mit deiner aktuellen Konfiguration verwendet.",
     setupGuideSummaryLlm: "LLM",
     setupGuideSummaryStt: "Sprache zu Text",
     setupGuideSummaryTts: "Text zu Sprache",
@@ -541,15 +541,15 @@ export const de: TranslationDictionary = {
     setupGuideFinish: "Fertig",
     searchConversationsPlaceholder:
       "Suche nach Titeln, Modellen und Nachrichtentext",
-    noMatchingConversations: "Keine passenden Schnacks",
+    noMatchingConversations: "Keine passenden Gespräche",
     noMatchingConversationsDescription:
       "Versuch es mit einem anderen Titel, einer anderen Route, einem Modell oder einem Satz aus dem Transkript.",
-    memoryModalTitle: "Schnack-Erinnerung",
+    memoryModalTitle: "Gesprächserinnerung",
     memoryModalDescription:
-      "Das ist die kompakte Zusammenfassung, die Schnack weiterträgt, sobald ein Schnack lang genug wird und ältere Beiträge zusammengefasst werden.",
+      "Das ist die kompakte Zusammenfassung, die Columbo weiterträgt, sobald ein Gespräch lang genug wird und ältere Beiträge zusammengefasst werden.",
     memorySummary: "Gespeicherte Zusammenfassung",
     memorySummaryEmpty:
-      "Noch kein kompakter Speicher. Sobald dieser Schnack länger wird, werden ältere Beiträge hier zusammengefasst.",
+      "Noch kein kompakter Speicher. Sobald dieses Gespräch länger wird, werden ältere Beiträge hier zusammengefasst.",
     summarizedTurnsCount: ({ count }) =>
       Number(count) === 1
         ? "1 zusammengefasster Beitrag"
@@ -579,12 +579,12 @@ export const de: TranslationDictionary = {
     parsing: "Transkribiere",
     webSearchAction: "Websuche",
     thinking: "Denkt nach",
-    speaking: "Schnackt",
+    speaking: "Spricht",
     speechPaused: "Sprachausgabe ist pausiert",
     pausePlaybackUnavailable:
       "Diese Sprachroute kann nicht pausiert werden. Stoppe sie oder wechsle zu Anbieter- oder lokaler Sprachausgabe.",
-    holdToSpeak: "Zum Schnacken halten",
-    tapToSpeak: "Bereit zum Losschnacken",
+    holdToSpeak: "Zum Sprechen halten",
+    tapToSpeak: "Bereit zum Sprechen",
     tapAgainToSend: "Zum Senden erneut tippen",
     waitingForReply: "Warte auf Antwort",
     parsingYourVoice: "Sprache wird verarbeitet",
@@ -605,7 +605,7 @@ export const de: TranslationDictionary = {
     providerIncompleteReplyError: ({ provider }) =>
       `${provider} hat die Antwort vorzeitig beendet. Versuch es erneut.`,
     providerContextTooLong: ({ provider }) =>
-      `${provider} hat die Antwort abgelehnt, weil der Schnack zu lang geworden ist. Starte einen neuen Schnack oder kürze die Anfrage.`,
+      `${provider} hat die Antwort abgelehnt, weil das Gespräch zu lang geworden ist. Starte ein neues Gespräch oder kürze die Anfrage.`,
     providerRequestRejected: ({ provider, action, detail }) =>
       detail
         ? `${provider} hat die Anfrage für ${action} abgelehnt: ${detail}`
@@ -659,8 +659,8 @@ export const de: TranslationDictionary = {
       `${provider} ist noch nicht angebunden.`,
     you: "Du",
     assistant: "Assistent",
-    untitledConversation: "Unbenannter Schnack",
-    conversationExportHeader: ({ title }) => `Schnack: ${title}`,
+    untitledConversation: "Unbenanntes Gespräch",
+    conversationExportHeader: ({ title }) => `Gespräch: ${title}`,
     speechRecognitionPermissionNotGranted:
       "Berechtigung für Spracherkennung wurde nicht erteilt.",
     speechRecognitionUnavailableForDeviceLanguage:

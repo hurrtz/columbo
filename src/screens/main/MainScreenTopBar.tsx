@@ -56,13 +56,13 @@ export function MainScreenTopBar({
           ]}
         >
           <Text style={[styles.compactBrandText, { color: colors.text }]}>
-            Schnack
+            Columbo
           </Text>
         </View>
       ) : (
         <View style={styles.wordmark}>
           <Text style={[styles.wordmarkText, { color: colors.text }]}>
-            Schnack
+            Columbo
           </Text>
         </View>
       )}

@@ -1,10 +1,10 @@
-# SchnackAI Agent Notes
+# Columbo Agent Notes
 
 These notes are specific to this repository and supplement any parent-level instructions.
 
 ## Project Shape
 
-- SchnackAI is a voice-first mobile chat app built with Expo, React Native, and Expo Router.
+- Columbo is a voice-first mobile chat app built with Expo, React Native, and Expo Router.
 - The real app entry is `app/index.tsx`, which renders `src/screens/MainScreen.tsx`.
 - `app/_layout.tsx` is the root wrapper and provides `SettingsProvider`, localization, theme, and gesture handling.
 - The Expo template stub (`App.tsx`) and the bare-workflow `index.ts` entry have been removed; the app resolves its entry through `expo-router/entry` (`package.json` `main`).
@@ -27,9 +27,9 @@ These notes are specific to this repository and supplement any parent-level inst
 
 ## State And Persistence
 
-- Public settings are stored in AsyncStorage under `@schnackai/settings`.
-- Provider API keys are stored separately in `expo-secure-store` using the `schnackai.provider_key.<provider>` prefix.
-- Conversations are stored in AsyncStorage under `@schnackai/conversations` plus per-conversation keys `@schnackai/conversation/<id>`.
+- Public settings remain stored under the legacy AsyncStorage key `@schnackai/settings`.
+- Provider API keys remain stored separately in `expo-secure-store` using the legacy `schnackai.provider_key.<provider>` prefix.
+- Conversations remain stored under the legacy AsyncStorage key `@schnackai/conversations` plus per-conversation keys `@schnackai/conversation/<id>`.
 - Do not move provider API keys into AsyncStorage or any plain-text project config.
 - When changing settings shape, update `src/types.ts` and `src/hooks/useSettings.ts` together and preserve migration behavior for existing installs.
 

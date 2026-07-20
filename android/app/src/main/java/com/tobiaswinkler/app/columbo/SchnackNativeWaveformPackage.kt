@@ -1,4 +1,4 @@
-package com.tobiaswinkler.schnackai
+package com.tobiaswinkler.app.columbo
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule

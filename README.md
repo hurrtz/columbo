@@ -1,6 +1,6 @@
-# SchnackAI
+# Columbo
 
-SchnackAI is a voice-first mobile chat app built with Expo and React Native. It is designed around fast spoken interaction: hold or tap to record, transcribe speech, send the result to the selected LLM provider, and play the reply back as audio.
+Columbo is a voice-first mobile chat app built with Expo and React Native. It is designed around fast spoken interaction: hold or tap to record, transcribe speech, send the result to the selected LLM provider, and play the reply back as audio.
 
 The app is intentionally user-key driven. No provider API keys are shipped in the app bundle. Each user adds their own keys in Settings, and providers stay disabled until configured.
 
@@ -111,8 +111,9 @@ __tests__/              Focused hook and service tests
 ## Notes
 
 - Home screen icons and launcher assets require a new native build. OTA updates alone will not change them.
-- The current tracked iOS bundle identifier is `com.tobiaswinkler.app.schnackai`.
-- The current tracked Android package remains `com.tobiaswinkler.schnackai`.
+- The iOS bundle identifier is `com.tobiaswinkler.app.columbo`.
+- The Android application ID and namespace are `com.tobiaswinkler.app.columbo`.
+- The Expo slug and on-device persistence keys intentionally retain their legacy `schnackai` values.
 
 ## License
 

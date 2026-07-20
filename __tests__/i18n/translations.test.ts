@@ -9,6 +9,7 @@ describe("translations", () => {
 
   it("does not expose the old app name in localized UI copy", () => {
     expect(JSON.stringify(translations)).not.toContain("SchnackAI");
+    expect(JSON.stringify(translations)).not.toContain("Schnack");
   });
 
   describe("home-screen style chip keys", () => {

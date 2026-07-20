@@ -1,6 +1,6 @@
 # Android Local Development
 
-SchnackAI contains a native Android project under `android/`. Use this path for local device development; do not regenerate the native project unless an Expo upgrade requires it.
+Columbo contains a native Android project under `android/`. Use this path for local device development; do not regenerate the native project unless an Expo upgrade requires it.
 
 The repo tracks the Android build entrypoints (`build.gradle`, `settings.gradle`, `gradle.properties`, the Gradle wrapper, `android/app/build.gradle`), app manifests, required launcher/splash resources, and custom native Kotlin sources. Build output stays ignored.
 
@@ -33,7 +33,7 @@ For emulator sessions where you install with Gradle directly, start Metro in dev
 npx expo start --dev-client --host lan
 adb reverse tcp:8081 tcp:8081
 cd android && ./gradlew installDebug
-adb shell am start -n com.tobiaswinkler.schnackai/.MainActivity
+adb shell am start -n com.tobiaswinkler.app.columbo/.MainActivity
 ```
 
 Avoid `npx expo start --localhost` for this path: on macOS it can bind Metro only to loopback, while Android probes the host at `10.0.2.2:8081`.

@@ -127,7 +127,7 @@ function formatDebugLogSession(
   status: "active" | "complete",
 ) {
   const lines = [
-    "# Schnack Debug Log Capture",
+    "# Columbo Debug Log Capture",
     `sessionId: ${session.id}`,
     `startedAt: ${session.startedAtIso}`,
     `endedAt: ${endedAtIso}`,

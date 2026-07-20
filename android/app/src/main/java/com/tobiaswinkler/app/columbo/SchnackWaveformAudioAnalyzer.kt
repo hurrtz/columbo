@@ -1,4 +1,4 @@
-package com.tobiaswinkler.schnackai
+package com.tobiaswinkler.app.columbo
 
 import android.media.MediaCodec
 import android.media.MediaExtractor

@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Schnack</string>
+	<string>Columbo</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -27,8 +27,8 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>schnackai</string>
-				<string>com.tobiaswinkler.app.schnackai</string>
+				<string>columbo</string>
+				<string>com.tobiaswinkler.app.columbo</string>
 			</array>
 		</dict>
 	</array>
@@ -46,15 +46,15 @@
 		<true/>
 	</dict>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Allow Schnack to access your Face ID biometric data.</string>
+	<string>Allow Columbo to access your Face ID biometric data.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Allow Schnack to use the microphone for native speech input.</string>
+	<string>Allow Columbo to use the microphone for native speech input.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Schnack may request permission to save user-initiated exported content to your photo library.</string>
+	<string>Columbo may request permission to save user-initiated exported content to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Schnack may request access to your photo library only when an iOS system sharing or attachment flow requires it. Schnack does not scan your photo library.</string>
+	<string>Columbo may request access to your photo library only when an iOS system sharing or attachment flow requires it. Columbo does not scan your photo library.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Allow Schnack to transcribe your voice with the system speech recognizer.</string>
+	<string>Allow Columbo to transcribe your voice with the system speech recognizer.</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>

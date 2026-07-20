@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-05
 
-This document tracks the providers that are present in SchnackAI's runtime
+This document tracks the providers that are present in Columbo's runtime
 manifest. The source of truth is `src/constants/providers/runtimeManifest.ts`;
 this file is a human-readable reference for product and maintenance decisions.
 
@@ -87,7 +87,7 @@ validation, API-key storage, setup-guide routing, and web-search dispatch:
 - Effort: `reasoning_effort` on Seed 2.1 rows.
 - STT/TTS: not runtime-exposed. Doubao Speech remains catalog context only
   because the wired route is China-first and not a clearly multilingual BYOK
-  speech option for SchnackAI.
+  speech option for Columbo.
 
 ### Google / Gemini (`gemini`)
 
@@ -136,7 +136,7 @@ validation, API-key storage, setup-guide routing, and web-search dispatch:
 - LLM picker: `kimi-k2.6`, `kimi-k2.5`, `moonshot-v1-128k`,
   `moonshot-v1-32k`, `moonshot-v1-8k`.
 - Effort: `thinking.type` toggle for Kimi K2 rows.
-- Web search: Kimi built-in `$web_search` tool. SchnackAI disables Kimi
+- Web search: Kimi built-in `$web_search` tool. Columbo disables Kimi
   thinking for this route as required by Moonshot's web-search API contract.
 - STT/TTS: not runtime-exposed.
 
