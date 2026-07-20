@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 
 import { useReplyReplayController } from "./voicePipeline/useReplyReplayController";
 import { useVoiceCaptureHandler } from "./voicePipeline/useVoiceCaptureHandler";
+import { useVoiceLiveActivity } from "./voicePipeline/useVoiceLiveActivity";
 import type { VoicePhaseProgress } from "../types";
 import type {
   PipelinePhase,
@@ -10,18 +11,29 @@ import type {
 } from "./voicePipeline/types";
 
 export type { PipelinePhase, ReplayPhase } from "./voicePipeline/types";
-export type { UseVoicePipelineParams, UseVoicePipelineResult } from "./voicePipeline/types";
+export type {
+  UseVoicePipelineParams,
+  UseVoicePipelineResult,
+} from "./voicePipeline/types";
 
 export function useVoicePipeline(
   params: UseVoicePipelineParams,
 ): UseVoicePipelineResult {
   const [pipelinePhase, setPipelinePhase] = useState<PipelinePhase>("idle");
   const [streamingText, setStreamingText] = useState("");
-  const [phaseProgress, setPhaseProgress] =
-    useState<VoicePhaseProgress | null>(null);
+  const [phaseProgress, setPhaseProgress] = useState<VoicePhaseProgress | null>(
+    null,
+  );
   const abortRef = useRef<AbortController | null>(null);
   const lastCompletedReplyRef = useRef("");
   const isBusy = pipelinePhase !== "idle";
+
+  useVoiceLiveActivity({
+    isRecording: params.isRecording,
+    phaseProgress,
+    pipelinePhase,
+    spokenRepliesEnabled: params.spokenRepliesEnabled,
+  });
 
   const {
     replayPhase,

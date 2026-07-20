@@ -10,6 +10,9 @@
 		C01A00000000000000000001 /* ColumboVoiceActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01A00000000000000000011 /* ColumboVoiceActivityAttributes.swift */; };
 		C01A00000000000000000002 /* ColumboVoiceLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01A00000000000000000012 /* ColumboVoiceLiveActivity.swift */; };
 		C01A00000000000000000003 /* ColumboLiveActivity.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C01A00000000000000000014 /* ColumboLiveActivity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C01A00000000000000000004 /* ColumboVoiceActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01A00000000000000000011 /* ColumboVoiceActivityAttributes.swift */; };
+		C01A00000000000000000005 /* ColumboVoiceLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01A00000000000000000015 /* ColumboVoiceLiveActivity.swift */; };
+		C01A00000000000000000006 /* ColumboVoiceLiveActivityBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = C01A00000000000000000016 /* ColumboVoiceLiveActivityBridge.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		5537CA547A095C86D2D27B28 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 64F9FFC99FC7060C97837358 /* PrivacyInfo.xcprivacy */; };
@@ -65,6 +68,8 @@
 		C01A00000000000000000012 /* ColumboVoiceLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumboVoiceLiveActivity.swift; sourceTree = "<group>"; };
 		C01A00000000000000000013 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C01A00000000000000000014 /* ColumboLiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ColumboLiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C01A00000000000000000015 /* ColumboVoiceLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ColumboVoiceLiveActivity.swift; path = Columbo/ColumboVoiceLiveActivity.swift; sourceTree = "<group>"; };
+		C01A00000000000000000016 /* ColumboVoiceLiveActivityBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ColumboVoiceLiveActivityBridge.m; path = Columbo/ColumboVoiceLiveActivityBridge.m; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Columbo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Columbo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Columbo/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Columbo/Info.plist; sourceTree = "<group>"; };
@@ -130,6 +135,8 @@
 			isa = PBXGroup;
 			children = (
 				F11748412D0307B40044C1D9 /* AppDelegate.swift */,
+				C01A00000000000000000015 /* ColumboVoiceLiveActivity.swift */,
+				C01A00000000000000000016 /* ColumboVoiceLiveActivityBridge.m */,
 				7C4A2D4D5A9E4A6FB6500001 /* ColumboNativeAudioQueue.m */,
 				7C4A2D4D5A9E4A6FB6500011 /* ColumboBackgroundVoiceTurn.m */,
 				8A5C26011111111111111124 /* ColumboAudioQueueSession.m */,
@@ -503,6 +510,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
+				C01A00000000000000000004 /* ColumboVoiceActivityAttributes.swift in Sources */,
+				C01A00000000000000000005 /* ColumboVoiceLiveActivity.swift in Sources */,
+				C01A00000000000000000006 /* ColumboVoiceLiveActivityBridge.m in Sources */,
 				8A5C26011111111111111114 /* ColumboAudioQueueSession.m in Sources */,
 				8A5C26011111111111111115 /* ColumboAudioQueueCoordinator.m in Sources */,
 				7C4A2D4D5A9E4A6FB6500101 /* ColumboNativeAudioQueue.m in Sources */,
