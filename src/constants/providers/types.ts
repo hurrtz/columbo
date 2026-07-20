@@ -17,6 +17,7 @@ export interface ModelEffortConfig {
   defaultOptionId?: string;
   transportParam:
     | "anthropic-output-effort"
+    | "gemini-thinking-budget"
     | "gemini-thinking-level"
     | "deepseek-thinking-effort"
     | "kimi-thinking"

@@ -48,6 +48,7 @@ export interface RuntimeModelSpec {
 
 export type RuntimeModelEffortTransportParam =
   | "anthropic-output-effort"
+  | "gemini-thinking-budget"
   | "gemini-thinking-level"
   | "deepseek-thinking-effort"
   | "kimi-thinking"
@@ -194,6 +195,58 @@ const GEMINI_THINKING_LEVEL_OPTIONS: RuntimeModelEffortOption[] = [
     transportValue: "HIGH",
   },
 ];
+
+const GEMINI_25_DYNAMIC_BUDGET_OPTION: RuntimeModelEffortOption = {
+  id: "dynamic",
+  label: "Dynamic",
+  localizedLabels: { de: "Dynamisch" },
+  transportValue: "-1",
+};
+
+const GEMINI_25_DISABLED_BUDGET_OPTION: RuntimeModelEffortOption = {
+  id: "disabled",
+  label: "Disabled",
+  localizedLabels: { de: "Deaktiviert" },
+  transportValue: "0",
+};
+
+function geminiThinkingBudgetEffort(params: {
+  defaultOptionId: "dynamic" | "disabled";
+  minimumBudget: number;
+  maximumBudget: number;
+  canDisable: boolean;
+}): RuntimeModelEffortConfig {
+  const activeOptions: RuntimeModelEffortOption[] = [
+    {
+      id: "low",
+      label: "Low",
+      localizedLabels: { de: "Niedrig" },
+      transportValue: String(params.minimumBudget),
+    },
+    {
+      id: "medium",
+      label: "Medium",
+      localizedLabels: { de: "Mittel" },
+      transportValue: "8192",
+    },
+    {
+      id: "high",
+      label: "High",
+      localizedLabels: { de: "Hoch" },
+      transportValue: String(params.maximumBudget),
+    },
+  ];
+
+  return {
+    defaultOptionId: params.defaultOptionId,
+    options: [
+      ...(params.canDisable ? [GEMINI_25_DISABLED_BUDGET_OPTION] : []),
+      GEMINI_25_DYNAMIC_BUDGET_OPTION,
+      ...activeOptions,
+    ],
+    transportParam: "gemini-thinking-budget",
+  };
+}
 
 const BASIC_REASONING_EFFORT_OPTIONS: RuntimeModelEffortOption[] = [
   {
@@ -713,9 +766,33 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
             "high",
           ]),
         ),
-        model("gemini-2.5-pro"),
-        model("gemini-2.5-flash"),
-        model("gemini-2.5-flash-lite"),
+        withEffort(
+          model("gemini-2.5-pro"),
+          geminiThinkingBudgetEffort({
+            defaultOptionId: "dynamic",
+            minimumBudget: 128,
+            maximumBudget: 32768,
+            canDisable: false,
+          }),
+        ),
+        withEffort(
+          model("gemini-2.5-flash"),
+          geminiThinkingBudgetEffort({
+            defaultOptionId: "dynamic",
+            minimumBudget: 1024,
+            maximumBudget: 24576,
+            canDisable: true,
+          }),
+        ),
+        withEffort(
+          model("gemini-2.5-flash-lite"),
+          geminiThinkingBudgetEffort({
+            defaultOptionId: "disabled",
+            minimumBudget: 512,
+            maximumBudget: 24576,
+            canDisable: true,
+          }),
+        ),
       ],
     },
     stt: {

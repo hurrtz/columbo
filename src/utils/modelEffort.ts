@@ -201,5 +201,13 @@ export function getModelEffortRequestBody(
           },
         },
       };
+    case "gemini-thinking-budget":
+      return {
+        generationConfig: {
+          thinkingConfig: {
+            thinkingBudget: Number(value),
+          },
+        },
+      };
   }
 }

@@ -54,23 +54,27 @@ function buildGeminiGenerateContentBody(params: {
     },
     contents: toGeminiContents(params.messages),
   };
-  const thinkingLevel =
-    getModelEffortTransportParam(params.provider, params.model) ===
-    "gemini-thinking-level"
-      ? getModelEffortTransportValue(
-          params.provider,
-          params.model,
-          params.modelEffort,
-        )
-      : undefined;
+  const thinkingTransport = getModelEffortTransportParam(
+    params.provider,
+    params.model,
+  );
+  const thinkingValue = getModelEffortTransportValue(
+    params.provider,
+    params.model,
+    params.modelEffort,
+  );
+  const thinkingConfig =
+    thinkingTransport === "gemini-thinking-level" && thinkingValue
+      ? { thinkingLevel: thinkingValue }
+      : thinkingTransport === "gemini-thinking-budget" && thinkingValue
+        ? { thinkingBudget: Number(thinkingValue) }
+        : undefined;
 
-  return thinkingLevel
+  return thinkingConfig
     ? {
         ...body,
         generationConfig: {
-          thinkingConfig: {
-            thinkingLevel,
-          },
+          thinkingConfig,
         },
       }
     : body;

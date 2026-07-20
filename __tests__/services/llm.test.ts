@@ -731,6 +731,43 @@ describe("streamChat", () => {
     });
   });
 
+  it("passes Gemini 2.5 effort as a generateContent thinking budget", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'data: {"candidates":[{"content":{"parts":[{"text":"Hi from Gemini"}]}}]}\n\n',
+          ),
+        );
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+
+    await streamChat({
+      messages: mockMessages,
+      model: "gemini-2.5-flash",
+      provider: "gemini",
+      apiKey: "gemini-test-key",
+      modelEffort: "high",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: () => {},
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    const [, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(JSON.parse(options.body).generationConfig).toEqual({
+      thinkingConfig: {
+        thinkingBudget: 24576,
+      },
+    });
+  });
+
   it.each([
     {
       provider: "openai" as const,

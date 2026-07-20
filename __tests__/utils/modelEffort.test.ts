@@ -20,6 +20,15 @@ describe("model effort metadata", () => {
     expect(getDefaultModelEffort("gemini", "gemini-3.1-flash-lite")).toBe(
       "minimal",
     );
+    expect(getDefaultModelEffort("gemini", "gemini-2.5-pro")).toBe(
+      "dynamic",
+    );
+    expect(getDefaultModelEffort("gemini", "gemini-2.5-flash")).toBe(
+      "dynamic",
+    );
+    expect(getDefaultModelEffort("gemini", "gemini-2.5-flash-lite")).toBe(
+      "disabled",
+    );
     expect(getDefaultModelEffort("deepseek", "deepseek-v4-pro")).toBe("high");
     expect(
       getDefaultModelEffort(
@@ -50,6 +59,17 @@ describe("model effort metadata", () => {
         (option) => option.id,
       ),
     ).toEqual(["low", "medium", "high"]);
+
+    expect(
+      getModelEffortOptions("gemini", "gemini-2.5-pro").map(
+        (option) => option.id,
+      ),
+    ).toEqual(["dynamic", "low", "medium", "high"]);
+    expect(
+      getModelEffortOptions("gemini", "gemini-2.5-flash").map(
+        (option) => option.id,
+      ),
+    ).toEqual(["disabled", "dynamic", "low", "medium", "high"]);
   });
 
   it("exposes documented effort levels for non-Gemini providers", () => {
@@ -146,6 +166,7 @@ describe("model effort metadata", () => {
     ).toEqual({
       provider: "gemini",
       model: "gemini-2.5-flash",
+      effort: "high",
     });
   });
 
@@ -153,6 +174,18 @@ describe("model effort metadata", () => {
     expect(
       getModelEffortTransportValue("gemini", "gemini-3.5-flash", "high"),
     ).toBe("HIGH");
+    expect(
+      getModelEffortTransportValue("gemini", "gemini-2.5-flash", "high"),
+    ).toBe("24576");
+    expect(
+      getModelEffortRequestBody(
+        "gemini",
+        "gemini-2.5-flash-lite",
+        "disabled",
+      ),
+    ).toEqual({
+      generationConfig: { thinkingConfig: { thinkingBudget: 0 } },
+    });
     expect(getModelEffortTransportValue("xai", "grok-4.3", "none")).toBe(
       "none",
     );
