@@ -13,8 +13,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "69eda592-2cfa-484d-92c3-77bc4504b1a0"
+        "projectId": "8ccf84f3-1eb3-4caf-81a2-6a1ae54551c2"
       }
-    }
+    },
+    "owner": "hurrtz"
   }
 }
