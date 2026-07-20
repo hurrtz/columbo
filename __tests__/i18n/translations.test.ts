@@ -12,6 +12,12 @@ describe("translations", () => {
     expect(JSON.stringify(translations)).not.toContain("Schnack");
   });
 
+  it("does not reuse the old Schnack vocabulary in German copy", () => {
+    expect(JSON.stringify(translations.de).toLowerCase()).not.toContain(
+      "schnack",
+    );
+  });
+
   describe("home-screen style chip keys", () => {
     it.each(["en", "de"] as const)(
       "%s defines homeStyleChipLabel as a formatter",

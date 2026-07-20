@@ -447,7 +447,7 @@ export const de: TranslationDictionary = {
     setupGuideConnectProviderDescription:
       "Füge Zugangsdaten in den Einstellungen hinzu und wähle danach die Routen aus, die du nutzen willst.",
     idle: "Bereit",
-    yourConversationAppearsHere: "Dein Gespräch erscheint hier",
+    yourConversationAppearsHere: "Hier entsteht dein Gespräch",
     defaultTranscriptEmptyDescription:
       "Halte die Sprachsteuerung gedrückt und sprich ganz natürlich. Columbo behält den Gesprächsverlauf und antwortet dir per Stimme.",
     delete: "Löschen",
@@ -457,11 +457,11 @@ export const de: TranslationDictionary = {
     memory: "Speicher",
     conversations: "Gespräche",
     drawerSubtitle:
-      "Wechsle zwischen aktiven Gesprächen oder starte einen neuen Raum.",
+      "Wechsle zwischen Gesprächen oder beginne ein neues.",
     newSession: "Neue Sitzung",
     noSavedConversationsYet: "Noch keine gespeicherten Gespräche",
     drawerEmptyDescription:
-      "Sprich in der Hauptansicht los und Columbo erstellt automatisch ein Gespräch.",
+      "Sprich in der Hauptansicht los. Columbo erstellt automatisch ein neues Gespräch.",
     setupGuideTitle: "App konfigurieren",
     setupGuideSubtitle:
       "Füge Zugangsdaten hinzu und wähle Routen in den Einstellungen.",
@@ -544,7 +544,7 @@ export const de: TranslationDictionary = {
     noMatchingConversations: "Keine passenden Gespräche",
     noMatchingConversationsDescription:
       "Versuch es mit einem anderen Titel, einer anderen Route, einem Modell oder einem Satz aus dem Transkript.",
-    memoryModalTitle: "Gesprächserinnerung",
+    memoryModalTitle: "Gesprächsspeicher",
     memoryModalDescription:
       "Das ist die kompakte Zusammenfassung, die Columbo weiterträgt, sobald ein Gespräch lang genug wird und ältere Beiträge zusammengefasst werden.",
     memorySummary: "Gespeicherte Zusammenfassung",
@@ -583,8 +583,8 @@ export const de: TranslationDictionary = {
     speechPaused: "Sprachausgabe ist pausiert",
     pausePlaybackUnavailable:
       "Diese Sprachroute kann nicht pausiert werden. Stoppe sie oder wechsle zu Anbieter- oder lokaler Sprachausgabe.",
-    holdToSpeak: "Zum Sprechen halten",
-    tapToSpeak: "Bereit zum Sprechen",
+    holdToSpeak: "Zum Sprechen gedrückt halten",
+    tapToSpeak: "Zum Sprechen tippen",
     tapAgainToSend: "Zum Senden erneut tippen",
     waitingForReply: "Warte auf Antwort",
     parsingYourVoice: "Sprache wird verarbeitet",
