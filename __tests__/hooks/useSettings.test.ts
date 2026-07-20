@@ -487,12 +487,13 @@ describe("useSettings", () => {
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
       "@columbo/settings",
       expect.stringContaining(
-        '"id":"mode-3","route":{"provider":"gemini","model":"gemini-2.5-pro"}',
+        '"id":"mode-3","route":{"provider":"gemini","model":"gemini-2.5-pro","effort":"dynamic"}',
       ),
     );
     expect(result.current.settings.responseModes[2].route).toEqual({
       provider: "gemini",
       model: "gemini-2.5-pro",
+      effort: "dynamic",
     });
   });
 

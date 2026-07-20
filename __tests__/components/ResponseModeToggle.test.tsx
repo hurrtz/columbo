@@ -95,11 +95,11 @@ describe("ResponseModeToggle", () => {
         modes={[
           {
             id: "mode-1",
-            route: { provider: "gemini", model: "gemini-2.5-flash" },
+            route: { provider: "deepseek", model: "deepseek-chat" },
           },
           {
             id: "mode-2",
-            route: { provider: "gemini", model: "gemini-2.5-flash" },
+            route: { provider: "deepseek", model: "deepseek-chat" },
           },
         ]}
         readyModes={["mode-1", "mode-2"]}

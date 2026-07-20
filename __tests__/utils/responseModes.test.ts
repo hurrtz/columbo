@@ -76,7 +76,7 @@ describe("response mode selectors", () => {
 
   it("uses the curated provider default instead of the first picker entry", () => {
     expect(getDefaultModelForProvider("anthropic")).toBe("claude-sonnet-5");
-    expect(getDefaultModelForProvider("xai")).toBe("grok-4.3");
+    expect(getDefaultModelForProvider("xai")).toBe("grok-4.5");
   });
 
   it("does not treat a model-less route as a usable response mode", () => {
@@ -157,12 +157,12 @@ describe("deriveResponseModesForProvider", () => {
     expect(modes[1].route).toEqual({
       provider: "openai",
       model: expected[1],
-      effort: "none",
+      effort: "medium",
     });
     expect(modes[2].route).toEqual({
       provider: "openai",
       model: expected[2],
-      effort: "none",
+      effort: "medium",
     });
 
     const distinct = new Set(modes.map((mode) => mode.route.model));

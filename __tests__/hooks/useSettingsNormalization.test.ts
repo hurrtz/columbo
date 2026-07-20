@@ -119,15 +119,27 @@ describe("useSettingsNormalization", () => {
         responseModes: [
           {
             id: "mode-1",
-            route: { provider: "openai", model: "gpt-5.5", effort: "medium" },
+            route: {
+              provider: "openai",
+              model: "gpt-5.6-sol",
+              effort: "medium",
+            },
           },
           {
             id: "mode-2",
-            route: { provider: "openai", model: "gpt-5.5", effort: "medium" },
+            route: {
+              provider: "openai",
+              model: "gpt-5.6-sol",
+              effort: "medium",
+            },
           },
           {
             id: "mode-3",
-            route: { provider: "openai", model: "gpt-5.5", effort: "medium" },
+            route: {
+              provider: "openai",
+              model: "gpt-5.6-sol",
+              effort: "medium",
+            },
           },
         ],
       }),
