@@ -321,4 +321,35 @@ describe("ProviderApiKeyCard", () => {
     expect(screen.getByText("GPT-5.5")).toBeTruthy();
     expect(screen.getByText("gpt-5.5")).toBeTruthy();
   });
+
+  it("shows Qwen's API region without exposing its storage suffix", () => {
+    const screen = render(
+      <ThemeProvider mode="light">
+        <LocalizationProvider language="en">
+          <ProviderApiKeyCard
+            catalogProviderId="alibaba-qwen-dashscope"
+            runtimeProvider="alibaba-qwen-dashscope"
+            apiKey="sk-qwen-test|us"
+            apiKeyVisible={false}
+            secureApiKey
+            validationState={{ status: "idle" }}
+            shouldShowValidateAction={false}
+            onOpenProviderPortal={jest.fn()}
+            onUpdateApiKey={jest.fn()}
+            onTextInputFocus={jest.fn()}
+            onToggleApiKeyVisibility={jest.fn()}
+            onValidateProvider={jest.fn()}
+          />
+        </LocalizationProvider>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByDisplayValue("sk-qwen-test")).toBeTruthy();
+    expect(screen.queryByDisplayValue("sk-qwen-test|us")).toBeNull();
+    expect(screen.getByText("Qwen API Region")).toBeTruthy();
+    expect(screen.getByText("US (Virginia)")).toBeTruthy();
+    expect(
+      screen.getByText(/current Qwen STT and TTS routes require/),
+    ).toBeTruthy();
+  });
 });

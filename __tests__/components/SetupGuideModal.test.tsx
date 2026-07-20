@@ -100,6 +100,27 @@ describe("SetupGuideModal", () => {
     expect(input.props.secureTextEntry).toBe(true);
   });
 
+  it("shows a separate Qwen region selector and keeps the key field clean", () => {
+    const screen = renderWithProviders(
+      <SetupGuideModal
+        {...defaultProps}
+        providerOptions={[
+          {
+            label: "Alibaba / Qwen",
+            value: "alibaba-qwen-dashscope",
+          },
+        ]}
+        selectedProvider="alibaba-qwen-dashscope"
+        selectedProviderApiKey="sk-qwen-test|beijing"
+      />,
+    );
+
+    expect(screen.getByDisplayValue("sk-qwen-test")).toBeTruthy();
+    expect(screen.queryByDisplayValue("sk-qwen-test|beijing")).toBeNull();
+    expect(screen.getByText("Qwen API Region")).toBeTruthy();
+    expect(screen.getByText("China (Beijing)")).toBeTruthy();
+  });
+
   it("does not show missing API key guidance before validation is attempted", () => {
     const screen = renderWithProviders(<SetupGuideModal {...defaultProps} />);
 

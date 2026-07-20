@@ -13,6 +13,8 @@ export const providerDefinition = defineProviderDefinition(
     },
     "officialSources": [
       "https://www.alibabacloud.com/help/en/model-studio/models",
+      "https://www.alibabacloud.com/help/en/model-studio/base-url",
+      "https://www.alibabacloud.com/help/en/model-studio/regions/",
       "https://www.alibabacloud.com/help/en/model-studio/compatibility-of-openai-with-dashscope",
       "https://www.alibabacloud.com/help/en/model-studio/qwen-speech-recognition",
       "https://www.alibabacloud.com/help/en/model-studio/qwen-real-time-speech-recognition",
@@ -47,7 +49,7 @@ export const providerDefinition = defineProviderDefinition(
       "sttLanguages": "Qwen3 ASR Realtime explicitly lists 29 languages including Chinese variants, English, Japanese, German, Korean, Russian, French, Portuguese, Arabic, Italian, Spanish, Hindi, Indonesian, Thai, Turkish, Ukrainian, Vietnamese, Czech, Danish, Filipino, Finnish, Icelandic, Malay, Norwegian, Polish, and Swedish. Paraformer/Fun-ASR have separate language coverage.",
       "ttsLanguages": "Main Qwen3 TTS models explicitly list Chinese (Mandarin), English, Spanish, Russian, Italian, French, Korean, Japanese, German, and Portuguese. qwen3-tts-flash additionally lists several Chinese dialect variants.",
       "freeTier": "Model Studio documents limited starter free quotas for some international/global models and some realtime speech/TTS entries, typically valid for 90 days after activation. Chinese Mainland pages commonly state no free quota.",
-      "integrationNotes": "Use stable canonical IDs in pickers; store region separately; hide -latest and snapshot IDs by default. OpenAI compatibility is verified for LLM interfaces and batch, but not verified as a general speech compatibility layer. Realtime voice products use WebSocket native APIs."
+      "integrationNotes": "Use stable canonical IDs in pickers and hide -latest and snapshot IDs by default. Columbo stores the selected Singapore, US, or Beijing region alongside the API key in SecureStore and routes each direct request to the matching DashScope host. The current app STT/TTS transports support Singapore and Beijing; US-region keys remain available for chat and web search."
     },
     "sources": [
       {

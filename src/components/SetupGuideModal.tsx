@@ -26,6 +26,12 @@ import { useLocalization } from "../i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { fonts } from "../theme/typography";
 import type { Provider } from "../types";
+import {
+  formatQwenApiCredential,
+  parseQwenApiCredential,
+  QWEN_API_REGIONS,
+  type QwenApiRegion,
+} from "../utils/qwenRegion";
 import type { SetupGuideProviderOption, SetupGuideResolvedRoutes, SetupGuideStep, SetupGuideValidationState } from "../screens/main/setupGuideSupport";
 import type { SetupGuideVoiceTestPhase } from "../screens/main/useSetupGuideVoiceTest";
 
@@ -203,6 +209,21 @@ export function SetupGuideModal({
   const providerPlaceholder =
     (selectedProvider ? PROVIDER_API_KEY_PLACEHOLDERS[selectedProvider] : null) ||
     t("setupGuideApiKeyPlaceholder");
+  const qwenCredentials =
+    selectedProvider === "alibaba-qwen-dashscope"
+      ? parseQwenApiCredential(selectedProviderApiKey)
+      : null;
+  const displayedProviderApiKey =
+    qwenCredentials?.apiKey ?? selectedProviderApiKey;
+  const qwenRegionOptions = QWEN_API_REGIONS.map((region) => ({
+    value: region,
+    label:
+      region === "singapore"
+        ? t("qwenRegionSingapore")
+        : region === "us"
+          ? t("qwenRegionUs")
+          : t("qwenRegionBeijing"),
+  }));
   const isProviderApiKeyMissing =
     Boolean(selectedProvider) && selectedProviderApiKey.trim().length === 0;
   const canValidateProvider =
@@ -384,8 +405,17 @@ export function SetupGuideModal({
                     </Text>
                     <View style={styles.apiKeyInputRow}>
                       <TextInput
-                        value={selectedProviderApiKey}
-                        onChangeText={onChangeProviderApiKey}
+                        value={displayedProviderApiKey}
+                        onChangeText={(value) =>
+                          onChangeProviderApiKey(
+                            qwenCredentials
+                              ? formatQwenApiCredential(
+                                  value,
+                                  qwenCredentials.region,
+                                )
+                              : value,
+                          )
+                        }
                         editable={Boolean(selectedProvider)}
                         autoCapitalize="none"
                         autoCorrect={false}
@@ -433,6 +463,30 @@ export function SetupGuideModal({
                         />
                       </TouchableOpacity>
                     </View>
+                    {qwenCredentials ? (
+                      <>
+                        <Picker
+                          label={t("qwenApiRegion")}
+                          value={qwenCredentials.region}
+                          options={qwenRegionOptions}
+                          onChange={(value) =>
+                            onChangeProviderApiKey(
+                              formatQwenApiCredential(
+                                qwenCredentials.apiKey,
+                                value as QwenApiRegion,
+                              ),
+                            )
+                          }
+                        />
+                        <Text
+                          style={[styles.helperText, { color: colors.textMuted }]}
+                        >
+                          {qwenCredentials.region === "us"
+                            ? t("qwenRegionUsSpeechHint")
+                            : t("qwenRegionHint")}
+                        </Text>
+                      </>
+                    ) : null}
                     <Text style={[styles.helperText, { color: colors.textMuted }]}>
                       {providerHint}
                     </Text>

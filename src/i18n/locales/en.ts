@@ -254,6 +254,14 @@ export const en: TranslationDictionary = {
       "Enter a Mistral preset or custom voice ID before using speech output.",
     qwenSpeechUnavailableInUs:
       "Columbo's current Qwen speech routes are not available in the US region. Choose Singapore or Beijing for Qwen speech.",
+    qwenApiRegion: "Qwen API Region",
+    qwenRegionSingapore: "Singapore",
+    qwenRegionUs: "US (Virginia)",
+    qwenRegionBeijing: "China (Beijing)",
+    qwenRegionHint:
+      "The selected region must match the region in which this API key was created.",
+    qwenRegionUsSpeechHint:
+      "US-region keys support chat and web search here. Columbo's current Qwen STT and TTS routes require a Singapore or Beijing key.",
     providerDefaultVoiceHint:
       "This provider currently uses its default voice for preview and spoken replies.",
     listenLanguages: "Listen Languages",

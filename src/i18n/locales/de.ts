@@ -262,6 +262,14 @@ export const de: TranslationDictionary = {
       "Gib vor der Sprachausgabe die ID einer Standard- oder eigenen Mistral-Stimme ein.",
     qwenSpeechUnavailableInUs:
       "Columbos aktuelle Qwen-Sprachrouten sind in der US-Region nicht verfügbar. Wähle für Qwen-Spracherkennung und -ausgabe Singapur oder Peking.",
+    qwenApiRegion: "Qwen-API-Region",
+    qwenRegionSingapore: "Singapur",
+    qwenRegionUs: "USA (Virginia)",
+    qwenRegionBeijing: "China (Peking)",
+    qwenRegionHint:
+      "Die ausgewählte Region muss der Region entsprechen, in der dieser API-Key erstellt wurde.",
+    qwenRegionUsSpeechHint:
+      "Keys aus der US-Region unterstützen hier Chat und Websuche. Columbos aktuelle Qwen-Routen für Spracherkennung und -ausgabe benötigen einen Key aus Singapur oder Peking.",
     providerDefaultVoiceHint:
       "Dieser Anbieter nutzt aktuell seine Standardstimme für Vorschau und Sprachausgabe.",
     listenLanguages: "Sprachen",

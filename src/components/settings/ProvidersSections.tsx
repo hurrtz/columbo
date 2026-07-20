@@ -40,6 +40,12 @@ import {
   getModelEffortOptions,
   normalizeResponseModeRouteEffort,
 } from "../../utils/modelEffort";
+import {
+  formatQwenApiCredential,
+  parseQwenApiCredential,
+  QWEN_API_REGIONS,
+  type QwenApiRegion,
+} from "../../utils/qwenRegion";
 import { Picker } from "../Picker";
 import { ProviderIcon } from "../ProviderIcon";
 
@@ -707,6 +713,20 @@ export function ProviderApiKeyCard({
   const { colors } = useTheme();
   const { t, language } = useLocalization();
   const catalogEntry = getCatalogProviderEntry(catalogProviderId);
+  const qwenCredentials =
+    runtimeProvider === "alibaba-qwen-dashscope"
+      ? parseQwenApiCredential(apiKey)
+      : null;
+  const displayedApiKey = qwenCredentials?.apiKey ?? apiKey;
+  const qwenRegionOptions = QWEN_API_REGIONS.map((region) => ({
+    value: region,
+    label:
+      region === "singapore"
+        ? t("qwenRegionSingapore")
+        : region === "us"
+          ? t("qwenRegionUs")
+          : t("qwenRegionBeijing"),
+  }));
 
   if (!runtimeProvider && catalogEntry) {
     return (
@@ -767,8 +787,15 @@ export function ProviderApiKeyCard({
       </Text>
       <View style={styles.apiKeyInputRow}>
         <TextInput
-          value={apiKey}
-          onChangeText={(value) => onUpdateApiKey(runtimeProvider, value)}
+          value={displayedApiKey}
+          onChangeText={(value) =>
+            onUpdateApiKey(
+              runtimeProvider,
+              qwenCredentials
+                ? formatQwenApiCredential(value, qwenCredentials.region)
+                : value,
+            )
+          }
           onFocus={onTextInputFocus}
           placeholder={getProviderApiKeyPlaceholder(runtimeProvider, language)}
           placeholderTextColor={colors.textMuted}
@@ -811,6 +838,29 @@ export function ProviderApiKeyCard({
           />
         </TouchableOpacity>
       </View>
+      {qwenCredentials ? (
+        <>
+          <Picker
+            label={t("qwenApiRegion")}
+            value={qwenCredentials.region}
+            options={qwenRegionOptions}
+            onChange={(value) =>
+              onUpdateApiKey(
+                runtimeProvider,
+                formatQwenApiCredential(
+                  qwenCredentials.apiKey,
+                  value as QwenApiRegion,
+                ),
+              )
+            }
+          />
+          <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
+            {qwenCredentials.region === "us"
+              ? t("qwenRegionUsSpeechHint")
+              : t("qwenRegionHint")}
+          </Text>
+        </>
+      ) : null}
       {shouldShowValidateAction ? (
         <View style={styles.apiKeyMetaRow}>
           <TouchableOpacity

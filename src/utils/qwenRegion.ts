@@ -1,6 +1,11 @@
 export type QwenApiRegion = "singapore" | "us" | "beijing";
 
 export const QWEN_DEFAULT_API_REGION: QwenApiRegion = "singapore";
+export const QWEN_API_REGIONS: readonly QwenApiRegion[] = [
+  "singapore",
+  "us",
+  "beijing",
+];
 
 const QWEN_API_HOSTS: Record<QwenApiRegion, string> = {
   singapore: "dashscope-intl.aliyuncs.com",

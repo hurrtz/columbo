@@ -629,7 +629,7 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     shortLabel: "QWEN",
     apiKeyPlaceholder: "Enter API key",
     apiKeyHint:
-      "Unlocks Qwen hosted models through DashScope's OpenAI-compatible chat API.",
+      "Unlocks Qwen models through DashScope. Select the same region in which the API key was created; regional keys are not interchangeable.",
     apiKeyUrl:
       "https://www.alibabacloud.com/help/en/model-studio/compatibility-of-openai-with-dashscope",
     llm: {

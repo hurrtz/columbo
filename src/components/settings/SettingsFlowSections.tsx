@@ -47,6 +47,12 @@ import type {
   TtsListenLanguage,
 } from "../../types";
 import { useTheme } from "../../theme/ThemeContext";
+import {
+  formatQwenApiCredential,
+  parseQwenApiCredential,
+  QWEN_API_REGIONS,
+  type QwenApiRegion,
+} from "../../utils/qwenRegion";
 import { Picker } from "../Picker";
 import { ProviderIcon } from "../ProviderIcon";
 
@@ -291,6 +297,20 @@ function ProviderVaultRow({
   const secureApiKey = !!apiKey.trim() && !visibleApiKey;
   const showValidationMessage =
     validationState.status === "success" || validationState.status === "error";
+  const qwenCredentials =
+    provider === "alibaba-qwen-dashscope"
+      ? parseQwenApiCredential(apiKey)
+      : null;
+  const displayedApiKey = qwenCredentials?.apiKey ?? apiKey;
+  const qwenRegionOptions = QWEN_API_REGIONS.map((region) => ({
+    value: region,
+    label:
+      region === "singapore"
+        ? t("qwenRegionSingapore")
+        : region === "us"
+          ? t("qwenRegionUs")
+          : t("qwenRegionBeijing"),
+  }));
 
   return (
     <View
@@ -398,8 +418,15 @@ function ProviderVaultRow({
 
           <View style={styles.apiKeyInputRow}>
             <TextInput
-              value={apiKey}
-              onChangeText={(value) => onUpdateApiKey(provider, value)}
+              value={displayedApiKey}
+              onChangeText={(value) =>
+                onUpdateApiKey(
+                  provider,
+                  qwenCredentials
+                    ? formatQwenApiCredential(value, qwenCredentials.region)
+                    : value,
+                )
+              }
               onFocus={onTextInputFocus}
               autoCapitalize="none"
               autoCorrect={false}
@@ -439,6 +466,29 @@ function ProviderVaultRow({
               />
             </TouchableOpacity>
           </View>
+          {qwenCredentials ? (
+            <>
+              <Picker
+                label={t("qwenApiRegion")}
+                value={qwenCredentials.region}
+                options={qwenRegionOptions}
+                onChange={(value) =>
+                  onUpdateApiKey(
+                    provider,
+                    formatQwenApiCredential(
+                      qwenCredentials.apiKey,
+                      value as QwenApiRegion,
+                    ),
+                  )
+                }
+              />
+              <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
+                {qwenCredentials.region === "us"
+                  ? t("qwenRegionUsSpeechHint")
+                  : t("qwenRegionHint")}
+              </Text>
+            </>
+          ) : null}
 
           <View style={styles.providerVaultActionRow}>
             <TouchableOpacity
