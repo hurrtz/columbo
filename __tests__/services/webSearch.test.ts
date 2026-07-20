@@ -148,6 +148,9 @@ describe("webSearch", () => {
             type: "web_search_20260318",
           }),
         ]);
+        expect(
+          (body.tools as Array<Record<string, unknown>>)[0],
+        ).not.toHaveProperty("response_inclusion");
       },
       expectedSummary: "Anthropic web search found the current answer.",
       expectedSourceUrl: "https://example.com/claude-search",

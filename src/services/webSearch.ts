@@ -741,7 +741,6 @@ async function searchWithAnthropic(params: WebSearchRequestParams) {
         {
           type: "web_search_20260318",
           name: "web_search",
-          response_inclusion: "included",
         },
       ],
     },
