@@ -51,8 +51,7 @@ def patch_fmt_consteval!(installer)
   return unless File.exist?(base_h)
 
   contents = File.read(base_h)
-  return if contents.include?('Columbo: force-disable consteval') ||
-            contents.include?('SchnackAI: force-disable consteval')
+  return if contents.include?('Columbo: force-disable consteval')
 
   marker = "#if FMT_USE_CONSTEVAL\n#  define FMT_CONSTEVAL consteval"
   override = "// Columbo: force-disable consteval (broken under Apple clang 21 / Xcode 26)\n" \
@@ -90,7 +89,7 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
 
 prepare_react_native_project!
 
-target 'SchnackAI' do
+target 'Columbo' do
   use_expo_modules!
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
@@ -157,7 +156,7 @@ target 'SchnackAI' do
             )
         end
 
-        next unless target.name == 'SchnackAI'
+        next unless target.name == 'Columbo'
 
         phase_name = '[Hermes] Generate dSYM'
         phase = target.shell_script_build_phases.find { |build_phase| build_phase.name == phase_name }

@@ -23,7 +23,7 @@ type NativeAudioQueueModule = {
   stop(): Promise<boolean>;
 };
 
-const nativeModule = NativeModules.SchnackNativeAudioQueue as
+const nativeModule = NativeModules.ColumboNativeAudioQueue as
   | NativeAudioQueueModule
   | undefined;
 
@@ -43,7 +43,7 @@ export function subscribeToNativeAudioQueue(
   }
 
   const subscription = nativeEmitter.addListener(
-    "SchnackNativeAudioQueueEvent",
+    "ColumboNativeAudioQueueEvent",
     listener,
   );
 

@@ -2,7 +2,7 @@
 
 ## Goal
 
-Make SchnackAI straightforward to run and debug on a local Android device with the existing Expo/React Native bare Android project. This pass is for developer feedback loops, not Play Store release readiness.
+Make Columbo straightforward to run and debug on a local Android device with the existing Expo/React Native bare Android project. This pass is for developer feedback loops, not Play Store release readiness.
 
 ## Current State
 

@@ -7,7 +7,7 @@ describe("NativeWaveformView", () => {
   });
 
   it("requires the native waveform view on Android", () => {
-    const requireNativeComponent = jest.fn(() => "SchnackNativeWaveformView");
+    const requireNativeComponent = jest.fn(() => "ColumboNativeWaveformView");
 
     jest.doMock("react-native", () => ({
       Platform: {
@@ -24,6 +24,6 @@ describe("NativeWaveformView", () => {
     );
 
     expect(element.type).toBe(NativeWaveformView);
-    expect(requireNativeComponent).toHaveBeenCalledWith("SchnackNativeWaveformView");
+    expect(requireNativeComponent).toHaveBeenCalledWith("ColumboNativeWaveformView");
   });
 });

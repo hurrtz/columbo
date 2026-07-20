@@ -2,49 +2,49 @@
 
 ## Goal
 
-Make Android expose the same native SchnackAI waveform and audio playback capabilities that iOS currently exposes through Swift/Objective-C, so the React Native app can use equivalent recording, waveform analysis, playback events, output waveform state, and native waveform rendering on both platforms.
+Make Android expose the same native Columbo waveform and audio playback capabilities that iOS currently exposes through Swift/Objective-C, so the React Native app can use equivalent recording, waveform analysis, playback events, output waveform state, and native waveform rendering on both platforms.
 
 ## Current State
 
 iOS exports three native surfaces:
 
-- `SchnackNativeWaveform`: recording, recording lifecycle events, audio-file waveform analysis, and output waveform playback state.
-- `SchnackNativeAudioQueue`: queued audio-file playback with `started`, `finished`, `failed`, `stopped`, and `drained` events.
-- `SchnackNativeWaveformView`: a native view that renders input and output waveform channels from shared native waveform state.
+- `ColumboNativeWaveform`: recording, recording lifecycle events, audio-file waveform analysis, and output waveform playback state.
+- `ColumboNativeAudioQueue`: queued audio-file playback with `started`, `finished`, `failed`, `stopped`, and `drained` events.
+- `ColumboNativeWaveformView`: a native view that renders input and output waveform channels from shared native waveform state.
 
-Android currently exports only `SchnackNativeWaveform`. Its recording route works well enough for local emulator smoke tests, but the rest of the contract is incomplete:
+Android currently exports only `ColumboNativeWaveform`. Its recording route works well enough for local emulator smoke tests, but the rest of the contract is incomplete:
 
 - `analyzeAudioFile()` returns `null`.
 - `startOutputPlayback()` returns `false`.
 - `stopOutputPlayback()` returns `false`.
-- There is no Android `SchnackNativeAudioQueue`.
-- There is no Android `SchnackNativeWaveformView`.
+- There is no Android `ColumboNativeAudioQueue`.
+- There is no Android `ColumboNativeWaveformView`.
 - React Native service gates still restrict native audio queue, native output waveform playback, and native waveform view rendering to iOS.
 
 ## Exported Capability Map
 
 | Capability | iOS Source | Android Target |
 | --- | --- | --- |
-| Start/stop/cancel native recording | `ios/SchnackAI/SchnackNativeWaveform.swift`, `ios/SchnackAI/Waveform/SchnackWaveformRecorder.swift` | Existing `SchnackNativeWaveformModule.kt`, refined for event and file-shape parity |
-| Emit recording lifecycle and level events | `SchnackWaveformRecorder`, `SchnackWaveformLevelEmitter` | Existing module, keep event names and payload shape aligned |
-| Analyze audio files into peak samples and duration | `SchnackWaveformFileAnalyzer.swift` | New Kotlin analyzer using `MediaExtractor` + `MediaCodec` PCM decoding |
-| Store output waveform playback state | `SchnackWaveformCoordinator.swift` | New Android waveform state coordinator shared by module and view |
-| Start/stop output waveform playback state | `SchnackNativeWaveform.startOutputPlayback/stopOutputPlayback` | Implement real Kotlin methods returning `true` and updating coordinator state |
-| Queue audio-file playback | `SchnackNativeAudioQueue.m`, `SchnackAudioQueueCoordinator.m` | New `SchnackNativeAudioQueueModule.kt` using Android media playback |
-| Emit audio queue events | `SchnackAudioQueueCoordinator.m` | Android module emits the same event types and context fields |
-| Render native waveform view | `SchnackNativeWaveformView.swift` | New Android `ViewManager` and custom `View` consuming shared coordinator state |
+| Start/stop/cancel native recording | `ios/Columbo/ColumboNativeWaveform.swift`, `ios/Columbo/Waveform/ColumboWaveformRecorder.swift` | Existing `ColumboNativeWaveformModule.kt`, refined for event and file-shape parity |
+| Emit recording lifecycle and level events | `ColumboWaveformRecorder`, `ColumboWaveformLevelEmitter` | Existing module, keep event names and payload shape aligned |
+| Analyze audio files into peak samples and duration | `ColumboWaveformFileAnalyzer.swift` | New Kotlin analyzer using `MediaExtractor` + `MediaCodec` PCM decoding |
+| Store output waveform playback state | `ColumboWaveformCoordinator.swift` | New Android waveform state coordinator shared by module and view |
+| Start/stop output waveform playback state | `ColumboNativeWaveform.startOutputPlayback/stopOutputPlayback` | Implement real Kotlin methods returning `true` and updating coordinator state |
+| Queue audio-file playback | `ColumboNativeAudioQueue.m`, `ColumboAudioQueueCoordinator.m` | New `ColumboNativeAudioQueueModule.kt` using Android media playback |
+| Emit audio queue events | `ColumboAudioQueueCoordinator.m` | Android module emits the same event types and context fields |
+| Render native waveform view | `ColumboNativeWaveformView.swift` | New Android `ViewManager` and custom `View` consuming shared coordinator state |
 
 ## Architecture
 
 Android should mirror the iOS module boundaries where that keeps the JavaScript contract simple:
 
-- Keep `SchnackNativeWaveformModule.kt` as the bridge module for recording, analysis, and output waveform state.
+- Keep `ColumboNativeWaveformModule.kt` as the bridge module for recording, analysis, and output waveform state.
 - Add focused Kotlin helpers under the app package:
-  - `SchnackWaveformAudioAnalyzer.kt` for file decoding and peak extraction.
-  - `SchnackWaveformStateCoordinator.kt` for input/output samples and playback windows.
-  - `SchnackNativeWaveformViewManager.kt` and `SchnackWaveformView.kt` for native rendering.
-  - `SchnackNativeAudioQueueModule.kt` for queued playback and event emission.
-- Register both native modules and the waveform view manager from `SchnackNativeWaveformPackage.kt`.
+  - `ColumboWaveformAudioAnalyzer.kt` for file decoding and peak extraction.
+  - `ColumboWaveformStateCoordinator.kt` for input/output samples and playback windows.
+  - `ColumboNativeWaveformViewManager.kt` and `ColumboWaveformView.kt` for native rendering.
+  - `ColumboNativeAudioQueueModule.kt` for queued playback and event emission.
+- Register both native modules and the waveform view manager from `ColumboNativeWaveformPackage.kt`.
 - Update JS platform gates only after Android native implementations exist and are registered.
 
 The Android implementation does not need to clone AVFoundation internals. It must match the public contract and observable behavior that the React Native app depends on.
@@ -57,7 +57,7 @@ The existing Android recorder may continue using `MediaRecorder` for the first p
 - Reject overlapping sessions.
 - Resolve `startRecording` and `stopRecording` with `{ uri }`.
 - Resolve `cancelRecording` with `true` for an active matching session and `false` when there is no matching active session.
-- Emit `started`, `stopped`, `cancelled`, `levels`, and `error` events through `SchnackNativeWaveformEvent`.
+- Emit `started`, `stopped`, `cancelled`, `levels`, and `error` events through `ColumboNativeWaveformEvent`.
 - Produce an audio file that app STT routes can consume.
 
 The iOS recorder writes mono 16 kHz PCM WAV. Android currently writes AAC-in-MP4 at 16 kHz. That is acceptable only if downstream STT and waveform analysis consume it reliably. If analysis or STT exposes format-specific issues, Android recording should move to a PCM WAV recorder in a later slice.
@@ -74,11 +74,11 @@ Android `analyzeAudioFile(uri, sampleCount)` should:
 - Return `{ samples: [], durationMs: 0 }` for zero-frame decodes.
 - Return `durationMs` from decoded frame count and sample rate when available, falling back to metadata duration.
 
-This should match the intent of iOS `SchnackWaveformFileAnalyzer`: compact, normalized peak samples for output visualization, not archival DSP precision.
+This should match the intent of iOS `ColumboWaveformFileAnalyzer`: compact, normalized peak samples for output visualization, not archival DSP precision.
 
 ## Audio Queue Parity
 
-Android should add `SchnackNativeAudioQueue` with the same JS methods:
+Android should add `ColumboNativeAudioQueue` with the same JS methods:
 
 - `prepare(): Promise<boolean>`
 - `enqueue(uri, itemId, requestId, source): Promise<boolean>`
@@ -99,7 +99,7 @@ The Android queue can use one `MediaPlayer` at a time plus an in-memory FIFO. It
 
 ## Native Waveform View Parity
 
-Android should add `SchnackNativeWaveformView` so `NativeWaveformView.tsx` can render native waveform channels on Android as well as iOS. The Android view should support the existing props:
+Android should add `ColumboNativeWaveformView` so `NativeWaveformView.tsx` can render native waveform channels on Android as well as iOS. The Android view should support the existing props:
 
 - `channel`: `input` or `output`
 - `active`: boolean
@@ -116,7 +116,7 @@ After Android native support is implemented:
 
 - `src/services/nativeAudioQueue.ts` should not restrict availability to iOS.
 - `src/services/nativeWaveform.ts` should not restrict output waveform playback support to iOS.
-- `src/components/NativeWaveformView.tsx` should require `SchnackNativeWaveformView` on Android as well.
+- `src/components/NativeWaveformView.tsx` should require `ColumboNativeWaveformView` on Android as well.
 - `src/hooks/useAudioPlayer.ts` should select the native audio queue when the module is available, not because the platform is iOS.
 - `waitForPlaybackRouteSettle` should continue to be iOS-only unless Android needs an equivalent route-settle wait.
 

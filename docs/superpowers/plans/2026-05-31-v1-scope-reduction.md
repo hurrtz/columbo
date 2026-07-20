@@ -1,8 +1,8 @@
-# SchnackAI v1 Scope Reduction — Implementation Plan
+# Columbo v1 Scope Reduction — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Shrink SchnackAI to a focused, launchable v1 by removing the cost/pricing system, reducing the voice backend matrix to one STT + one TTS path, and culling the provider catalog from 42 providers to a 3–5 "core" set.
+**Goal:** Shrink Columbo to a focused, launchable v1 by removing the cost/pricing system, reducing the voice backend matrix to one STT + one TTS path, and culling the provider catalog from 42 providers to a 3–5 "core" set.
 
 **Architecture:** The app keys nearly all provider state off the `Provider` union in `src/constants/providers/runtimeManifest.ts`, with `Record<Provider, …>` maps generated from `RUNTIME_PROVIDER_MANIFEST` / `PROVIDER_ORDER`. Shrinking the manifest therefore propagates through the type system — `tsc --noEmit` becomes the primary safety net for the cull. Work proceeds in four independent, individually-shippable phases, smallest-and-safest first.
 

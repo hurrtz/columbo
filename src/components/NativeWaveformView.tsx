@@ -22,7 +22,7 @@ type NativeWaveformViewProps = ViewProps & {
 const NativeWaveformComponent =
   Platform.OS === "ios" || Platform.OS === "android"
     ? requireNativeComponent<NativeWaveformViewProps>(
-        "SchnackNativeWaveformView"
+        "ColumboNativeWaveformView"
       )
     : null;
 

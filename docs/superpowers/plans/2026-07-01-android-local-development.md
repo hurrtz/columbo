@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Make SchnackAI reliable to build and run on a local Android device from the existing Expo/React Native Android project.
+**Goal:** Make Columbo reliable to build and run on a local Android device from the existing Expo/React Native Android project.
 
 **Architecture:** Keep the existing native Android project and Expo Router entrypoint. Align the native Android Gradle metadata with `app.json`, add a concise local-dev note, and verify the debug build path without changing release signing or store configuration.
 
@@ -130,7 +130,7 @@ Create `docs/android-local-development.md` with:
 ```markdown
 # Android Local Development
 
-SchnackAI already contains a native Android project under `android/`. Use this path for local device development; do not regenerate the native project unless an Expo upgrade requires it.
+Columbo already contains a native Android project under `android/`. Use this path for local device development; do not regenerate the native project unless an Expo upgrade requires it.
 
 ## Prerequisites
 

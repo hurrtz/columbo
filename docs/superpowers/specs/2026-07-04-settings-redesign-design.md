@@ -5,7 +5,7 @@
 
 ## Problem
 
-SchnackAI Settings currently expose a long list of implementation controls:
+Columbo Settings currently expose a long list of implementation controls:
 provider keys, model routing, response style, STT, TTS, voice previews, web
 search, diagnostics, theme, language, usage stats, and debug controls. The
 controls are useful, but the grouping makes users reason about the app's

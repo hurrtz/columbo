@@ -61,16 +61,16 @@ cd android && ./gradlew assembleDebug
 
 The Android native project now registers the same app-facing native audio and waveform surfaces used by the iOS implementation:
 
-- `SchnackNativeWaveform` records local audio, emits input waveform levels, analyzes local audio files, and tracks output waveform playback state.
-- `SchnackNativeAudioQueue` provides Android native audio queue methods and queue events for playback.
-- `SchnackNativeWaveformView` renders the native waveform view on Android as well as iOS.
+- `ColumboNativeWaveform` records local audio, emits input waveform levels, analyzes local audio files, and tracks output waveform playback state.
+- `ColumboNativeAudioQueue` provides Android native audio queue methods and queue events for playback.
+- `ColumboNativeWaveformView` renders the native waveform view on Android as well as iOS.
 
 Focused verification:
 
 ```bash
 npm test -- --runInBand --watchman=false __tests__/components/NativeWaveformView.test.tsx __tests__/services/nativeWaveform.test.ts __tests__/services/nativeAudioQueue.test.ts __tests__/hooks/useAudioPlayer.test.ts
 npx tsc --noEmit
-cd android && ./gradlew :app:testDebugUnitTest --tests '*SchnackWaveformAudioAnalyzerTest' --tests '*SchnackWaveformStateCoordinatorTest'
+cd android && ./gradlew :app:testDebugUnitTest --tests '*ColumboWaveformAudioAnalyzerTest' --tests '*ColumboWaveformStateCoordinatorTest'
 cd android && ./gradlew assembleDebug
 ```
 

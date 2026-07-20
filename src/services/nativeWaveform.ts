@@ -43,7 +43,7 @@ type NativeWaveformModule = {
   stopOutputPlayback(itemId?: string | null): Promise<boolean>;
 };
 
-const nativeModule = NativeModules.SchnackNativeWaveform as
+const nativeModule = NativeModules.ColumboNativeWaveform as
   | NativeWaveformModule
   | undefined;
 
@@ -71,7 +71,7 @@ export function subscribeToNativeWaveform(
   }
 
   const subscription = nativeEmitter.addListener(
-    "SchnackNativeWaveformEvent",
+    "ColumboNativeWaveformEvent",
     listener,
   );
 
