@@ -154,25 +154,43 @@ describe("webSearch", () => {
     },
     {
       provider: "alibaba-qwen-dashscope",
-      url: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+      url: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/responses",
       response: {
-        choices: [
+        output: [
           {
-            message: {
-              content: "Qwen web search found the current answer.",
+            type: "web_search_call",
+            id: "qwen_search_1",
+            status: "completed",
+            action: {
+              type: "search",
+              query: "What changed today?",
+              sources: [
+                {
+                  type: "url",
+                  url: "https://example.com/qwen-search",
+                },
+              ],
             },
           },
-        ],
-        search_results: [
           {
-            title: "Qwen search result",
-            url: "https://example.com/qwen-search",
+            type: "message",
+            role: "assistant",
+            status: "completed",
+            content: [
+              {
+                type: "output_text",
+                text: "Qwen web search found the current answer.",
+              },
+            ],
           },
         ],
       },
       assertBody: (body: Record<string, unknown>) => {
-        expect(body.enable_search).toBe(true);
         expect(body.model).toBe("qwen3.7-plus");
+        expect(body.tools).toEqual([{ type: "web_search" }]);
+        expect(body.tool_choice).toBe("required");
+        expect(body.reasoning).toEqual({ effort: "none" });
+        expect(body.input).toEqual(expect.stringContaining("What changed today?"));
       },
       expectedSummary: "Qwen web search found the current answer.",
       expectedSourceUrl: "https://example.com/qwen-search",
@@ -495,6 +513,89 @@ describe("webSearch", () => {
 
     expect(result).toBeNull();
     expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects a Qwen response that did not run the web search tool", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          output: [
+            {
+              type: "message",
+              role: "assistant",
+              status: "completed",
+              content: [
+                {
+                  type: "output_text",
+                  text: "An ungrounded answer.",
+                },
+              ],
+            },
+          ],
+        }),
+    });
+
+    await expect(
+      searchWeb({
+        provider: "alibaba-qwen-dashscope",
+        apiKey: "dashscope-test",
+        language: "en",
+        query: "What changed today?",
+      }),
+    ).rejects.toThrow(
+      "Alibaba / Qwen returned a response without running web search.",
+    );
+  });
+
+  it("validates Qwen only after a completed web search call", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          output: [
+            {
+              type: "web_search_call",
+              id: "qwen_validation_search",
+              status: "completed",
+              action: {
+                type: "search",
+                query: "current UTC time",
+                sources: [
+                  {
+                    type: "url",
+                    url: "https://example.com/current-time",
+                  },
+                ],
+              },
+            },
+            {
+              type: "message",
+              role: "assistant",
+              status: "completed",
+              content: [
+                {
+                  type: "output_text",
+                  text: "The current UTC time is available from the source.",
+                },
+              ],
+            },
+          ],
+        }),
+    });
+
+    await expect(
+      validateWebSearchConnection({
+        provider: "alibaba-qwen-dashscope",
+        apiKey: "dashscope-test",
+        language: "en",
+      }),
+    ).resolves.toBeUndefined();
+
+    expect(fetch).toHaveBeenCalledWith(
+      "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/responses",
+      expect.objectContaining({ method: "POST" }),
+    );
   });
 
   it("validates the configured provider through the web search service", async () => {

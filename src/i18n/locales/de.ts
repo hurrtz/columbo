@@ -612,6 +612,8 @@ export const de: TranslationDictionary = {
       detail
         ? `${provider} hat die Anfrage für ${action} abgelehnt: ${detail}`
         : `${provider} hat die Anfrage für ${action} abgelehnt.`,
+    providerWebSearchNotRun: ({ provider }) =>
+      `${provider} hat eine Antwort zurückgegeben, ohne die Websuche auszuführen.`,
     providerValidationSuccess: ({ provider }) =>
       `${provider} ist einsatzbereit.`,
     providerValidationFailed: "Anbieter-Prüfung fehlgeschlagen.",

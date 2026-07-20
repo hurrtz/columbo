@@ -77,8 +77,8 @@ function buildWebSearchPrompt(params: {
 
 function getValidationQuery(language: AppLanguage) {
   return language === "de"
-    ? "Welches Datum ist heute in UTC? Antworte in einem kurzen Satz."
-    : "What date is it today in UTC? Reply in one short sentence.";
+    ? "Wie spät ist es aktuell in UTC? Nutze eine verlässliche Webseite und antworte in einem kurzen Satz."
+    : "What is the current UTC time? Use a reliable website and reply in one short sentence.";
 }
 
 function dedupeSources(sources: WebSearchSource[]) {
@@ -266,6 +266,26 @@ function extractGenericSources(data: unknown) {
   const sources: WebSearchSource[] = [];
   collectSources(data, sources);
   return dedupeSources(sources);
+}
+
+function hasCompletedWebSearchCall(data: unknown) {
+  if (!data || typeof data !== "object" || !("output" in data)) {
+    return false;
+  }
+
+  if (!Array.isArray(data.output)) {
+    return false;
+  }
+
+  return data.output.some(
+    (item) =>
+      item &&
+      typeof item === "object" &&
+      "type" in item &&
+      item.type === "web_search_call" &&
+      "status" in item &&
+      item.status === "completed",
+  );
 }
 
 function extractChatCompletionOutputText(data: unknown): string {
@@ -732,17 +752,29 @@ async function searchWithQwen(params: WebSearchRequestParams) {
   const model = getWebSearchProviderModel(params.provider);
   const maxOutputTokens = params.maxOutputTokens ?? 420;
 
-  return fetchJsonWebSearch(params, {
-    url: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+  const response = await fetchJsonWebSearch(params, {
+    url: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/responses",
     model,
     headers: buildBearerHeaders(params),
     body: {
       model,
-      messages: buildChatMessages(params),
-      enable_search: true,
-      max_tokens: maxOutputTokens,
+      input: buildPromptForProvider(params),
+      tools: [{ type: "web_search" }],
+      tool_choice: "required",
+      reasoning: { effort: "none" },
+      max_output_tokens: maxOutputTokens,
     },
   });
+
+  if (!hasCompletedWebSearchCall(response.data)) {
+    throw new Error(
+      translate(params.language, "providerWebSearchNotRun", {
+        provider: PROVIDER_LABELS[params.provider],
+      }),
+    );
+  }
+
+  return response;
 }
 
 async function searchWithResponsesTool(params: WebSearchRequestParams, url: string) {
@@ -1038,6 +1070,7 @@ function normalizeGroundedAnswerResult(params: {
 
   switch (params.provider) {
     case "openai":
+    case "alibaba-qwen-dashscope":
     case "bytedance-doubao-seed":
     case "xai":
       summary = extractResponsesOutputText(params.data);
@@ -1051,7 +1084,6 @@ function normalizeGroundedAnswerResult(params: {
     case "mistral":
       summary = extractMistralOutputText(params.data);
       break;
-    case "alibaba-qwen-dashscope":
     case "moonshot-ai-kimi":
     case "perplexity":
       summary = extractChatCompletionOutputText(params.data);

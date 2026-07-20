@@ -596,6 +596,8 @@ export const en: TranslationDictionary = {
       detail
         ? `${provider} rejected the ${action} request: ${detail}`
         : `${provider} rejected the ${action} request.`,
+    providerWebSearchNotRun: ({ provider }) =>
+      `${provider} returned a response without running web search.`,
     providerValidationSuccess: ({ provider }) => `${provider} is ready to use.`,
     providerValidationFailed: "Provider validation failed.",
     providerHealthSummaryReady: ({ count }) => `Ready ${count}`,

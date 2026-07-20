@@ -37,7 +37,7 @@ validation, API-key storage, setup-guide routing, and web-search dispatch:
 | --- | --- | --- | --- | --- | --- |
 | `openai` | enabled | enabled | enabled | enabled | Uses Responses web search and OpenAI speech routes. |
 | `anthropic` | enabled | enabled | none | none | Claude Messages plus Anthropic web search. |
-| `alibaba-qwen-dashscope` | enabled | enabled | enabled | enabled | OpenAI-compatible chat plus DashScope search and simple Qwen ASR/TTS routes. |
+| `alibaba-qwen-dashscope` | enabled | enabled | enabled | enabled | OpenAI-compatible chat plus Qwen Responses search and simple DashScope ASR/TTS routes. |
 | `bytedance-doubao-seed` | enabled | enabled | none | none | Ark chat plus Ark Responses web search; Doubao Speech is not runtime-exposed. |
 | `gemini` | enabled | enabled | enabled | enabled | Gemini GenerateContent/Live, Interactions search, Google Cloud Speech, and Gemini TTS. |
 | `xai` | enabled | enabled | enabled | enabled | Grok chat/Responses search plus standalone xAI STT/TTS routes. |
@@ -72,8 +72,8 @@ validation, API-key storage, setup-guide routing, and web-search dispatch:
 
 - LLM transport: DashScope OpenAI-compatible chat completions.
 - LLM picker: curated Qwen 3.7, 3.6, 3.5, and Qwen Plus/Flash rows.
-- Web search: DashScope OpenAI-compatible chat completions with
-  `enable_search`.
+- Web search: `qwen3.7-plus` through the OpenAI-compatible Responses API with
+  one required `web_search` tool call. Ungrounded responses are rejected.
 - Effort: `enable_thinking` toggle.
 - STT picker: `qwen3-asr-flash`.
 - TTS picker: `qwen3-tts-flash`, `qwen3-tts-instruct-flash`.
