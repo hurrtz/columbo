@@ -6,6 +6,11 @@ import {
 import { PROVIDER_LABELS, getSttModelLabel } from "../constants/models";
 import { translate } from "../i18n";
 import { AppLanguage, Provider, SttBackendMode } from "../types";
+import {
+  parseQwenApiCredential,
+  qwenRegionSupportsAppSpeech,
+  resolveQwenApiEndpoint,
+} from "../utils/qwenRegion";
 import { getProviderSttConfig } from "./whisper/config";
 import { createSttRecordingTooLargeError } from "./whisper/errors";
 import { waitForRecordedFileReady } from "./whisper/recordedFileReady";
@@ -93,7 +98,7 @@ export async function transcribeAudio(params: {
   }
 
   const selectedModel = providerModel || "";
-  const config = getProviderSttConfig(provider, selectedModel);
+  let config = getProviderSttConfig(provider, selectedModel);
 
   if (!config) {
     throw new Error(
@@ -101,6 +106,21 @@ export async function transcribeAudio(params: {
         provider: PROVIDER_LABELS[provider],
       }),
     );
+  }
+
+  if (provider === "alibaba-qwen-dashscope") {
+    const region = parseQwenApiCredential(apiKey ?? "").region;
+
+    if (!qwenRegionSupportsAppSpeech(region)) {
+      throw new Error(translate(language, "qwenSpeechUnavailableInUs"));
+    }
+
+    if ("endpoint" in config) {
+      config = {
+        ...config,
+        endpoint: resolveQwenApiEndpoint(config.endpoint, apiKey ?? ""),
+      };
+    }
   }
 
   const resolvedModel = providerModel || config.defaultModel;

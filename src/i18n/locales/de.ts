@@ -260,6 +260,8 @@ export const de: TranslationDictionary = {
       "Wähle in Mistral Studio eine Standardstimme oder erstelle eine eigene Stimme und füge deren ID hier ein.",
     mistralVoiceIdRequired:
       "Gib vor der Sprachausgabe die ID einer Standard- oder eigenen Mistral-Stimme ein.",
+    qwenSpeechUnavailableInUs:
+      "Columbos aktuelle Qwen-Sprachrouten sind in der US-Region nicht verfügbar. Wähle für Qwen-Spracherkennung und -ausgabe Singapur oder Peking.",
     providerDefaultVoiceHint:
       "Dieser Anbieter nutzt aktuell seine Standardstimme für Vorschau und Sprachausgabe.",
     listenLanguages: "Sprachen",

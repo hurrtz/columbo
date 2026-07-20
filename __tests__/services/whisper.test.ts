@@ -366,14 +366,14 @@ describe("transcribeAudio", () => {
       fileUri: "/tmp/recording.m4a",
       mode: "provider",
       provider: "alibaba-qwen-dashscope",
-      apiKey: "dashscope-test",
+      apiKey: "dashscope-test|beijing",
       language: "en",
     });
 
     expect(result).toBe("Hello world");
     const [url, options] = (fetch as jest.Mock).mock.calls[0];
     expect(url).toBe(
-      "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+      "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
     );
     const body = JSON.parse(options.body);
     expect(body.model).toBe("qwen3-asr-flash");
@@ -381,6 +381,20 @@ describe("transcribeAudio", () => {
     expect(body.messages[0].content[0].input_audio.data).toMatch(
       /^data:audio\/m4a;base64,/,
     );
+  });
+
+  it("rejects Qwen STT when the credential belongs to the US region", async () => {
+    await expect(
+      transcribeAudio({
+        fileUri: "/tmp/recording.m4a",
+        mode: "provider",
+        provider: "alibaba-qwen-dashscope",
+        apiKey: "dashscope-test|us",
+        language: "en",
+      }),
+    ).rejects.toThrow("not available in the US region");
+
+    expect(fetch).not.toHaveBeenCalled();
   });
 
 

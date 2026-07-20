@@ -11,6 +11,7 @@ import { PROVIDER_LABELS } from "../constants/models";
 import { translate } from "../i18n";
 import type { AppLanguage, WebSearchSource } from "../types";
 import { requireProviderKey } from "./llm/shared";
+import { resolveQwenApiEndpoint } from "../utils/qwenRegion";
 import { recordDebugLogEvent } from "./debugLogCapture";
 import { networkFetch } from "./networkFetch";
 import {
@@ -752,7 +753,10 @@ async function searchWithQwen(params: WebSearchRequestParams) {
   const maxOutputTokens = params.maxOutputTokens ?? 420;
 
   const response = await fetchJsonWebSearch(params, {
-    url: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/responses",
+    url: resolveQwenApiEndpoint(
+      "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/responses",
+      params.apiKey,
+    ),
     model,
     headers: buildBearerHeaders(params),
     body: {

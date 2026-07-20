@@ -11,6 +11,7 @@ import {
   UsageEstimate,
 } from "../types";
 import { estimateChatUsage } from "../utils/usageStats";
+import { resolveQwenApiEndpoint } from "../utils/qwenRegion";
 
 import {
   buildSystemPrompt,
@@ -153,7 +154,10 @@ const LLM_TEXT_REQUESTERS = {
     config: Extract<ProviderLlmConfig, { transport: "openai-compatible" }>,
   ) =>
     requestOpenAICompatibleChat({
-      endpoint: config.endpoint,
+      endpoint:
+        params.provider === "alibaba-qwen-dashscope"
+          ? resolveQwenApiEndpoint(config.endpoint, params.apiKey)
+          : config.endpoint,
       provider: params.provider,
       model: params.model,
       modelEffort: params.modelEffort,
@@ -216,7 +220,10 @@ const LLM_STREAM_REQUESTERS = {
     config: Extract<ProviderLlmConfig, { transport: "openai-compatible" }>,
   ) =>
     requestOpenAICompatibleChatStream({
-      endpoint: config.endpoint,
+      endpoint:
+        params.provider === "alibaba-qwen-dashscope"
+          ? resolveQwenApiEndpoint(config.endpoint, params.apiKey)
+          : config.endpoint,
       provider: params.provider,
       model: params.model,
       modelEffort: params.modelEffort,

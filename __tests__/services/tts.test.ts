@@ -265,14 +265,14 @@ describe("synthesizeSpeech", () => {
       voice: "",
       mode: "provider",
       provider: "alibaba-qwen-dashscope",
-      apiKey: "dashscope-test",
+      apiKey: "dashscope-test|beijing",
       language: "en",
     });
 
     expect(result).toMatch(/^\/tmp\/tts-.*\.wav$/);
     const [url, options] = (fetch as jest.Mock).mock.calls[0];
     expect(url).toBe(
-      "https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation",
+      "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation",
     );
     const body = JSON.parse(options.body);
     expect(body.model).toBe("qwen3-tts-flash");
@@ -281,6 +281,21 @@ describe("synthesizeSpeech", () => {
     expect((fetch as jest.Mock).mock.calls[1][0]).toBe(
       "https://dashscope.example/audio.wav",
     );
+  });
+
+  it("rejects Qwen TTS when the credential belongs to the US region", async () => {
+    await expect(
+      synthesizeSpeech({
+        text: "Hello world",
+        voice: "Cherry",
+        mode: "provider",
+        provider: "alibaba-qwen-dashscope",
+        apiKey: "dashscope-test|us",
+        language: "en",
+      }),
+    ).rejects.toThrow("not available in the US region");
+
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it("retries Gemini TTS after a transient transport failure", async () => {

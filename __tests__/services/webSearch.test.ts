@@ -543,7 +543,7 @@ describe("webSearch", () => {
     await expect(
       searchWeb({
         provider: "alibaba-qwen-dashscope",
-        apiKey: "dashscope-test",
+        apiKey: "dashscope-test|us",
         language: "en",
         query: "What changed today?",
       }),
@@ -591,13 +591,13 @@ describe("webSearch", () => {
     await expect(
       validateWebSearchConnection({
         provider: "alibaba-qwen-dashscope",
-        apiKey: "dashscope-test",
+        apiKey: "dashscope-test|us",
         language: "en",
       }),
     ).resolves.toBeUndefined();
 
     expect(fetch).toHaveBeenCalledWith(
-      "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/responses",
+      "https://dashscope-us.aliyuncs.com/compatible-mode/v1/responses",
       expect.objectContaining({ method: "POST" }),
     );
   });

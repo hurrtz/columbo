@@ -2,6 +2,11 @@ import { PROVIDER_LABELS } from "../../constants/models";
 import { RuntimeTtsBinaryRequestFormat } from "../../constants/providers/runtimeManifest";
 import { translate } from "../../i18n";
 import { AppLanguage, Provider } from "../../types";
+import {
+  parseQwenApiCredential,
+  qwenRegionSupportsAppSpeech,
+  resolveQwenApiEndpoint,
+} from "../../utils/qwenRegion";
 
 import {
   buildTtsRequestError,
@@ -190,6 +195,15 @@ export async function synthesizeProviderSpeech(params: {
     );
   }
 
+  if (
+    provider === "alibaba-qwen-dashscope" &&
+    !qwenRegionSupportsAppSpeech(
+      parseQwenApiCredential(apiKey ?? "").region,
+    )
+  ) {
+    throw new Error(translate(language, "qwenSpeechUnavailableInUs"));
+  }
+
   const selectedVoice = getSelectedProviderVoice({
     provider,
     requestedVoice: voice,
@@ -269,7 +283,10 @@ export async function synthesizeProviderSpeech(params: {
 
   if (config.kind === "dashscope") {
     const response = await fetchTtsWithRetries({
-      input: config.endpoint,
+      input:
+        provider === "alibaba-qwen-dashscope"
+          ? resolveQwenApiEndpoint(config.endpoint, apiKey ?? "")
+          : config.endpoint,
       init: {
         method: "POST",
         headers: {

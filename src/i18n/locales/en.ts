@@ -252,6 +252,8 @@ export const en: TranslationDictionary = {
       "Choose a preset voice or create a voice in Mistral Studio, then paste its voice ID here.",
     mistralVoiceIdRequired:
       "Enter a Mistral preset or custom voice ID before using speech output.",
+    qwenSpeechUnavailableInUs:
+      "Columbo's current Qwen speech routes are not available in the US region. Choose Singapore or Beijing for Qwen speech.",
     providerDefaultVoiceHint:
       "This provider currently uses its default voice for preview and spoken replies.",
     listenLanguages: "Listen Languages",

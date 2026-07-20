@@ -174,7 +174,7 @@ describe("streamChat", () => {
       messages: mockMessages,
       model: "qwen3.7-plus",
       provider: "alibaba-qwen-dashscope",
-      apiKey: "qwen-test-key",
+      apiKey: "qwen-test-key|us",
       assistantInstructions: "",
       responseLength: "normal",
       responseTone: "professional",
@@ -188,6 +188,9 @@ describe("streamChat", () => {
       expect.objectContaining({
         message: expect.stringContaining("rate limiting"),
       }),
+    );
+    expect((fetch as jest.Mock).mock.calls[0][0]).toBe(
+      "https://dashscope-us.aliyuncs.com/compatible-mode/v1/chat/completions",
     );
   });
 
