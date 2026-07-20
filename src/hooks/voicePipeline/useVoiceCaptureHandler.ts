@@ -7,6 +7,7 @@ import {
 } from "react";
 
 import { recordDebugLogEvent } from "../../services/debugLogCapture";
+import { setBackgroundVoiceTurnActive } from "../../services/backgroundVoiceTurn";
 import {
   createLatencyRouteKey,
   createLatencyRouteKeys,
@@ -334,6 +335,13 @@ export function useVoiceCaptureHandler({
       pendingAssistantNoticesRef.current = [];
       abortRef.current = new AbortController();
       player.resetCancellation();
+      const backgroundGraceAvailable = setBackgroundVoiceTurnActive(true);
+      recordDebugLogEvent({
+        event: "voice-pipeline-background-grace-armed",
+        payload: {
+          available: backgroundGraceAvailable,
+        },
+      });
       startLatencyProgress("turn", {
         phase: "turn-to-first-speech",
         provider,
@@ -709,6 +717,7 @@ export function useVoiceCaptureHandler({
 
         showToast(errorMessage);
       } finally {
+        setBackgroundVoiceTurnActive(false);
         recordDebugLogEvent({
           event: "voice-pipeline-finalizing",
           payload: {

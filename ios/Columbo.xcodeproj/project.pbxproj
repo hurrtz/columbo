@@ -12,6 +12,7 @@
 		5537CA547A095C86D2D27B28 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 64F9FFC99FC7060C97837358 /* PrivacyInfo.xcprivacy */; };
 		6BBAA95B51D3F6322E30BD0D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52F9AF8602F178C80F51B50 /* ExpoModulesProvider.swift */; };
 		7C4A2D4D5A9E4A6FB6500101 /* ColumboNativeAudioQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C4A2D4D5A9E4A6FB6500001 /* ColumboNativeAudioQueue.m */; };
+		7C4A2D4D5A9E4A6FB6500110 /* ColumboBackgroundVoiceTurn.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C4A2D4D5A9E4A6FB6500011 /* ColumboBackgroundVoiceTurn.m */; };
 		7C4A2D4D5A9E4A6FB6500103 /* ColumboNativeWaveform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C4A2D4D5A9E4A6FB6500003 /* ColumboNativeWaveform.swift */; };
 		7C4A2D4D5A9E4A6FB6500104 /* ColumboNativeWaveformBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C4A2D4D5A9E4A6FB6500004 /* ColumboNativeWaveformBridge.m */; };
 		7C4A2D4D5A9E4A6FB6500105 /* ColumboNativeWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C4A2D4D5A9E4A6FB6500005 /* ColumboNativeWaveformView.swift */; };
@@ -40,6 +41,7 @@
 		6248A357DF5BC319044A9D16 /* Pods-Columbo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Columbo.release.xcconfig"; path = "Target Support Files/Pods-Columbo/Pods-Columbo.release.xcconfig"; sourceTree = "<group>"; };
 		64F9FFC99FC7060C97837358 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Columbo/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		7C4A2D4D5A9E4A6FB6500001 /* ColumboNativeAudioQueue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ColumboNativeAudioQueue.m; path = Columbo/ColumboNativeAudioQueue.m; sourceTree = "<group>"; };
+		7C4A2D4D5A9E4A6FB6500011 /* ColumboBackgroundVoiceTurn.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ColumboBackgroundVoiceTurn.m; path = Columbo/ColumboBackgroundVoiceTurn.m; sourceTree = "<group>"; };
 		7C4A2D4D5A9E4A6FB6500003 /* ColumboNativeWaveform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ColumboNativeWaveform.swift; path = Columbo/ColumboNativeWaveform.swift; sourceTree = "<group>"; };
 		7C4A2D4D5A9E4A6FB6500004 /* ColumboNativeWaveformBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ColumboNativeWaveformBridge.m; path = Columbo/ColumboNativeWaveformBridge.m; sourceTree = "<group>"; };
 		7C4A2D4D5A9E4A6FB6500005 /* ColumboNativeWaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ColumboNativeWaveformView.swift; path = Columbo/ColumboNativeWaveformView.swift; sourceTree = "<group>"; };
@@ -81,6 +83,7 @@
 			children = (
 				F11748412D0307B40044C1D9 /* AppDelegate.swift */,
 				7C4A2D4D5A9E4A6FB6500001 /* ColumboNativeAudioQueue.m */,
+				7C4A2D4D5A9E4A6FB6500011 /* ColumboBackgroundVoiceTurn.m */,
 				8A5C26011111111111111124 /* ColumboAudioQueueSession.m */,
 				8A5C26011111111111111125 /* ColumboAudioQueueCoordinator.m */,
 				7C4A2D4D5A9E4A6FB6500003 /* ColumboNativeWaveform.swift */,
@@ -413,6 +416,7 @@
 				8A5C26011111111111111114 /* ColumboAudioQueueSession.m in Sources */,
 				8A5C26011111111111111115 /* ColumboAudioQueueCoordinator.m in Sources */,
 				7C4A2D4D5A9E4A6FB6500101 /* ColumboNativeAudioQueue.m in Sources */,
+				7C4A2D4D5A9E4A6FB6500110 /* ColumboBackgroundVoiceTurn.m in Sources */,
 				7C4A2D4D5A9E4A6FB6500103 /* ColumboNativeWaveform.swift in Sources */,
 				7C4A2D4D5A9E4A6FB6500104 /* ColumboNativeWaveformBridge.m in Sources */,
 				7C4A2D4D5A9E4A6FB6500105 /* ColumboNativeWaveformView.swift in Sources */,
