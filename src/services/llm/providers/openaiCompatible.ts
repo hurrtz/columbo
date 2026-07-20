@@ -8,7 +8,9 @@ import {
   MistralAssistantContentChunk,
   Provider,
 } from "../../../types";
+import { PROVIDER_LABELS } from "../../../constants/models";
 import { getModelEffortRequestBody } from "../../../utils/modelEffort";
+import { translate } from "../../../i18n";
 
 import { readEventStream } from "../eventStream";
 import {
@@ -92,6 +94,22 @@ function buildMistralAssistantContent(
   ];
 }
 
+function buildIncompleteReplyError(provider: Provider, language: AppLanguage) {
+  return new Error(
+    translate(language, "providerIncompleteReplyError", {
+      provider: PROVIDER_LABELS[provider],
+    }),
+  );
+}
+
+function isSuccessfulFinishReason(finishReason: unknown) {
+  return (
+    finishReason === null ||
+    finishReason === undefined ||
+    finishReason === "stop"
+  );
+}
+
 export async function requestChatWithOpenAiCompatibleTransport(params: {
   endpoint: string;
   headers: Record<string, string>;
@@ -158,6 +176,10 @@ export async function requestChatWithOpenAiCompatibleTransport(params: {
   }
 
   const data = await response.json();
+  const finishReason = data.choices?.[0]?.finish_reason;
+  if (!isSuccessfulFinishReason(finishReason)) {
+    throw buildIncompleteReplyError(provider, language);
+  }
   const content = data.choices?.[0]?.message?.content;
   const fullText = extractOpenAICompatibleText(content);
   if (provider === "mistral") {
@@ -263,13 +285,34 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
 
   let fullText = "";
   let mistralThinkingText = "";
+  let sawDone = false;
+  let finishReason: unknown;
 
   await readEventStream(response.body, async ({ data }) => {
-    if (!data || data === "[DONE]") {
+    if (!data) {
+      return;
+    }
+
+    if (data === "[DONE]") {
+      sawDone = true;
       return;
     }
 
     const payload = JSON.parse(data);
+    if (payload?.error) {
+      throw buildProviderHttpError({
+        provider,
+        language,
+        status: 400,
+        errorText: JSON.stringify(payload),
+        action: "reply",
+      });
+    }
+
+    const nextFinishReason = payload.choices?.[0]?.finish_reason;
+    if (nextFinishReason !== null && nextFinishReason !== undefined) {
+      finishReason = nextFinishReason;
+    }
     const content = payload.choices?.[0]?.delta?.content;
     const delta = extractOpenAICompatibleText(content);
 
@@ -284,6 +327,13 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
     fullText += delta;
     onChunk(delta);
   });
+
+  if (
+    !isSuccessfulFinishReason(finishReason) ||
+    (!sawDone && finishReason !== "stop")
+  ) {
+    throw buildIncompleteReplyError(provider, language);
+  }
 
   const mistralAssistantContent = buildMistralAssistantContent(
     mistralThinkingText,
