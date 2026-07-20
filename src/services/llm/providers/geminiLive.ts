@@ -67,7 +67,7 @@ async function requestGeminiLiveChatViaWebSocket(params: {
     let settled = false;
     let completed = false;
     let fullText = "";
-    let emittedText = "";
+    let setupComplete = false;
 
     const cleanup = () => {
       params.abortSignal?.removeEventListener("abort", handleAbort);
@@ -130,19 +130,14 @@ async function requestGeminiLiveChatViaWebSocket(params: {
       try {
         socket.send(
           JSON.stringify({
-            config: {
+            setup: {
               model: `models/${params.model}`,
-              responseModalities: ["TEXT"],
+              generationConfig: {
+                responseModalities: ["TEXT"],
+              },
               systemInstruction: {
                 parts: [{ text: params.systemPrompt }],
               },
-            },
-          }),
-        );
-        socket.send(
-          JSON.stringify({
-            realtimeInput: {
-              text: prompt,
             },
           }),
         );
@@ -184,16 +179,28 @@ async function requestGeminiLiveChatViaWebSocket(params: {
         return;
       }
 
+      if (payload?.setupComplete && !setupComplete) {
+        setupComplete = true;
+        try {
+          socket.send(
+            JSON.stringify({
+              realtimeInput: {
+                text: prompt,
+              },
+            }),
+          );
+        } catch (error) {
+          closeSocket();
+          fail(error);
+        }
+        return;
+      }
+
       const nextText = getGeminiLiveTextParts(payload).join("");
 
       if (nextText) {
-        fullText = nextText;
-        const delta = nextText.slice(emittedText.length);
-
-        if (delta) {
-          emittedText = nextText;
-          params.onChunk?.(delta);
-        }
+        fullText += nextText;
+        params.onChunk?.(nextText);
       }
 
       if (payload?.serverContent?.turnComplete === true) {

@@ -632,10 +632,13 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "gemini-generate-content",
       endpoint: "https://generativelanguage.googleapis.com/v1beta",
       defaultModel: "gemini-2.5-flash",
-      realtimeModelIds: ["gemini-live-2.5-flash-native-audio"],
+      realtimeModelIds: ["gemini-3.1-flash-live-preview"],
       realtimeTransport: "gemini-live",
       models: [
-        model("gemini-live-2.5-flash-native-audio"),
+        namedModel(
+          "gemini-3.1-flash-live-preview",
+          "Gemini 3.1 Flash Live Preview",
+        ),
         withEffort(
           model("gemini-3.5-flash"),
           geminiThinkingEffort("medium", [

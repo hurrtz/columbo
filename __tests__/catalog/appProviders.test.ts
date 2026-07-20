@@ -110,7 +110,7 @@ describe("app provider catalog bridge", () => {
 
     expect(
       getCatalogRealtimeModelsForAppProvider("gemini", "llm").some(
-        (model) => model.modelId === "gemini-live-2.5-flash-native-audio",
+        (model) => model.modelId === "gemini-3.1-flash-live-preview",
       ),
     ).toBe(true);
   });

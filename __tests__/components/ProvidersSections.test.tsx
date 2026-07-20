@@ -188,7 +188,7 @@ describe("ResponseModesSection", () => {
                   id: "mode-1",
                   route: {
                     provider: "gemini",
-                    model: "gemini-live-2.5-flash-native-audio",
+                    model: "gemini-3.1-flash-live-preview",
                   },
                 },
                 {

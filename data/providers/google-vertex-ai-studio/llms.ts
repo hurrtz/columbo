@@ -373,26 +373,22 @@ export const llms = providerContext.defineLlms([
       "providerId": "google-vertex-ai-studio",
       "providerName": "Google Vertex AI Studio",
       "service": "llm",
-      "modelId": "gemini-live-2.5-flash-native-audio",
-      "publicName": "Gemini Live 2.5 Flash Native Audio",
+      "modelId": "gemini-3.1-flash-live-preview",
+      "publicName": "Gemini 3.1 Flash Live Preview",
       "aliases": [
-        "gemini-live-2.5-flash-preview-native-audio-09-2025"
+        "gemini-2.5-flash-native-audio-preview-12-2025"
       ],
       "status": "Documented active/current",
       "catalogScope": "Dynamic/non-exhaustive",
       "pricingSummary": "Live API pricing is separate: $0.50 per 1M input text tokens, $3 per 1M input audio tokens, $3 per 1M input video/image tokens, $2 per 1M output text tokens, $12 per 1M output audio tokens.",
-      "limitsSummary": "128k max input context on model page; start/manage page states all Live models have 128k context window. Default audio-only sessions 15 minutes, audio-video 2 minutes, extendable with context compression. Up to 1,000 concurrent sessions/project on PayGo.",
-      "regionSummary": "Live API is a Vertex feature; use regional routing when residency matters.",
+      "limitsSummary": "131,072 input tokens and 65,536 output tokens. Default audio-only sessions are 15 minutes and audio-video sessions 2 minutes, extendable with context compression.",
+      "regionSummary": "Available through the Gemini Live API; regional availability follows the Gemini API.",
       "languagesSummary": "Native audio path documents 24 languages and 30 built-in voices.",
-      "notes": "Primary voice-first picker entry. Stateful WebSocket API. Server-to-server design; Google docs recommend partner integration for direct web/mobile patterns.",
+      "notes": "Current low-latency Live API picker entry. Stateful WebSocket API with text and audio output support.",
       "officialSources": [
-        "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash-live-api",
-        "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/live-api",
-        "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/model-reference/multimodal-live",
-        "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/live-api/start-manage-session",
-        "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/live-api/configure-language-voice",
-        "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/live-api/configure-gemini-capabilities",
-        "https://cloud.google.com/vertex-ai/generative-ai/pricing"
+        "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-live-preview",
+        "https://ai.google.dev/api/live",
+        "https://ai.google.dev/gemini-api/docs/live-api"
       ],
       "openAiCompatible": false,
       "supportsRealtime": true,
@@ -428,10 +424,18 @@ export const llms = providerContext.defineLlms([
         {
           "metric": "context_tokens",
           "comparator": "=",
-          "value": 128000,
+          "value": 131072,
           "unit": "tokens",
           "scope": "session",
-          "sourceText": "All Gemini Live API models have a context window limit of 128k tokens"
+          "sourceText": "Gemini 3.1 Flash Live Preview input token limit: 131,072"
+        },
+        {
+          "metric": "other",
+          "comparator": "=",
+          "value": 65536,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Gemini 3.1 Flash Live Preview output token limit: 65,536"
         },
         {
           "metric": "session_duration_seconds",

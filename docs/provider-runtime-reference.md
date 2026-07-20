@@ -93,7 +93,7 @@ validation, API-key storage, setup-guide routing, and web-search dispatch:
 
 - LLM transport: Gemini `models.generateContent`, with Gemini Live kept for the
   live audio row.
-- LLM picker: `gemini-live-2.5-flash-native-audio`, `gemini-3.5-flash`,
+- LLM picker: `gemini-3.1-flash-live-preview`, `gemini-3.5-flash`,
   `gemini-3.1-pro-preview`, `gemini-3.1-flash-lite`,
   `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`.
 - Effort: `generationConfig.thinkingConfig.thinkingLevel` for Gemini 3.x rows

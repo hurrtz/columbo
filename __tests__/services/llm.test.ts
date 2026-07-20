@@ -468,11 +468,11 @@ describe("streamChat", () => {
   });
 
 
-  it("uses the Gemini Live socket for native-audio realtime models", async () => {
+  it("waits for Gemini Live setup before sending the conversation", async () => {
     const chunks: string[] = [];
     const promise = streamChat({
       messages: mockMessages,
-      model: "gemini-live-2.5-flash-native-audio",
+      model: "gemini-3.1-flash-live-preview",
       provider: "gemini",
       apiKey: "gemini-test-key",
       assistantInstructions: "",
@@ -492,11 +492,14 @@ describe("streamChat", () => {
 
     socket.emitOpen();
     expect(JSON.parse(socket.sent[0])).toMatchObject({
-      config: {
-        model: "models/gemini-live-2.5-flash-native-audio",
-        responseModalities: ["TEXT"],
+      setup: {
+        model: "models/gemini-3.1-flash-live-preview",
+        generationConfig: { responseModalities: ["TEXT"] },
       },
     });
+    expect(socket.sent).toHaveLength(1);
+
+    socket.emitMessage({ setupComplete: {} });
     expect(JSON.parse(socket.sent[1])).toMatchObject({
       realtimeInput: {
         text: expect.stringContaining("User: Hello"),
@@ -506,7 +509,14 @@ describe("streamChat", () => {
     socket.emitMessage({
       serverContent: {
         modelTurn: {
-          parts: [{ text: "Hi from Gemini Live" }],
+          parts: [{ text: "Hi from " }],
+        },
+      },
+    });
+    socket.emitMessage({
+      serverContent: {
+        modelTurn: {
+          parts: [{ text: "Gemini Live" }],
         },
       },
     });
@@ -517,7 +527,7 @@ describe("streamChat", () => {
     });
 
     await promise;
-    expect(chunks).toEqual(["Hi from Gemini Live"]);
+    expect(chunks).toEqual(["Hi from ", "Gemini Live"]);
     expect(fetch).not.toHaveBeenCalled();
   });
 
