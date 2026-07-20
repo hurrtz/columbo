@@ -1,9 +1,12 @@
 import { Message } from "../types";
+import { getMessageContentWithResponseProvenance } from "./llm/messageProvenance";
 
 export const CONTEXT_SUMMARY_TRIGGER_TOKENS = 2400;
 export const CONTEXT_RECENT_TOKEN_BUDGET = 1400;
 export const CONTEXT_RECENT_MIN_MESSAGES = 6;
 export const CONTEXT_RECENT_MAX_MESSAGES = 10;
+export const CONTEXT_SUMMARY_PROVENANCE_MARKER =
+  "[Conversation response provenance v1]";
 
 export interface ConversationContextPlan {
   estimatedTokenCount: number;
@@ -19,8 +22,32 @@ export function estimateTextTokens(text: string) {
   return Math.ceil(text.length / 4);
 }
 
-export function estimateMessageTokens(message: Pick<Message, "role" | "content">) {
-  return estimateTextTokens(message.content) + 10;
+export function estimateMessageTokens(
+  message: Pick<Message, "role" | "content"> &
+    Partial<Pick<Message, "model" | "provider">>,
+) {
+  return (
+    estimateTextTokens(getMessageContentWithResponseProvenance(message)) + 10
+  );
+}
+
+export function hasCurrentConversationSummaryProvenance(summary?: string) {
+  return summary?.trim().startsWith(CONTEXT_SUMMARY_PROVENANCE_MARKER) ?? false;
+}
+
+export function getConversationSummaryBody(summary?: string) {
+  const trimmedSummary = summary?.trim() ?? "";
+
+  if (!hasCurrentConversationSummaryProvenance(trimmedSummary)) {
+    return trimmedSummary;
+  }
+
+  return trimmedSummary.slice(CONTEXT_SUMMARY_PROVENANCE_MARKER.length).trim();
+}
+
+export function markConversationSummaryProvenance(summary: string) {
+  const body = getConversationSummaryBody(summary);
+  return body ? `${CONTEXT_SUMMARY_PROVENANCE_MARKER}\n${body}` : "";
 }
 
 export function estimateMessagesTokens(messages: Message[]) {

@@ -281,11 +281,19 @@ describe("runVoicePipeline", () => {
     });
 
     expect(callbacks.onContextSummary).toHaveBeenCalledWith(
-      "User prefers concise answers.",
+      "[Conversation response provenance v1]\nUser prefers concise answers.",
       expect.any(Number),
       expect.objectContaining({
         kind: "summary",
         totalTokens: 104,
+      }),
+    );
+    expect(summarizeConversationContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        existingSummary: "",
+        messages: expect.arrayContaining([
+          expect.objectContaining({ id: "m1" }),
+        ]),
       }),
     );
   });

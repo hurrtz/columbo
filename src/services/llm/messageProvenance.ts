@@ -35,6 +35,22 @@ export function getResponseProvenanceMarker(
   return label ? `${RESPONSE_PROVENANCE_MARKER_PREFIX}${label}]` : null;
 }
 
+export function getMessageContentWithResponseProvenance(
+  message: ProvenanceMessage,
+) {
+  if (message.role !== "assistant") {
+    return message.content;
+  }
+
+  const marker = getResponseProvenanceMarker(message);
+
+  if (!marker || message.content.startsWith(RESPONSE_PROVENANCE_MARKER_PREFIX)) {
+    return message.content;
+  }
+
+  return `${marker}\n${message.content}`;
+}
+
 function addMarkerToMistralContent(
   content: MistralAssistantContentChunk[],
   marker: string,
@@ -77,7 +93,7 @@ export function addResponseProvenanceToMessages<T extends ProvenanceMessage>(
 
     return {
       ...message,
-      content: `${marker}\n${message.content}`,
+      content: getMessageContentWithResponseProvenance(message),
       ...(mistralAssistantContent
         ? {
             metadata: {

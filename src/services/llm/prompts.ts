@@ -7,7 +7,10 @@ import {
   Message,
   Provider,
 } from "../../types";
-import { buildResponseProvenanceInstruction } from "./messageProvenance";
+import {
+  buildResponseProvenanceInstruction,
+  getMessageContentWithResponseProvenance,
+} from "./messageProvenance";
 
 const RESPONSE_LENGTH_INSTRUCTIONS: Record<AssistantResponseLength, string> = {
   brief:
@@ -37,7 +40,7 @@ const RESPONSE_LANGUAGE_INSTRUCTION =
   "Match the language of the user's latest message by default. Only switch languages if the user explicitly asks you to, or if earlier system instructions explicitly require a different reply language. Do not automatically translate the conversation into the app language.";
 
 export const CONTEXT_SUMMARIZER_PROMPT =
-  "You maintain a compact internal memory for an ongoing voice conversation. Update or create a concise summary of what matters from earlier turns. Keep stable facts, user preferences, goals, decisions, constraints, names, unresolved questions, and requested follow-ups. Omit filler, small talk, and wording details. Keep the summary under 180 words. Write plain text only.";
+  "You maintain a compact internal memory for an ongoing voice conversation. Update or create a concise summary of what matters from earlier turns. Keep stable facts, user preferences, goals, decisions, constraints, names, unresolved questions, and requested follow-ups. Assistant messages include authoritative provider and model provenance markers. For every assistant statement, claim, or decision retained in the summary, retain its provider and model attribution; never merge different models into one assistant identity. Omit filler, small talk, and wording details. Keep the summary under 180 words. Write plain text only.";
 
 export function buildSystemPrompt(params: {
   assistantInstructions: string;
@@ -80,7 +83,7 @@ export function formatMessagesForSummary(messages: Message[]) {
   return messages
     .map((message) => {
       const speaker = message.role === "user" ? "User" : "Assistant";
-      return `${speaker}: ${message.content}`;
+      return `${speaker}: ${getMessageContentWithResponseProvenance(message)}`;
     })
     .join("\n\n");
 }

@@ -1,5 +1,10 @@
 import { summarizeConversationContext } from "../llm";
-import { buildConversationContextPlan } from "../conversationContext";
+import {
+  buildConversationContextPlan,
+  getConversationSummaryBody,
+  hasCurrentConversationSummaryProvenance,
+  markConversationSummaryProvenance,
+} from "../conversationContext";
 import type { Message } from "../../types";
 import type { RunVoicePipelineParams } from "./types";
 
@@ -26,19 +31,29 @@ export async function resolveContextualMessages({
   providerApiKey,
   summarizedMessageCount,
 }: ResolveContextualMessagesParams) {
+  const canReuseExistingSummary = hasCurrentConversationSummaryProvenance(
+    contextSummary,
+  );
+  const existingSummaryBody = canReuseExistingSummary
+    ? getConversationSummaryBody(contextSummary)
+    : "";
   const contextPlan = buildConversationContextPlan({
     messages,
-    contextSummary,
-    summarizedMessageCount,
+    contextSummary: existingSummaryBody,
+    summarizedMessageCount: canReuseExistingSummary
+      ? summarizedMessageCount
+      : 0,
   });
-  let effectiveSummary = contextSummary?.trim() ?? "";
+  let effectiveSummary = canReuseExistingSummary
+    ? markConversationSummaryProvenance(existingSummaryBody)
+    : "";
   let contextualMessages = contextPlan.recentMessages;
 
   if (contextPlan.needsSummaryUpdate) {
     try {
       const { summary: updatedSummary, usage } =
         await summarizeConversationContext({
-          existingSummary: effectiveSummary,
+          existingSummary: existingSummaryBody,
           messages: contextPlan.messagesToSummarize,
           model,
           provider,
@@ -56,9 +71,9 @@ export async function resolveContextualMessages({
       }
 
       if (updatedSummary) {
-        effectiveSummary = updatedSummary;
+        effectiveSummary = markConversationSummaryProvenance(updatedSummary);
         callbacks.onContextSummary?.(
-          updatedSummary,
+          effectiveSummary,
           contextPlan.targetSummarizedCount,
           usage,
         );

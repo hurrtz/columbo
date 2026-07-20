@@ -1,7 +1,11 @@
 import {
   buildConversationContextPlan,
+  CONTEXT_SUMMARY_PROVENANCE_MARKER,
   CONTEXT_SUMMARY_TRIGGER_TOKENS,
   estimateMessagesTokens,
+  getConversationSummaryBody,
+  hasCurrentConversationSummaryProvenance,
+  markConversationSummaryProvenance,
 } from "../../src/services/conversationContext";
 import { Message } from "../../src/types";
 
@@ -17,6 +21,23 @@ function makeMessage(id: string, role: "user" | "assistant", content: string): M
 }
 
 describe("buildConversationContextPlan", () => {
+  it("versions provenance-aware summaries without exposing legacy ones as current", () => {
+    const marked = markConversationSummaryProvenance(
+      "Anthropic using Claude Sonnet 5 proposed option A.",
+    );
+
+    expect(marked).toBe(
+      `${CONTEXT_SUMMARY_PROVENANCE_MARKER}\nAnthropic using Claude Sonnet 5 proposed option A.`,
+    );
+    expect(hasCurrentConversationSummaryProvenance(marked)).toBe(true);
+    expect(hasCurrentConversationSummaryProvenance("Legacy summary.")).toBe(
+      false,
+    );
+    expect(getConversationSummaryBody(marked)).toBe(
+      "Anthropic using Claude Sonnet 5 proposed option A.",
+    );
+  });
+
   it("keeps the full history when the thread is still small", () => {
     const messages = [
       makeMessage("1", "user", "Hello there."),
