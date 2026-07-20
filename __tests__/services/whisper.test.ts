@@ -188,6 +188,33 @@ describe("transcribeAudio", () => {
     expect(url).toBe("https://api.mistral.ai/v1/audio/transcriptions");
   });
 
+  it("enables diarized output and automatic chunking for OpenAI diarization", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ text: "Speaker-aware transcript" }),
+    });
+
+    await transcribeAudio({
+      fileUri: "/tmp/recording.m4a",
+      mode: "provider",
+      provider: "openai",
+      providerModel: "gpt-4o-transcribe-diarize",
+      apiKey: "sk-test",
+      language: "en",
+    });
+
+    const [, options] = (fetch as jest.Mock).mock.calls[0];
+    const parts = Array.from((options.body as FormData).entries());
+
+    expect(parts).toEqual(
+      expect.arrayContaining([
+        ["model", "gpt-4o-transcribe-diarize"],
+        ["response_format", "diarized_json"],
+        ["chunking_strategy", "auto"],
+      ]),
+    );
+  });
+
 
   it("does not expose the ByteDance bigmodel flash route as runtime STT", async () => {
     await expect(

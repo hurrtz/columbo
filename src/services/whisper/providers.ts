@@ -78,7 +78,12 @@ export async function transcribeWithMultipartProvider(
       name: fileUri.split("/").pop() || "recording.m4a",
     } as any,
   );
-  formData.append("model", providerModel || config.defaultModel);
+  const resolvedModel = providerModel || config.defaultModel;
+  formData.append("model", resolvedModel);
+  if (provider === "openai" && resolvedModel === "gpt-4o-transcribe-diarize") {
+    formData.append("response_format", "diarized_json");
+    formData.append("chunking_strategy", "auto");
+  }
   const languageHint = config.languageHint?.();
   if (languageHint) {
     formData.append("language", languageHint);
