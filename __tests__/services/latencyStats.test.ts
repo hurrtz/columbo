@@ -1,18 +1,31 @@
+let mockStoredValue: string | null = null;
+
 jest.mock("@react-native-async-storage/async-storage", () => ({
-  getItem: jest.fn(() => Promise.resolve(null)),
-  setItem: jest.fn(() => Promise.resolve()),
+  getItem: jest.fn(() => Promise.resolve(mockStoredValue)),
+  setItem: jest.fn((_key: string, value: string) => {
+    mockStoredValue = value;
+    return Promise.resolve();
+  }),
 }));
 
 import {
   createLatencyRouteKey,
+  createLatencyRouteKeys,
   getDefaultLatencyEstimateMs,
   getLatencyProgress,
   getLearnedLatencyEstimateMs,
+  loadLatencyEstimate,
   recordLatencySample,
+  recordLatencySamples,
 } from "../../src/services/latencyStats";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 describe("latencyStats", () => {
+  beforeEach(() => {
+    mockStoredValue = null;
+    jest.clearAllMocks();
+  });
+
   it("keys LLM latency by route and response settings", () => {
     expect(
       createLatencyRouteKey({
@@ -100,5 +113,69 @@ describe("latencyStats", () => {
       "@columbo/latency_stats",
       expect.stringContaining("240000"),
     );
+  });
+
+  it("learns the complete turn estimate from persisted samples", async () => {
+    const descriptor = {
+      phase: "turn-to-first-speech" as const,
+      provider: "anthropic" as const,
+      model: "claude-fable-5",
+      effort: "max",
+      responseLength: "thorough" as const,
+      responseTone: "professional" as const,
+      inputSource: "voice" as const,
+      sttMode: "provider" as const,
+      spokenRepliesEnabled: true,
+      ttsMode: "provider" as const,
+      ttsProvider: "gemini" as const,
+      replyPlayback: "wait" as const,
+      webSearchMode: "off" as const,
+    };
+    const keys = createLatencyRouteKeys(descriptor);
+
+    await recordLatencySamples(keys, 88_000);
+    await recordLatencySamples(keys, 96_000);
+
+    await expect(loadLatencyEstimate(descriptor)).resolves.toMatchObject({
+      estimatedMs: 92_000,
+      learned: true,
+      sampleCount: 2,
+      source: "exact",
+    });
+  });
+
+  it("uses related route-family samples when an exact setting combination is new", async () => {
+    const firstDescriptor = {
+      phase: "turn-to-first-speech" as const,
+      provider: "gemini" as const,
+      model: "gemini-2.5-pro",
+      effort: "high",
+      responseLength: "normal" as const,
+      responseTone: "professional" as const,
+      inputSource: "voice" as const,
+      sttMode: "provider" as const,
+      sttModel: "first-stt-model",
+      spokenRepliesEnabled: true,
+      ttsMode: "provider" as const,
+      ttsProvider: "gemini" as const,
+      ttsModel: "first-tts-model",
+      replyPlayback: "stream" as const,
+      webSearchMode: "off" as const,
+    };
+    const relatedDescriptor = {
+      ...firstDescriptor,
+      responseTone: "socratic" as const,
+      sttModel: "new-stt-model",
+      ttsModel: "new-tts-model",
+    };
+
+    await recordLatencySamples(createLatencyRouteKeys(firstDescriptor), 42_000);
+
+    await expect(loadLatencyEstimate(relatedDescriptor)).resolves.toMatchObject({
+      estimatedMs: 42_000,
+      learned: true,
+      sampleCount: 1,
+      source: "family",
+    });
   });
 });

@@ -50,9 +50,11 @@ type LatencyStatsStore = Record<string, LatencyRouteStats>;
 
 export interface LatencyEstimate {
   key: string;
+  keys: string[];
   estimatedMs: number;
   sampleCount: number;
   learned: boolean;
+  source: "default" | "family" | "exact";
 }
 
 function normalizeKeyPart(value: unknown): string {
@@ -107,6 +109,33 @@ export function createLatencyRouteKey(descriptor: LatencyRouteDescriptor) {
     normalizeKeyPart(descriptor.webSearchMode),
     normalizeKeyPart(descriptor.webSearchProvider),
   ].join(":");
+}
+
+export function createLatencyRouteKeys(descriptor: LatencyRouteDescriptor) {
+  const exactKey = createLatencyRouteKey(descriptor);
+
+  if (descriptor.phase !== "turn-to-first-speech") {
+    return [exactKey];
+  }
+
+  const familyKey = [
+    "turn-to-first-speech-family-v1",
+    normalizeKeyPart(descriptor.provider),
+    normalizeKeyPart(descriptor.model),
+    normalizeKeyPart(descriptor.effort),
+    normalizeKeyPart(descriptor.responseLength),
+    normalizeKeyPart(descriptor.inputSource),
+    normalizeKeyPart(descriptor.sttMode),
+    descriptor.spokenRepliesEnabled ? "spoken" : "text-only",
+    normalizeKeyPart(descriptor.ttsMode),
+    normalizeKeyPart(descriptor.ttsProvider),
+    normalizeKeyPart(descriptor.replyPlayback),
+    descriptor.webSearchMode && descriptor.webSearchMode !== "off"
+      ? "search-on"
+      : "search-off",
+  ].join(":");
+
+  return [exactKey, familyKey];
 }
 
 export function getDefaultLatencyEstimateMs(
@@ -253,26 +282,73 @@ function parseStore(raw: string | null): LatencyStatsStore {
 export async function loadLatencyEstimate(
   descriptor: LatencyRouteDescriptor,
 ): Promise<LatencyEstimate> {
-  const key = createLatencyRouteKey(descriptor);
+  const keys = createLatencyRouteKeys(descriptor);
+  const [key, familyKey] = keys;
   const fallbackMs = getDefaultLatencyEstimateMs(descriptor);
   const store = parseStore(await AsyncStorage.getItem(STORAGE_KEY));
-  const samples = store[key]?.samples?.filter(Number.isFinite) ?? [];
-  const learnedMs = getLearnedLatencyEstimateMs(samples);
+  const exactSamples = store[key]?.samples?.filter(Number.isFinite) ?? [];
+  const familySamples = familyKey
+    ? store[familyKey]?.samples?.filter(Number.isFinite) ?? []
+    : [];
+  const exactMs = getLearnedLatencyEstimateMs(exactSamples);
+  const familyMs = getLearnedLatencyEstimateMs(familySamples);
+
+  if (exactMs > 0 && exactSamples.length >= 4) {
+    return {
+      key,
+      keys,
+      estimatedMs: exactMs,
+      sampleCount: exactSamples.length,
+      learned: true,
+      source: "exact",
+    };
+  }
+
+  if (familyMs > 0) {
+    const exactWeight = exactMs
+      ? Math.min(0.8, 0.35 + exactSamples.length * 0.15)
+      : 0;
+    const estimatedMs = exactMs
+      ? Math.round(exactMs * exactWeight + familyMs * (1 - exactWeight))
+      : familyMs;
+
+    return {
+      key,
+      keys,
+      estimatedMs,
+      sampleCount: familySamples.length,
+      learned: true,
+      source: exactMs ? "exact" : "family",
+    };
+  }
+
+  if (exactMs > 0) {
+    return {
+      key,
+      keys,
+      estimatedMs: exactMs,
+      sampleCount: exactSamples.length,
+      learned: true,
+      source: "exact",
+    };
+  }
 
   return {
     key,
-    estimatedMs: learnedMs || fallbackMs,
-    sampleCount: samples.length,
-    learned: samples.length > 0 && learnedMs > 0,
+    keys,
+    estimatedMs: fallbackMs,
+    sampleCount: 0,
+    learned: false,
+    source: "default",
   };
 }
 
-export async function recordLatencySample(
-  key: string,
+export async function recordLatencySamples(
+  keys: string[],
   durationMs: number,
 ): Promise<void> {
   if (
-    !key ||
+    keys.length === 0 ||
     !Number.isFinite(durationMs) ||
     durationMs < MIN_SAMPLE_MS ||
     durationMs > MAX_SAMPLE_MS
@@ -281,15 +357,26 @@ export async function recordLatencySample(
   }
 
   const store = parseStore(await AsyncStorage.getItem(STORAGE_KEY));
-  const current = store[key]?.samples?.filter(Number.isFinite) ?? [];
-  const samples = [...current, Math.round(durationMs)].slice(
-    -MAX_SAMPLES_PER_ROUTE,
-  );
+  const updatedAt = new Date().toISOString();
 
-  store[key] = {
-    samples,
-    updatedAt: new Date().toISOString(),
-  };
+  for (const key of [...new Set(keys.filter(Boolean))]) {
+    const current = store[key]?.samples?.filter(Number.isFinite) ?? [];
+    const samples = [...current, Math.round(durationMs)].slice(
+      -MAX_SAMPLES_PER_ROUTE,
+    );
+
+    store[key] = {
+      samples,
+      updatedAt,
+    };
+  }
 
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+}
+
+export async function recordLatencySample(
+  key: string,
+  durationMs: number,
+): Promise<void> {
+  await recordLatencySamples([key], durationMs);
 }

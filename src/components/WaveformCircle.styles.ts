@@ -64,6 +64,27 @@ export const styles = StyleSheet.create({
   micIconWrap: {
     alignItems: "center",
     justifyContent: "center",
+    gap: 8,
+  },
+  phaseCountdownWrap: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  phaseCountdownValue: {
+    color: "rgba(255, 255, 255, 0.98)",
+    fontSize: 24,
+    fontVariant: ["tabular-nums"],
+    fontWeight: "700",
+    letterSpacing: 0.2,
+    lineHeight: 28,
+  },
+  phaseCountdownLabel: {
+    color: "rgba(255, 255, 255, 0.72)",
+    fontSize: 10,
+    fontWeight: "600",
+    letterSpacing: 0.5,
+    lineHeight: 14,
+    textTransform: "uppercase",
   },
   waveformWrap: {
     marginTop: 18,

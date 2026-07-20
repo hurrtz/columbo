@@ -296,6 +296,8 @@ export function MainScreenVoiceStage({
         phase={visualPhase}
         providerLabel={providerLabel}
         phaseProgress={phaseProgress}
+        phaseProgressCountdownLabel={t("speechEtaCountdown")}
+        phaseProgressOvertimeLabel={t("speechEtaOvertime")}
         size={circleSize}
         inputMode={inputMode}
         maxRecordingMs={maxRecordingMs}

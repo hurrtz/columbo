@@ -387,6 +387,8 @@ export const de: TranslationDictionary = {
       `Bereite Stimme mit ${provider} vor`,
     deepThinkingReassurance: "Gute Antworten brauchen einen Moment …",
     thinkingElapsed: ({ detail, seconds }) => `${detail} · ${seconds}s`,
+    speechEtaCountdown: "Bis zur Antwort",
+    speechEtaOvertime: "Zusatzzeit",
     speakingBackToYou: "Antwortet dir",
     freshSession: "Neues Gespräch",
     messageCount: ({ count }) =>

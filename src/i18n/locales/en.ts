@@ -377,6 +377,8 @@ export const en: TranslationDictionary = {
       `Preparing voice with ${provider}`,
     deepThinkingReassurance: "Good answers take a moment…",
     thinkingElapsed: ({ detail, seconds }) => `${detail} · ${seconds}s`,
+    speechEtaCountdown: "Until speech",
+    speechEtaOvertime: "Extra time",
     speakingBackToYou: "Speaking back to you",
     freshSession: "Fresh session",
     messageCount: ({ count }) =>

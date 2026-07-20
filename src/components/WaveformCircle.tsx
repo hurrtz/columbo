@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Text,
   View,
   TouchableOpacity,
   GestureResponderEvent,
@@ -27,6 +28,7 @@ import { isWaveformProcessingPhase } from "./waveform/phaseAppearance";
 import { useWaveformCircleAnimations } from "./waveform/useWaveformCircleAnimations";
 import { useWaveformCircleState } from "./waveform/useWaveformCircleState";
 import { useWaveformFrame } from "../state/waveformFeed";
+import { formatLatencyCountdown } from "../utils/latencyDisplay";
 
 interface WaveformCircleProps {
   accessibilityLabel?: string;
@@ -37,6 +39,8 @@ interface WaveformCircleProps {
   size?: number;
   inputMode: InputMode;
   phaseProgress?: VoicePhaseProgress | null;
+  phaseProgressCountdownLabel?: string;
+  phaseProgressOvertimeLabel?: string;
   /** Auto-send cap (ms) for the current recording; drives the "glass filling" fill. */
   maxRecordingMs?: number;
   onPressIn?: (e: GestureResponderEvent) => void;
@@ -62,6 +66,8 @@ export function WaveformCircle({
   disabled = false,
   phase,
   phaseProgress,
+  phaseProgressCountdownLabel = "Until speech",
+  phaseProgressOvertimeLabel = "Extra time",
   providerLabel: _providerLabel,
   size = BASE_SIZE,
   inputMode,
@@ -120,6 +126,12 @@ export function WaveformCircle({
     !!phaseProgress &&
     state.shouldAnimate &&
     isWaveformProcessingPhase(state.phase);
+  const phaseCountdown = phaseProgress
+    ? formatLatencyCountdown(
+        phaseProgress.elapsedMs,
+        phaseProgress.estimatedMs,
+      )
+    : null;
   const progressRingColor = phaseProgress?.overEstimate
     ? "rgba(255, 216, 128, 0.95)"
     : state.phase === "searching"
@@ -506,7 +518,9 @@ export function WaveformCircle({
               ]}
             />
             {state.showsStaticControlState ? (
-              <Animated.View style={[styles.micIconWrap, animations.controlIconStyle]}>
+              <Animated.View
+                style={[styles.micIconWrap, animations.controlIconStyle]}
+              >
                 <Feather
                   name={state.controlIconName}
                   size={controlIconSize}
@@ -516,6 +530,18 @@ export function WaveformCircle({
                       : "rgba(255, 255, 255, 0.96)"
                   }
                 />
+                {showPhaseProgress && phaseCountdown ? (
+                  <View style={styles.phaseCountdownWrap}>
+                    <Text style={styles.phaseCountdownValue}>
+                      {phaseCountdown.text}
+                    </Text>
+                    <Text style={styles.phaseCountdownLabel}>
+                      {phaseCountdown.overtime
+                        ? phaseProgressOvertimeLabel
+                        : phaseProgressCountdownLabel}
+                    </Text>
+                  </View>
+                ) : null}
               </Animated.View>
             ) : (
               <Animated.View

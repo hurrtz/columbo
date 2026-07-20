@@ -9,10 +9,11 @@ import {
 import { recordDebugLogEvent } from "../../services/debugLogCapture";
 import {
   createLatencyRouteKey,
+  createLatencyRouteKeys,
   getDefaultLatencyEstimateMs,
   getLatencyProgress,
   loadLatencyEstimate,
-  recordLatencySample,
+  recordLatencySamples,
   type LatencyRouteDescriptor,
 } from "../../services/latencyStats";
 import { runVoicePipeline } from "../../services/voicePipeline";
@@ -61,6 +62,7 @@ type VoiceCaptureHandlerParams = Omit<UseVoicePipelineParams, "isRecording"> & {
 interface ActiveLatencyProgress {
   phase: VoicePhaseProgressPhase;
   key: string;
+  keys: string[];
   startedAt: number;
   estimatedMs: number;
   sampleCount: number;
@@ -184,9 +186,11 @@ export function useVoiceCaptureHandler({
       const startedAt = Date.now();
       const fallbackEstimateMs = getDefaultLatencyEstimateMs(descriptor);
       const key = createLatencyRouteKey(descriptor);
+      const keys = createLatencyRouteKeys(descriptor);
       const active: ActiveLatencyProgress = {
         phase,
         key,
+        keys,
         startedAt,
         estimatedMs: fallbackEstimateMs,
         sampleCount: 0,
@@ -215,7 +219,28 @@ export function useVoiceCaptureHandler({
         current.estimatedMs = estimate.estimatedMs;
         current.sampleCount = estimate.sampleCount;
         current.learned = estimate.learned;
+        current.keys = estimate.keys;
+        recordDebugLogEvent({
+          event: "adaptive-latency-estimate-loaded",
+          payload: {
+            estimatedMs: estimate.estimatedMs,
+            key: estimate.key,
+            phase,
+            sampleCount: estimate.sampleCount,
+            source: estimate.source,
+          },
+        });
         updateLatencyProgress(current);
+      }).catch((error) => {
+        recordDebugLogEvent({
+          event: "adaptive-latency-estimate-load-failed",
+          level: "warn",
+          payload: {
+            key,
+            message: error instanceof Error ? error.message : String(error),
+            phase,
+          },
+        });
       });
     },
     [clearLatencyProgress, updateLatencyProgress],
@@ -232,15 +257,30 @@ export function useVoiceCaptureHandler({
       const durationMs = Date.now() - active.startedAt;
       const key = active.key;
 
-      void recordLatencySample(key, durationMs);
-      recordDebugLogEvent({
-        event: "adaptive-latency-sample-recorded",
-        payload: {
-          durationMs,
-          key,
-          phase,
-        },
-      });
+      void recordLatencySamples(active.keys, durationMs)
+        .then(() => {
+          recordDebugLogEvent({
+            event: "adaptive-latency-sample-recorded",
+            payload: {
+              durationMs,
+              key,
+              routeCount: active.keys.length,
+              phase,
+            },
+          });
+        })
+        .catch((error) => {
+          recordDebugLogEvent({
+            event: "adaptive-latency-sample-record-failed",
+            level: "warn",
+            payload: {
+              durationMs,
+              key,
+              message: error instanceof Error ? error.message : String(error),
+              phase,
+            },
+          });
+        });
     },
     [],
   );
