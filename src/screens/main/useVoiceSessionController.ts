@@ -85,6 +85,7 @@ export function useVoiceSessionController<Snapshot>({
   }, [settings.sttMode, settings.providerSttModels, sttProvider]);
 
   const { startVoiceCapture, stopVoiceCapture } = useVoiceCaptureLifecycle({
+    isRecording,
     maxRecordingMs,
     nativeStt,
     player,
@@ -96,13 +97,13 @@ export function useVoiceSessionController<Snapshot>({
   });
 
   useVoiceSessionAppState({
-    abortRef,
     isRecording,
-    nativeStt,
-    recorder,
-    setPipelinePhase,
-    setStreamingText,
-    sttMode: settings.sttMode,
+    onBackgroundSubmitError: (error) => {
+      showToast(
+        error instanceof Error ? error.message : t("couldntProcessVoiceInput"),
+      );
+    },
+    stopVoiceCapture,
   });
 
   useEffect(() => {

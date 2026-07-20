@@ -16,6 +16,7 @@ import type {
 export const MAX_RECORDING_MS = 150000;
 
 interface UseVoiceCaptureLifecycleParams {
+  isRecording?: boolean;
   maxRecordingMs?: number;
   nativeStt: NativeSpeechRecognizerController;
   player: AudioPlayerController;
@@ -30,6 +31,7 @@ interface UseVoiceCaptureLifecycleParams {
 }
 
 export function useVoiceCaptureLifecycle({
+  isRecording = false,
   maxRecordingMs = MAX_RECORDING_MS,
   nativeStt,
   player,
@@ -40,6 +42,8 @@ export function useVoiceCaptureLifecycle({
   t,
 }: UseVoiceCaptureLifecycleParams) {
   const recordingStartedRef = useRef<Promise<void> | null>(null);
+  const captureActiveRef = useRef(false);
+  const stopInFlightRef = useRef<Promise<void> | null>(null);
   const maxDurationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // The auto-stop timer fires the latest stopVoiceCapture; keep a ref so the
   // timer callback never closes over a stale handler.
@@ -77,6 +81,7 @@ export function useVoiceCaptureLifecycle({
 
     try {
       await startPromise;
+      captureActiveRef.current = true;
       recordDebugLogEvent({
         event: "voice-capture-started",
         payload: {
@@ -115,7 +120,7 @@ export function useVoiceCaptureLifecycle({
     t,
   ]);
 
-  const stopVoiceCapture = useCallback(async () => {
+  const performStopVoiceCapture = useCallback(async () => {
     clearMaxDurationTimer();
 
     recordDebugLogEvent({
@@ -146,6 +151,19 @@ export function useVoiceCaptureLifecycle({
         }
       }
     }
+
+    if (!captureActiveRef.current && !isRecording) {
+      recordDebugLogEvent({
+        event: "voice-capture-stop-ignored",
+        payload: {
+          reason: "capture-not-active",
+          sttMode,
+        },
+      });
+      return;
+    }
+
+    captureActiveRef.current = false;
 
     if (sttMode === "native") {
       const transcription = await nativeStt.stopRecognition();
@@ -196,6 +214,7 @@ export function useVoiceCaptureLifecycle({
     }
   }, [
     clearMaxDurationTimer,
+    isRecording,
     nativeStt,
     processCapturedVoiceTurn,
     recorder,
@@ -203,6 +222,21 @@ export function useVoiceCaptureLifecycle({
     sttMode,
     t,
   ]);
+
+  const stopVoiceCapture = useCallback(() => {
+    if (stopInFlightRef.current) {
+      return stopInFlightRef.current;
+    }
+
+    const stopPromise = performStopVoiceCapture().finally(() => {
+      if (stopInFlightRef.current === stopPromise) {
+        stopInFlightRef.current = null;
+      }
+    });
+    stopInFlightRef.current = stopPromise;
+
+    return stopPromise;
+  }, [performStopVoiceCapture]);
 
   stopVoiceCaptureRef.current = stopVoiceCapture;
 

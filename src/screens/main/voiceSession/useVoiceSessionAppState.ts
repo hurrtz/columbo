@@ -1,32 +1,18 @@
 import { useEffect } from "react";
-import type { MutableRefObject } from "react";
 import { AppState } from "react-native";
 
-import { PipelinePhase } from "../../../hooks/useVoicePipeline";
-
-import type {
-  AudioRecorderController,
-  NativeSpeechRecognizerController,
-} from "./types";
+import { recordDebugLogEvent } from "../../../services/debugLogCapture";
 
 interface UseVoiceSessionAppStateParams {
-  abortRef: MutableRefObject<AbortController | null>;
   isRecording: boolean;
-  nativeStt: NativeSpeechRecognizerController;
-  recorder: AudioRecorderController;
-  setPipelinePhase: (phase: PipelinePhase) => void;
-  setStreamingText: (text: string) => void;
-  sttMode: "native" | "provider";
+  onBackgroundSubmitError: (error: unknown) => void;
+  stopVoiceCapture: () => Promise<void>;
 }
 
 export function useVoiceSessionAppState({
-  abortRef,
   isRecording,
-  nativeStt,
-  recorder,
-  setPipelinePhase,
-  setStreamingText,
-  sttMode,
+  onBackgroundSubmitError,
+  stopVoiceCapture,
 }: UseVoiceSessionAppStateParams) {
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
@@ -38,33 +24,33 @@ export function useVoiceSessionAppState({
         return;
       }
 
-      void (async () => {
-        abortRef.current?.abort();
-        setPipelinePhase("idle");
-        setStreamingText("");
-
-        try {
-          if (sttMode === "native") {
-            await nativeStt.abortRecognition();
-          } else {
-            await recorder.stopRecording();
-          }
-        } catch {
-          // Ignore background-stop failures.
-        }
-      })();
+      recordDebugLogEvent({
+        event: "voice-capture-background-submit-requested",
+      });
+      void stopVoiceCapture()
+        .then(() => {
+          recordDebugLogEvent({
+            event: "voice-capture-background-submit-completed",
+          });
+        })
+        .catch((error) => {
+          recordDebugLogEvent({
+            event: "voice-capture-background-submit-failed",
+            level: "error",
+            payload: {
+              message: error instanceof Error ? error.message : String(error),
+            },
+          });
+          onBackgroundSubmitError(error);
+        });
     });
 
     return () => {
       subscription.remove();
     };
   }, [
-    abortRef,
     isRecording,
-    nativeStt,
-    recorder,
-    setPipelinePhase,
-    setStreamingText,
-    sttMode,
+    onBackgroundSubmitError,
+    stopVoiceCapture,
   ]);
 }

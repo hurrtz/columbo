@@ -107,6 +107,50 @@ describe("useVoiceCaptureLifecycle auto-stop", () => {
     expect(params.showToast).not.toHaveBeenCalled();
   });
 
+  it("coalesces simultaneous stop requests into one submitted capture", async () => {
+    let finishStopping: ((uri: string) => void) | null = null;
+    const recorder = {
+      ...buildParams().recorder,
+      stopRecording: jest.fn(
+        () =>
+          new Promise<string>((resolve) => {
+            finishStopping = resolve;
+          }),
+      ),
+    };
+    const params = buildParams({ recorder });
+    const { result } = renderHook(() => useVoiceCaptureLifecycle(params));
+
+    await act(async () => {
+      await result.current.startVoiceCapture();
+    });
+
+    let firstStop: Promise<void> | undefined;
+    let secondStop: Promise<void> | undefined;
+    await act(async () => {
+      firstStop = result.current.stopVoiceCapture();
+      secondStop = result.current.stopVoiceCapture();
+      finishStopping?.("file:///tmp/recording.wav");
+      await Promise.all([firstStop, secondStop]);
+    });
+
+    expect(firstStop).toBe(secondStop);
+    expect(recorder.stopRecording).toHaveBeenCalledTimes(1);
+    expect(params.processCapturedVoiceTurn).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores a stop request when no capture was started", async () => {
+    const params = buildParams();
+    const { result } = renderHook(() => useVoiceCaptureLifecycle(params));
+
+    await act(async () => {
+      await result.current.stopVoiceCapture();
+    });
+
+    expect(params.recorder.stopRecording).not.toHaveBeenCalled();
+    expect(params.processCapturedVoiceTurn).not.toHaveBeenCalled();
+  });
+
   it("shows feedback when system speech recognition returns no transcript", async () => {
     const nativeStt = {
       ...buildParams().nativeStt,
