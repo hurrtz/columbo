@@ -6,8 +6,8 @@ import type {
   Settings,
 } from "../../types";
 
-export const STORAGE_KEY = "@schnackai/settings";
-export const API_KEY_STORAGE_PREFIX = "schnackai.provider_key";
+export const STORAGE_KEY = "@columbo/settings";
+export const API_KEY_STORAGE_PREFIX = "columbo.provider_key";
 
 export type PublicSettings = Omit<Settings, "apiKeys">;
 export type SettingsUpdate = Partial<Omit<Settings, "apiKeys" | "providerModels">>;

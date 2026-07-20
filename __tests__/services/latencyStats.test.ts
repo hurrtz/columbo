@@ -97,7 +97,7 @@ describe("latencyStats", () => {
     await recordLatencySample("llm-response-v2:test", 4 * 60_000);
 
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@schnackai/latency_stats",
+      "@columbo/latency_stats",
       expect.stringContaining("240000"),
     );
   });

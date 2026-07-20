@@ -63,10 +63,10 @@ describe("useSettings", () => {
     (SecureStore.getItemAsync as jest.Mock).mockImplementation(
       (key: string) => {
         const values: Record<string, string | null> = {
-          "schnackai.provider_key.openai": "sk-openai",
-          "schnackai.provider_key.anthropic": "sk-anthropic",
-          "schnackai.provider_key.gemini": "gemini-test-key",
-          "schnackai.provider_key.xai": "xai-test",
+          "columbo.provider_key.openai": "sk-openai",
+          "columbo.provider_key.anthropic": "sk-anthropic",
+          "columbo.provider_key.gemini": "gemini-test-key",
+          "columbo.provider_key.xai": "xai-test",
         };
 
         return Promise.resolve(values[key] ?? null);
@@ -101,7 +101,7 @@ describe("useSettings", () => {
     );
     (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) =>
       Promise.resolve(
-        key === "schnackai.provider_key.openai" ? "invalid-key" : null,
+        key === "columbo.provider_key.openai" ? "invalid-key" : null,
       ),
     );
 
@@ -192,7 +192,7 @@ describe("useSettings", () => {
       result.current.updateSettings({ lastProvider: "anthropic" });
     });
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@schnackai/settings",
+      "@columbo/settings",
       expect.stringContaining('"lastProvider":"anthropic"'),
     );
   });
@@ -207,7 +207,7 @@ describe("useSettings", () => {
 
     expect(result.current.settings.showUsageStats).toBe(true);
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@schnackai/settings",
+      "@columbo/settings",
       expect.stringContaining('"showUsageStats":true'),
     );
   });
@@ -222,7 +222,7 @@ describe("useSettings", () => {
 
     expect(result.current.settings.showDebugLogButton).toBe(true);
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@schnackai/settings",
+      "@columbo/settings",
       expect.stringContaining('"showDebugLogButton":true'),
     );
   });
@@ -251,7 +251,7 @@ describe("useSettings", () => {
       "deep",
     );
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@schnackai/settings",
+      "@columbo/settings",
       expect.stringContaining('"webSearchMode":"on"'),
     );
   });
@@ -287,7 +287,7 @@ describe("useSettings", () => {
     );
     (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) => {
       const values: Record<string, string | null> = {
-        "schnackai.provider_key.grok": "xai-legacy-key",
+        "columbo.provider_key.grok": "xai-legacy-key",
       };
 
       return Promise.resolve(values[key] ?? null);
@@ -431,7 +431,7 @@ describe("useSettings", () => {
       DEFAULT_ASSISTANT_INSTRUCTIONS_BY_LANGUAGE.de,
     );
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@schnackai/settings",
+      "@columbo/settings",
       expect.stringContaining('"language":"de"'),
     );
   });
@@ -465,7 +465,7 @@ describe("useSettings", () => {
     });
 
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@schnackai/settings",
+      "@columbo/settings",
       expect.stringContaining('"deepseek":"deepseek-chat"'),
     );
     expect(result.current.settings.providerModels.deepseek).toBe(
@@ -485,7 +485,7 @@ describe("useSettings", () => {
     });
 
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@schnackai/settings",
+      "@columbo/settings",
       expect.stringContaining(
         '"id":"mode-3","route":{"provider":"gemini","model":"gemini-2.5-pro"}',
       ),
@@ -505,7 +505,7 @@ describe("useSettings", () => {
     });
 
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@schnackai/settings",
+      "@columbo/settings",
       expect.stringContaining('"activeResponseMode":"mode-3"'),
     );
     expect(result.current.settings.activeResponseMode).toBe("mode-3");
@@ -520,7 +520,7 @@ describe("useSettings", () => {
     });
 
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@schnackai/settings",
+      "@columbo/settings",
       expect.stringContaining('"gemini":"Aoede"'),
     );
     expect(result.current.settings.providerTtsVoices.gemini).toBe("Aoede");
@@ -558,7 +558,7 @@ describe("useSettings", () => {
     });
 
     expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
-      "schnackai.provider_key.gemini",
+      "columbo.provider_key.gemini",
       "gemini-live-key",
     );
     expect(result.current.settings.apiKeys.gemini).toBe("gemini-live-key");
@@ -608,7 +608,7 @@ describe("useSettings", () => {
     );
     (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) =>
       Promise.resolve(
-        key === "schnackai.provider_key.openai" ? "invalid-key" : null,
+        key === "columbo.provider_key.openai" ? "invalid-key" : null,
       ),
     );
     const { result } = renderHook(() => useSettings());
@@ -643,7 +643,7 @@ describe("useSettings", () => {
     );
     (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) =>
       Promise.resolve(
-        key === "schnackai.provider_key.openai" ? "working-key" : null,
+        key === "columbo.provider_key.openai" ? "working-key" : null,
       ),
     );
     const { result } = renderHook(() => useSettings());
@@ -744,7 +744,7 @@ describe("useSettings", () => {
     });
 
     expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith(
-      "schnackai.provider_key.deepseek",
+      "columbo.provider_key.deepseek",
     );
   });
 });

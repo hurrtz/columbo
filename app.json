@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Columbo",
-    "slug": "schnackai",
+    "slug": "columbo",
     "scheme": "columbo",
     "version": "2.4.0",
     "ios": {

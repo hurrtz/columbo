@@ -113,7 +113,7 @@ __tests__/              Focused hook and service tests
 - Home screen icons and launcher assets require a new native build. OTA updates alone will not change them.
 - The iOS bundle identifier is `com.tobiaswinkler.app.columbo`.
 - The Android application ID and namespace are `com.tobiaswinkler.app.columbo`.
-- The Expo slug and on-device persistence keys intentionally retain their legacy `schnackai` values.
+- The Expo slug and on-device persistence keys use the `columbo` namespace.
 
 ## License
 

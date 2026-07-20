@@ -11,7 +11,7 @@ import type {
   VoicePhaseProgress,
 } from "../types";
 
-const STORAGE_KEY = "@schnackai/latency_stats";
+const STORAGE_KEY = "@columbo/latency_stats";
 const MAX_SAMPLES_PER_ROUTE = 24;
 const MIN_SAMPLE_MS = 250;
 const MAX_SAMPLE_MS = 10 * 60_000;

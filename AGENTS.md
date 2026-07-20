@@ -27,9 +27,9 @@ These notes are specific to this repository and supplement any parent-level inst
 
 ## State And Persistence
 
-- Public settings remain stored under the legacy AsyncStorage key `@schnackai/settings`.
-- Provider API keys remain stored separately in `expo-secure-store` using the legacy `schnackai.provider_key.<provider>` prefix.
-- Conversations remain stored under the legacy AsyncStorage key `@schnackai/conversations` plus per-conversation keys `@schnackai/conversation/<id>`.
+- Public settings are stored under the AsyncStorage key `@columbo/settings`.
+- Provider API keys are stored separately in `expo-secure-store` using the `columbo.provider_key.<provider>` prefix.
+- Conversations are stored under the AsyncStorage key `@columbo/conversations` plus per-conversation keys `@columbo/conversation/<id>`.
 - Do not move provider API keys into AsyncStorage or any plain-text project config.
 - When changing settings shape, update `src/types.ts` and `src/hooks/useSettings.ts` together and preserve migration behavior for existing installs.
 

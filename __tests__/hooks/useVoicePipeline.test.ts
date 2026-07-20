@@ -462,7 +462,7 @@ describe("useVoicePipeline", () => {
 
     await waitFor(() => {
       expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-        "@schnackai/latency_stats",
+        "@columbo/latency_stats",
         expect.stringContaining("5000"),
       );
     });
@@ -534,7 +534,7 @@ describe("useVoicePipeline", () => {
 
     await waitFor(() => {
       expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-        "@schnackai/latency_stats",
+        "@columbo/latency_stats",
         expect.stringContaining("7000"),
       );
     });

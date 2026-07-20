@@ -6,10 +6,10 @@ import {
   sortConversationMeta,
 } from "./meta";
 
-export const META_KEY = "@schnackai/conversations";
+export const META_KEY = "@columbo/conversations";
 
 export function conversationKey(id: string) {
-  return `@schnackai/conversation/${id}`;
+  return `@columbo/conversation/${id}`;
 }
 
 export async function readConversation(id: string) {

@@ -148,7 +148,7 @@ describe("useConversations", () => {
     );
     expect(result.current.activeConversation?.summarizedMessageCount).toBe(4);
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@schnackai/conversation/test-uuid-1",
+      "@columbo/conversation/test-uuid-1",
       expect.stringContaining('"summarizedMessageCount":4'),
     );
   });
@@ -244,7 +244,7 @@ describe("useConversations", () => {
 
   it("backfills missing model metadata from stored conversation messages", async () => {
     (AsyncStorage.getItem as jest.Mock).mockImplementation((key: string) => {
-      if (key === "@schnackai/conversations") {
+      if (key === "@columbo/conversations") {
         return Promise.resolve(
           JSON.stringify([
             {
@@ -257,7 +257,7 @@ describe("useConversations", () => {
         );
       }
 
-      if (key === "@schnackai/conversation/conv-1") {
+      if (key === "@columbo/conversation/conv-1") {
         return Promise.resolve(
           JSON.stringify({
             id: "conv-1",
