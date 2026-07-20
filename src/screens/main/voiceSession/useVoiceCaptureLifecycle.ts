@@ -192,6 +192,7 @@ export function useVoiceCaptureLifecycle({
           sttMode,
         },
       });
+      showToast(t("couldntCatchThatTryAgain"));
     }
   }, [
     clearMaxDurationTimer,

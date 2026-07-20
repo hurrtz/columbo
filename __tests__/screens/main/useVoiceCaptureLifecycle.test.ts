@@ -126,4 +126,21 @@ describe("useVoiceCaptureLifecycle auto-stop", () => {
     expect(params.processCapturedVoiceTurn).not.toHaveBeenCalled();
     expect(params.showToast).toHaveBeenCalledWith("couldntCatchThatTryAgain");
   });
+
+  it("shows feedback when provider recording produces no audio", async () => {
+    const recorder = {
+      ...buildParams().recorder,
+      stopRecording: jest.fn(async () => null),
+    };
+    const params = buildParams({ recorder });
+    const { result } = renderHook(() => useVoiceCaptureLifecycle(params));
+
+    await act(async () => {
+      await result.current.startVoiceCapture();
+      await result.current.stopVoiceCapture();
+    });
+
+    expect(params.processCapturedVoiceTurn).not.toHaveBeenCalled();
+    expect(params.showToast).toHaveBeenCalledWith("couldntCatchThatTryAgain");
+  });
 });
