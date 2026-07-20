@@ -246,6 +246,12 @@ export const en: TranslationDictionary = {
     localTtsLanguageCoverageHint:
       "Local packs currently cover English, German, Simplified Chinese, Spanish, Portuguese, Hindi, French, and Italian. Japanese still falls back automatically.",
     ttsVoice: "TTS Voice",
+    mistralVoiceId: "Mistral Voice ID",
+    mistralVoiceIdPlaceholder: "Preset or custom voice ID",
+    mistralVoiceIdHint:
+      "Choose a preset voice or create a voice in Mistral Studio, then paste its voice ID here.",
+    mistralVoiceIdRequired:
+      "Enter a Mistral preset or custom voice ID before using speech output.",
     providerDefaultVoiceHint:
       "This provider currently uses its default voice for preview and spoken replies.",
     listenLanguages: "Listen Languages",

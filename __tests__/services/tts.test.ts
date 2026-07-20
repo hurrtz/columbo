@@ -361,6 +361,49 @@ describe("synthesizeSpeech", () => {
     expect(body.output_format).toBeUndefined();
   });
 
+  it("calls Mistral Voxtral TTS with a saved voice ID", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ audio_data: "ZmFrZQ==" }),
+    });
+
+    const result = await synthesizeSpeech({
+      text: "Hallo Welt",
+      voice: "voice-123",
+      mode: "provider",
+      provider: "mistral",
+      providerModel: "voxtral-mini-tts-2603",
+      apiKey: "mistral-test-key",
+      language: "de",
+    });
+
+    expect(result).toMatch(/^\/tmp\/tts-.*\.mp3$/);
+    const [url, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe("https://api.mistral.ai/v1/audio/speech");
+    expect(options.headers.Authorization).toBe("Bearer mistral-test-key");
+    expect(JSON.parse(options.body)).toEqual({
+      model: "voxtral-mini-tts-2603",
+      input: "Hallo Welt",
+      voice_id: "voice-123",
+      response_format: "mp3",
+    });
+  });
+
+  it("requires a Mistral voice ID before speech generation", async () => {
+    await expect(
+      synthesizeSpeech({
+        text: "Hallo Welt",
+        voice: "",
+        mode: "provider",
+        provider: "mistral",
+        apiKey: "mistral-test-key",
+        language: "en",
+      }),
+    ).rejects.toThrow("Enter a Mistral preset or custom voice ID");
+
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("splits long provider speech into multiple synthesis requests", async () => {
     (fetch as jest.Mock).mockResolvedValue({
       ok: true,

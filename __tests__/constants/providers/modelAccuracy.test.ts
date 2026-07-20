@@ -1,9 +1,11 @@
 import {
   DEFAULT_PROVIDER_STT_MODELS,
+  DEFAULT_PROVIDER_TTS_MODELS,
   PROVIDER_DEFAULT_MODELS,
   PROVIDER_MODELS,
   PROVIDER_ORDER,
   PROVIDER_STT_MODEL_OPTIONS,
+  PROVIDER_TTS_MODEL_OPTIONS,
 } from "../../../src/constants/models";
 import { WEB_SEARCH_PROVIDER_IDS } from "../../../src/constants/webSearch";
 import { deriveResponseModesForProvider } from "../../../src/utils/responseModes";
@@ -168,6 +170,15 @@ describe("provider model accuracy", () => {
       ]),
     );
     expect(PROVIDER_DEFAULT_MODELS["moonshot-ai-kimi"]).toBe("kimi-k3");
+  });
+
+  it("exposes Mistral's current Voxtral speech model", () => {
+    expect(DEFAULT_PROVIDER_TTS_MODELS.mistral).toBe(
+      "voxtral-mini-tts-2603",
+    );
+    expect(PROVIDER_TTS_MODEL_OPTIONS.mistral?.map((model) => model.id)).toEqual([
+      "voxtral-mini-tts-2603",
+    ]);
   });
 
   it("keeps OpenAI and Perplexity pickers aligned with their current callable endpoints", () => {

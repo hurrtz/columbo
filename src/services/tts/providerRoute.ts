@@ -17,6 +17,7 @@ import {
   TtsRequestError,
   TtsTimeoutError,
   writeBlobAudioFile,
+  writeBase64AudioFile,
 } from "./shared";
 
 const TTS_RETRY_DELAYS_MS = [400, 1200];
@@ -123,6 +124,13 @@ function buildBinaryTtsRequestBody(params: {
         voice_id: params.selectedVoice,
         language: "auto",
       };
+    case "mistral-speech":
+      return {
+        model: params.selectedModel,
+        input: params.text,
+        voice_id: params.selectedVoice,
+        response_format: "mp3",
+      };
     case "openai-speech":
     default:
       return {
@@ -192,6 +200,14 @@ export async function synthesizeProviderSpeech(params: {
     providerModel,
     config,
   });
+
+  if (
+    config.kind === "binary" &&
+    config.requestFormat === "mistral-speech" &&
+    !selectedVoice
+  ) {
+    throw new Error(translate(language, "mistralVoiceIdRequired"));
+  }
 
   if (config.kind === "gemini") {
     const response = await fetchTtsWithRetries({
@@ -329,6 +345,21 @@ export async function synthesizeProviderSpeech(params: {
     language,
     abortSignal,
   });
+
+  if (config.requestFormat === "mistral-speech") {
+    const data = await response.json();
+    const audioData = data?.audio_data;
+
+    if (typeof audioData !== "string" || !audioData) {
+      throw new Error(
+        translate(language, "ttsDidNotReturnAudio", {
+          provider: PROVIDER_LABELS[provider],
+        }),
+      );
+    }
+
+    return writeBase64AudioFile(audioData, "mp3");
+  }
 
   return writeBlobAudioFile(
     await response.blob(),

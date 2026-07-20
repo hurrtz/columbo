@@ -254,6 +254,12 @@ export const de: TranslationDictionary = {
     localTtsLanguageCoverageHint:
       "Lokale Sprachpakete decken derzeit Englisch, Deutsch, vereinfachtes Chinesisch, Spanisch, Portugiesisch, Hindi, Französisch und Italienisch ab. Japanisch fällt weiterhin automatisch zurück.",
     ttsVoice: "TTS-Stimme",
+    mistralVoiceId: "Mistral-Stimmen-ID",
+    mistralVoiceIdPlaceholder: "ID einer Standard- oder eigenen Stimme",
+    mistralVoiceIdHint:
+      "Wähle in Mistral Studio eine Standardstimme oder erstelle eine eigene Stimme und füge deren ID hier ein.",
+    mistralVoiceIdRequired:
+      "Gib vor der Sprachausgabe die ID einer Standard- oder eigenen Mistral-Stimme ein.",
     providerDefaultVoiceHint:
       "Dieser Anbieter nutzt aktuell seine Standardstimme für Vorschau und Sprachausgabe.",
     listenLanguages: "Sprachen",

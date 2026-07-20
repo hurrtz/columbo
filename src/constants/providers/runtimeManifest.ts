@@ -36,7 +36,8 @@ export type RuntimeTtsTransport =
   | "dashscope";
 export type RuntimeTtsBinaryRequestFormat =
   | "openai-speech"
-  | "grok-speech";
+  | "grok-speech"
+  | "mistral-speech";
 export type RuntimeLanguageHintKey = "mistral-stt-language-code";
 
 export interface RuntimeModelSpec {
@@ -994,10 +995,17 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         "The current Voxtral Mini Transcribe 2 route supports English, Chinese, Hindi, Spanish, Arabic, French, Portuguese, Russian, German, Japanese, Korean, Italian, and Dutch.",
     },
     tts: {
-      support: "none",
-      transport: "none",
-      models: [],
+      support: "provider",
+      transport: "binary",
+      endpoint: "https://api.mistral.ai/v1/audio/speech",
+      requestFormat: "mistral-speech",
+      defaultModel: "voxtral-mini-tts-2603",
+      models: [
+        namedModel("voxtral-mini-tts-2603", "Voxtral Mini TTS 26.03"),
+      ],
       voiceOptions: [],
+      languageNote:
+        "Voxtral TTS supports English, French, Spanish, Portuguese, Italian, Dutch, German, Hindi, and Arabic. Enter a preset or custom Mistral voice ID before using it.",
     },
   },
   "moonshot-ai-kimi": {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
 
 import {
   getTtsListenLanguageLabel,
@@ -102,6 +102,36 @@ export function ProviderVoicePreviewSection({
             options={voiceOptions}
             onChange={(value) => onUpdateProviderTtsVoice(provider, value)}
           />
+        ) : provider === "mistral" ? (
+          <View style={styles.settingsSubsectionStack}>
+            <Text style={[styles.previewLabel, { color: colors.textSecondary }]}>
+              {t("mistralVoiceId")}
+            </Text>
+            <TextInput
+              value={selectedVoice}
+              onChangeText={(value) =>
+                onUpdateProviderTtsVoice(provider, value.trim())
+              }
+              onFocus={onTextInputFocus}
+              placeholder={t("mistralVoiceIdPlaceholder")}
+              placeholderTextColor={colors.textMuted}
+              selectionColor={colors.accent}
+              autoCapitalize="none"
+              autoCorrect={false}
+              style={[
+                styles.apiKeyInput,
+                {
+                  backgroundColor: colors.surfaceElevated,
+                  borderColor: colors.border,
+                  color: colors.text,
+                  paddingRight: 14,
+                },
+              ]}
+            />
+            <Text style={[styles.previewHint, { color: colors.textMuted }]}>
+              {t("mistralVoiceIdHint")}
+            </Text>
+          </View>
         ) : (
           <Text
             style={[

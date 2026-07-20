@@ -30,6 +30,7 @@ const PROVIDER_TTS_TIMEOUT_POLICIES: Partial<
   >
 > = {
   openai: { baseMs: 20000, maxMs: 60000, perCharacterMs: 20 },
+  mistral: { baseMs: 20000, maxMs: 60000, perCharacterMs: 20 },
   gemini: { baseMs: 30000, maxMs: 90000, perCharacterMs: 50 },
   xai: { baseMs: 30000, maxMs: 120000, perCharacterMs: 30 },
   "alibaba-qwen-dashscope": {
@@ -104,8 +105,7 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
     manifest.tts.transport === "binary" &&
     manifest.tts.endpoint &&
     manifest.tts.requestFormat &&
-    manifest.tts.defaultModel &&
-    manifest.tts.voiceFallback
+    manifest.tts.defaultModel
   ) {
     ttsProviderConfigEntries.push([
       provider,
@@ -114,7 +114,7 @@ for (const provider of Object.keys(RUNTIME_PROVIDER_MANIFEST) as Provider[]) {
         endpoint: manifest.tts.endpoint,
         requestFormat: manifest.tts.requestFormat,
         defaultModel: manifest.tts.defaultModel,
-        voiceFallback: manifest.tts.voiceFallback,
+        voiceFallback: manifest.tts.voiceFallback ?? "",
       },
     ]);
   }

@@ -14,11 +14,11 @@ describe("provider catalog", () => {
   it("matches the normalized provider and model counts in the flattened catalog", () => {
     expect(getCatalogStats()).toEqual({
       providerCount: 10,
-      modelCount: 123,
+      modelCount: 124,
       serviceCounts: {
         llm: 95,
         stt: 15,
-        tts: 13,
+        tts: 14,
       },
     });
   });
@@ -103,9 +103,12 @@ describe("provider catalog", () => {
   it("preserves workbook support states in the flattened provider document", () => {
     const mistral = getCatalogProvider("mistral-ai");
     expect(mistral?.verifiedSupport.stt).toBe("native");
-    expect(mistral?.verifiedSupport.tts).toBe("unsupported");
+    expect(mistral?.verifiedSupport.tts).toBe("native");
     expect(mistral?.summaries.activeModels.stt).toContain(
       "Voxtral Mini Transcribe 2 [voxtral-mini-2602]",
+    );
+    expect(mistral?.summaries.activeModels.tts).toContain(
+      "Voxtral Mini TTS 26.03 [voxtral-mini-tts-2603]",
     );
   });
 

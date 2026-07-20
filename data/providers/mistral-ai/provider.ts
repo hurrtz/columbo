@@ -9,7 +9,7 @@ export const providerDefinition = defineProviderDefinition(
     "verifiedSupport": {
       "llm": "native",
       "stt": "native",
-      "tts": "unsupported"
+      "tts": "native"
     },
     "officialSources": [
       "https://docs.mistral.ai/",
@@ -19,6 +19,8 @@ export const providerDefinition = defineProviderDefinition(
       "https://docs.mistral.ai/capabilities/audio_transcription",
       "https://docs.mistral.ai/capabilities/audio_transcription/offline_transcription",
       "https://docs.mistral.ai/capabilities/audio_transcription/realtime_transcription",
+      "https://docs.mistral.ai/studio-api/audio/text_to_speech",
+      "https://docs.mistral.ai/api/endpoint/audio/speech",
       "https://docs.mistral.ai/deployment/ai-studio/tier",
       "https://docs.mistral.ai/capabilities/batch",
       "https://docs.mistral.ai/api/endpoint/batch",
@@ -44,13 +46,13 @@ export const providerDefinition = defineProviderDefinition(
       "regionSplitRecommended": true
     },
     "summaries": {
-      "pricing": "Public per-model pricing is documented on individual model pages. General LLM pricing ranges from $0.10/M in and $0.10/M out (Ministral 3 3B) up to $2/M in and $5/M out (Magistral Medium 1.2). Native STT pricing is public at $0.003/min for Voxtral Mini Transcribe 2 and $0.006/min for Voxtral Mini Transcribe Realtime.",
+      "pricing": "Public per-model pricing is documented on individual model pages. General LLM pricing ranges from $0.10/M in and $0.10/M out (Ministral 3 3B) up to $2/M in and $5/M out (Magistral Medium 1.2). Native STT pricing is public at $0.003/min for Voxtral Mini Transcribe 2 and $0.006/min for Voxtral Mini Transcribe Realtime. Voxtral TTS output is $16/M characters.",
       "limits": "Context windows are model-specific (32k, 128k, 256k documented across current models). Offline transcription supports up to 3 hours per request. File uploads are documented up to 512 MB per individual file. Batch jobs default to 24 hours timeout. Inline batching is supported for <10k requests and file batching up to 1M requests.",
       "region": "Public help-center guidance says data is hosted in the EU by default, with an explicit US API endpoint available for US hosting. Enterprise/self-host/private-cloud deployment options are also marketed.",
       "sttLanguages": "Officially documented as 13 languages for Voxtral transcription: English, Chinese, Hindi, Spanish, Arabic, French, Portuguese, Russian, German, Japanese, Korean, Italian, Dutch.",
-      "ttsLanguages": "No public developer TTS API found; unknown because no official TTS product docs or synthesis endpoint docs were found.",
+      "ttsLanguages": "Voxtral TTS supports English, French, Spanish, Portuguese, Italian, Dutch, German, Hindi, and Arabic.",
       "freeTier": "There is a documented free API tier, but the docs characterize it as restrictive and instruct users to check workspace limits for current rate/usage details.",
-      "integrationNotes": "Use canonical dated IDs for stable picker entries, but keep aliases separately. Alias behavior is endpoint-scoped in at least one case (`voxtral-mini-latest`). Use `/v1/models` for live discovery. Treat rate limits as dynamic. Prefer REST/SSE for chat and WebSocket only for realtime transcription."
+      "integrationNotes": "Use canonical dated IDs for stable picker entries, but keep aliases separately. Alias behavior is endpoint-scoped in at least one case (`voxtral-mini-latest`). Use `/v1/models` for live discovery. Treat rate limits as dynamic. Speech generation uses POST `/v1/audio/speech` and returns base64 `audio_data`; a saved preset/custom `voice_id` or reference audio is required."
     },
     "sources": [
       {
