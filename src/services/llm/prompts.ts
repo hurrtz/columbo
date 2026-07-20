@@ -5,7 +5,9 @@ import {
   DEFAULT_ASSISTANT_INSTRUCTIONS,
   getDefaultAssistantInstructions,
   Message,
+  Provider,
 } from "../../types";
+import { buildResponseProvenanceInstruction } from "./messageProvenance";
 
 const RESPONSE_LENGTH_INSTRUCTIONS: Record<AssistantResponseLength, string> = {
   brief:
@@ -42,6 +44,8 @@ export function buildSystemPrompt(params: {
   responseLength: AssistantResponseLength;
   responseTone: AssistantResponseTone;
   language: AppLanguage;
+  currentModel?: string;
+  currentProvider?: Provider;
   conversationSummary?: string;
   webSearchContext?: string;
 }) {
@@ -55,6 +59,10 @@ export function buildSystemPrompt(params: {
   return [
     instructions,
     RESPONSE_LANGUAGE_INSTRUCTION,
+    buildResponseProvenanceInstruction({
+      currentModel: params.currentModel,
+      currentProvider: params.currentProvider,
+    }),
     RESPONSE_LENGTH_INSTRUCTIONS[params.responseLength],
     RESPONSE_TONE_INSTRUCTIONS[params.responseTone],
     summary

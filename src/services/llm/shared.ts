@@ -6,6 +6,8 @@ import { AppLanguage, MessageMetadata, Provider } from "../../types";
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+  model?: string | null;
+  provider?: Provider | null;
   metadata?: MessageMetadata;
 }
 

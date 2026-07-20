@@ -40,6 +40,7 @@ import {
   getProviderLlmConfig,
   ProviderLlmConfig,
 } from "./llm/shared";
+import { addResponseProvenanceToMessages } from "./llm/messageProvenance";
 
 export { buildSystemPrompt } from "./llm/prompts";
 
@@ -427,11 +428,14 @@ export async function streamChat({
   let releaseAbortSignal: (() => void) | null = null;
 
   try {
+    const requestMessages = addResponseProvenanceToMessages(messages);
     const systemPrompt = buildSystemPrompt({
       assistantInstructions,
       responseLength,
       responseTone,
       language,
+      currentModel: model,
+      currentProvider: provider,
       conversationSummary,
       webSearchContext,
     });
@@ -496,7 +500,7 @@ export async function streamChat({
         case "openai-compatible":
           fullText = await LLM_STREAM_REQUESTERS["openai-compatible"](
             {
-              messages,
+              messages: requestMessages,
               model,
               modelEffort,
               provider,
@@ -530,7 +534,7 @@ export async function streamChat({
         case "gemini-generate-content":
           fullText = await LLM_STREAM_REQUESTERS["gemini-generate-content"](
             {
-              messages,
+              messages: requestMessages,
               model,
               modelEffort,
               provider,
@@ -545,7 +549,7 @@ export async function streamChat({
           break;
         case "openai-realtime":
           fullText = await LLM_STREAM_REQUESTERS["openai-realtime"]({
-            messages,
+            messages: requestMessages,
             model,
             modelEffort,
             provider,
@@ -558,7 +562,7 @@ export async function streamChat({
           break;
         case "gemini-live":
           fullText = await LLM_STREAM_REQUESTERS["gemini-live"]({
-            messages,
+            messages: requestMessages,
             model,
             provider,
             apiKey,
@@ -570,7 +574,7 @@ export async function streamChat({
           break;
         case "anthropic":
           fullText = await LLM_STREAM_REQUESTERS.anthropic({
-            messages,
+            messages: requestMessages,
             model,
             modelEffort,
             provider,
@@ -583,7 +587,7 @@ export async function streamChat({
           break;
         default:
           fullText = await requestChatText({
-            messages,
+            messages: requestMessages,
             model,
             modelEffort,
             provider,
@@ -629,7 +633,7 @@ export async function streamChat({
       model,
       kind: "reply",
       systemPrompt,
-      messages,
+      messages: requestMessages,
       completionText: fullText,
     });
 
