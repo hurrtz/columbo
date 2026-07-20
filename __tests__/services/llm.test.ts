@@ -1087,6 +1087,102 @@ describe("streamChat", () => {
     );
   });
 
+  it("replays Kimi reasoning content on the following turn", async () => {
+    const encoder = new TextEncoder();
+    const firstStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'data: {"choices":[{"delta":{"reasoning_content":"Think carefully. "}}]}\n\n',
+          ),
+        );
+        controller.enqueue(
+          encoder.encode(
+            'data: {"choices":[{"delta":{"content":"The answer is 42."}}]}\n\n',
+          ),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    const secondStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'data: {"choices":[{"delta":{"content":"Correct."}}]}\n\n',
+          ),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({ ok: true, body: firstStream })
+      .mockResolvedValueOnce({ ok: true, body: secondStream });
+    const firstOnDone = jest.fn();
+
+    await streamChat({
+      messages: mockMessages,
+      model: "kimi-k3",
+      modelEffort: "max",
+      provider: "moonshot-ai-kimi",
+      apiKey: "kimi-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: () => {},
+      onDone: firstOnDone,
+      onError: () => {},
+    });
+
+    const firstMetadata = firstOnDone.mock.calls[0][2];
+    expect(firstMetadata.providerState.kimiReasoningContent).toBe(
+      "Think carefully. ",
+    );
+
+    await streamChat({
+      messages: [
+        ...mockMessages,
+        {
+          id: "2",
+          role: "assistant",
+          content: "The answer is 42.",
+          model: "kimi-k3",
+          provider: "moonshot-ai-kimi",
+          metadata: firstMetadata,
+          timestamp: "2026-01-01T00:00:01Z",
+        },
+        {
+          id: "3",
+          role: "user",
+          content: "Are you certain?",
+          model: null,
+          provider: null,
+          timestamp: "2026-01-01T00:00:02Z",
+        },
+      ],
+      model: "kimi-k3",
+      modelEffort: "max",
+      provider: "moonshot-ai-kimi",
+      apiKey: "kimi-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: () => {},
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    const secondBody = JSON.parse((fetch as jest.Mock).mock.calls[1][1].body);
+    expect(secondBody.messages[2]).toEqual({
+      role: "assistant",
+      content: "The answer is 42.",
+      reasoning_content: "Think carefully. ",
+    });
+  });
+
   it("uses the Ark chat-completions compatibility endpoint for ByteDance", async () => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({

@@ -43,6 +43,7 @@ describe("model effort metadata", () => {
     expect(getDefaultModelEffort("moonshot-ai-kimi", "kimi-k2.6")).toBe(
       "enabled",
     );
+    expect(getDefaultModelEffort("moonshot-ai-kimi", "kimi-k3")).toBe("max");
     expect(getDefaultModelEffort("perplexity", "sonar-deep-research")).toBe(
       "medium",
     );
@@ -135,6 +136,11 @@ describe("model effort metadata", () => {
         (option) => option.id,
       ),
     ).toEqual(["low", "medium", "high"]);
+    expect(
+      getModelEffortOptions("moonshot-ai-kimi", "kimi-k3").map(
+        (option) => option.id,
+      ),
+    ).toEqual(["low", "high", "max"]);
   });
 
   it("normalizes response routes to supported effort values", () => {
@@ -203,6 +209,9 @@ describe("model effort metadata", () => {
         "enabled",
       ),
     ).toBe("enabled");
+    expect(
+      getModelEffortRequestBody("moonshot-ai-kimi", "kimi-k3", "high"),
+    ).toEqual({ reasoning_effort: "high" });
   });
 
   it("enables adaptive thinking on Anthropic models that require it", () => {

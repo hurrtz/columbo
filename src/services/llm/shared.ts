@@ -102,14 +102,34 @@ export function toOpenAICompatibleMessages(
   provider: Provider,
   messages: ChatMessage[],
 ) {
-  return messages.map((message) => ({
-    role: message.role,
-    content:
-      provider === "mistral" && message.role === "assistant"
-        ? message.metadata?.providerState?.mistralAssistantContent ??
-          message.content
-        : message.content,
-  }));
+  return messages.map((message) => {
+    if (provider === "mistral" && message.role === "assistant") {
+      return {
+        role: message.role,
+        content:
+          message.metadata?.providerState?.mistralAssistantContent ??
+          message.content,
+      };
+    }
+
+    if (provider === "moonshot-ai-kimi" && message.role === "assistant") {
+      const reasoningContent =
+        message.metadata?.providerState?.kimiReasoningContent;
+
+      return {
+        role: message.role,
+        content: message.content,
+        ...(reasoningContent
+          ? { reasoning_content: reasoningContent }
+          : {}),
+      };
+    }
+
+    return {
+      role: message.role,
+      content: message.content,
+    };
+  });
 }
 
 export function requireProviderKey(

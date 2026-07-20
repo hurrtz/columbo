@@ -423,6 +423,12 @@ const KIMI_THINKING_EFFORT = effortConfig(
   THINKING_TOGGLE_OPTIONS,
 );
 
+const KIMI_K3_EFFORT = effortConfig("reasoning-effort", "max", [
+  "low",
+  "high",
+  "max",
+]);
+
 function getCatalogProviderDocument(providerId: CatalogProviderId) {
   return PROVIDER_DOCUMENTS.find(
     (document) => document.provider.providerId === providerId,
@@ -1002,18 +1008,17 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
     apiKeyPlaceholder: "Enter API key",
     apiKeyHint:
       "Unlocks Kimi models through Moonshot's OpenAI-compatible API.",
-    apiKeyUrl: "https://platform.moonshot.ai/docs/guide/start-using-kimi-api",
+    apiKeyUrl: "https://platform.kimi.ai/console/api-keys",
     llm: {
       support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.moonshot.ai/v1/chat/completions",
-      defaultModel: "kimi-k2.6",
+      defaultModel: "kimi-k3",
       models: [
+        withEffort(namedModel("kimi-k3", "Kimi K3"), KIMI_K3_EFFORT),
+        namedModel("kimi-k2.7-code", "Kimi K2.7 Code"),
+        namedModel("kimi-k2.7-code-highspeed", "Kimi K2.7 Code HighSpeed"),
         withEffort(namedModel("kimi-k2.6", "Kimi K2.6"), KIMI_THINKING_EFFORT),
-        withEffort(model("kimi-k2.5"), KIMI_THINKING_EFFORT),
-        model("moonshot-v1-128k"),
-        model("moonshot-v1-32k"),
-        model("moonshot-v1-8k"),
       ],
     },
     stt: {

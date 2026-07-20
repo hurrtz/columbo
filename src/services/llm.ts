@@ -83,6 +83,7 @@ interface StreamingLlmRequestParams extends LlmRequestParams {
   onMistralAssistantContent?: (
     content: MistralAssistantContentChunk[],
   ) => void;
+  onKimiReasoningContent?: (content: string) => void;
 }
 
 function buildProviderNotWiredUpError(provider: Provider, language: AppLanguage) {
@@ -225,6 +226,7 @@ const LLM_STREAM_REQUESTERS = {
       systemPrompt: params.systemPrompt,
       onChunk: params.onChunk,
       onMistralAssistantContent: params.onMistralAssistantContent,
+      onKimiReasoningContent: params.onKimiReasoningContent,
       abortSignal: params.abortSignal,
     }),
   "gemini-generate-content": async (
@@ -497,8 +499,19 @@ export async function streamChat({
               onChunk: onChunkWithTimeout,
               onMistralAssistantContent: (content) => {
                 replyMetadata = {
+                  ...replyMetadata,
                   providerState: {
+                    ...replyMetadata?.providerState,
                     mistralAssistantContent: content,
+                  },
+                };
+              },
+              onKimiReasoningContent: (content) => {
+                replyMetadata = {
+                  ...replyMetadata,
+                  providerState: {
+                    ...replyMetadata?.providerState,
+                    kimiReasoningContent: content,
                   },
                 };
               },

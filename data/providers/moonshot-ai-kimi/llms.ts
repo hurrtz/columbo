@@ -3,6 +3,163 @@ import { providerContext } from "./provider";
 export const llms = providerContext.defineLlms([
   providerContext.llm(
     {
+      "modelId": "kimi-k3",
+      "publicName": "Kimi K3",
+      "aliases": [],
+      "status": "Documented active/current",
+      "pricingSummary": "Current pay-as-you-go pricing is published on the provider's dedicated K3 pricing page.",
+      "limitsSummary": "1M-token context. Thinking is always enabled; reasoning_effort supports low, high, and max, with max as the default. max_completion_tokens defaults to 131,072 and can be set up to 1,048,576.",
+      "languagesSummary": "Official examples describe Kimi as proficient in Chinese and English; no complete language matrix is published.",
+      "notes": "Current flagship and recommended default. Streaming separates reasoning_content from final-answer content, which must be preserved for multi-turn requests.",
+      "officialSources": [
+        "https://platform.kimi.ai/docs/overview",
+        "https://platform.kimi.ai/docs/guide/kimi-k3-quickstart",
+        "https://platform.kimi.ai/docs/pricing/chat-k3"
+      ],
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 1000000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "1M-token context window"
+        },
+        {
+          "metric": "other",
+          "comparator": "<=",
+          "value": 1048576,
+          "unit": "tokens",
+          "scope": "request",
+          "sourceText": "Maximum max_completion_tokens"
+        }
+      ],
+      "languageSupport": {
+        "rawText": "Official quickstart examples describe Kimi as especially good at Chinese and English conversations.",
+        "isMultilingual": true,
+        "languageCount": 2,
+        "voiceCount": 0,
+        "listedLanguages": ["Chinese", "English"],
+        "notes": ["not a complete published language matrix"]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "modelId": "kimi-k2.6",
+      "publicName": "Kimi K2.6",
+      "aliases": [],
+      "status": "Documented active/current",
+      "pricingSummary": "Current pay-as-you-go pricing is published on the provider's dedicated K2.6 pricing page.",
+      "limitsSummary": "256K context. Thinking defaults to enabled and can be disabled. max_tokens defaults to 32,768.",
+      "languagesSummary": "No complete model-specific language matrix is published.",
+      "notes": "General-purpose multimodal model supporting text, image, video, thinking and non-thinking modes.",
+      "officialSources": [
+        "https://platform.kimi.ai/docs/guide/kimi-k2-6-quickstart",
+        "https://platform.kimi.ai/docs/pricing/chat-k2.6"
+      ],
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 262144,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "256K context window"
+        }
+      ],
+      "languageSupport": {
+        "rawText": "No complete model-specific language matrix is published.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": []
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "modelId": "kimi-k2.7-code",
+      "publicName": "Kimi K2.7 Code",
+      "aliases": [],
+      "status": "Documented active/current",
+      "pricingSummary": "Current pay-as-you-go pricing is published on the provider's dedicated K2.7 Code pricing page.",
+      "limitsSummary": "256K context. Thinking is always enabled and cannot be disabled. max_tokens defaults to 32,768.",
+      "languagesSummary": "No complete model-specific language matrix is published.",
+      "notes": "Dedicated coding and agent model. Its reasoning_content must be preserved in multi-turn requests.",
+      "officialSources": [
+        "https://platform.kimi.ai/docs/models",
+        "https://platform.kimi.ai/docs/guide/kimi-k2-7-code-quickstart"
+      ],
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 262144,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "256K context window"
+        }
+      ],
+      "languageSupport": {
+        "rawText": "No complete model-specific language matrix is published.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": []
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "modelId": "kimi-k2.7-code-highspeed",
+      "publicName": "Kimi K2.7 Code HighSpeed",
+      "aliases": [],
+      "status": "Documented active/current",
+      "pricingSummary": "Current pay-as-you-go pricing is published on the provider's dedicated K2.7 Code pricing page.",
+      "limitsSummary": "256K context. Thinking is always enabled and cannot be disabled. Approximately 180 tokens/s, reaching up to 260 tokens/s for short contexts.",
+      "languagesSummary": "No complete model-specific language matrix is published.",
+      "notes": "Higher-throughput serving variant of Kimi K2.7 Code with separately limited capacity.",
+      "officialSources": [
+        "https://platform.kimi.ai/docs/models",
+        "https://platform.kimi.ai/docs/guide/kimi-k2-7-code-quickstart"
+      ],
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 262144,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "256K context window"
+        }
+      ],
+      "languageSupport": {
+        "rawText": "No complete model-specific language matrix is published.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": []
+      }
+    }
+  ),
+  providerContext.llm(
+    {
       "providerId": "moonshot-ai-kimi",
       "providerName": "Moonshot AI (Kimi)",
       "service": "llm",

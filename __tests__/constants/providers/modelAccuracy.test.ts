@@ -147,7 +147,12 @@ describe("provider model accuracy", () => {
 
   it("surfaces current Kimi models and hides discontinued K2 rows", () => {
     expect(providerModelIds("moonshot-ai-kimi")).toEqual(
-      expect.arrayContaining(["kimi-k2.6", "kimi-k2.5"]),
+      expect.arrayContaining([
+        "kimi-k3",
+        "kimi-k2.7-code",
+        "kimi-k2.7-code-highspeed",
+        "kimi-k2.6",
+      ]),
     );
     expect(providerModelIds("moonshot-ai-kimi")).not.toEqual(
       expect.arrayContaining([
@@ -156,9 +161,13 @@ describe("provider model accuracy", () => {
         "kimi-k2-thinking-turbo",
         "kimi-latest",
         "kimi-thinking-preview",
+        "kimi-k2.5",
+        "moonshot-v1-128k",
+        "moonshot-v1-32k",
+        "moonshot-v1-8k",
       ]),
     );
-    expect(PROVIDER_DEFAULT_MODELS["moonshot-ai-kimi"]).toBe("kimi-k2.6");
+    expect(PROVIDER_DEFAULT_MODELS["moonshot-ai-kimi"]).toBe("kimi-k3");
   });
 
   it("keeps OpenAI and Perplexity pickers aligned with their current callable endpoints", () => {

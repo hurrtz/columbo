@@ -179,6 +179,7 @@ export type MistralAssistantContentChunk =
 
 export interface MessageProviderState {
   mistralAssistantContent?: MistralAssistantContentChunk[];
+  kimiReasoningContent?: string;
 }
 
 export interface MessageMetadata {

@@ -122,6 +122,7 @@ export async function requestChatWithOpenAiCompatibleTransport(params: {
   onMistralAssistantContent?: (
     content: MistralAssistantContentChunk[],
   ) => void;
+  onKimiReasoningContent?: (content: string) => void;
   abortSignal?: AbortSignal;
 }) {
   const {
@@ -134,6 +135,7 @@ export async function requestChatWithOpenAiCompatibleTransport(params: {
     language,
     systemPrompt,
     onMistralAssistantContent,
+    onKimiReasoningContent,
     abortSignal,
   } = params;
   let response: Awaited<ReturnType<typeof networkFetch>>;
@@ -191,6 +193,12 @@ export async function requestChatWithOpenAiCompatibleTransport(params: {
       onMistralAssistantContent?.(mistralAssistantContent);
     }
   }
+  if (provider === "moonshot-ai-kimi") {
+    const reasoningContent = data.choices?.[0]?.message?.reasoning_content;
+    if (typeof reasoningContent === "string" && reasoningContent) {
+      onKimiReasoningContent?.(reasoningContent);
+    }
+  }
   return fullText;
 }
 
@@ -207,6 +215,7 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
   onMistralAssistantContent?: (
     content: MistralAssistantContentChunk[],
   ) => void;
+  onKimiReasoningContent?: (content: string) => void;
   abortSignal?: AbortSignal;
 }) {
   const {
@@ -220,6 +229,7 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
     systemPrompt,
     onChunk,
     onMistralAssistantContent,
+    onKimiReasoningContent,
     abortSignal,
   } = params;
   let response: Awaited<ReturnType<typeof networkFetch>>;
@@ -273,6 +283,7 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
       language,
       systemPrompt,
       onMistralAssistantContent,
+      onKimiReasoningContent,
       abortSignal,
     });
 
@@ -285,6 +296,7 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
 
   let fullText = "";
   let mistralThinkingText = "";
+  let kimiReasoningContent = "";
   let sawDone = false;
   let finishReason: unknown;
 
@@ -319,6 +331,12 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
     if (provider === "mistral") {
       mistralThinkingText += extractMistralThinkingText(content);
     }
+    if (provider === "moonshot-ai-kimi") {
+      const reasoningDelta = payload.choices?.[0]?.delta?.reasoning_content;
+      if (typeof reasoningDelta === "string") {
+        kimiReasoningContent += reasoningDelta;
+      }
+    }
 
     if (!delta) {
       return;
@@ -341,6 +359,9 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
   );
   if (mistralAssistantContent) {
     onMistralAssistantContent?.(mistralAssistantContent);
+  }
+  if (kimiReasoningContent) {
+    onKimiReasoningContent?.(kimiReasoningContent);
   }
 
   return fullText;
@@ -389,6 +410,7 @@ export async function requestOpenAICompatibleChatStream(params: {
   onMistralAssistantContent?: (
     content: MistralAssistantContentChunk[],
   ) => void;
+  onKimiReasoningContent?: (content: string) => void;
   abortSignal?: AbortSignal;
 }) {
   return requestChatStreamWithOpenAiCompatibleTransport({
@@ -408,6 +430,7 @@ export async function requestOpenAICompatibleChatStream(params: {
     systemPrompt: params.systemPrompt,
     onChunk: params.onChunk,
     onMistralAssistantContent: params.onMistralAssistantContent,
+    onKimiReasoningContent: params.onKimiReasoningContent,
     abortSignal: params.abortSignal,
   });
 }
