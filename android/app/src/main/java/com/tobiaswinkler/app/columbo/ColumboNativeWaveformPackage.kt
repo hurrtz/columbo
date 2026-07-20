@@ -12,6 +12,7 @@ class ColumboNativeWaveformPackage : ReactPackage {
     listOf(
       ColumboNativeWaveformModule(reactContext),
       ColumboNativeAudioQueueModule(reactContext),
+      ColumboVoiceLiveActivityModule(reactContext),
     )
 
   override fun createViewManagers(
