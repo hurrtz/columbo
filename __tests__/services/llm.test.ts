@@ -646,8 +646,20 @@ describe("streamChat", () => {
     {
       provider: "bytedance-doubao-seed" as const,
       model: "doubao-seed-2-1-turbo-260628",
-      modelEffort: "max",
-      expected: { reasoning_effort: "max" },
+      modelEffort: "high",
+      expected: { reasoning_effort: "high" },
+    },
+    {
+      provider: "bytedance-doubao-seed" as const,
+      model: "doubao-seed-2-0-lite-260428",
+      modelEffort: "medium",
+      expected: { reasoning_effort: "medium" },
+    },
+    {
+      provider: "perplexity" as const,
+      model: "sonar-deep-research",
+      modelEffort: "high",
+      expected: { reasoning_effort: "high" },
     },
     {
       provider: "deepseek" as const,

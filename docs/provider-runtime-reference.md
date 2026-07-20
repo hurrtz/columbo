@@ -84,7 +84,7 @@ validation, API-key storage, setup-guide routing, and web-search dispatch:
 - Web search: Volcengine Ark Responses API with the provider-native web-search
   tool.
 - LLM picker: Doubao Seed 2.1 Turbo/Pro and curated Seed 2.0 rows.
-- Effort: `reasoning_effort` on Seed 2.1 rows.
+- Effort: `reasoning_effort` on Seed 2.1 and Seed 2.0 rows.
 - STT/TTS: not runtime-exposed. Doubao Speech remains catalog context only
   because the wired route is China-first and not a clearly multilingual BYOK
   speech option for Columbo.
@@ -146,6 +146,6 @@ validation, API-key storage, setup-guide routing, and web-search dispatch:
 - Web search: enabled through Sonar grounded answers.
 - LLM picker: `sonar`, `sonar-pro`, `sonar-reasoning-pro`,
   `sonar-deep-research`.
-- Effort: not exposed. The current app does not send a Sonar effort parameter
-  because the official Sonar request docs do not document a stable equivalent.
+- Effort: `reasoning_effort` with low, medium, and high on
+  `sonar-deep-research`.
 - STT/TTS: not runtime-exposed.

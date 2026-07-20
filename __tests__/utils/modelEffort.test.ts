@@ -32,7 +32,9 @@ describe("model effort metadata", () => {
     expect(getDefaultModelEffort("moonshot-ai-kimi", "kimi-k2.6")).toBe(
       "enabled",
     );
-    expect(getDefaultModelEffort("perplexity", "sonar-deep-research")).toBeUndefined();
+    expect(getDefaultModelEffort("perplexity", "sonar-deep-research")).toBe(
+      "medium",
+    );
   });
 
   it("exposes the documented Gemini thinking levels per model", () => {
@@ -91,10 +93,18 @@ describe("model effort metadata", () => {
         "bytedance-doubao-seed",
         "doubao-seed-2-1-turbo-260628",
       ).map((option) => option.id),
-    ).toEqual(["minimal", "low", "medium", "high", "max"]);
-    expect(getModelEffortOptions("perplexity", "sonar-deep-research")).toEqual(
-      [],
-    );
+    ).toEqual(["minimal", "low", "medium", "high"]);
+    expect(
+      getModelEffortOptions(
+        "bytedance-doubao-seed",
+        "doubao-seed-2-0-lite-260428",
+      ).map((option) => option.id),
+    ).toEqual(["minimal", "low", "medium", "high"]);
+    expect(
+      getModelEffortOptions("perplexity", "sonar-deep-research").map(
+        (option) => option.id,
+      ),
+    ).toEqual(["low", "medium", "high"]);
   });
 
   it("normalizes response routes to supported effort values", () => {

@@ -328,8 +328,18 @@ const DOUBAO_SEED_21_EFFORT = effortConfig("reasoning-effort", "high", [
   "low",
   "medium",
   "high",
-  "max",
 ]);
+const DOUBAO_SEED_20_EFFORT = effortConfig("reasoning-effort", "medium", [
+  "minimal",
+  "low",
+  "medium",
+  "high",
+]);
+const PERPLEXITY_DEEP_RESEARCH_EFFORT = effortConfig(
+  "reasoning-effort",
+  "medium",
+  ["low", "medium", "high"],
+);
 
 const QWEN_THINKING_EFFORT = effortConfig(
   "qwen-enable-thinking",
@@ -614,11 +624,17 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
           namedModel("doubao-seed-2-1-pro-260628", "Doubao Seed 2.1 Pro"),
           DOUBAO_SEED_21_EFFORT,
         ),
-        namedModel("doubao-seed-2-0-lite-260428", "Doubao Seed 2.0 Lite"),
-        namedModel("doubao-seed-2-0-mini-260428", "Doubao Seed 2.0 Mini"),
-        model("doubao-seed-2-0-pro-260215"),
-        model("doubao-seed-2-0-lite-260215"),
-        model("doubao-seed-2-0-mini-260215"),
+        withEffort(
+          namedModel("doubao-seed-2-0-lite-260428", "Doubao Seed 2.0 Lite"),
+          DOUBAO_SEED_20_EFFORT,
+        ),
+        withEffort(
+          namedModel("doubao-seed-2-0-mini-260428", "Doubao Seed 2.0 Mini"),
+          DOUBAO_SEED_20_EFFORT,
+        ),
+        withEffort(model("doubao-seed-2-0-pro-260215"), DOUBAO_SEED_20_EFFORT),
+        withEffort(model("doubao-seed-2-0-lite-260215"), DOUBAO_SEED_20_EFFORT),
+        withEffort(model("doubao-seed-2-0-mini-260215"), DOUBAO_SEED_20_EFFORT),
       ],
     },
     stt: {
@@ -923,7 +939,10 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         model("sonar"),
         model("sonar-pro"),
         model("sonar-reasoning-pro"),
-        model("sonar-deep-research"),
+        withEffort(
+          model("sonar-deep-research"),
+          PERPLEXITY_DEEP_RESEARCH_EFFORT,
+        ),
       ],
     },
     stt: {
