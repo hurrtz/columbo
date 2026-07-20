@@ -126,6 +126,15 @@ export function isLongRunningPhase(phase: PipelinePhase): boolean {
   return LONG_RUNNING_PHASES.has(phase);
 }
 
+export function isPipelineWorking(phase: PipelinePhase): boolean {
+  return (
+    phase === "transcribing" ||
+    phase === "searching" ||
+    phase === "thinking" ||
+    phase === "synthesizing"
+  );
+}
+
 /**
  * Augments a base status-detail line with an elapsed-seconds counter and,
  * after a threshold, a reassurance line. Pure so it can be unit-tested and

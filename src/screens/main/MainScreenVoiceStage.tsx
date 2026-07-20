@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Animated, Text, TouchableOpacity, View } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
 
@@ -12,7 +12,11 @@ import {
   VoiceVisualPhase,
 } from "../../types";
 
-import { formatThinkingStatus, isLongRunningPhase } from "./statusSelectors";
+import {
+  formatThinkingStatus,
+  isLongRunningPhase,
+  isPipelineWorking,
+} from "./statusSelectors";
 import { TranslateFn } from "./shared";
 import { styles } from "./styles";
 
@@ -128,6 +132,36 @@ export function MainScreenStatusStrip({
   t,
 }: MainScreenStatusStripProps) {
   const elapsedSeconds = useLongRunningElapsedSeconds(pipelinePhase);
+  const workingPulse = React.useRef(new Animated.Value(1)).current;
+  const pipelineWorking = isPipelineWorking(pipelinePhase);
+
+  React.useEffect(() => {
+    if (!pipelineWorking) {
+      workingPulse.stopAnimation();
+      workingPulse.setValue(1);
+      return;
+    }
+
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(workingPulse, {
+          duration: 700,
+          toValue: 0.35,
+          useNativeDriver: true,
+        }),
+        Animated.timing(workingPulse, {
+          duration: 700,
+          toValue: 1,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    animation.start();
+
+    return () => {
+      animation.stop();
+    };
+  }, [pipelineWorking, workingPulse]);
   const displayedDetail = formatThinkingStatus({
     baseDetail: statusDetail,
     elapsedSeconds,
@@ -156,7 +190,7 @@ export function MainScreenStatusStrip({
     >
       <View style={styles.statusStripCopy}>
         <View style={styles.statusStripLead}>
-          <View
+          <Animated.View
             style={[
               styles.statusStripDot,
               {
@@ -164,6 +198,15 @@ export function MainScreenStatusStrip({
                   statusIndicatorTone,
                   colors,
                 ),
+                opacity: workingPulse,
+                transform: [
+                  {
+                    scale: workingPulse.interpolate({
+                      inputRange: [0.35, 1],
+                      outputRange: [0.82, 1.25],
+                    }),
+                  },
+                ],
               },
             ]}
           />

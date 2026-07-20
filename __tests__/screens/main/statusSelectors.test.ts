@@ -3,6 +3,7 @@ import {
   getStatusDisplayData,
   getStatusIndicatorTone,
   isLongRunningPhase,
+  isPipelineWorking,
 } from "../../../src/screens/main/statusSelectors";
 
 const withElapsed = (detail: string, seconds: number) =>
@@ -106,6 +107,15 @@ describe("statusSelectors", () => {
     expect(isLongRunningPhase("idle")).toBe(false);
     expect(isLongRunningPhase("transcribing")).toBe(false);
     expect(isLongRunningPhase("speaking")).toBe(false);
+  });
+
+  it("marks every pre-playback processing phase as actively working", () => {
+    expect(isPipelineWorking("transcribing")).toBe(true);
+    expect(isPipelineWorking("searching")).toBe(true);
+    expect(isPipelineWorking("thinking")).toBe(true);
+    expect(isPipelineWorking("synthesizing")).toBe(true);
+    expect(isPipelineWorking("idle")).toBe(false);
+    expect(isPipelineWorking("speaking")).toBe(false);
   });
 
   describe("formatThinkingStatus", () => {
