@@ -222,7 +222,7 @@ describe("ResponseModesSection", () => {
     expect(screen.getAllByText("High").length).toBeGreaterThan(0);
   });
 
-  it("keeps effort hidden for Gemini models without effort metadata", () => {
+  it("shows the documented thinking controls for Gemini 2.5 models", () => {
     const screen = render(
       <ThemeProvider mode="light">
         <LocalizationProvider language="en">
@@ -249,7 +249,8 @@ describe("ResponseModesSection", () => {
       </ThemeProvider>,
     );
 
-    expect(screen.queryByText("Effort")).toBeNull();
+    expect(screen.getAllByText("Effort")).toHaveLength(2);
+    expect(screen.getAllByText("Dynamic")).toHaveLength(2);
   });
 });
 
