@@ -192,7 +192,8 @@ describe("webSearch", () => {
         expect(body.model).toBe("qwen3.7-plus");
         expect(body.tools).toEqual([{ type: "web_search" }]);
         expect(body.tool_choice).toBe("required");
-        expect(body.reasoning).toEqual({ effort: "none" });
+        expect(body.enable_thinking).toBe(false);
+        expect(body).not.toHaveProperty("reasoning");
         expect(body.input).toEqual(expect.stringContaining("What changed today?"));
       },
       expectedSummary: "Qwen web search found the current answer.",

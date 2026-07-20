@@ -760,7 +760,7 @@ async function searchWithQwen(params: WebSearchRequestParams) {
       input: buildPromptForProvider(params),
       tools: [{ type: "web_search" }],
       tool_choice: "required",
-      reasoning: { effort: "none" },
+      enable_thinking: false,
       max_output_tokens: maxOutputTokens,
     },
   });
