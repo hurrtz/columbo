@@ -79,11 +79,9 @@ describe("speech provider constants", () => {
   it("keeps xAI TTS aligned to the merged catalog service ids", () => {
     expect(getProviderTtsModelOptions("xai")).toEqual([
       { id: "text-to-speech", name: "Text to Speech API" },
-      { id: "grok-tts", name: "Grok Text-to-Speech" },
     ]);
-    expect(PROVIDER_DEFAULT_TTS_MODELS.xai).toBe("grok-tts");
+    expect(PROVIDER_DEFAULT_TTS_MODELS.xai).toBe("text-to-speech");
     expect(getTtsModelLabel("xai", "text-to-speech")).toBe("Text to Speech API");
-    expect(getTtsModelLabel("xai", "grok-tts")).toBe("Grok Text-to-Speech");
   });
 
   it("surfaces catalog-backed TTS voice labels", () => {

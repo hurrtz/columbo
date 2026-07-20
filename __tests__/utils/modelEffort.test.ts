@@ -13,6 +13,7 @@ describe("model effort metadata", () => {
     expect(getDefaultModelEffort("openai", "gpt-5.4")).toBe("none");
     expect(getDefaultModelEffort("anthropic", "claude-sonnet-5")).toBe("high");
     expect(getDefaultModelEffort("xai", "grok-4.3")).toBe("low");
+    expect(getDefaultModelEffort("xai", "grok-4.5")).toBe("high");
     expect(getDefaultModelEffort("gemini", "gemini-3.5-flash")).toBe("medium");
     expect(getDefaultModelEffort("gemini", "gemini-3.1-pro-preview")).toBe(
       "high",
@@ -99,6 +100,9 @@ describe("model effort metadata", () => {
     expect(
       getModelEffortOptions("xai", "grok-4.3").map((option) => option.id),
     ).toEqual(["none", "low", "medium", "high"]);
+    expect(
+      getModelEffortOptions("xai", "grok-4.5").map((option) => option.id),
+    ).toEqual(["low", "medium", "high"]);
     expect(
       getModelEffortOptions("deepseek", "deepseek-v4-pro").map(
         (option) => option.id,

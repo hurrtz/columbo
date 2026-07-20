@@ -3,6 +3,62 @@ import { providerContext } from "./provider";
 export const llms = providerContext.defineLlms([
   providerContext.llm(
     {
+      "modelId": "grok-4.5",
+      "publicName": "Grok 4.5",
+      "aliases": ["grok-4.5-latest", "grok-build-latest"],
+      "status": "Documented active/current",
+      "pricingSummary": "$2.00 / 1M input tokens, $0.50 / 1M cached input tokens, and $6.00 / 1M output tokens for short-context requests.",
+      "limitsSummary": "500,000 context window. Supports text and image input, text output, Chat Completions, Responses, and reasoning effort low/medium/high.",
+      "regionSummary": "Official docs list us-east-1 and us-west-2.",
+      "languagesSummary": "No official model-specific language matrix is published.",
+      "notes": "Current xAI frontier model. Reasoning defaults to high and cannot be disabled.",
+      "officialSources": [
+        "https://docs.x.ai/developers/models/grok-4.5",
+        "https://docs.x.ai/developers/grok-4-5",
+        "https://docs.x.ai/developers/model-capabilities/text/reasoning"
+      ],
+      "openAiCompatible": true,
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [
+        {
+          "amountUsd": 2,
+          "unit": "million_input_tokens",
+          "sourceText": "Input tokens $2.00 / 1M tokens."
+        },
+        {
+          "amountUsd": 0.5,
+          "unit": "million_input_tokens",
+          "sourceText": "Cached tokens $0.50 / 1M tokens."
+        },
+        {
+          "amountUsd": 6,
+          "unit": "million_output_tokens",
+          "sourceText": "Output tokens $6.00 / 1M tokens."
+        }
+      ],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 500000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Context window 500,000."
+        }
+      ],
+      "languageSupport": {
+        "rawText": "No official model-specific language coverage table is published.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": ["multilingual support inferred; official count unknown"]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
       "providerId": "xai",
       "providerName": "xAI",
       "service": "llm",

@@ -14,11 +14,11 @@ describe("provider catalog", () => {
   it("matches the normalized provider and model counts in the flattened catalog", () => {
     expect(getCatalogStats()).toEqual({
       providerCount: 10,
-      modelCount: 114,
+      modelCount: 119,
       serviceCounts: {
-        llm: 85,
+        llm: 91,
         stt: 15,
-        tts: 14,
+        tts: 13,
       },
     });
   });
@@ -146,7 +146,7 @@ describe("provider catalog", () => {
     expect(xaiTts?.priceMeasurements).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          amountUsd: 4.2,
+          amountUsd: 15,
           unit: "million_characters",
         }),
       ]),

@@ -372,6 +372,12 @@ const XAI_GROK_43_EFFORT = effortConfig("reasoning-effort", "low", [
   "high",
 ]);
 
+const XAI_GROK_45_EFFORT = effortConfig("reasoning-effort", "high", [
+  "low",
+  "medium",
+  "high",
+]);
+
 const DEEPSEEK_THINKING_EFFORT = effortConfig(
   "deepseek-thinking-effort",
   "high",
@@ -873,8 +879,11 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.x.ai/v1/chat/completions",
-      defaultModel: "grok-4.3",
-      models: [withEffort(model("grok-4.3"), XAI_GROK_43_EFFORT)],
+      defaultModel: "grok-4.5",
+      models: [
+        withEffort(model("grok-4.5"), XAI_GROK_45_EFFORT),
+        withEffort(model("grok-4.3"), XAI_GROK_43_EFFORT),
+      ],
     },
     stt: {
       support: "provider",
@@ -890,10 +899,10 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "binary",
       endpoint: "https://api.x.ai/v1/tts",
       requestFormat: "grok-speech",
-      defaultModel: "grok-tts",
+      defaultModel: "text-to-speech",
       defaultVoice: "ara",
       voiceFallback: "ara",
-      models: catalogModelSpecs("xai", "tts"),
+      models: catalogModelSpecs("xai", "tts", ["grok-tts"]),
       voiceOptions: [
         voice("ara", "Ara · Warm", { de: "Ara · Warm" }),
         voice("eve", "Eve · Energetic", { de: "Eve · Energetisch" }),
