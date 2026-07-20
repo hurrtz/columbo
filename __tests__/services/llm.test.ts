@@ -833,6 +833,110 @@ describe("streamChat", () => {
     expect(JSON.parse(options.body).model).toBe("sonar");
   });
 
+  it("replays Mistral thinking chunks on the following turn", async () => {
+    const encoder = new TextEncoder();
+    const firstStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'data: {"choices":[{"delta":{"content":[{"type":"thinking","thinking":[{"type":"text","text":"Calculate carefully. "}]}]}}]}\n\n',
+          ),
+        );
+        controller.enqueue(
+          encoder.encode(
+            'data: {"choices":[{"delta":{"content":[{"type":"thinking","thinking":[]},{"type":"text","text":"The answer is "}]}}]}\n\n',
+          ),
+        );
+        controller.enqueue(
+          encoder.encode(
+            'data: {"choices":[{"delta":{"content":"391."}}]}\n\n',
+          ),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    const secondStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'data: {"choices":[{"delta":{"content":"1173."}}]}\n\n',
+          ),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({ ok: true, body: firstStream })
+      .mockResolvedValueOnce({ ok: true, body: secondStream });
+    const firstOnDone = jest.fn();
+
+    await streamChat({
+      messages: mockMessages,
+      model: "mistral-medium-3-5",
+      modelEffort: "high",
+      provider: "mistral",
+      apiKey: "mistral-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: () => {},
+      onDone: firstOnDone,
+      onError: () => {},
+    });
+
+    const firstMetadata = firstOnDone.mock.calls[0][2];
+    expect(firstOnDone.mock.calls[0][0]).toBe("The answer is 391.");
+    expect(firstMetadata.providerState.mistralAssistantContent).toEqual([
+      {
+        type: "thinking",
+        thinking: [{ type: "text", text: "Calculate carefully. " }],
+      },
+      { type: "text", text: "The answer is 391." },
+    ]);
+
+    await streamChat({
+      messages: [
+        ...mockMessages,
+        {
+          id: "2",
+          role: "assistant",
+          content: "The answer is 391.",
+          model: "mistral-medium-3-5",
+          provider: "mistral",
+          metadata: firstMetadata,
+          timestamp: "2026-01-01T00:00:01Z",
+        },
+        {
+          id: "3",
+          role: "user",
+          content: "Multiply that by three.",
+          model: null,
+          provider: null,
+          timestamp: "2026-01-01T00:00:02Z",
+        },
+      ],
+      model: "mistral-medium-3-5",
+      modelEffort: "high",
+      provider: "mistral",
+      apiKey: "mistral-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: () => {},
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    const secondBody = JSON.parse((fetch as jest.Mock).mock.calls[1][1].body);
+    expect(secondBody.messages[2].content).toEqual(
+      firstMetadata.providerState.mistralAssistantContent,
+    );
+  });
+
   it("uses the Ark chat-completions compatibility endpoint for ByteDance", async () => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({

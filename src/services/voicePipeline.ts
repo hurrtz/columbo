@@ -238,9 +238,16 @@ export async function runVoicePipeline(
         if (abortSignal?.aborted) return;
         ttsQueue.handleStreamChunk(text);
       },
-      onDone: async (fullText, usage) => {
+      onDone: async (fullText, usage, llmMetadata) => {
         if (abortSignal?.aborted) return;
-        callbacks.onResponseDone(fullText, usage, responseMetadata);
+        const completedMetadata =
+          responseMetadata || llmMetadata
+            ? {
+                ...responseMetadata,
+                ...llmMetadata,
+              }
+            : undefined;
+        callbacks.onResponseDone(fullText, usage, completedMetadata);
         await ttsQueue.handleResponseDone(fullText);
       },
       onError: callbacks.onError,

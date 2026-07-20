@@ -5,6 +5,8 @@ import {
   AssistantResponseLength,
   AssistantResponseTone,
   Message,
+  MessageMetadata,
+  MistralAssistantContentChunk,
   Provider,
   UsageEstimate,
 } from "../types";
@@ -56,7 +58,11 @@ interface StreamChatParams {
   conversationSummary?: string;
   webSearchContext?: string;
   onChunk: (text: string) => void;
-  onDone: (fullText: string, usage?: UsageEstimate) => void | Promise<void>;
+  onDone: (
+    fullText: string,
+    usage?: UsageEstimate,
+    metadata?: MessageMetadata,
+  ) => void | Promise<void>;
   onError: (error: Error) => void | Promise<void>;
   abortSignal?: AbortSignal;
 }
@@ -74,6 +80,9 @@ interface LlmRequestParams {
 
 interface StreamingLlmRequestParams extends LlmRequestParams {
   onChunk: (text: string) => void;
+  onMistralAssistantContent?: (
+    content: MistralAssistantContentChunk[],
+  ) => void;
 }
 
 function buildProviderNotWiredUpError(provider: Provider, language: AppLanguage) {
@@ -215,6 +224,7 @@ const LLM_STREAM_REQUESTERS = {
       language: params.language,
       systemPrompt: params.systemPrompt,
       onChunk: params.onChunk,
+      onMistralAssistantContent: params.onMistralAssistantContent,
       abortSignal: params.abortSignal,
     }),
   "gemini-generate-content": async (
@@ -471,6 +481,7 @@ export async function streamChat({
     };
     const requestPromise = (async () => {
       let fullText = "";
+      let replyMetadata: MessageMetadata | undefined;
 
       switch (config.transport) {
         case "openai-compatible":
@@ -484,6 +495,13 @@ export async function streamChat({
               language,
               systemPrompt,
               onChunk: onChunkWithTimeout,
+              onMistralAssistantContent: (content) => {
+                replyMetadata = {
+                  providerState: {
+                    mistralAssistantContent: content,
+                  },
+                };
+              },
               abortSignal: requestAbortController.signal,
             },
             config,
@@ -560,10 +578,10 @@ export async function streamChat({
           }
       }
 
-      return fullText;
+      return { fullText, replyMetadata };
     })().catch((error) => {
       if (timedOut) {
-        return "";
+        return { fullText: "", replyMetadata: undefined };
       }
 
       throw error;
@@ -573,7 +591,10 @@ export async function streamChat({
     });
 
     armTimeout();
-    const fullText = await Promise.race([requestPromise, timeoutPromise]);
+    const { fullText, replyMetadata } = await Promise.race([
+      requestPromise,
+      timeoutPromise,
+    ]);
 
     if (timedOut) {
       return;
@@ -583,17 +604,20 @@ export async function streamChat({
       throw buildProviderEmptyReplyError(provider, language);
     }
 
-    await onDone(
-      fullText,
-      estimateChatUsage({
-        provider,
-        model,
-        kind: "reply",
-        systemPrompt,
-        messages,
-        completionText: fullText,
-      }),
-    );
+    const usage = estimateChatUsage({
+      provider,
+      model,
+      kind: "reply",
+      systemPrompt,
+      messages,
+      completionText: fullText,
+    });
+
+    if (replyMetadata) {
+      await onDone(fullText, usage, replyMetadata);
+    } else {
+      await onDone(fullText, usage);
+    }
   } catch (error) {
     if (abortSignal?.aborted) {
       return;

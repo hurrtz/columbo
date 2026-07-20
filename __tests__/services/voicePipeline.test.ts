@@ -1097,9 +1097,23 @@ describe("runVoicePipeline", () => {
       async ({
         onDone,
       }: {
-        onDone: (text: string) => Promise<void>;
+        onDone: (
+          text: string,
+          usage?: undefined,
+          metadata?: {
+            providerState: {
+              mistralAssistantContent: Array<Record<string, unknown>>;
+            };
+          },
+        ) => Promise<void>;
       }) => {
-        await onDone("Wind is moving air.");
+        await onDone("Wind is moving air.", undefined, {
+          providerState: {
+            mistralAssistantContent: [
+              { type: "text", text: "Wind is moving air." },
+            ],
+          },
+        });
       },
     );
 
@@ -1153,6 +1167,11 @@ describe("runVoicePipeline", () => {
           summary: "Wind is moving air.",
           sources: [{ title: "Britannica", url: "https://example.com/wind" }],
         }),
+        providerState: {
+          mistralAssistantContent: [
+            { type: "text", text: "Wind is moving air." },
+          ],
+        },
       }),
     );
   });

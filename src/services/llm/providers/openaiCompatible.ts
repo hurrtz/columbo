@@ -3,11 +3,19 @@ import {
   buildProviderHttpError,
   normalizeProviderTransportError,
 } from "../../providerErrors";
-import { AppLanguage, Provider } from "../../../types";
+import {
+  AppLanguage,
+  MistralAssistantContentChunk,
+  Provider,
+} from "../../../types";
 import { getModelEffortRequestBody } from "../../../utils/modelEffort";
 
 import { readEventStream } from "../eventStream";
-import { ChatMessage, requireProviderKey, toAPIMessages } from "../shared";
+import {
+  ChatMessage,
+  requireProviderKey,
+  toOpenAICompatibleMessages,
+} from "../shared";
 
 function extractOpenAICompatibleText(content: unknown): string {
   if (typeof content === "string") {
@@ -38,6 +46,52 @@ function extractOpenAICompatibleText(content: unknown): string {
   return "";
 }
 
+function extractMistralThinkingText(content: unknown): string {
+  if (!Array.isArray(content)) {
+    return "";
+  }
+
+  return content
+    .filter(
+      (part) =>
+        typeof part === "object" &&
+        part !== null &&
+        "type" in part &&
+        part.type === "thinking" &&
+        "thinking" in part &&
+        Array.isArray(part.thinking),
+    )
+    .flatMap((part) => part.thinking)
+    .map((part) =>
+      typeof part === "object" &&
+      part !== null &&
+      "type" in part &&
+      part.type === "text" &&
+      "text" in part &&
+      typeof part.text === "string"
+        ? part.text
+        : "",
+    )
+    .join("");
+}
+
+function buildMistralAssistantContent(
+  thinkingText: string,
+  answerText: string,
+): MistralAssistantContentChunk[] | undefined {
+  if (!thinkingText) {
+    return undefined;
+  }
+
+  return [
+    {
+      type: "thinking",
+      thinking: [{ type: "text", text: thinkingText }],
+    },
+    { type: "text", text: answerText },
+  ];
+}
+
 export async function requestChatWithOpenAiCompatibleTransport(params: {
   endpoint: string;
   headers: Record<string, string>;
@@ -47,6 +101,9 @@ export async function requestChatWithOpenAiCompatibleTransport(params: {
   messages: ChatMessage[];
   language: AppLanguage;
   systemPrompt: string;
+  onMistralAssistantContent?: (
+    content: MistralAssistantContentChunk[],
+  ) => void;
   abortSignal?: AbortSignal;
 }) {
   const {
@@ -58,6 +115,7 @@ export async function requestChatWithOpenAiCompatibleTransport(params: {
     messages,
     language,
     systemPrompt,
+    onMistralAssistantContent,
     abortSignal,
   } = params;
   let response: Awaited<ReturnType<typeof networkFetch>>;
@@ -74,7 +132,7 @@ export async function requestChatWithOpenAiCompatibleTransport(params: {
         ...getModelEffortRequestBody(provider, model, modelEffort),
         messages: [
           { role: "system", content: systemPrompt },
-          ...toAPIMessages(messages),
+          ...toOpenAICompatibleMessages(provider, messages),
         ],
       }),
       signal: abortSignal,
@@ -100,7 +158,18 @@ export async function requestChatWithOpenAiCompatibleTransport(params: {
   }
 
   const data = await response.json();
-  return extractOpenAICompatibleText(data.choices?.[0]?.message?.content);
+  const content = data.choices?.[0]?.message?.content;
+  const fullText = extractOpenAICompatibleText(content);
+  if (provider === "mistral") {
+    const mistralAssistantContent = buildMistralAssistantContent(
+      extractMistralThinkingText(content),
+      fullText,
+    );
+    if (mistralAssistantContent) {
+      onMistralAssistantContent?.(mistralAssistantContent);
+    }
+  }
+  return fullText;
 }
 
 export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
@@ -113,6 +182,9 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
   language: AppLanguage;
   systemPrompt: string;
   onChunk: (text: string) => void;
+  onMistralAssistantContent?: (
+    content: MistralAssistantContentChunk[],
+  ) => void;
   abortSignal?: AbortSignal;
 }) {
   const {
@@ -125,6 +197,7 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
     language,
     systemPrompt,
     onChunk,
+    onMistralAssistantContent,
     abortSignal,
   } = params;
   let response: Awaited<ReturnType<typeof networkFetch>>;
@@ -142,7 +215,7 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
         stream: true,
         messages: [
           { role: "system", content: systemPrompt },
-          ...toAPIMessages(messages),
+          ...toOpenAICompatibleMessages(provider, messages),
         ],
       }),
       signal: abortSignal,
@@ -177,6 +250,7 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
       messages,
       language,
       systemPrompt,
+      onMistralAssistantContent,
       abortSignal,
     });
 
@@ -188,6 +262,7 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
   }
 
   let fullText = "";
+  let mistralThinkingText = "";
 
   await readEventStream(response.body, async ({ data }) => {
     if (!data || data === "[DONE]") {
@@ -195,9 +270,12 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
     }
 
     const payload = JSON.parse(data);
-    const delta = extractOpenAICompatibleText(
-      payload.choices?.[0]?.delta?.content,
-    );
+    const content = payload.choices?.[0]?.delta?.content;
+    const delta = extractOpenAICompatibleText(content);
+
+    if (provider === "mistral") {
+      mistralThinkingText += extractMistralThinkingText(content);
+    }
 
     if (!delta) {
       return;
@@ -206,6 +284,14 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
     fullText += delta;
     onChunk(delta);
   });
+
+  const mistralAssistantContent = buildMistralAssistantContent(
+    mistralThinkingText,
+    fullText,
+  );
+  if (mistralAssistantContent) {
+    onMistralAssistantContent?.(mistralAssistantContent);
+  }
 
   return fullText;
 }
@@ -250,6 +336,9 @@ export async function requestOpenAICompatibleChatStream(params: {
   language: AppLanguage;
   systemPrompt: string;
   onChunk: (text: string) => void;
+  onMistralAssistantContent?: (
+    content: MistralAssistantContentChunk[],
+  ) => void;
   abortSignal?: AbortSignal;
 }) {
   return requestChatStreamWithOpenAiCompatibleTransport({
@@ -268,6 +357,7 @@ export async function requestOpenAICompatibleChatStream(params: {
     language: params.language,
     systemPrompt: params.systemPrompt,
     onChunk: params.onChunk,
+    onMistralAssistantContent: params.onMistralAssistantContent,
     abortSignal: params.abortSignal,
   });
 }

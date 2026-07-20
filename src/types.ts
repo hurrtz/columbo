@@ -163,9 +163,28 @@ export interface MessagePipelineNotice {
   detail?: string;
 }
 
+export interface MistralTextContentChunk {
+  type: "text";
+  text: string;
+}
+
+export interface MistralThinkingContentChunk {
+  type: "thinking";
+  thinking: MistralTextContentChunk[];
+}
+
+export type MistralAssistantContentChunk =
+  | MistralTextContentChunk
+  | MistralThinkingContentChunk;
+
+export interface MessageProviderState {
+  mistralAssistantContent?: MistralAssistantContentChunk[];
+}
+
 export interface MessageMetadata {
   webSearch?: MessageWebSearchMetadata;
   notices?: MessagePipelineNotice[];
+  providerState?: MessageProviderState;
 }
 
 export const DEFAULT_ASSISTANT_INSTRUCTIONS_BY_LANGUAGE: Record<

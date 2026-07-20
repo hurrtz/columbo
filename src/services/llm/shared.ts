@@ -1,11 +1,12 @@
 import { PROVIDER_LABELS } from "../../constants/models";
 import { RUNTIME_PROVIDER_MANIFEST } from "../../constants/providers/runtimeManifest";
 import { translate } from "../../i18n";
-import { AppLanguage, Provider } from "../../types";
+import { AppLanguage, MessageMetadata, Provider } from "../../types";
 
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+  metadata?: MessageMetadata;
 }
 
 type OpenAiCompatibleLlmConfig = {
@@ -94,6 +95,20 @@ export function toAPIMessages(messages: ChatMessage[]) {
   return messages.map((message) => ({
     role: message.role,
     content: message.content,
+  }));
+}
+
+export function toOpenAICompatibleMessages(
+  provider: Provider,
+  messages: ChatMessage[],
+) {
+  return messages.map((message) => ({
+    role: message.role,
+    content:
+      provider === "mistral" && message.role === "assistant"
+        ? message.metadata?.providerState?.mistralAssistantContent ??
+          message.content
+        : message.content,
   }));
 }
 
