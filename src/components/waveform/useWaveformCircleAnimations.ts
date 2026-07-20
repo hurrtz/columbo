@@ -20,6 +20,7 @@ import {
   getInnerRingMetrics,
   getOuterRingMetrics,
   getPulseAnimationConfig,
+  getProcessingControlRotationDeg,
   getSheenMetrics,
   getTopAuraMetrics,
   getWaveformMetrics,
@@ -424,11 +425,17 @@ export function useWaveformCircleAnimations(params: {
         pulse.value,
         energy.value,
       );
-      const processingRotationDeg = isProcessing && shouldAnimate
-        ? phase === "thinking"
-          ? spin.value * 360
-          : Math.sin(spin.value * Math.PI * 2) * 10
-        : 0;
+      const processingRotationDeg = getProcessingControlRotationDeg(
+        {
+          phase,
+          isRecording,
+          isProcessing,
+          isSpeaking,
+          shouldAnimate,
+          usesPreciseWaveform,
+        },
+        spin.value,
+      );
 
       return {
         opacity: metrics.opacity,

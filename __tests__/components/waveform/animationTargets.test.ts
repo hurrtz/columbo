@@ -5,6 +5,7 @@ import {
   getInnerRingMetrics,
   getOuterRingMetrics,
   getPulseAnimationConfig,
+  getProcessingControlRotationDeg,
   getTopAuraMetrics,
 } from "../../../src/components/waveform/animations/targets";
 
@@ -117,6 +118,29 @@ describe("waveform animation targets", () => {
     expect(metrics.opacity).toBe(0.92);
     expect(metrics.scale).toBeCloseTo(1.0025);
     expect(metrics.translateY).toBeCloseTo(-2.25);
+  });
+
+  it("keeps thinking and search countdowns on the same readable wobble", () => {
+    const processingContext = {
+      isRecording: false,
+      isSpeaking: false,
+      isProcessing: true,
+      shouldAnimate: true,
+      usesPreciseWaveform: false,
+    };
+
+    expect(
+      getProcessingControlRotationDeg(
+        { ...processingContext, phase: "thinking" },
+        0.25,
+      ),
+    ).toBeCloseTo(10);
+    expect(
+      getProcessingControlRotationDeg(
+        { ...processingContext, phase: "searching" },
+        0.25,
+      ),
+    ).toBeCloseTo(10);
   });
 
   it("uses stronger ring and shell motion during processing animation", () => {

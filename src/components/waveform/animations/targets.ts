@@ -400,3 +400,16 @@ export function getControlIconMetrics(
     translateY: -1 - energy * 2,
   };
 }
+
+export function getProcessingControlRotationDeg(
+  context: WaveformAnimationContext,
+  spin: number,
+) {
+  "worklet";
+
+  if (!context.isProcessing || !context.shouldAnimate) {
+    return 0;
+  }
+
+  return Math.sin(spin * Math.PI * 2) * 10;
+}
