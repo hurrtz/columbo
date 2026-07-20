@@ -3,6 +3,222 @@ import { providerContext } from "./provider";
 export const llms = providerContext.defineLlms([
   providerContext.llm(
     {
+      "modelId": "gpt-5.6-sol",
+      "publicName": "GPT-5.6 Sol",
+      "aliases": ["gpt-5.6"],
+      "status": "Documented active/current",
+      "limitsSummary": "1,050,000 context tokens; 922,000 max input tokens; 128,000 max output tokens.",
+      "languagesSummary": "Multilingual text+vision model; no model-specific language list is published.",
+      "notes": "Frontier GPT-5.6 tier for complex professional work; supports Chat Completions, Responses, Batch, and streaming.",
+      "officialSources": [
+        "https://developers.openai.com/api/docs/models/gpt-5.6-sol",
+        "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.6"
+      ],
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 1050000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Context window: 1,050,000 tokens."
+        },
+        {
+          "metric": "other",
+          "comparator": "<=",
+          "value": 128000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Max output: 128,000 tokens."
+        }
+      ],
+      "languageSupport": {
+        "rawText": "OpenAI describes the model as multimodal and supports text and image input.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": ["multilingual", "vision-supported"]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "modelId": "gpt-5.6-terra",
+      "publicName": "GPT-5.6 Terra",
+      "status": "Documented active/current",
+      "limitsSummary": "1,050,000 context tokens; 922,000 max input tokens; 128,000 max output tokens.",
+      "languagesSummary": "Multilingual text+vision model; no model-specific language list is published.",
+      "notes": "GPT-5.6 tier balancing intelligence and cost; supports Chat Completions, Responses, Batch, and streaming.",
+      "officialSources": [
+        "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+        "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.6"
+      ],
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 1050000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Context window: 1,050,000 tokens."
+        },
+        {
+          "metric": "other",
+          "comparator": "<=",
+          "value": 128000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Max output: 128,000 tokens."
+        }
+      ],
+      "languageSupport": {
+        "rawText": "OpenAI describes the model as multimodal and supports text and image input.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": ["multilingual", "vision-supported"]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "modelId": "gpt-5.6-luna",
+      "publicName": "GPT-5.6 Luna",
+      "status": "Documented active/current",
+      "limitsSummary": "1,050,000 context tokens; 922,000 max input tokens; 128,000 max output tokens.",
+      "languagesSummary": "Multilingual text+vision model; no model-specific language list is published.",
+      "notes": "GPT-5.6 tier for efficient, high-volume workloads; supports Chat Completions, Responses, Batch, and streaming.",
+      "officialSources": [
+        "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
+        "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.6"
+      ],
+      "supportsRealtime": false,
+      "supportsBatch": true,
+      "priceMeasurements": [],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 1050000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Context window: 1,050,000 tokens."
+        },
+        {
+          "metric": "other",
+          "comparator": "<=",
+          "value": 128000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Max output: 128,000 tokens."
+        }
+      ],
+      "languageSupport": {
+        "rawText": "OpenAI describes the model as multimodal and supports text and image input.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": ["multilingual", "vision-supported"]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "modelId": "gpt-realtime-2.1",
+      "publicName": "GPT-Realtime-2.1",
+      "status": "Documented active/current",
+      "limitsSummary": "128,000 context tokens; 32,000 max output tokens.",
+      "languagesSummary": "Realtime text, image, and audio input with text and audio output.",
+      "notes": "Current full-size realtime model with configurable reasoning and WebSocket support.",
+      "officialSources": [
+        "https://developers.openai.com/api/docs/models/gpt-realtime-2.1",
+        "https://developers.openai.com/api/docs/guides/realtime-conversations"
+      ],
+      "supportsRealtime": true,
+      "supportsBatch": false,
+      "priceMeasurements": [],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 128000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Context window: 128,000 tokens."
+        },
+        {
+          "metric": "other",
+          "comparator": "<=",
+          "value": 32000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Max output: 32,000 tokens."
+        }
+      ],
+      "languageSupport": {
+        "rawText": "OpenAI documents text, audio, and image input with text and audio output.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": ["realtime", "audio-input", "audio-output"]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
+      "modelId": "gpt-realtime-2.1-mini",
+      "publicName": "GPT-Realtime-2.1 mini",
+      "status": "Documented active/current",
+      "limitsSummary": "128,000 context tokens; 32,000 max output tokens.",
+      "languagesSummary": "Realtime text, image, and audio input with text and audio output.",
+      "notes": "Current lower-latency realtime model with WebSocket support.",
+      "officialSources": [
+        "https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini",
+        "https://developers.openai.com/api/docs/guides/realtime-conversations"
+      ],
+      "supportsRealtime": true,
+      "supportsBatch": false,
+      "priceMeasurements": [],
+      "constraints": [
+        {
+          "metric": "context_tokens",
+          "comparator": "=",
+          "value": 128000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Context window: 128,000 tokens."
+        },
+        {
+          "metric": "other",
+          "comparator": "<=",
+          "value": 32000,
+          "unit": "tokens",
+          "scope": "model",
+          "sourceText": "Max output: 32,000 tokens."
+        }
+      ],
+      "languageSupport": {
+        "rawText": "OpenAI documents text, audio, and image input with text and audio output.",
+        "isMultilingual": true,
+        "languageCount": 0,
+        "voiceCount": 0,
+        "listedLanguages": [],
+        "notes": ["realtime", "audio-input", "audio-output"]
+      }
+    }
+  ),
+  providerContext.llm(
+    {
       "providerId": "openai",
       "providerName": "OpenAI",
       "service": "llm",

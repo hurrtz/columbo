@@ -8,6 +8,7 @@ import {
 
 describe("model effort metadata", () => {
   it("uses provider-documented defaults before the generic medium fallback", () => {
+    expect(getDefaultModelEffort("openai", "gpt-5.6-sol")).toBe("medium");
     expect(getDefaultModelEffort("openai", "gpt-5.5")).toBe("medium");
     expect(getDefaultModelEffort("openai", "gpt-5.4")).toBe("none");
     expect(getDefaultModelEffort("anthropic", "claude-sonnet-5")).toBe("high");
@@ -52,6 +53,11 @@ describe("model effort metadata", () => {
   });
 
   it("exposes documented effort levels for non-Gemini providers", () => {
+    expect(
+      getModelEffortOptions("openai", "gpt-5.6-sol").map(
+        (option) => option.id,
+      ),
+    ).toEqual(["none", "low", "medium", "high", "xhigh", "max"]);
     expect(
       getModelEffortOptions("openai", "gpt-5.5").map((option) => option.id),
     ).toEqual(["none", "low", "medium", "high", "xhigh"]);

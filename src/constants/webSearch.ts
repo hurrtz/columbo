@@ -77,7 +77,7 @@ export const WEB_SEARCH_PROVIDER_CONTROL_SUPPORT: Record<
 };
 
 export const WEB_SEARCH_PROVIDER_MODELS: Record<WebSearchProvider, string> = {
-  openai: "gpt-5.5",
+  openai: "gpt-5.6-sol",
   anthropic: "claude-sonnet-5",
   "alibaba-qwen-dashscope": "qwen3.7-plus",
   "bytedance-doubao-seed": "doubao-seed-2-1-turbo-260628",

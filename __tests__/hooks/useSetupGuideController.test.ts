@@ -176,7 +176,7 @@ describe("useSetupGuideController", () => {
             id: "mode-1",
             route: expect.objectContaining({
               provider: "openai",
-              model: "gpt-5.5",
+              model: "gpt-5.6-sol",
             }),
           }),
         ],

@@ -106,7 +106,7 @@ describe("webSearch", () => {
     );
     expect(result).toEqual(
       expect.objectContaining({
-        model: "gpt-5.5",
+        model: "gpt-5.6-sol",
         provider: "openai",
         summary: "Mars has water ice near its poles.",
         sources: [

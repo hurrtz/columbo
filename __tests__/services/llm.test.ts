@@ -550,7 +550,7 @@ describe("streamChat", () => {
     const chunks: string[] = [];
     const promise = streamChat({
       messages: mockMessages,
-      model: "gpt-realtime-1.5",
+      model: "gpt-realtime-2.1",
       provider: "openai",
       apiKey: "sk-test-key",
       assistantInstructions: "",
@@ -564,10 +564,10 @@ describe("streamChat", () => {
 
     const socket = MockWebSocket.instances[0];
     expect(socket.url).toBe(
-      "wss://api.openai.com/v1/realtime?model=gpt-realtime-1.5",
+      "wss://api.openai.com/v1/realtime?model=gpt-realtime-2.1",
     );
     expect(socket.options.headers.Authorization).toBe("Bearer sk-test-key");
-    expect(socket.options.headers["OpenAI-Beta"]).toBe("realtime=v1");
+    expect(socket.options.headers["OpenAI-Beta"]).toBeUndefined();
 
     socket.emitOpen();
     expect(JSON.parse(socket.sent[0])).toMatchObject({

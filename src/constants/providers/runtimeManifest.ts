@@ -284,6 +284,15 @@ const OPENAI_GPT_55_EFFORT = effortConfig("reasoning-effort", "medium", [
   "xhigh",
 ]);
 
+const OPENAI_GPT_56_EFFORT = effortConfig("reasoning-effort", "medium", [
+  "none",
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+  "max",
+]);
+
 const OPENAI_GPT_54_EFFORT = effortConfig("reasoning-effort", "none", [
   "none",
   "low",
@@ -424,9 +433,21 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       support: "provider",
       transport: "openai-compatible",
       endpoint: "https://api.openai.com/v1/chat/completions",
-      defaultModel: "gpt-5.5",
-      realtimeModelIds: ["gpt-realtime-1.5", "gpt-realtime-mini"],
+      defaultModel: "gpt-5.6-sol",
+      realtimeModelIds: ["gpt-realtime-2.1", "gpt-realtime-2.1-mini"],
       models: [
+        withEffort(
+          namedModel("gpt-5.6-sol", "GPT-5.6 Sol"),
+          OPENAI_GPT_56_EFFORT,
+        ),
+        withEffort(
+          namedModel("gpt-5.6-terra", "GPT-5.6 Terra"),
+          OPENAI_GPT_56_EFFORT,
+        ),
+        withEffort(
+          namedModel("gpt-5.6-luna", "GPT-5.6 Luna"),
+          OPENAI_GPT_56_EFFORT,
+        ),
         withEffort(model("gpt-5.5", "2026-04-23"), OPENAI_GPT_55_EFFORT),
         withEffort(model("gpt-5.4", "2026-03-01"), OPENAI_GPT_54_EFFORT),
         withEffort(
@@ -439,8 +460,8 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
         ),
         model("gpt-4.1", "2025-04-14"),
         model("gpt-4.1-mini", "2025-04-14"),
-        namedModel("gpt-realtime-1.5", "GPT-Realtime-1.5"),
-        namedModel("gpt-realtime-mini", "GPT-Realtime-mini"),
+        namedModel("gpt-realtime-2.1", "GPT-Realtime-2.1"),
+        namedModel("gpt-realtime-2.1-mini", "GPT-Realtime-2.1 mini"),
       ],
     },
     stt: {

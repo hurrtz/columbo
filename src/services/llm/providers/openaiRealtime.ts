@@ -268,7 +268,6 @@ export async function requestOpenAiRealtimeChat(params: {
         params.apiKey,
         params.language,
       )}`,
-      "OpenAI-Beta": "realtime=v1",
     },
     abortSignal: params.abortSignal,
   });
@@ -297,7 +296,6 @@ export async function requestOpenAiRealtimeChatStream(params: {
         params.apiKey,
         params.language,
       )}`,
-      "OpenAI-Beta": "realtime=v1",
     },
     onChunk: params.onChunk,
     abortSignal: params.abortSignal,
