@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C01A00000000000000000001 /* ColumboVoiceActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01A00000000000000000011 /* ColumboVoiceActivityAttributes.swift */; };
+		C01A00000000000000000002 /* ColumboVoiceLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01A00000000000000000012 /* ColumboVoiceLiveActivity.swift */; };
+		C01A00000000000000000003 /* ColumboLiveActivity.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C01A00000000000000000014 /* ColumboLiveActivity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		5537CA547A095C86D2D27B28 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 64F9FFC99FC7060C97837358 /* PrivacyInfo.xcprivacy */; };
@@ -33,7 +36,35 @@
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		C01A00000000000000000027 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C01A00000000000000000026;
+			remoteInfo = ColumboLiveActivity;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C01A00000000000000000024 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C01A00000000000000000003 /* ColumboLiveActivity.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		C01A00000000000000000011 /* ColumboVoiceActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumboVoiceActivityAttributes.swift; sourceTree = "<group>"; };
+		C01A00000000000000000012 /* ColumboVoiceLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumboVoiceLiveActivity.swift; sourceTree = "<group>"; };
+		C01A00000000000000000013 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C01A00000000000000000014 /* ColumboLiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ColumboLiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* Columbo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Columbo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Columbo/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Columbo/Info.plist; sourceTree = "<group>"; };
@@ -67,6 +98,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		C01A00000000000000000021 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -78,6 +116,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C01A00000000000000000025 /* ColumboLiveActivity */ = {
+			isa = PBXGroup;
+			children = (
+				C01A00000000000000000011 /* ColumboVoiceActivityAttributes.swift */,
+				C01A00000000000000000012 /* ColumboVoiceLiveActivity.swift */,
+				C01A00000000000000000013 /* Info.plist */,
+			);
+			path = ColumboLiveActivity;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* Columbo */ = {
 			isa = PBXGroup;
 			children = (
@@ -138,6 +186,7 @@
 			isa = PBXGroup;
 			children = (
 				13B07FAE1A68108700A75B9A /* Columbo */,
+				C01A00000000000000000025 /* ColumboLiveActivity */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
@@ -153,6 +202,7 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* Columbo.app */,
+				C01A00000000000000000014 /* ColumboLiveActivity.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -194,6 +244,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		C01A00000000000000000026 /* ColumboLiveActivity */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C01A00000000000000000033 /* Build configuration list for PBXNativeTarget "ColumboLiveActivity" */;
+			buildPhases = (
+				C01A00000000000000000022 /* Sources */,
+				C01A00000000000000000021 /* Frameworks */,
+				C01A00000000000000000023 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ColumboLiveActivity;
+			productName = ColumboLiveActivity;
+			productReference = C01A00000000000000000014 /* ColumboLiveActivity.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		13B07F861A680F5B00A75B9A /* Columbo */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Columbo" */;
@@ -203,6 +270,7 @@
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
+				C01A00000000000000000024 /* Embed App Extensions */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
 				3E0AACBD510B345120B843FC /* [CP] Embed Pods Frameworks */,
@@ -211,6 +279,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				C01A00000000000000000028 /* PBXTargetDependency */,
 			);
 			name = Columbo;
 			productName = Columbo;
@@ -226,6 +295,10 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 2630;
 				TargetAttributes = {
+					C01A00000000000000000026 = {
+						DevelopmentTeam = Y295UCE38G;
+						ProvisioningStyle = Automatic;
+					};
 					13B07F861A680F5B00A75B9A = {
 						DevelopmentTeam = Y295UCE38G;
 						LastSwiftMigration = 1250;
@@ -247,11 +320,19 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* Columbo */,
+				C01A00000000000000000026 /* ColumboLiveActivity */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		C01A00000000000000000023 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F8E1A680F5B00A75B9A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -408,6 +489,15 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		C01A00000000000000000022 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C01A00000000000000000001 /* ColumboVoiceActivityAttributes.swift in Sources */,
+				C01A00000000000000000002 /* ColumboVoiceLiveActivity.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F871A680F5B00A75B9A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -436,7 +526,71 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		C01A00000000000000000028 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C01A00000000000000000026 /* ColumboLiveActivity */;
+			targetProxy = C01A00000000000000000027 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		C01A00000000000000000031 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = Y295UCE38G;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ColumboLiveActivity/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.4.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tobiaswinkler.app.columbo.liveactivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		C01A00000000000000000032 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = Y295UCE38G;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ColumboLiveActivity/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.4.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tobiaswinkler.app.columbo.liveactivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = FBB87714520E96D715066ED1 /* Pods-Columbo.debug.xcconfig */;
@@ -666,6 +820,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		C01A00000000000000000033 /* Build configuration list for PBXNativeTarget "ColumboLiveActivity" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C01A00000000000000000031 /* Debug */,
+				C01A00000000000000000032 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Columbo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

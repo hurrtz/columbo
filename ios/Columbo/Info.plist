@@ -55,6 +55,8 @@
 	<string>Columbo may request access to your photo library only when an iOS system sharing or attachment flow requires it. Columbo does not scan your photo library.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Allow Columbo to transcribe your voice with the system speech recognizer.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
