@@ -1,4 +1,4 @@
-import { NativeModules, Platform } from "react-native";
+import { NativeModules, PermissionsAndroid, Platform } from "react-native";
 
 import { recordDebugLogEvent } from "./debugLogCapture";
 
@@ -21,6 +21,8 @@ type VoiceLiveActivityModule = {
 interface VoiceLiveActivityDependencies {
   nativeModule?: VoiceLiveActivityModule;
   platform?: string;
+  platformVersion?: number;
+  requestNotificationPermission?: () => Promise<boolean>;
 }
 
 const HEARTBEAT_INTERVAL_MS = 20_000;
@@ -32,6 +34,7 @@ let currentState: VoiceLiveActivityState | null = null;
 let lastSentSignature: string | null = null;
 let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
 let scheduledEndTimer: ReturnType<typeof setTimeout> | null = null;
+let androidNotificationPermissionRequest: Promise<boolean> | null = null;
 
 function clearHeartbeat() {
   if (heartbeatTimer) {
@@ -51,7 +54,67 @@ function getRuntime(dependencies: VoiceLiveActivityDependencies) {
   return {
     module: dependencies.nativeModule ?? nativeModule,
     platform: dependencies.platform ?? Platform.OS,
+    platformVersion:
+      dependencies.platformVersion ??
+      (typeof Platform.Version === "number" ? Platform.Version : 0),
+    requestNotificationPermission:
+      dependencies.requestNotificationPermission ??
+      requestAndroidNotificationPermission,
   };
+}
+
+async function requestAndroidNotificationPermission() {
+  const permission = PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS;
+
+  if (await PermissionsAndroid.check(permission)) {
+    return true;
+  }
+
+  return (
+    (await PermissionsAndroid.request(permission)) ===
+    PermissionsAndroid.RESULTS.GRANTED
+  );
+}
+
+function ensureAndroidNotificationPermission(
+  runtime: ReturnType<typeof getRuntime>,
+  phase: VoiceLiveActivityPhase,
+) {
+  if (
+    runtime.platform !== "android" ||
+    runtime.platformVersion < 33 ||
+    phase === "listening" ||
+    androidNotificationPermissionRequest
+  ) {
+    return;
+  }
+
+  androidNotificationPermissionRequest = runtime
+    .requestNotificationPermission()
+    .then((granted) => {
+      recordDebugLogEvent({
+        event: "voice-live-activity-notification-permission",
+        payload: { granted },
+      });
+      if (granted && currentState && runtime.module) {
+        // Re-publish immediately so a notification that was created before
+        // Android showed its permission dialog becomes visible without
+        // waiting for the next heartbeat.
+        sendState(currentState, runtime.module);
+      }
+      return granted;
+    })
+    .catch((error) => {
+      androidNotificationPermissionRequest = null;
+      recordDebugLogEvent({
+        event: "voice-live-activity-notification-permission-failed",
+        level: "warn",
+        payload: {
+          message: error instanceof Error ? error.message : String(error),
+        },
+      });
+      return false;
+    });
 }
 
 function sendState(
@@ -77,9 +140,9 @@ function ensureHeartbeat(module: VoiceLiveActivityModule) {
 
   heartbeatTimer = setInterval(() => {
     if (currentState) {
-      // Refreshing the native stale date is also the proof that Columbo is
-      // still executing. If iOS suspends JavaScript, this heartbeat stops and
-      // the Live Activity becomes visibly stale instead of claiming progress.
+      // iOS uses this to refresh the native stale date. Android already keeps
+      // the same process active through its foreground service, and the quiet
+      // refresh also recovers a notification removed by an OEM.
       sendState(currentState, module);
     }
   }, HEARTBEAT_INTERVAL_MS);
@@ -92,7 +155,7 @@ export function setVoiceLiveActivityState(
   const runtime = getRuntime(dependencies);
 
   if (
-    runtime.platform !== "ios" ||
+    (runtime.platform !== "ios" && runtime.platform !== "android") ||
     !runtime.module ||
     typeof runtime.module.setState !== "function"
   ) {
@@ -100,6 +163,7 @@ export function setVoiceLiveActivityState(
   }
 
   clearScheduledEnd();
+  ensureAndroidNotificationPermission(runtime, state.phase);
   currentState = {
     phase: state.phase,
     expectedSpeechAtMs:
@@ -131,7 +195,7 @@ export function endVoiceLiveActivity(
   lastSentSignature = null;
 
   if (
-    runtime.platform !== "ios" ||
+    (runtime.platform !== "ios" && runtime.platform !== "android") ||
     !runtime.module ||
     typeof runtime.module.endActivity !== "function"
   ) {

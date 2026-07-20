@@ -44,6 +44,32 @@ describe("voiceLiveActivity", () => {
     expect(nativeModule.setState).toHaveBeenCalledWith("thinking", 123_456);
   });
 
+  it("uses the same local bridge on Android and requests notification permission after capture", async () => {
+    const nativeModule = createNativeModule();
+    const requestNotificationPermission = jest.fn(async () => true);
+    const dependencies = {
+      nativeModule,
+      platform: "android",
+      platformVersion: 36,
+      requestNotificationPermission,
+    };
+
+    setVoiceLiveActivityState(
+      { phase: "listening", expectedSpeechAtMs: null },
+      dependencies,
+    );
+    expect(requestNotificationPermission).not.toHaveBeenCalled();
+
+    setVoiceLiveActivityState(
+      { phase: "thinking", expectedSpeechAtMs: 222_333 },
+      dependencies,
+    );
+    await Promise.resolve();
+
+    expect(requestNotificationPermission).toHaveBeenCalledTimes(1);
+    expect(nativeModule.setState).toHaveBeenLastCalledWith("thinking", 222_333);
+  });
+
   it("deduplicates unchanged phases but refreshes the stale date by heartbeat", () => {
     const nativeModule = createNativeModule();
     const dependencies = { nativeModule, platform: "ios" };
@@ -101,13 +127,13 @@ describe("voiceLiveActivity", () => {
     expect(nativeModule.setState).toHaveBeenCalledTimes(1);
   });
 
-  it("is a no-op off iOS", () => {
+  it("is a no-op off iOS and Android", () => {
     const nativeModule = createNativeModule();
 
     expect(
       setVoiceLiveActivityState(
         { phase: "thinking", expectedSpeechAtMs: null },
-        { nativeModule, platform: "android" },
+        { nativeModule, platform: "web" },
       ),
     ).toBe(false);
     expect(nativeModule.setState).not.toHaveBeenCalled();
