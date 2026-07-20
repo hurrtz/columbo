@@ -1,5 +1,5 @@
 <resources>
-  <string name="app_name">Columbo</string>
+  <string name="app_name" translatable="false">Columbo</string>
   <string name="voice_turn_channel_name">Voice replies</string>
   <string name="voice_turn_channel_description">Progress while Columbo prepares a spoken reply</string>
   <string name="voice_turn_notification_title">Columbo is working</string>
