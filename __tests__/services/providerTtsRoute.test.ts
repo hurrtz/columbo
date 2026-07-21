@@ -28,7 +28,7 @@ describe("synthesizeProviderSpeech", () => {
     jest.clearAllMocks();
   });
 
-  it("uses DashScope TTS and downloads the generated wav file", async () => {
+  it("upgrades DashScope's HTTP result URL before downloading the wav file", async () => {
     (fetch as jest.Mock)
       .mockResolvedValueOnce({
         ok: true,
@@ -36,7 +36,7 @@ describe("synthesizeProviderSpeech", () => {
           Promise.resolve({
             output: {
               audio: {
-                url: "https://dashscope.example/audio.wav",
+                url: "http://dashscope.example/audio.wav",
               },
             },
           }),

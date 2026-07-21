@@ -155,7 +155,9 @@ function getBinaryTtsFileExtension(
 
 function getDashScopeAudioUrl(data: any) {
   const url = data?.output?.audio?.url;
-  return typeof url === "string" ? url : null;
+  return typeof url === "string"
+    ? url.replace(/^http:\/\//i, "https://")
+    : null;
 }
 
 function getBinaryTtsVoice(params: {
