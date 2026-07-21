@@ -404,7 +404,12 @@ describe("synthesizeSpeech", () => {
     });
   });
 
-  it("requires a Mistral voice ID before speech generation", async () => {
+  it("lets Mistral use its default voice when no voice ID is saved", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ audio_data: "ZmFrZQ==" }),
+    });
+
     await expect(
       synthesizeSpeech({
         text: "Hallo Welt",
@@ -414,9 +419,14 @@ describe("synthesizeSpeech", () => {
         apiKey: "mistral-test-key",
         language: "en",
       }),
-    ).rejects.toThrow("Enter a Mistral preset or custom voice ID");
+    ).resolves.toMatch(/^\/tmp\/tts-.*\.mp3$/);
 
-    expect(fetch).not.toHaveBeenCalled();
+    const [, options] = (fetch as jest.Mock).mock.calls[0];
+    expect(JSON.parse(options.body)).toEqual({
+      model: "voxtral-mini-tts-2603",
+      input: "Hallo Welt",
+      response_format: "mp3",
+    });
   });
 
   it("splits long provider speech into multiple synthesis requests", async () => {

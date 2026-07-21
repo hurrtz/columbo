@@ -133,7 +133,7 @@ function buildBinaryTtsRequestBody(params: {
       return {
         model: params.selectedModel,
         input: params.text,
-        voice_id: params.selectedVoice,
+        ...(params.selectedVoice ? { voice_id: params.selectedVoice } : {}),
         response_format: "mp3",
       };
     case "openai-speech":
@@ -214,14 +214,6 @@ export async function synthesizeProviderSpeech(params: {
     providerModel,
     config,
   });
-
-  if (
-    config.kind === "binary" &&
-    config.requestFormat === "mistral-speech" &&
-    !selectedVoice
-  ) {
-    throw new Error(translate(language, "mistralVoiceIdRequired"));
-  }
 
   if (config.kind === "gemini") {
     const response = await fetchTtsWithRetries({
