@@ -77,7 +77,10 @@ export function ProviderVoicePreviewSection({
       ]}
     >
       <View style={styles.voicePreviewHeader}>
-        <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
+        <Text
+          accessibilityRole="header"
+          style={[styles.groupLabel, { color: colors.text }]}
+        >
           {t("providerVoicePreviews")}
         </Text>
         <Text
@@ -92,7 +95,10 @@ export function ProviderVoicePreviewSection({
       </View>
 
       <View>
-        <Text style={[styles.voicePreviewProvider, { color: colors.text }]}>
+        <Text
+          accessibilityRole="header"
+          style={[styles.voicePreviewProvider, { color: colors.text }]}
+        >
           {PROVIDER_LABELS[provider]}
         </Text>
         {voiceOptions.length > 0 ? (
@@ -221,7 +227,10 @@ export function NativeVoicePreviewSection({
       ]}
     >
       <View style={styles.voicePreviewHeader}>
-        <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
+        <Text
+          accessibilityRole="header"
+          style={[styles.groupLabel, { color: colors.text }]}
+        >
           {t("nativeVoicePreviewSection")}
         </Text>
         <Text

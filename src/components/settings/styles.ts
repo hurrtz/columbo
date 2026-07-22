@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-import { fonts } from "../../theme/typography";
+import { textStyles } from "../../theme/typography";
 
 import {
   SETTINGS_HEADER_BOTTOM_PADDING,
@@ -62,9 +62,7 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   title: {
-    fontSize: 24,
-    lineHeight: 29,
-    fontFamily: fonts.display,
+    ...textStyles.screenTitle,
   },
   closeButton: {
     width: SETTINGS_HEADER_CONTROL_SIZE,
@@ -75,8 +73,7 @@ export const styles = StyleSheet.create({
     borderWidth: 0,
   },
   tabButtonText: {
-    fontSize: 13,
-    fontFamily: fonts.display,
+    ...textStyles.compactAction,
   },
   contentScroll: {
     flex: 1,
@@ -95,9 +92,7 @@ export const styles = StyleSheet.create({
     gap: 14,
   },
   tabIntroText: {
-    fontSize: 13,
-    lineHeight: 19,
-    fontFamily: fonts.body,
+    ...textStyles.supporting,
     marginBottom: 2,
   },
   sectionCard: {
@@ -106,38 +101,27 @@ export const styles = StyleSheet.create({
     padding: 16,
   },
   sectionLabel: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
+    ...textStyles.subsectionTitle,
     marginBottom: 12,
-    fontFamily: fonts.mono,
   },
   sectionIntro: {
-    fontSize: 12,
-    lineHeight: 18,
+    ...textStyles.supporting,
     marginTop: -2,
     marginBottom: 14,
-    fontFamily: fonts.body,
   },
   settingsSectionHeader: {
     gap: 6,
     marginBottom: 14,
   },
   settingsSectionTitle: {
-    fontSize: 20,
-    lineHeight: 24,
-    fontFamily: fonts.display,
+    ...textStyles.sectionTitle,
   },
   settingsSectionDescription: {
-    fontSize: 13,
-    lineHeight: 19,
-    fontFamily: fonts.body,
+    ...textStyles.body,
   },
   sectionHint: {
-    fontSize: 12,
-    lineHeight: 18,
+    ...textStyles.supporting,
     marginTop: 10,
-    fontFamily: fonts.body,
   },
   responseModeList: {
     marginBottom: 14,
@@ -162,9 +146,7 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   responseModeHeaderButtonText: {
-    fontSize: 12,
-    lineHeight: 16,
-    fontFamily: fonts.display,
+    ...textStyles.compactAction,
   },
   responseModeItem: {
     paddingBottom: 10,
@@ -178,9 +160,7 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
   },
   responseModeTitle: {
-    fontSize: 14,
-    lineHeight: 18,
-    fontFamily: fonts.display,
+    ...textStyles.subsectionTitle,
   },
   responseModeRemoveButton: {
     width: 30,
@@ -217,8 +197,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   filterChipText: {
-    fontSize: 12,
-    fontFamily: fonts.display,
+    ...textStyles.compactAction,
   },
   providerVaultList: {
     gap: 10,
@@ -257,9 +236,7 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   providerVaultTitle: {
-    fontSize: 15,
-    lineHeight: 18,
-    fontFamily: fonts.display,
+    ...textStyles.subsectionTitle,
   },
   providerCapabilityRow: {
     flexDirection: "row",
@@ -273,10 +250,9 @@ export const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   providerCapabilityPillText: {
+    ...textStyles.controlLabel,
     fontSize: 10,
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
-    fontFamily: fonts.mono,
+    lineHeight: 14,
   },
   providerVaultHeaderMeta: {
     alignItems: "flex-end",
@@ -299,10 +275,9 @@ export const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   providerStatusText: {
+    ...textStyles.controlLabel,
     fontSize: 10,
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
-    fontFamily: fonts.mono,
+    lineHeight: 14,
   },
   providerVaultExpanded: {
     paddingHorizontal: 14,
@@ -325,8 +300,7 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   providerVaultActionButtonText: {
-    fontSize: 13,
-    fontFamily: fonts.display,
+    ...textStyles.compactAction,
   },
   inlineAccordion: {
     gap: 8,
@@ -341,8 +315,7 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   inlineAccordionTitle: {
-    fontSize: 13,
-    fontFamily: fonts.display,
+    ...textStyles.subsectionTitle,
   },
   inlineAccordionBody: {
     borderRadius: 12,
@@ -421,15 +394,10 @@ export const styles = StyleSheet.create({
     gap: 2,
   },
   setupChecklistLabel: {
-    fontSize: 13,
-    lineHeight: 18,
-    fontFamily: fonts.body,
+    ...textStyles.supporting,
   },
   setupChecklistState: {
-    fontSize: 11,
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    fontFamily: fonts.mono,
+    ...textStyles.controlLabel,
   },
   providerButton: {
     width: 48,
@@ -467,10 +435,9 @@ export const styles = StyleSheet.create({
     paddingVertical: 7,
   },
   providerHealthPillText: {
+    ...textStyles.controlLabel,
     fontSize: 10,
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-    fontFamily: fonts.mono,
+    lineHeight: 14,
   },
   readinessCard: {
     borderRadius: 18,
@@ -497,11 +464,11 @@ export const styles = StyleSheet.create({
     gap: 3,
   },
   readinessPillTitle: {
+    ...textStyles.compactAction,
     flexShrink: 1,
     minWidth: 0,
     fontSize: 11,
     lineHeight: 14,
-    fontFamily: fonts.display,
   },
   overviewRowList: {
     gap: 8,
@@ -539,14 +506,10 @@ export const styles = StyleSheet.create({
     gap: 3,
   },
   overviewRowTitle: {
-    fontSize: 15,
-    lineHeight: 19,
-    fontFamily: fonts.display,
+    ...textStyles.subsectionTitle,
   },
   overviewRowSummary: {
-    fontSize: 12,
-    lineHeight: 17,
-    fontFamily: fonts.body,
+    ...textStyles.supporting,
   },
   drillInHeader: {
     marginBottom: 2,
@@ -562,9 +525,7 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   drillInSummary: {
-    fontSize: 12,
-    lineHeight: 17,
-    fontFamily: fonts.body,
+    ...textStyles.supporting,
   },
   apiKeyCard: {
     borderRadius: 18,
@@ -578,8 +539,7 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
   apiKeyTitle: {
-    fontSize: 14,
-    fontFamily: fonts.display,
+    ...textStyles.subsectionTitle,
   },
   apiKeyPortalLink: {
     flexDirection: "row",
@@ -587,15 +547,12 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   apiKeyPortalLinkText: {
-    fontSize: 12,
-    fontFamily: fonts.display,
+    ...textStyles.compactAction,
   },
   apiKeyHint: {
+    ...textStyles.supporting,
     marginTop: 6,
     marginBottom: 10,
-    fontSize: 12,
-    lineHeight: 18,
-    fontFamily: fonts.body,
   },
   catalogModelGroups: {
     marginTop: 12,
@@ -605,29 +562,23 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   catalogModelGroupTitle: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
-    fontFamily: fonts.mono,
+    ...textStyles.controlLabel,
   },
   catalogModelItem: {
     gap: 2,
   },
   catalogModelName: {
-    fontSize: 13,
-    lineHeight: 18,
-    fontFamily: fonts.display,
+    ...textStyles.compactAction,
   },
   catalogModelMeta: {
-    fontSize: 11,
-    lineHeight: 16,
-    fontFamily: fonts.mono,
+    ...textStyles.metadata,
   },
   apiKeyInputRow: {
     position: "relative",
     justifyContent: "center",
   },
   apiKeyInput: {
+    ...textStyles.body,
     minHeight: 48,
     width: "100%",
     borderRadius: 14,
@@ -635,8 +586,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingRight: 54,
     paddingVertical: 12,
-    fontSize: 14,
-    fontFamily: fonts.body,
   },
   apiKeyVisibilityButton: {
     position: "absolute",
@@ -662,8 +611,7 @@ export const styles = StyleSheet.create({
     opacity: 0.6,
   },
   apiKeyValidateText: {
-    fontSize: 12,
-    fontFamily: fonts.display,
+    ...textStyles.compactAction,
   },
   validationCard: {
     marginTop: 10,
@@ -673,9 +621,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   validationText: {
-    fontSize: 12,
-    lineHeight: 18,
-    fontFamily: fonts.body,
+    ...textStyles.supporting,
   },
   promptCard: {
     borderRadius: 14,
@@ -684,22 +630,17 @@ export const styles = StyleSheet.create({
     marginBottom: 14,
   },
   promptLabel: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
+    ...textStyles.controlLabel,
     marginBottom: 10,
-    fontFamily: fonts.mono,
   },
   promptInput: {
+    ...textStyles.body,
     minHeight: 132,
     borderRadius: 12,
     borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 15,
-    lineHeight: 22,
     textAlignVertical: "top",
-    fontFamily: fonts.body,
   },
   previewCard: {
     borderRadius: 14,
@@ -708,28 +649,21 @@ export const styles = StyleSheet.create({
     marginTop: 8,
   },
   previewLabel: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
+    ...textStyles.controlLabel,
     marginBottom: 10,
-    fontFamily: fonts.mono,
   },
   previewInput: {
+    ...textStyles.body,
     minHeight: 92,
     borderRadius: 12,
     borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 15,
-    lineHeight: 22,
     textAlignVertical: "top",
-    fontFamily: fonts.body,
   },
   previewHint: {
+    ...textStyles.supporting,
     marginTop: 10,
-    fontSize: 12,
-    lineHeight: 18,
-    fontFamily: fonts.body,
   },
   previewButton: {
     marginTop: 14,
@@ -748,16 +682,12 @@ export const styles = StyleSheet.create({
     opacity: 0.82,
   },
   previewButtonText: {
+    ...textStyles.action,
     color: "#F4F8FF",
-    fontSize: 14,
-    fontFamily: fonts.display,
   },
   groupLabel: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
+    ...textStyles.subsectionTitle,
     marginBottom: 8,
-    fontFamily: fonts.mono,
   },
   languageChipRow: {
     flexDirection: "row",
@@ -774,8 +704,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   languageChipText: {
-    fontSize: 13,
-    fontFamily: fonts.display,
+    ...textStyles.compactAction,
   },
   localPackCard: {
     borderRadius: 18,
@@ -795,10 +724,8 @@ export const styles = StyleSheet.create({
     marginTop: 0,
   },
   voicePreviewProvider: {
-    fontSize: 17,
-    lineHeight: 22,
+    ...textStyles.sectionTitle,
     marginBottom: 16,
-    fontFamily: fonts.display,
   },
   previewLanguageBlock: {
     borderTopWidth: 1,
@@ -831,9 +758,8 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   localPackButtonText: {
+    ...textStyles.compactAction,
     color: "#F4F8FF",
-    fontSize: 13,
-    fontFamily: fonts.display,
   },
   speechDiagnosticHeader: {
     flexDirection: "row",
@@ -842,10 +768,7 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
   speechDiagnosticClear: {
-    fontSize: 12,
-    fontFamily: fonts.mono,
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
+    ...textStyles.controlLabel,
   },
   radioRow: {
     flexDirection: "row",
@@ -869,8 +792,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0,
   },
   radioLabel: {
-    fontSize: 14,
+    ...textStyles.action,
     textAlign: "center",
-    fontFamily: fonts.display,
   },
 });

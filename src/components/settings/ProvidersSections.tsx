@@ -88,10 +88,11 @@ export function ResponseModesSection({
     >
       <View style={styles.responseModesHeader}>
         <Text
+          accessibilityRole="header"
           style={[
-            styles.sectionLabel,
+            styles.settingsSectionTitle,
             styles.responseModesHeaderLabel,
-            { color: colors.textSecondary },
+            { color: colors.text },
           ]}
         >
           {t("responseModes")}

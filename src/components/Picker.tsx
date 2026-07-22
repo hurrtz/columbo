@@ -13,7 +13,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { APP_MODAL_ORIENTATIONS } from "../constants/layout";
 import { useLocalization } from "../i18n";
 import { useTheme } from "../theme/ThemeContext";
-import { fonts } from "../theme/typography";
+import { textStyles } from "../theme/typography";
 
 interface PickerProps {
   label: string;
@@ -160,11 +160,8 @@ export function Picker({
 const styles = StyleSheet.create({
   section: { marginBottom: 14 },
   sectionLabel: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
+    ...textStyles.controlLabel,
     marginBottom: 10,
-    fontFamily: fonts.mono,
   },
   dropdown: {
     padding: 14,
@@ -181,14 +178,12 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   dropdownLabel: {
+    ...textStyles.controlLabel,
     fontSize: 10,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
-    fontFamily: fonts.mono,
+    lineHeight: 14,
   },
   dropdownValue: {
-    fontSize: 15,
-    fontFamily: fonts.display,
+    ...textStyles.controlValue,
   },
   chevronWrap: {
     width: 34,
@@ -220,8 +215,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   listTitle: {
-    fontSize: 18,
-    fontFamily: fonts.display,
+    ...textStyles.sectionTitle,
   },
   listContent: {
     padding: 10,
@@ -237,7 +231,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   optionText: {
-    fontSize: 15,
-    fontFamily: fonts.body,
+    ...textStyles.body,
   },
 });

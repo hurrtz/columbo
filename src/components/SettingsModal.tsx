@@ -266,7 +266,9 @@ export function SettingsModal(props: SettingsModalProps) {
     (page: DrillInSettingsPage, children: React.ReactNode) => (
       <View style={styles.tabPane}>
         <View style={styles.drillInHeader}>
-          <Text style={[styles.drillInSummary, { color: colors.textMuted }]}>
+          <Text
+            style={[styles.drillInSummary, { color: colors.textSecondary }]}
+          >
             {getPageSummary(page)}
           </Text>
         </View>

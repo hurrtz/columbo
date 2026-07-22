@@ -85,7 +85,10 @@ export function SpeechDiagnosticsSection({
     <PickerSection>
       <View style={styles.localPackHeader}>
         <View style={styles.localPackCopy}>
-          <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
+          <Text
+            accessibilityRole="header"
+            style={[styles.groupLabel, { color: colors.text }]}
+          >
             {t("speechDiagnostics")}
           </Text>
           <Text style={[styles.sectionHint, { color: colors.textMuted }]}>

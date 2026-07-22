@@ -24,7 +24,10 @@ export function ListenLanguageSelector({
 
   return (
     <PickerSection>
-      <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
+      <Text
+        accessibilityRole="header"
+        style={[styles.groupLabel, { color: colors.text }]}
+      >
         {t("listenLanguages")}
       </Text>
       <Text style={[styles.sectionHint, { color: colors.textMuted }]}>

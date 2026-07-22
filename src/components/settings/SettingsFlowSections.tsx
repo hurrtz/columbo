@@ -895,7 +895,10 @@ export function SearchSection({
         ]}
       >
         <View style={styles.inlineSwitchCopy}>
-          <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
+          <Text
+            accessibilityRole="header"
+            style={[styles.settingsSectionTitle, { color: colors.text }]}
+          >
             {t("webSearch")}
           </Text>
           <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
@@ -1062,10 +1065,18 @@ export function ListeningSection({
   return (
     <View style={styles.tabPane}>
       <View style={styles.settingsSubsectionIntro}>
-        <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
+        <Text
+          accessibilityRole="header"
+          style={[styles.settingsSectionTitle, { color: colors.text }]}
+        >
           {t("voiceInput")}
         </Text>
-        <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
+        <Text
+          style={[
+            styles.settingsSectionDescription,
+            { color: colors.textSecondary },
+          ]}
+        >
           {t("voiceInputDescription")}
         </Text>
       </View>
@@ -1213,10 +1224,18 @@ export function SpeakingSection({
   return (
     <View style={styles.tabPane}>
       <View style={styles.settingsSubsectionIntro}>
-        <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
+        <Text
+          accessibilityRole="header"
+          style={[styles.settingsSectionTitle, { color: colors.text }]}
+        >
           {t("voiceOutput")}
         </Text>
-        <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
+        <Text
+          style={[
+            styles.settingsSectionDescription,
+            { color: colors.textSecondary },
+          ]}
+        >
           {t("voiceOutputDescription")}
         </Text>
       </View>
@@ -1224,7 +1243,10 @@ export function SpeakingSection({
       <View style={styles.settingsSubsectionStack}>
         <View style={styles.inlineSwitchRow}>
           <View style={styles.inlineSwitchCopy}>
-            <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
+            <Text
+              accessibilityRole="header"
+              style={[styles.groupLabel, { color: colors.text }]}
+            >
               {t("spokenReplies")}
             </Text>
             <Text style={[styles.sectionHint, { color: colors.textMuted }]}>

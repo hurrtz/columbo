@@ -52,7 +52,10 @@ export function RadioGroup<T extends string>({
         { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
       ]}
     >
-      <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
+      <Text
+        accessibilityRole="header"
+        style={[styles.sectionLabel, { color: colors.text }]}
+      >
         {label}
       </Text>
       <View style={styles.radioRow}>
