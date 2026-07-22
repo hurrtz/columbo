@@ -63,6 +63,17 @@ const GENERIC_PROVIDER_API_KEY_HINTS: Record<AppLanguage, string> = {
     "Füge Zugangsdaten fuer einen externen Dienst ein, den du bereits nutzt. Keys bleiben auf diesem Geraet und werden nur fuer Anfragen verwendet, die du in der App startest.",
 };
 
+const PROVIDER_API_KEY_HINT_OVERRIDES: Partial<
+  Record<AppLanguage, Partial<Record<Provider, string>>>
+> = {
+  en: {
+    "moonshot-ai-kimi": `${GENERIC_PROVIDER_API_KEY_HINTS.en} Kimi K3 requires at least one successful $1 account top-up before Moonshot unlocks access.`,
+  },
+  de: {
+    "moonshot-ai-kimi": `${GENERIC_PROVIDER_API_KEY_HINTS.de} Moonshot schaltet Kimi K3 erst nach einer erfolgreichen Kontoaufladung von mindestens 1 USD frei.`,
+  },
+};
+
 const PROVIDER_STT_LANGUAGE_NOTES_BY_LANGUAGE: Partial<
   Record<AppLanguage, Partial<Record<Provider, string>>>
 > = {
@@ -110,8 +121,10 @@ export function getNativeTtsLanguageNote(language: AppLanguage) {
 }
 
 export function getProviderApiKeyHint(provider: Provider, language: AppLanguage) {
-  void provider;
-  return GENERIC_PROVIDER_API_KEY_HINTS[language];
+  return (
+    PROVIDER_API_KEY_HINT_OVERRIDES[language]?.[provider] ??
+    GENERIC_PROVIDER_API_KEY_HINTS[language]
+  );
 }
 
 export function getProviderApiKeyPlaceholder(

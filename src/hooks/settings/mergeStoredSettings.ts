@@ -38,6 +38,7 @@ import {
   getDefaultModelForProvider,
   isValidModelForProvider,
   LEGACY_RESPONSE_MODE_ORDER,
+  migrateProviderModelAlias,
 } from "../../utils/responseModes";
 import {
   createResponseModeId,
@@ -293,7 +294,10 @@ function getLegacyResponseModeRoute(
   const provider = isProvider(storedSettings?.lastProvider)
     ? storedSettings.lastProvider
     : DEFAULT_SETTINGS.lastProvider;
-  const providerModel = providerModels[provider];
+  const providerModel = migrateProviderModelAlias(
+    provider,
+    providerModels[provider],
+  );
 
   return normalizeResponseModeRouteEffort({
     provider,
@@ -318,11 +322,17 @@ function extractStoredResponseModeRoute(
     return null;
   }
 
-  const fallbackModel = providerModels[provider] || getDefaultModelForProvider(provider);
+  const fallbackModel = migrateProviderModelAlias(
+    provider,
+    providerModels[provider] || getDefaultModelForProvider(provider),
+  );
+  const candidateModel =
+    typeof candidate.model === "string"
+      ? migrateProviderModelAlias(provider, candidate.model)
+      : "";
   const model =
-    typeof candidate.model === "string" &&
-    isValidModelForProvider(provider, candidate.model)
-      ? candidate.model
+    candidateModel && isValidModelForProvider(provider, candidateModel)
+      ? candidateModel
       : isValidModelForProvider(provider, fallbackModel)
         ? fallbackModel
         : getDefaultModelForProvider(provider);
@@ -455,6 +465,10 @@ export function mergeSettings(
   };
 
   for (const provider of PROVIDER_ORDER) {
+    mergedProviderModels[provider] = migrateProviderModelAlias(
+      provider,
+      mergedProviderModels[provider],
+    );
     const supportedSttModels = getProviderSttModelOptions(provider);
 
     if (supportedSttModels.length > 0) {

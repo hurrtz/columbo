@@ -1,6 +1,6 @@
 # Provider Runtime Reference
 
-Last updated: 2026-07-05
+Last updated: 2026-07-21
 
 This document tracks the providers that are present in Columbo's runtime
 manifest. The source of truth is `src/constants/providers/runtimeManifest.ts`;
@@ -42,7 +42,7 @@ validation, API-key storage, setup-guide routing, and web-search dispatch:
 | `gemini` | enabled | enabled | enabled | enabled | Gemini GenerateContent/Live, Interactions search, Google Cloud Speech, and Gemini TTS. |
 | `xai` | enabled | enabled | enabled | enabled | Grok chat/Responses search plus standalone xAI STT/TTS routes. |
 | `deepseek` | none | enabled | none | none | DeepSeek chat completions only. |
-| `mistral` | enabled | enabled | enabled | none | Chat completions, Conversations web search, and Voxtral Mini Transcribe 2. |
+| `mistral` | enabled | enabled | enabled | enabled | Chat completions, Conversations web search, Voxtral Mini Transcribe 2, and Voxtral TTS. |
 | `moonshot-ai-kimi` | enabled | enabled | none | none | Kimi OpenAI-compatible chat plus built-in web search. |
 | `perplexity` | enabled | enabled | none | none | Sonar chat completions are used for grounded answers. |
 
@@ -51,11 +51,10 @@ validation, API-key storage, setup-guide routing, and web-search dispatch:
 ### OpenAI (`openai`)
 
 - LLM transport: OpenAI-compatible chat completions.
-- Web search: `gpt-5.5` via the Responses web-search tool.
-- LLM picker: `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.4-nano`,
-  `gpt-4.1`, `gpt-4.1-mini`, `gpt-realtime-1.5`,
-  `gpt-realtime-mini`.
-- Effort: `reasoning_effort` for GPT-5.5/GPT-5.4 family entries where exposed.
+- Web search: `gpt-5.6-sol` via the Responses web-search tool.
+- LLM picker: GPT-5.6 Sol/Terra/Luna, canonical snapshots for GPT-5.5,
+  GPT-5.4, GPT-5.4 mini/nano, GPT-4.1/mini, and GPT-Realtime 2.1/mini.
+- Effort: `reasoning_effort` on the supported GPT-5.x rows.
 - STT picker: catalog-backed OpenAI transcription models.
 - TTS picker: `gpt-4o-mini-tts`, `tts-1`, `tts-1-hd`.
 
@@ -71,8 +70,9 @@ validation, API-key storage, setup-guide routing, and web-search dispatch:
 ### Alibaba / Qwen (`alibaba-qwen-dashscope`)
 
 - LLM transport: DashScope OpenAI-compatible chat completions.
-- LLM picker: curated Qwen 3.7, 3.6, 3.5, and Qwen Plus/Flash rows.
-- Web search: `qwen3.7-plus` through the OpenAI-compatible Responses API with
+- LLM picker: canonical snapshots for curated Qwen 3.7, 3.6, 3.5, and
+  Qwen Plus/Flash rows; rolling aliases are intentionally hidden.
+- Web search: `qwen3.7-plus-2026-05-26` through the OpenAI-compatible Responses API with
   one required `web_search` tool call. Ungrounded responses are rejected.
 - Effort: `enable_thinking` toggle.
 - STT picker: `qwen3-asr-flash`.
@@ -105,8 +105,8 @@ validation, API-key storage, setup-guide routing, and web-search dispatch:
 ### xAI (`xai`)
 
 - LLM transport: OpenAI-compatible chat completions.
-- LLM picker: `grok-4.3`.
-- Effort: `reasoning_effort` with `none`, `low`, `medium`, `high`.
+- LLM picker: `grok-4.5`, `grok-4.3`.
+- Effort: model-specific `reasoning_effort` options.
 - Web search: xAI Responses API with `web_search`; search mode maps to
   `max_turns`.
 - STT picker: standalone xAI `grok-stt` route.
@@ -125,24 +125,30 @@ validation, API-key storage, setup-guide routing, and web-search dispatch:
 - LLM picker: `mistral-medium-3-5`, `mistral-small-2603`,
   `mistral-large-2512`, `ministral-14b-2512`, `ministral-8b-2512`,
   `ministral-3b-2512`.
-- Effort: `reasoning_effort` for Mistral Medium 3.5 and Mistral Small 4.
+- Effort: `reasoning_effort` with the model-supported `none` and `high`
+  values for Mistral Medium 3.5 and Mistral Small 4; `high` is the default.
 - Web search: Mistral Conversations API with the built-in `web_search` tool.
 - STT picker: `voxtral-mini-2602` (Voxtral Mini Transcribe 2).
-- TTS: not runtime-exposed.
+- TTS picker: `voxtral-mini-tts-2603` with a user-supplied Mistral voice ID.
 
 ### Moonshot / Kimi (`moonshot-ai-kimi`)
 
 - LLM transport: OpenAI-compatible chat completions.
-- LLM picker: `kimi-k2.6`, `kimi-k2.5`, `moonshot-v1-128k`,
-  `moonshot-v1-32k`, `moonshot-v1-8k`.
-- Effort: `thinking.type` toggle for Kimi K2 rows.
-- Web search: Kimi built-in `$web_search` tool. Columbo disables Kimi
-  thinking for this route as required by Moonshot's web-search API contract.
+- LLM picker: `kimi-k3`, `kimi-k2.7-code`,
+  `kimi-k2.7-code-highspeed`, `kimi-k2.6`.
+- Effort: Kimi K3 reasoning effort plus a `thinking.type` toggle for Kimi K2.6.
+- Web search: Kimi built-in `$web_search` tool on Kimi K2.6. Kimi K3 remains
+  the default chat route, but Moonshot currently advises against using K3 web
+  search in production while that capability is being updated. Columbo
+  disables Kimi thinking for the K2.6 search route as required by Moonshot's
+  web-search API contract.
 - STT/TTS: not runtime-exposed.
 
 ### Perplexity (`perplexity`)
 
 - LLM transport: Sonar chat-completions compatibility endpoint.
+- Endpoint: the OpenAI-compatible `/chat/completions` alias accepted by the
+  canonical Sonar `/v1/sonar` API.
 - Web search: enabled through Sonar grounded answers.
 - LLM picker: `sonar`, `sonar-pro`, `sonar-reasoning-pro`,
   `sonar-deep-research`.

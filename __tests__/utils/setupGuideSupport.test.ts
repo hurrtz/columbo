@@ -16,15 +16,12 @@ function createSettings() {
 }
 
 describe("setupGuideSupport", () => {
-  it("creates one home route for a one-provider setup", () => {
-    expect(buildSetupGuideResponseModes("openai")).toEqual([
-      expect.objectContaining({
-        id: "mode-1",
-        route: expect.objectContaining({
-          provider: "openai",
-          model: "gpt-5.6-sol",
-        }),
-      }),
+  it("creates distinct home routes from a one-provider setup", () => {
+    const modes = buildSetupGuideResponseModes("xai");
+
+    expect(modes.map((mode) => mode.route.model)).toEqual([
+      "grok-4.5",
+      "grok-4.3",
     ]);
   });
 

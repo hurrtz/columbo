@@ -122,14 +122,26 @@ describe("provider model accuracy", () => {
   it("surfaces current Qwen and Doubao picker models", () => {
     expect(providerModelIds("alibaba-qwen-dashscope")).toEqual(
       expect.arrayContaining([
+        "qwen3.7-max-2026-05-20",
+        "qwen3.7-plus-2026-05-26",
+        "qwen3.6-plus-2026-04-02",
+        "qwen3.6-flash-2026-04-16",
+      ]),
+    );
+    expect(PROVIDER_DEFAULT_MODELS["alibaba-qwen-dashscope"]).toBe(
+      "qwen3.6-flash-2026-04-16",
+    );
+    expect(providerModelIds("alibaba-qwen-dashscope")).toEqual(
+      expect.not.arrayContaining([
         "qwen3.7-max",
         "qwen3.7-plus",
         "qwen3.6-plus",
         "qwen3.6-flash",
+        "qwen3.5-plus",
+        "qwen3.5-flash",
+        "qwen-plus",
+        "qwen-flash",
       ]),
-    );
-    expect(PROVIDER_DEFAULT_MODELS["alibaba-qwen-dashscope"]).toBe(
-      "qwen3.6-flash",
     );
 
     expect(providerModelIds("bytedance-doubao-seed")).toEqual(
@@ -194,6 +206,13 @@ describe("provider model accuracy", () => {
     expect(PROVIDER_DEFAULT_MODELS.openai).toBe("gpt-5.6-sol");
     expect(providerModelIds("openai")).not.toContain("gpt-4.1-nano");
     expect(providerModelIds("openai")).not.toContain("gpt-5.5-pro");
+    expect(providerModelIds("openai")).not.toContain("gpt-5.5");
+    expect(providerModelIds("openai")).toEqual(
+      expect.arrayContaining([
+        "gpt-5.5-2026-04-23",
+        "gpt-5.4-2026-03-05",
+      ]),
+    );
     expect(providerModelIds("openai")).not.toContain("gpt-realtime-1.5");
     expect(providerModelIds("perplexity")).toEqual([
       "sonar",

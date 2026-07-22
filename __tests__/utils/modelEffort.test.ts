@@ -9,8 +9,8 @@ import {
 describe("model effort metadata", () => {
   it("uses provider-documented defaults before the generic medium fallback", () => {
     expect(getDefaultModelEffort("openai", "gpt-5.6-sol")).toBe("medium");
-    expect(getDefaultModelEffort("openai", "gpt-5.5")).toBe("medium");
-    expect(getDefaultModelEffort("openai", "gpt-5.4")).toBe("none");
+    expect(getDefaultModelEffort("openai", "gpt-5.5-2026-04-23")).toBe("medium");
+    expect(getDefaultModelEffort("openai", "gpt-5.4-2026-03-05")).toBe("none");
     expect(getDefaultModelEffort("anthropic", "claude-sonnet-5")).toBe("high");
     expect(getDefaultModelEffort("xai", "grok-4.3")).toBe("low");
     expect(getDefaultModelEffort("xai", "grok-4.5")).toBe("high");
@@ -37,7 +37,7 @@ describe("model effort metadata", () => {
         "doubao-seed-2-1-turbo-260628",
       ),
     ).toBe("high");
-    expect(getDefaultModelEffort("alibaba-qwen-dashscope", "qwen3.7-plus")).toBe(
+    expect(getDefaultModelEffort("alibaba-qwen-dashscope", "qwen3.7-plus-2026-05-26")).toBe(
       "enabled",
     );
     expect(getDefaultModelEffort("moonshot-ai-kimi", "kimi-k2.6")).toBe(
@@ -81,7 +81,7 @@ describe("model effort metadata", () => {
       ),
     ).toEqual(["none", "low", "medium", "high", "xhigh"]);
     expect(
-      getModelEffortOptions("openai", "gpt-5.5").map((option) => option.id),
+      getModelEffortOptions("openai", "gpt-5.5-2026-04-23").map((option) => option.id),
     ).toEqual(["none", "low", "medium", "high", "xhigh"]);
     expect(
       getModelEffortOptions("anthropic", "claude-sonnet-5").map(
@@ -113,12 +113,12 @@ describe("model effort metadata", () => {
       getModelEffortOptions("mistral", "mistral-medium-3-5").map(
         (option) => option.id,
       ),
-    ).toEqual(["none", "minimal", "low", "medium", "high", "xhigh"]);
+    ).toEqual(["none", "high"]);
     expect(
       getModelEffortOptions("mistral", "mistral-small-2603").map(
         (option) => option.id,
       ),
-    ).toEqual(["none", "minimal", "low", "medium", "high", "xhigh"]);
+    ).toEqual(["none", "high"]);
     expect(
       getModelEffortOptions(
         "bytedance-doubao-seed",
@@ -217,7 +217,7 @@ describe("model effort metadata", () => {
     expect(
       getModelEffortTransportValue(
         "alibaba-qwen-dashscope",
-        "qwen3.7-plus",
+        "qwen3.7-plus-2026-05-26",
         "enabled",
       ),
     ).toBe("enabled");

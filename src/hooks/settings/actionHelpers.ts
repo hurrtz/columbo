@@ -3,11 +3,16 @@ import { PROVIDER_LLM_SUPPORT } from "../../constants/models";
 import {
   deriveResponseModesForProvider,
   getNextResponseModeId,
+  getSuggestedResponseModeRoute,
 } from "../../utils/responseModes";
 import {
   MAX_RESPONSE_MODES,
   MIN_RESPONSE_MODES,
 } from "../../constants/providers/defaults";
+import {
+  WEB_SEARCH_PROVIDER_IDS,
+  type WebSearchProvider,
+} from "../../constants/webSearch";
 import { normalizeResponseModeRouteEffort } from "../../utils/modelEffort";
 import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
 import { persistApiKey, persistPublicSettings } from "./storage";
@@ -81,6 +86,7 @@ export function createResponseModeAdder(setSettings: SetSettings) {
       }
 
       const sourceRoute =
+        getSuggestedResponseModeRoute(prev) ??
         prev.responseModes[prev.responseModes.length - 1]?.route ??
         prev.responseModes[0]?.route;
 
@@ -172,17 +178,22 @@ export function createApiKeyUpdater(setSettings: SetSettings) {
         ...prev,
         apiKeys: nextApiKeys,
         providerValidationResults: nextProviderValidationResults,
+        webSearchProvider:
+          !prev.webSearchProvider &&
+          nextValue &&
+          WEB_SEARCH_PROVIDER_IDS.includes(provider as WebSearchProvider)
+            ? (provider as WebSearchProvider)
+            : prev.webSearchProvider,
       };
 
-      // On the very first provider configuration the user has no response mode
-      // backed by a credentialed LLM provider yet. In that case derive all
-      // three modes from this provider so the modes become usable immediately.
-      // Once at least one usable mode exists we never auto-derive again, so we
-      // never clobber a setup the user already has (or has customized).
+      // If the user had no usable route before this key was entered, derive
+      // distinct routes from the provider's curated models. Check `prev`, not
+      // `withKey`: adding a key can make stale routes appear usable before we
+      // have had a chance to replace old duplicated defaults.
       const shouldDerive =
         PROVIDER_LLM_SUPPORT[provider] === "provider" &&
         hasProviderCredentialForCapability(provider, nextValue, "llm") &&
-        !hasUsableResponseMode(withKey);
+        !hasUsableResponseMode(prev);
 
       const next: Settings = shouldDerive
         ? {

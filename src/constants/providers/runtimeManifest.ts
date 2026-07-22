@@ -385,10 +385,10 @@ const DEEPSEEK_THINKING_EFFORT = effortConfig(
   [THINKING_TOGGLE_OPTIONS[0], ...BASIC_REASONING_EFFORT_OPTIONS],
 );
 
-const MISTRAL_REASONING_EFFORT = effortConfig(
+const MISTRAL_ADJUSTABLE_REASONING_EFFORT = effortConfig(
   "reasoning-effort",
-  "medium",
-  ["none", "minimal", "low", "medium", "high", "xhigh"],
+  "high",
+  ["none", "high"],
 );
 
 const DOUBAO_SEED_21_EFFORT = effortConfig("reasoning-effort", "high", [
@@ -513,18 +513,24 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
           namedModel("gpt-5.6-luna", "GPT-5.6 Luna"),
           OPENAI_GPT_56_EFFORT,
         ),
-        withEffort(model("gpt-5.5", "2026-04-23"), OPENAI_GPT_55_EFFORT),
-        withEffort(model("gpt-5.4", "2026-03-01"), OPENAI_GPT_54_EFFORT),
         withEffort(
-          model("gpt-5.4-mini", "2026-03-17"),
+          namedModel("gpt-5.5-2026-04-23", "GPT-5.5"),
+          OPENAI_GPT_55_EFFORT,
+        ),
+        withEffort(
+          namedModel("gpt-5.4-2026-03-05", "GPT-5.4"),
           OPENAI_GPT_54_EFFORT,
         ),
         withEffort(
-          model("gpt-5.4-nano", "2026-03-17"),
+          namedModel("gpt-5.4-mini-2026-03-17", "GPT-5.4 mini"),
           OPENAI_GPT_54_EFFORT,
         ),
-        model("gpt-4.1", "2025-04-14"),
-        model("gpt-4.1-mini", "2025-04-14"),
+        withEffort(
+          namedModel("gpt-5.4-nano-2026-03-17", "GPT-5.4 nano"),
+          OPENAI_GPT_54_EFFORT,
+        ),
+        namedModel("gpt-4.1-2025-04-14", "GPT-4.1"),
+        namedModel("gpt-4.1-mini-2025-04-14", "GPT-4.1 mini"),
         namedModel("gpt-realtime-2.1", "GPT-Realtime-2.1"),
         namedModel("gpt-realtime-2.1-mini", "GPT-Realtime-2.1 mini"),
       ],
@@ -636,29 +642,40 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       transport: "openai-compatible",
       endpoint:
         "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
-      defaultModel: "qwen3.6-flash",
+      defaultModel: "qwen3.6-flash-2026-04-16",
       models: [
         withEffort(
-          namedModel("qwen3.7-plus", "Qwen3.7-Plus"),
+          namedModel("qwen3.7-plus-2026-05-26", "Qwen3.7-Plus"),
           QWEN_THINKING_EFFORT,
         ),
         withEffort(
-          namedModel("qwen3.7-max", "Qwen3.7-Max"),
+          namedModel("qwen3.7-max-2026-05-20", "Qwen3.7-Max"),
           QWEN_THINKING_EFFORT,
         ),
         withEffort(
-          namedModel("qwen3.6-flash", "Qwen3.6-Flash"),
+          namedModel("qwen3.6-flash-2026-04-16", "Qwen3.6-Flash"),
           QWEN_THINKING_EFFORT,
         ),
         withEffort(
-          namedModel("qwen3.6-plus", "Qwen3.6-Plus"),
+          namedModel("qwen3.6-plus-2026-04-02", "Qwen3.6-Plus"),
           QWEN_THINKING_EFFORT,
         ),
-        withEffort(model("qwen3.5-plus"), QWEN_THINKING_EFFORT),
-        withEffort(model("qwen3.5-flash"), QWEN_THINKING_EFFORT),
-        withEffort(model("qwen-plus"), QWEN_THINKING_EFFORT),
-        withEffort(model("qwen-flash"), QWEN_THINKING_EFFORT),
-        withEffort(model("qwen3-max"), QWEN_THINKING_EFFORT),
+        withEffort(
+          namedModel("qwen3.5-plus-2026-02-15", "Qwen3.5-Plus"),
+          QWEN_THINKING_EFFORT,
+        ),
+        withEffort(
+          namedModel("qwen3.5-flash-2026-02-23", "Qwen3.5-Flash"),
+          QWEN_THINKING_EFFORT,
+        ),
+        withEffort(
+          namedModel("qwen-plus-2025-12-01", "Qwen-Plus"),
+          QWEN_THINKING_EFFORT,
+        ),
+        withEffort(
+          namedModel("qwen-flash-2025-07-28", "Qwen-Flash"),
+          QWEN_THINKING_EFFORT,
+        ),
       ],
     },
     stt: {
@@ -972,9 +989,12 @@ export const RUNTIME_PROVIDER_MANIFEST: Record<
       models: [
         withEffort(
           namedModel("mistral-medium-3-5", "Mistral Medium 3.5"),
-          MISTRAL_REASONING_EFFORT,
+          MISTRAL_ADJUSTABLE_REASONING_EFFORT,
         ),
-        withEffort(model("mistral-small-2603"), MISTRAL_REASONING_EFFORT),
+        withEffort(
+          model("mistral-small-2603"),
+          MISTRAL_ADJUSTABLE_REASONING_EFFORT,
+        ),
         model("mistral-large-2512"),
         model("ministral-14b-2512"),
         model("ministral-8b-2512"),

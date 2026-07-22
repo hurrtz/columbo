@@ -178,19 +178,26 @@ describe("deriveResponseModesForProvider", () => {
     }
   });
 
-  it("pads by repeating the last model when fewer than three are available", () => {
+  it("shows only distinct choices when fewer than three models are available", () => {
     const runtimeModels = PROVIDER_MODELS.deepseek;
 
     const modes = deriveResponseModesForProvider("deepseek");
     const orderedIds = runtimeModels.map((model) => model.id);
 
-    // deepseek exposes fewer than three models today; this asserts the padding
-    // contract regardless: every mode gets a real model id from the provider.
-    expect(orderedIds).toContain(modes[0].route.model);
-    expect(orderedIds).toContain(modes[1].route.model);
-    expect(orderedIds).toContain(modes[2].route.model);
-    expect(modes[2].route.model).toBe(
-      orderedIds[Math.min(2, orderedIds.length - 1)],
+    expect(modes.map((mode) => mode.route.model)).toEqual(
+      orderedIds.slice(0, 3),
     );
+    expect(new Set(modes.map((mode) => mode.route.model)).size).toBe(
+      modes.length,
+    );
+  });
+
+  it("derives two genuinely different xAI routes", () => {
+    const modes = deriveResponseModesForProvider("xai");
+
+    expect(modes.map((mode) => mode.route.model)).toEqual([
+      "grok-4.5",
+      "grok-4.3",
+    ]);
   });
 });

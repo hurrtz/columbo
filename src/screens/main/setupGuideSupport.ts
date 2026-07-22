@@ -11,14 +11,15 @@ import {
   WEB_SEARCH_PROVIDER_IDS,
   type WebSearchProvider,
 } from "../../constants/webSearch";
-import { createResponseModeId } from "../../constants/providers/defaults";
 import type {
   Provider,
   ResponseModeSelections,
   Settings,
 } from "../../types";
-import { normalizeResponseModeRouteEffort } from "../../utils/modelEffort";
-import { getDefaultModelForProvider } from "../../utils/responseModes";
+import {
+  deriveResponseModesForProvider,
+  getDefaultModelForProvider,
+} from "../../utils/responseModes";
 import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
 
 export type SetupGuideStep = "intro" | "provider" | "voice-test" | "summary";
@@ -214,15 +215,5 @@ export function resolveSetupGuideRoutes(params: {
 export function buildSetupGuideResponseModes(
   provider: Provider,
 ): ResponseModeSelections {
-  const model = getDefaultModelForProvider(provider);
-
-  return [
-    {
-      id: createResponseModeId(0),
-      route: normalizeResponseModeRouteEffort({
-        provider,
-        model,
-      }),
-    },
-  ];
+  return deriveResponseModesForProvider(provider);
 }

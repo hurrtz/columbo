@@ -1,4 +1,8 @@
-import { PROVIDER_DEFAULT_MODELS, PROVIDER_MODELS } from "../constants/models";
+import {
+  PROVIDER_DEFAULT_MODELS,
+  PROVIDER_MODELS,
+  PROVIDER_ORDER,
+} from "../constants/models";
 import {
   DEFAULT_RESPONSE_MODE_COUNT,
   MAX_RESPONSE_MODES,
@@ -16,6 +20,36 @@ import { normalizeResponseModeRouteEffort } from "./modelEffort";
 import { hasProviderCredentialForCapability } from "./providerCredentials";
 
 export const LEGACY_RESPONSE_MODE_ORDER = ["quick", "normal", "deep"] as const;
+
+const PROVIDER_MODEL_ALIAS_MIGRATIONS: Partial<
+  Record<Provider, Record<string, string>>
+> = {
+  openai: {
+    "gpt-5.5": "gpt-5.5-2026-04-23",
+    "gpt-5.4": "gpt-5.4-2026-03-05",
+    "gpt-5.4-mini": "gpt-5.4-mini-2026-03-17",
+    "gpt-5.4-nano": "gpt-5.4-nano-2026-03-17",
+    "gpt-4.1": "gpt-4.1-2025-04-14",
+    "gpt-4.1-mini": "gpt-4.1-mini-2025-04-14",
+  },
+  "alibaba-qwen-dashscope": {
+    "qwen3.7-plus": "qwen3.7-plus-2026-05-26",
+    "qwen3.7-max": "qwen3.7-max-2026-05-20",
+    "qwen3.6-flash": "qwen3.6-flash-2026-04-16",
+    "qwen3.6-plus": "qwen3.6-plus-2026-04-02",
+    "qwen3.5-plus": "qwen3.5-plus-2026-02-15",
+    "qwen3.5-flash": "qwen3.5-flash-2026-02-23",
+    "qwen-plus": "qwen-plus-2025-12-01",
+    "qwen-flash": "qwen-flash-2025-07-28",
+  },
+  "moonshot-ai-kimi": {
+    "kimi-k2.5": "kimi-k3",
+  },
+};
+
+export function migrateProviderModelAlias(provider: Provider, model: string) {
+  return PROVIDER_MODEL_ALIAS_MIGRATIONS[provider]?.[model] ?? model;
+}
 
 export function getResponseModeIds(modes: ResponseModeSelections): ResponseMode[] {
   return modes.map((mode) => mode.id);
@@ -35,15 +69,58 @@ export function getNextResponseModeId(modes: ResponseModeSelections) {
   return createResponseModeId(modes.length);
 }
 
+export function getResponseModeRouteIdentity(route: ResponseModeRoute) {
+  return `${route.provider}\u0000${route.model}\u0000${route.effort ?? ""}`;
+}
+
+export function getSuggestedResponseModeRoute(
+  settings: Pick<Settings, "apiKeys" | "providerModels" | "responseModes">,
+): ResponseModeRoute | undefined {
+  const configuredProviders = PROVIDER_ORDER.filter((provider) =>
+    hasProviderCredentialForCapability(
+      provider,
+      settings.apiKeys[provider],
+      "llm",
+    ),
+  );
+  const primaryCandidates = configuredProviders.map((provider) => {
+    const storedModel = settings.providerModels[provider];
+    const model = isValidModelForProvider(provider, storedModel)
+      ? storedModel
+      : getDefaultModelForProvider(provider);
+
+    return normalizeResponseModeRouteEffort({ provider, model });
+  });
+  const secondaryCandidates = configuredProviders.flatMap((provider) => {
+    const primaryModel = primaryCandidates.find(
+      (route) => route.provider === provider,
+    )?.model;
+
+    return PROVIDER_MODELS[provider]
+      .filter(({ id }) => id !== primaryModel)
+      .map(({ id: model }) =>
+        normalizeResponseModeRouteEffort({ provider, model }),
+      );
+  });
+  const usedRoutes = new Set(
+    settings.responseModes.map(({ route }) =>
+      getResponseModeRouteIdentity(route),
+    ),
+  );
+
+  return [...primaryCandidates, ...secondaryCandidates].find(
+    (route) => !usedRoutes.has(getResponseModeRouteIdentity(route)),
+  );
+}
+
 /**
  * Derives a full set of response-mode routes ({@link ResponseModeSelections})
  * from a single provider's curated runtime LLM models.
  *
- * `quick`/`normal`/`deep` map to the first three runtime model ids in picker
- * order. If the provider exposes fewer than three LLM models, the last
- * available id is repeated so every mode receives a valid route. If the
- * provider has no runtime LLM models, the manifest default model id is used
- * (falling back to an empty model only as a last resort).
+ * Modes map to distinct runtime model ids in picker order, up to `count`.
+ * Providers with fewer curated models expose fewer modes instead of repeating
+ * a route that looks like a separate choice. If the provider has no runtime
+ * LLM models, the manifest default model id is used as a single fallback.
  *
  * Pure: no side effects, depends only on its argument and static runtime data.
  */
@@ -51,22 +128,23 @@ export function deriveResponseModesForProvider(
   provider: Provider,
   count = DEFAULT_RESPONSE_MODE_COUNT,
 ): ResponseModeSelections {
-  const runtimeModelIds = PROVIDER_MODELS[provider].map((model) => model.id);
+  const runtimeModelIds = Array.from(
+    new Set(
+      PROVIDER_MODELS[provider]
+        .map((model) => model.id)
+        .filter((model) => model.trim().length > 0),
+    ),
+  );
 
   const fallbackModel = PROVIDER_DEFAULT_MODELS[provider] ?? "";
   const availableModelIds =
     runtimeModelIds.length > 0 ? runtimeModelIds : [fallbackModel];
 
-  const pickModel = (index: number): string =>
-    availableModelIds[index] ??
-    availableModelIds[availableModelIds.length - 1] ??
-    fallbackModel;
-
-  return Array.from({ length: count }, (_, index) => ({
+  return availableModelIds.slice(0, Math.max(0, count)).map((model, index) => ({
     id: createResponseModeId(index),
     route: normalizeResponseModeRouteEffort({
       provider,
-      model: pickModel(index),
+      model,
     }),
   }));
 }

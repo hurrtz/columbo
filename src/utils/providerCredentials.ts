@@ -57,14 +57,13 @@ export function hasProviderCredentialForCapability(
     switch (capability) {
       case "llm":
       case "tts":
+      case "search":
         return parseGoogleAiStudioCredentials(trimmedApiKey) !== null;
       case "stt":
         return (
           parseGoogleAiStudioCredentials(trimmedApiKey) !== null ||
           parseGoogleCloudSpeechCredentials(trimmedApiKey) !== null
         );
-      case "search":
-        return false;
     }
   }
 
@@ -75,9 +74,11 @@ export function hasProviderCredentialForCapability(
       return false;
     }
 
-    return capability === "llm" ||
+    return (
+      capability === "llm" ||
       capability === "search" ||
-      qwenRegionSupportsAppSpeech(credentials.region);
+      qwenRegionSupportsAppSpeech(credentials.region)
+    );
   }
 
   if (provider !== "bytedance-doubao-seed") {
@@ -86,11 +87,11 @@ export function hasProviderCredentialForCapability(
 
   switch (capability) {
     case "llm":
+    case "search":
       return parseBytedanceArkCredentials(trimmedApiKey) !== null;
     case "stt":
       return parseBytedanceSpeechCredentials(trimmedApiKey) !== null;
     case "tts":
-    case "search":
       return false;
   }
 }

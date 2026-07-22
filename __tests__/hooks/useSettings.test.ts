@@ -682,6 +682,18 @@ describe("useSettings", () => {
     ]);
   });
 
+  it("makes the first configured search-capable provider available without enabling search", async () => {
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    await act(async () => {
+      result.current.updateApiKey("xai", "xai-search-key");
+    });
+
+    expect(result.current.settings.webSearchProvider).toBe("xai");
+    expect(result.current.settings.webSearchMode).toBe("off");
+  });
+
   it("adds response modes up to four and selects the new mode", async () => {
     const { result } = renderHook(() => useSettings());
     await flushSettingsLoad();
@@ -696,6 +708,29 @@ describe("useSettings", () => {
     expect(result.current.settings.responseModes).toHaveLength(4);
     expect(result.current.settings.responseModes[3].id).toBe("mode-4");
     expect(result.current.settings.activeResponseMode).toBe("mode-4");
+  });
+
+  it("suggests a distinct configured provider when adding a response mode", async () => {
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    await act(async () => {
+      result.current.updateApiKey("deepseek", "deepseek-test-key");
+    });
+    await act(async () => {
+      result.current.updateApiKey("openai", "openai-test-key");
+    });
+    await act(async () => {
+      result.current.addResponseMode();
+    });
+
+    expect(result.current.settings.responseModes).toHaveLength(3);
+    expect(result.current.settings.responseModes[0]?.route.provider).toBe(
+      "deepseek",
+    );
+    expect(result.current.settings.responseModes[2]?.route.provider).toBe(
+      "openai",
+    );
   });
 
   it("removes response modes but keeps at least one", async () => {
@@ -734,6 +769,26 @@ describe("useSettings", () => {
     for (const mode of result.current.settings.responseModes) {
       expect(mode.route.provider).toBe("openai");
     }
+  });
+
+  it("re-derives distinct routes when a provider key is removed and restored", async () => {
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    await act(async () => {
+      result.current.updateApiKey("xai", "first-xai-key");
+    });
+    await act(async () => {
+      result.current.updateApiKey("xai", "");
+    });
+    await act(async () => {
+      result.current.updateApiKey("xai", "restored-xai-key");
+    });
+
+    expect(result.current.settings.responseModes).toEqual(
+      deriveResponseModesForProvider("xai"),
+    );
+    expect(result.current.settings.responseModes).toHaveLength(2);
   });
 
   it("removes provider api keys when cleared", async () => {
