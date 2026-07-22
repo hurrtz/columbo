@@ -1,6 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { renderHook, act } from "@testing-library/react-native";
 import { useConversations } from "../../src/hooks/useConversations";
+import {
+  readConversation,
+  removeConversation,
+  saveConversation,
+} from "../../src/hooks/conversations/storage";
+import type { Conversation } from "../../src/types";
 
 let mockUuidCounter = 0;
 
@@ -417,5 +423,105 @@ describe("useConversations", () => {
 
     expect(matches).toHaveLength(1);
     expect(matches[0]?.title).toBe("Trip planning");
+  });
+
+  it("serializes conversation writes so an older save cannot win the race", async () => {
+    const stored = new Map<string, string>();
+    let releaseFirstWrite: () => void = () => undefined;
+    let conversationWriteCount = 0;
+    const key = "@columbo/conversation/ordered-writes";
+    (AsyncStorage.setItem as jest.Mock).mockImplementation(
+      async (writeKey: string, value: string) => {
+        if (writeKey !== key) {
+          stored.set(writeKey, value);
+          return;
+        }
+
+        conversationWriteCount += 1;
+        if (conversationWriteCount === 1) {
+          await new Promise<void>((resolve) => {
+            releaseFirstWrite = resolve;
+          });
+        }
+        stored.set(writeKey, value);
+      },
+    );
+    (AsyncStorage.getItem as jest.Mock).mockImplementation(
+      async (readKey: string) => stored.get(readKey) ?? null,
+    );
+    const base: Conversation = {
+      id: "ordered-writes",
+      title: "Ordering",
+      createdAt: "2026-07-21T08:00:00.000Z",
+      updatedAt: "2026-07-21T08:00:00.000Z",
+      messages: [],
+    };
+    const newest: Conversation = {
+      ...base,
+      updatedAt: "2026-07-21T08:00:01.000Z",
+      messages: [
+        {
+          id: "message-1",
+          role: "user",
+          content: "Keep this message",
+          model: null,
+          provider: null,
+          timestamp: "2026-07-21T08:00:01.000Z",
+        },
+      ],
+    };
+
+    const firstSave = saveConversation(base);
+    const newestSave = saveConversation(newest);
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(conversationWriteCount).toBe(1);
+    releaseFirstWrite();
+    await Promise.all([firstSave, newestSave]);
+
+    await expect(readConversation(base.id)).resolves.toEqual(newest);
+  });
+
+  it("orders deletion after pending writes so a removed thread stays removed", async () => {
+    const stored = new Map<string, string>();
+    let releaseSave: () => void = () => undefined;
+    const key = "@columbo/conversation/delete-after-save";
+    (AsyncStorage.setItem as jest.Mock).mockImplementation(
+      async (writeKey: string, value: string) => {
+        if (writeKey === key) {
+          await new Promise<void>((resolve) => {
+            releaseSave = resolve;
+          });
+        }
+        stored.set(writeKey, value);
+      },
+    );
+    (AsyncStorage.removeItem as jest.Mock).mockImplementation(
+      async (removeKey: string) => {
+        stored.delete(removeKey);
+      },
+    );
+    (AsyncStorage.getItem as jest.Mock).mockImplementation(
+      async (readKey: string) => stored.get(readKey) ?? null,
+    );
+    const conversation: Conversation = {
+      id: "delete-after-save",
+      title: "Delete me",
+      createdAt: "2026-07-21T08:00:00.000Z",
+      updatedAt: "2026-07-21T08:00:00.000Z",
+      messages: [],
+    };
+
+    const pendingSave = saveConversation(conversation);
+    const pendingDelete = removeConversation(conversation.id);
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    releaseSave();
+    await Promise.all([pendingSave, pendingDelete]);
+
+    await expect(readConversation(conversation.id)).resolves.toBeNull();
   });
 });

@@ -197,6 +197,42 @@ describe("useSettings", () => {
     );
   });
 
+  it("serializes rapid settings writes so the newest update wins", async () => {
+    let releaseFirstWrite!: () => void;
+    const firstWrite = new Promise<void>((resolve) => {
+      releaseFirstWrite = resolve;
+    });
+    (AsyncStorage.setItem as jest.Mock)
+      .mockReturnValueOnce(firstWrite)
+      .mockResolvedValue(undefined);
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    act(() => {
+      result.current.updateSettings({ responseTone: "friendly" });
+      result.current.updateSettings({ responseTone: "concise" });
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(AsyncStorage.setItem).toHaveBeenCalledTimes(1);
+    releaseFirstWrite();
+    await act(async () => {
+      await firstWrite;
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(AsyncStorage.setItem).toHaveBeenCalledTimes(2);
+    expect(AsyncStorage.setItem).toHaveBeenLastCalledWith(
+      "@columbo/settings",
+      expect.stringContaining('"responseTone":"concise"'),
+    );
+  });
+
   it("persists the usage stats visibility toggle", async () => {
     const { result } = renderHook(() => useSettings());
     await flushSettingsLoad();
@@ -569,7 +605,7 @@ describe("useSettings", () => {
     const { result } = renderHook(() => useSettings());
     await flushSettingsLoad();
 
-    act(() => {
+    await act(async () => {
       result.current.updateSettings({
         providerValidationResults: {
           openai: {

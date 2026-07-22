@@ -3,6 +3,7 @@ import { type Settings, DEFAULT_SETTINGS } from "../types";
 import { mergeSettings } from "./settings/mergeStoredSettings";
 import { loadStoredSettingsSnapshot } from "./settings/storage";
 import { useSettingsActions } from "./settings/useSettingsActions";
+import { reportPersistenceAlert } from "../services/persistenceAlerts";
 
 export function useSettings() {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
@@ -17,6 +18,10 @@ export function useSettings() {
           return;
         }
         setSettings(mergeSettings(storedSettings, apiKeys));
+      })
+      .catch((error) => {
+        console.error("[settings-storage] failed to load settings", error);
+        reportPersistenceAlert("settings", "load");
       })
       .finally(() => {
         if (mounted) {

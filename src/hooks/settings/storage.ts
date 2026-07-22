@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import type { Provider, ProviderApiKeys, Settings } from "../../types";
+import { reportPersistenceAlert } from "../../services/persistenceAlerts";
 import {
   RUNTIME_PROVIDER_IDS,
 } from "../../constants/providers/runtimeState";
@@ -11,6 +12,35 @@ import {
   type PublicSettings,
   type SettingsLoadResult,
 } from "./types";
+
+const mutationQueues = new Map<string, Promise<void>>();
+
+function enqueueSettingsMutation(
+  key: string,
+  operation: () => Promise<void>,
+) {
+  const previous = mutationQueues.get(key) ?? Promise.resolve();
+  const queued = previous
+    .catch(() => undefined)
+    .then(operation)
+    .catch((error) => {
+      console.error(`[settings-storage] persistence failed for ${key}`, error);
+      reportPersistenceAlert("settings", "save");
+    });
+
+  mutationQueues.set(key, queued);
+  void queued.then(() => {
+    if (mutationQueues.get(key) === queued) {
+      mutationQueues.delete(key);
+    }
+  });
+
+  return queued;
+}
+
+async function awaitPendingMutation(key: string) {
+  await mutationQueues.get(key);
+}
 
 export function getApiKeyStorageKey(provider: Provider) {
   const safeProvider = provider.replace(/[^0-9A-Za-z._-]/g, "_");
@@ -23,7 +53,10 @@ export function toPublicSettings(settings: Settings): PublicSettings {
 }
 
 export function persistPublicSettings(settings: Settings) {
-  return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toPublicSettings(settings)));
+  const serialized = JSON.stringify(toPublicSettings(settings));
+  return enqueueSettingsMutation(STORAGE_KEY, () =>
+    AsyncStorage.setItem(STORAGE_KEY, serialized),
+  );
 }
 
 export async function loadStoredApiKeys(): Promise<ProviderApiKeys> {
@@ -51,6 +84,12 @@ export async function loadStoredApiKeys(): Promise<ProviderApiKeys> {
 }
 
 export async function loadStoredSettingsSnapshot(): Promise<SettingsLoadResult> {
+  await Promise.all([
+    awaitPendingMutation(STORAGE_KEY),
+    ...RUNTIME_PROVIDER_IDS.map((provider) =>
+      awaitPendingMutation(getApiKeyStorageKey(provider)),
+    ),
+  ]);
   const [raw, apiKeys] = await Promise.all([
     AsyncStorage.getItem(STORAGE_KEY),
     loadStoredApiKeys(),
@@ -63,10 +102,13 @@ export async function loadStoredSettingsSnapshot(): Promise<SettingsLoadResult> 
 }
 
 export async function persistApiKey(provider: Provider, apiKey: string) {
-  if (apiKey) {
-    await SecureStore.setItemAsync(getApiKeyStorageKey(provider), apiKey);
-    return;
-  }
+  const key = getApiKeyStorageKey(provider);
+  await enqueueSettingsMutation(key, async () => {
+    if (apiKey) {
+      await SecureStore.setItemAsync(key, apiKey);
+      return;
+    }
 
-  await SecureStore.deleteItemAsync(getApiKeyStorageKey(provider));
+    await SecureStore.deleteItemAsync(key);
+  });
 }
