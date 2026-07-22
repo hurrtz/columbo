@@ -464,6 +464,8 @@ export const de: TranslationDictionary = {
     "Du kannst Text direkt markieren oder einzelne Nachrichten unten teilen und kopieren.",
   textMessagePlaceholder: "Nachricht schreiben",
   sendTextMessage: "Nachricht senden",
+  showVoiceInput: "Spracheingabe anzeigen",
+  showTextInput: "Texteingabe anzeigen",
   usageStatsHiddenDescription: "Blende Token-Schätzungen im Transkript aus.",
   usageStatsVisibleDescription:
     "Zeige geschätzte Token-Nutzung pro Antwort sowie für das gesamte Gespräch.",

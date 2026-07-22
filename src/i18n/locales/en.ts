@@ -453,6 +453,8 @@ export const en: TranslationDictionary = {
     "Select any message text directly, or share and copy individual messages below.",
   textMessagePlaceholder: "Type a message",
   sendTextMessage: "Send message",
+  showVoiceInput: "Show voice input",
+  showTextInput: "Show text input",
   usageStatsHiddenDescription: "Keep token estimates out of the transcript UI.",
   usageStatsVisibleDescription:
     "Show estimated token usage for replies and conversation totals.",

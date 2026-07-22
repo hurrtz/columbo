@@ -29,10 +29,62 @@ jest.mock("../../../src/components/WaveformBar", () => ({
   },
 }));
 
+jest.mock("../../../src/hooks/useReducedMotion", () => ({
+  useReducedMotion: () => false,
+}));
+
+jest.mock("react-native-gesture-handler", () => {
+  const React = require("react");
+  const chain = {
+    activeOffsetX: () => chain,
+    disallowInterruption: () => chain,
+    failOffsetY: () => chain,
+    onEnd: () => chain,
+    onFinalize: () => chain,
+    onStart: () => chain,
+    onUpdate: () => chain,
+    simultaneousWithExternalGesture: () => chain,
+  };
+  return {
+    Gesture: { Native: () => chain, Pan: () => chain },
+    GestureDetector: ({ children }: { children: React.ReactNode }) => children,
+    TouchableOpacity: require("react-native").TouchableOpacity,
+  };
+});
+
+jest.mock("react-native-reanimated", () => {
+  const { View } = require("react-native");
+  return {
+    __esModule: true,
+    default: { View },
+    runOnJS: (callback: (...args: unknown[]) => unknown) => callback,
+    useAnimatedStyle: (factory: () => unknown) => factory(),
+    useSharedValue: (value: unknown) => ({ value }),
+    withSpring: (
+      value: unknown,
+      _configuration: unknown,
+      callback?: (finished: boolean) => void,
+    ) => {
+      callback?.(true);
+      return value;
+    },
+    withTiming: (
+      value: unknown,
+      _configuration: unknown,
+      callback?: (finished: boolean) => void,
+    ) => {
+      callback?.(true);
+      return value;
+    },
+  };
+});
+
 const t = ((key: string) => {
   const copy: Record<string, string> = {
     textMessagePlaceholder: "Type a message",
     sendTextMessage: "Send message",
+    showVoiceInput: "Show voice input",
+    showTextInput: "Show text input",
     speechEtaCountdown: "About",
     speechEtaOvertime: "Still working",
   };
@@ -101,36 +153,83 @@ describe("MainScreenVoiceStage composer", () => {
     );
   });
 
-  it("uses one trailing action that switches from microphone to send", () => {
+  it("starts with a prominent full-width voice surface", () => {
+    const onPress = jest.fn();
+    const screen = render(
+      <MainScreenVoiceStage {...createProps({ onPress })} />,
+    );
+
+    expect(screen.getByTestId("voice-input-surface")).toBeTruthy();
+    expect(screen.getByLabelText("Tap to speak")).toBeTruthy();
+    expect(screen.queryByText("Tap to speak")).toBeNull();
+    expect(screen.getByText("icon:mic")).toBeTruthy();
+    expect(
+      StyleSheet.flatten(screen.getByTestId("voice-input-surface").props.style),
+    ).toEqual(
+      expect.objectContaining({
+        backgroundColor: lightColors.bubbleUser,
+        minHeight: 68,
+        width: "100%",
+      }),
+    );
+    expect(
+      screen.getByLabelText("Show voice input").props.accessibilityState,
+    ).toEqual({ selected: true });
+
+    fireEvent.press(screen.getByTestId("voice-input-surface"));
+    expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
+  it("moves to a visually separate full-width text composer", () => {
+    const screen = render(<MainScreenVoiceStage {...createProps()} />);
+    fireEvent(screen.getByTestId("voice-text-input-viewport"), "layout", {
+      nativeEvent: { layout: { width: 320 } },
+    });
+
+    fireEvent.press(screen.getByLabelText("Show text input"));
+
+    expect(
+      screen.getByLabelText("Show text input").props.accessibilityState,
+    ).toEqual({ selected: true });
+    expect(
+      StyleSheet.flatten(screen.getByTestId("text-input-surface").props.style),
+    ).toEqual(
+      expect.objectContaining({
+        minHeight: 68,
+        width: "100%",
+      }),
+    );
+  });
+
+  it("submits text without turning the text composer into a voice control", () => {
     const dismissKeyboard = jest
       .spyOn(Keyboard, "dismiss")
       .mockImplementation(() => undefined);
-    const onPress = jest.fn();
     const onSubmitTextMessage = jest.fn();
     const screen = render(
       <MainScreenVoiceStage
-        {...createProps({ onPress, onSubmitTextMessage })}
+        {...createProps({ onSubmitTextMessage })}
       />,
     );
 
+    fireEvent.press(screen.getByLabelText("Show text input"));
     const input = screen.getByPlaceholderText("Type a message");
     expect(StyleSheet.flatten(input.props.style)).toEqual(
       expect.objectContaining({
-        minHeight: 20,
+        minHeight: 24,
         paddingVertical: 0,
         textAlignVertical: "center",
       }),
     );
-    expect(screen.getByLabelText("Tap to speak")).toBeTruthy();
-    expect(screen.getByText("icon:mic")).toBeTruthy();
+    expect(
+      screen.getByLabelText("Send message").props.accessibilityState,
+    ).toEqual({ disabled: true });
+    expect(screen.getByText("icon:arrow-up")).toBeTruthy();
     expect(
       StyleSheet.flatten(
         screen.getByTestId("voice-text-primary-action").props.style,
       ).backgroundColor,
-    ).toBe(lightColors.bubbleUser);
-
-    fireEvent.press(screen.getByTestId("voice-text-primary-action"));
-    expect(onPress).toHaveBeenCalledTimes(1);
+    ).toBe(lightColors.surfaceAlt);
 
     fireEvent.changeText(input, "  Hello Columbo  ");
     expect(screen.getByLabelText("Send message")).toBeTruthy();
@@ -140,11 +239,10 @@ describe("MainScreenVoiceStage composer", () => {
     expect(onSubmitTextMessage).toHaveBeenCalledWith("Hello Columbo");
     expect(dismissKeyboard).toHaveBeenCalledTimes(1);
     expect(input.props.value).toBe("");
-    expect(screen.getByLabelText("Tap to speak")).toBeTruthy();
     dismissKeyboard.mockRestore();
   });
 
-  it("preserves push-to-talk press boundaries on the shared action", () => {
+  it("preserves push-to-talk press boundaries on the voice surface", () => {
     const onPressIn = jest.fn();
     const onPressOut = jest.fn();
     const screen = render(
@@ -157,11 +255,71 @@ describe("MainScreenVoiceStage composer", () => {
       />,
     );
 
-    const action = screen.getByTestId("voice-text-primary-action");
+    const action = screen.getByTestId("voice-input-surface");
     fireEvent(action, "pressIn");
     fireEvent(action, "pressOut");
     expect(onPressIn).toHaveBeenCalledTimes(1);
     expect(onPressOut).toHaveBeenCalledTimes(1);
+  });
+
+  it("preserves an unfinished text draft while the pipeline is active", () => {
+    const props = createProps();
+    const screen = render(<MainScreenVoiceStage {...props} />);
+    fireEvent.press(screen.getByLabelText("Show text input"));
+    fireEvent.changeText(
+      screen.getByPlaceholderText("Type a message"),
+      "Keep this draft",
+    );
+
+    screen.rerender(<MainScreenVoiceStage {...props} isActive />);
+    expect(screen.getByTestId("active-waveform")).toBeTruthy();
+
+    screen.rerender(<MainScreenVoiceStage {...props} isActive={false} />);
+    expect(screen.getByPlaceholderText("Type a message").props.value).toBe(
+      "Keep this draft",
+    );
+    expect(
+      screen.getByLabelText("Show text input").props.accessibilityState,
+    ).toEqual({ selected: true });
+  });
+
+  it("restores the selected surface and draft after a layout remount", () => {
+    let rememberedSurface: "voice" | "text" = "voice";
+    let rememberedDraft = "";
+    const firstScreen = render(
+      <MainScreenVoiceStage
+        {...createProps({
+          onInputSurfaceChange: (surface: "voice" | "text") => {
+            rememberedSurface = surface;
+          },
+          onTextMessageChange: (text: string) => {
+            rememberedDraft = text;
+          },
+        })}
+      />,
+    );
+    fireEvent.press(firstScreen.getByLabelText("Show text input"));
+    fireEvent.changeText(
+      firstScreen.getByPlaceholderText("Type a message"),
+      "Survive rotation",
+    );
+    firstScreen.unmount();
+
+    const secondScreen = render(
+      <MainScreenVoiceStage
+        {...createProps({
+          initialInputSurface: rememberedSurface,
+          initialTextMessage: rememberedDraft,
+        })}
+      />,
+    );
+
+    expect(
+      secondScreen.getByLabelText("Show text input").props.accessibilityState,
+    ).toEqual({ selected: true });
+    expect(
+      secondScreen.getByPlaceholderText("Type a message").props.value,
+    ).toBe("Survive rotation");
   });
 
   it("replaces the composer with the live waveform while active", () => {

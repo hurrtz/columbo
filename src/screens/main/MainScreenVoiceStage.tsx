@@ -1,9 +1,7 @@
 import React from "react";
 import {
   Animated,
-  Keyboard,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -24,6 +22,10 @@ import {
 } from "./statusSelectors";
 import { TranslateFn } from "./shared";
 import { styles } from "./styles";
+import {
+  InputSurface,
+  VoiceTextInputPager,
+} from "./VoiceTextInputPager";
 
 /**
  * Tracks how many whole seconds the pipeline has spent in a long-running phase
@@ -54,10 +56,13 @@ function useLongRunningElapsedSeconds(pipelinePhase: PipelinePhase): number {
 interface MainScreenVoiceStageProps {
   colors: Colors;
   disabled?: boolean;
+  initialInputSurface?: InputSurface;
+  initialTextMessage?: string;
   inputMode: InputMode;
   isActive: boolean;
   layout?: "portrait" | "landscape";
   onOpenStatusDetails: () => void;
+  onInputSurfaceChange?: (surface: InputSurface) => void;
   onPausePlayback?: () => void | Promise<void>;
   onPress: () => void;
   onPressIn: () => void;
@@ -65,6 +70,7 @@ interface MainScreenVoiceStageProps {
   onResumePlayback?: () => void | Promise<void>;
   onStopPlayback?: () => void | Promise<void>;
   onSubmitTextMessage?: (text: string) => void;
+  onTextMessageChange?: (text: string) => void;
   pausePlaybackLabel?: string;
   phaseProgress?: VoicePhaseProgress | null;
   pipelinePhase: PipelinePhase;
@@ -343,10 +349,13 @@ export function MainScreenStatusStrip({
 export function MainScreenVoiceStage({
   colors,
   disabled = false,
+  initialInputSurface,
+  initialTextMessage,
   inputMode,
   isActive,
   layout = "portrait",
   onOpenStatusDetails,
+  onInputSurfaceChange,
   onPausePlayback,
   onPress,
   onPressIn,
@@ -354,6 +363,7 @@ export function MainScreenVoiceStage({
   onResumePlayback,
   onStopPlayback,
   onSubmitTextMessage,
+  onTextMessageChange,
   pausePlaybackLabel,
   phaseProgress,
   pipelinePhase,
@@ -368,24 +378,11 @@ export function MainScreenVoiceStage({
   t,
   visualPhase,
 }: MainScreenVoiceStageProps) {
-  const [textMessage, setTextMessage] = React.useState("");
-  const trimmedTextMessage = textMessage.trim();
-  const hasTextMessage = trimmedTextMessage.length > 0;
-  const textSubmitDisabled = disabled || isActive || !trimmedTextMessage;
   const progressCopy = usePhaseProgressCopy(
     phaseProgress,
     t("speechEtaCountdown"),
     t("speechEtaOvertime"),
   );
-  const handleSubmitTextMessage = React.useCallback(() => {
-    if (textSubmitDisabled || !onSubmitTextMessage) {
-      return;
-    }
-
-    onSubmitTextMessage(trimmedTextMessage);
-    setTextMessage("");
-    Keyboard.dismiss();
-  }, [onSubmitTextMessage, textSubmitDisabled, trimmedTextMessage]);
 
   return (
     <View
@@ -403,7 +400,7 @@ export function MainScreenVoiceStage({
           },
         ]}
       >
-        {isActive || !onSubmitTextMessage ? (
+        {!onSubmitTextMessage ? (
           <WaveformBar
             isActive={isActive}
             phase={visualPhase}
@@ -414,71 +411,23 @@ export function MainScreenVoiceStage({
             onPress={onPress}
           />
         ) : (
-          <View
-            testID="voice-text-composer"
-            style={[
-              styles.voiceDockComposer,
-              {
-                backgroundColor: colors.surfaceElevated,
-                borderColor: colors.border,
-              },
-            ]}
-          >
-            <TextInput
-              testID="voice-text-input"
-              value={textMessage}
-              onChangeText={setTextMessage}
-              placeholder={t("textMessagePlaceholder")}
-              placeholderTextColor={colors.textMuted}
-              editable={!disabled}
-              multiline
-              returnKeyType="send"
-              submitBehavior="submit"
-              onSubmitEditing={handleSubmitTextMessage}
-              style={[styles.voiceDockInput, { color: colors.text }]}
-            />
-            <TouchableOpacity
-              testID="voice-text-primary-action"
-              accessibilityLabel={
-                hasTextMessage ? t("sendTextMessage") : statusTitle
-              }
-              accessibilityRole="button"
-              accessibilityState={{ disabled }}
-              disabled={disabled}
-              onPress={
-                hasTextMessage
-                  ? handleSubmitTextMessage
-                  : inputMode === "toggle-to-talk"
-                    ? onPress
-                    : undefined
-              }
-              onPressIn={
-                !hasTextMessage && inputMode === "push-to-talk"
-                  ? onPressIn
-                  : undefined
-              }
-              onPressOut={
-                !hasTextMessage && inputMode === "push-to-talk"
-                  ? onPressOut
-                  : undefined
-              }
-              activeOpacity={0.8}
-              style={[
-                styles.voiceDockPrimaryButton,
-                {
-                  backgroundColor: disabled
-                    ? colors.surfaceAlt
-                    : colors.bubbleUser,
-                },
-              ]}
-            >
-              <Feather
-                name={hasTextMessage ? "arrow-up" : "mic"}
-                size={18}
-                color={disabled ? colors.textMuted : colors.onAccent}
-              />
-            </TouchableOpacity>
-          </View>
+          <VoiceTextInputPager
+            colors={colors}
+            disabled={disabled}
+            initialSurface={initialInputSurface}
+            initialTextMessage={initialTextMessage}
+            inputMode={inputMode}
+            isActive={isActive}
+            onInputSurfaceChange={onInputSurfaceChange}
+            onPress={onPress}
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
+            onSubmitTextMessage={onSubmitTextMessage}
+            onTextMessageChange={onTextMessageChange}
+            statusLabel={progressCopy ?? statusTitle}
+            t={t}
+            visualPhase={visualPhase}
+          />
         )}
         {showStatusStrip && isActive ? (
           <MainScreenStatusStrip

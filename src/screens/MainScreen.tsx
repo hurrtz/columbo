@@ -104,6 +104,17 @@ export function MainScreen() {
     tone?: ToastTone;
   } | null>(null);
   const [styleSheetVisible, setStyleSheetVisible] = useState(false);
+  const inputSurfaceRef = React.useRef<"voice" | "text">("voice");
+  const textMessageDraftRef = React.useRef("");
+  const handleInputSurfaceChange = useCallback(
+    (surface: "voice" | "text") => {
+      inputSurfaceRef.current = surface;
+    },
+    [],
+  );
+  const handleTextMessageChange = useCallback((text: string) => {
+    textMessageDraftRef.current = text;
+  }, []);
   const {
     settingsVisible,
     settingsFocusCatalogProviderId,
@@ -674,9 +685,12 @@ export function MainScreen() {
                 <MainScreenVoiceStage
                   colors={colors}
                   disabled={voiceInputDisabled}
+                  initialInputSurface={inputSurfaceRef.current}
+                  initialTextMessage={textMessageDraftRef.current}
                   inputMode={settings.inputMode}
                   isActive={isActive && mainSurfaceVisible}
                   layout="landscape"
+                  onInputSurfaceChange={handleInputSurfaceChange}
                   onOpenStatusDetails={openStatusDetails}
                   onPausePlayback={handlePausePlayback}
                   onPress={handleTogglePress}
@@ -685,6 +699,7 @@ export function MainScreen() {
                   onResumePlayback={handleResumePlayback}
                   onStopPlayback={handleStopPlayback}
                   onSubmitTextMessage={handleSubmitTextMessage}
+                  onTextMessageChange={handleTextMessageChange}
                   pausePlaybackLabel={t("pause")}
                   phaseProgress={phaseProgress}
                   pipelinePhase={pipelinePhase}
@@ -790,8 +805,11 @@ export function MainScreen() {
                   <MainScreenVoiceStage
                     colors={colors}
                     disabled={voiceInputDisabled}
+                    initialInputSurface={inputSurfaceRef.current}
+                    initialTextMessage={textMessageDraftRef.current}
                     inputMode={settings.inputMode}
                     isActive={isActive && mainSurfaceVisible}
+                    onInputSurfaceChange={handleInputSurfaceChange}
                     onOpenStatusDetails={openStatusDetails}
                     onPausePlayback={handlePausePlayback}
                     onPress={handleTogglePress}
@@ -800,6 +818,7 @@ export function MainScreen() {
                     onResumePlayback={handleResumePlayback}
                     onStopPlayback={handleStopPlayback}
                     onSubmitTextMessage={handleSubmitTextMessage}
+                    onTextMessageChange={handleTextMessageChange}
                     pausePlaybackLabel={t("pause")}
                     phaseProgress={phaseProgress}
                     pipelinePhase={pipelinePhase}
