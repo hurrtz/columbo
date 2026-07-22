@@ -714,9 +714,9 @@ export function MainScreen() {
                 layout="landscape"
                 messages={messages}
                 activeReplayMessageId={activeReplayMessageId}
-                onCopyMessage={(message) => {
-                  void handleCopyMessage(message.content);
-                }}
+                onCopyMessage={(message) =>
+                  handleCopyMessage(message.content)
+                }
                 onRepeatMessage={(message) => {
                   void handleRepeatMessage(message);
                 }}
@@ -818,9 +818,9 @@ export function MainScreen() {
                     colors={colors}
                     messages={messages}
                     activeReplayMessageId={activeReplayMessageId}
-                    onCopyMessage={(message) => {
-                      void handleCopyMessage(message.content);
-                    }}
+                    onCopyMessage={(message) =>
+                      handleCopyMessage(message.content)
+                    }
                     onRepeatMessage={(message) => {
                       void handleRepeatMessage(message);
                     }}

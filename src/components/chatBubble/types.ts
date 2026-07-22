@@ -4,7 +4,7 @@ export type RepeatState = "idle" | "preparing" | "speaking";
 
 export interface ChatBubbleProps {
   message: Message;
-  onCopy?: (message: Message) => void;
+  onCopy?: (message: Message) => Promise<boolean>;
   onShare?: (message: Message) => void;
   onRepeat?: (message: Message) => void;
   onRetry?: (message: Message) => void;

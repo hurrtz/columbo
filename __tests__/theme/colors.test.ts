@@ -1,6 +1,6 @@
 import {
   darkColors,
-  getAccessiblePhaseForeground,
+  getAccessibleForeground,
   lightColors,
 } from "../../src/theme/colors";
 
@@ -78,7 +78,7 @@ describe("theme colors", () => {
       expect(
         contrastRatio(
           phaseColor,
-          getAccessiblePhaseForeground(phaseColor),
+          getAccessibleForeground(phaseColor),
         ),
       ).toBeGreaterThanOrEqual(4.5);
     }

@@ -12,7 +12,7 @@ import Animated, {
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 import {
   Colors,
-  getAccessiblePhaseForeground,
+  getAccessibleForeground,
 } from "../../theme/colors";
 import { fonts } from "../../theme/typography";
 import {
@@ -178,7 +178,7 @@ export function PhaseAwareVoiceAction({
   const reducedMotion = useReducedMotion();
   const recordingProgress = useSharedValue(0);
   const phaseColor = getPhaseColor(visualPhase, colors);
-  const phaseForeground = getAccessiblePhaseForeground(phaseColor);
+  const phaseForeground = getAccessibleForeground(phaseColor);
   const animatedPhaseColor = useSharedValue(phaseColor);
   const timeLabels = usePhaseTimeLabels(
     visualPhase,

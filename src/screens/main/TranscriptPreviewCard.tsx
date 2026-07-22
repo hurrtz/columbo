@@ -23,7 +23,7 @@ interface TranscriptPreviewCardProps {
   layout?: "portrait" | "landscape";
   messages: Message[];
   activeReplayMessageId?: string | null;
-  onCopyMessage: (message: Message) => void;
+  onCopyMessage: (message: Message) => Promise<boolean>;
   onRepeatMessage?: (message: Message) => void;
   onRetryMessage: (message: Message) => void;
   onOpenStyleSheet?: () => void;

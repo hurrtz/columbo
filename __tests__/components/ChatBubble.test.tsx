@@ -1,13 +1,13 @@
 import React from "react";
 import { Linking, StyleSheet } from "react-native";
-import { fireEvent } from "@testing-library/react-native";
+import { act, fireEvent } from "@testing-library/react-native";
 
 import { ChatBubble } from "../../src/components/ChatBubble";
+import {
+  getAccessibleForeground,
+  lightColors,
+} from "../../src/theme/colors";
 import { renderWithProviders } from "../test-utils/renderWithProviders";
-
-jest.mock("@expo/vector-icons", () => ({
-  Feather: ({ children }: { children?: React.ReactNode }) => children ?? null,
-}));
 
 describe("ChatBubble", () => {
   beforeEach(() => {
@@ -253,6 +253,118 @@ describe("ChatBubble", () => {
     expect(user.queryByLabelText("Copy")).toBeNull();
     expect(user.queryByLabelText("Share")).toBeNull();
     expect(user.queryByLabelText("Repeat Reply")).toBeNull();
+  });
+
+  it("shows a green copy confirmation for exactly three seconds", async () => {
+    jest.useFakeTimers();
+    const onCopy = jest.fn(async () => true);
+    const assistantMessage = {
+      id: "assistant-copy-confirmation",
+      role: "assistant" as const,
+      content: "Copy this response.",
+      model: "grok-4.5",
+      provider: "xai" as const,
+      timestamp: "2026-07-22T10:02:00.000Z",
+    };
+    const screen = renderWithProviders(
+      <ChatBubble
+        selectable
+        message={assistantMessage}
+        onCopy={onCopy}
+      />,
+    );
+
+    try {
+      expect(screen.getByText("icon:copy")).toBeTruthy();
+
+      await act(async () => {
+        fireEvent.press(screen.getByLabelText("Copy"));
+        await Promise.resolve();
+      });
+
+      const confirmedButton = screen.getByTestId(
+        "message-copy-action-assistant-copy-confirmation",
+      );
+      expect(screen.getByText("icon:check")).toBeTruthy();
+      expect(
+        StyleSheet.flatten(confirmedButton.props.style).backgroundColor,
+      ).toBe(lightColors.success);
+      expect(screen.getByTestId("icon-check").props.style.color).toBe(
+        getAccessibleForeground(lightColors.success),
+      );
+
+      act(() => {
+        jest.advanceTimersByTime(2_999);
+      });
+      expect(screen.getByText("icon:check")).toBeTruthy();
+
+      act(() => {
+        jest.advanceTimersByTime(1);
+      });
+      expect(screen.getByText("icon:copy")).toBeTruthy();
+    } finally {
+      screen.unmount();
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+    }
+  });
+
+  it("uses the positive phase color while repeated speech is active", () => {
+    const assistantMessage = {
+      id: "assistant-repeat-speaking",
+      role: "assistant" as const,
+      content: "Read this response aloud.",
+      model: "grok-4.5",
+      provider: "xai" as const,
+      timestamp: "2026-07-22T10:02:00.000Z",
+    };
+    const screen = renderWithProviders(
+      <ChatBubble
+        selectable
+        message={assistantMessage}
+        onRepeat={jest.fn()}
+        repeatState="speaking"
+      />,
+    );
+
+    expect(
+      StyleSheet.flatten(
+        screen.getByTestId(
+          "message-repeat-action-assistant-repeat-speaking",
+        ).props.style,
+      ).backgroundColor,
+    ).toBe(lightColors.success);
+    expect(screen.getByTestId("icon-square").props.style.color).toBe(
+      getAccessibleForeground(lightColors.success),
+    );
+  });
+
+  it("keeps copy neutral when the clipboard write fails", () => {
+    const screen = renderWithProviders(
+      <ChatBubble
+        selectable
+        message={{
+          id: "assistant-copy-failed",
+          role: "assistant",
+          content: "This copy fails.",
+          model: "grok-4.5",
+          provider: "xai",
+          timestamp: "2026-07-22T10:02:00.000Z",
+        }}
+        onCopy={async () => false}
+      />,
+    );
+
+    fireEvent.press(screen.getByLabelText("Copy"));
+
+    expect(screen.getByText("icon:copy")).toBeTruthy();
+    expect(screen.queryByText("icon:check")).toBeNull();
+    expect(
+      StyleSheet.flatten(
+        screen.getByTestId("message-copy-action-assistant-copy-failed").props
+          .style,
+      ).backgroundColor,
+    ).toBe(lightColors.surfaceAlt);
   });
 
   it("renders durable pipeline notices without requiring message content", () => {

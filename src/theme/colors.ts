@@ -103,7 +103,7 @@ function contrastRatio(firstColor: string, secondColor: string) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-export function getAccessiblePhaseForeground(backgroundColor: string) {
+export function getAccessibleForeground(backgroundColor: string) {
   return contrastRatio(backgroundColor, DARK_PHASE_FOREGROUND) >
     contrastRatio(backgroundColor, LIGHT_PHASE_FOREGROUND)
     ? DARK_PHASE_FOREGROUND

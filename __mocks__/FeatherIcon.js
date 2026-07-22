@@ -1,8 +1,12 @@
 const React = require("react");
 const { Text } = require("react-native");
 
-function FeatherIcon({ name }) {
-  return React.createElement(Text, null, `icon:${name}`);
+function FeatherIcon({ name, color, testID }) {
+  return React.createElement(
+    Text,
+    { style: { color }, testID: testID ?? `icon-${name}` },
+    `icon:${name}`,
+  );
 }
 
 module.exports = FeatherIcon;

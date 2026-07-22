@@ -13,6 +13,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { getProviderModelName, PROVIDER_LABELS } from "../../constants/models";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 import { useLocalization } from "../../i18n";
+import { getAccessibleForeground } from "../../theme/colors";
 import { useTheme } from "../../theme/ThemeContext";
 import type { Message } from "../../types";
 import { formatTokenCount } from "../../utils/usageStats";
@@ -22,6 +23,7 @@ import { styles } from "./styles";
 import type { ChatBubbleProps, RepeatState } from "./types";
 
 const messageTimestampFormatters = new Map<string, Intl.DateTimeFormat>();
+const COPY_CONFIRMATION_DURATION_MS = 3_000;
 
 function formatMessageTimestamp(timestamp: string, locale: string) {
   const date = new Date(timestamp);
@@ -558,6 +560,54 @@ function UsageCard({
   );
 }
 
+function useTimedConfirmation(resetKey: string) {
+  const [confirmed, setConfirmed] = useState(false);
+  const isMountedRef = useRef(true);
+  const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+
+  useEffect(
+    () => () => {
+      isMountedRef.current = false;
+    },
+    [],
+  );
+
+  useEffect(() => {
+    setConfirmed(false);
+
+    if (resetTimeoutRef.current) {
+      clearTimeout(resetTimeoutRef.current);
+      resetTimeoutRef.current = null;
+    }
+
+    return () => {
+      if (resetTimeoutRef.current) {
+        clearTimeout(resetTimeoutRef.current);
+        resetTimeoutRef.current = null;
+      }
+    };
+  }, [resetKey]);
+
+  const showConfirmation = () => {
+    if (!isMountedRef.current) {
+      return;
+    }
+
+    setConfirmed(true);
+    if (resetTimeoutRef.current) {
+      clearTimeout(resetTimeoutRef.current);
+    }
+    resetTimeoutRef.current = setTimeout(() => {
+      resetTimeoutRef.current = null;
+      setConfirmed(false);
+    }, COPY_CONFIRMATION_DURATION_MS);
+  };
+
+  return { confirmed, showConfirmation };
+}
+
 function MessageActions({
   message,
   onCopy,
@@ -570,6 +620,20 @@ function MessageActions({
 >) {
   const { colors } = useTheme();
   const { t } = useLocalization();
+  const {
+    confirmed: copyConfirmed,
+    showConfirmation: showCopyConfirmation,
+  } = useTimedConfirmation(message.id);
+
+  const handleCopyPress = async () => {
+    try {
+      if (await onCopy?.(message)) {
+        showCopyConfirmation();
+      }
+    } catch {
+      // The owning action reports clipboard failures; keep the button neutral.
+    }
+  };
 
   if (!onCopy && !onShare && !onRepeat) {
     return null;
@@ -588,19 +652,32 @@ function MessageActions({
     >
       {onCopy ? (
         <TouchableOpacity
+          testID={`message-copy-action-${message.id}`}
           style={[
             styles.iconAction,
             {
-              backgroundColor: colors.surfaceAlt,
-              borderColor: colors.border,
+              backgroundColor: copyConfirmed
+                ? colors.success
+                : colors.surfaceAlt,
+              borderColor: copyConfirmed ? colors.success : colors.border,
             },
           ]}
-          onPress={() => onCopy(message)}
+          onPress={() => {
+            void handleCopyPress();
+          }}
           activeOpacity={0.88}
           accessibilityRole="button"
-          accessibilityLabel={t("copy")}
+          accessibilityLabel={copyConfirmed ? t("messageCopied") : t("copy")}
         >
-          <Feather name="copy" size={14} color={colors.textSecondary} />
+          <Feather
+            name={copyConfirmed ? "check" : "copy"}
+            size={14}
+            color={
+              copyConfirmed
+                ? getAccessibleForeground(colors.success)
+                : colors.textSecondary
+            }
+          />
         </TouchableOpacity>
       ) : null}
       {onShare ? (
@@ -622,13 +699,22 @@ function MessageActions({
       ) : null}
       {onRepeat ? (
         <TouchableOpacity
+          testID={`message-repeat-action-${message.id}`}
           style={[
             styles.iconAction,
             {
               backgroundColor:
-                repeatState === "idle" ? colors.surfaceAlt : colors.accentSoft,
+                repeatState === "speaking"
+                  ? colors.success
+                  : repeatState === "preparing"
+                    ? colors.accentSoft
+                    : colors.surfaceAlt,
               borderColor:
-                repeatState === "idle" ? colors.border : colors.borderStrong,
+                repeatState === "speaking"
+                  ? colors.success
+                  : repeatState === "preparing"
+                    ? colors.borderStrong
+                    : colors.border,
             },
           ]}
           onPress={() => onRepeat(message)}
@@ -641,7 +727,11 @@ function MessageActions({
           <RepeatActionIcon
             state={repeatState}
             color={
-              repeatState === "idle" ? colors.textSecondary : colors.accent
+              repeatState === "speaking"
+                ? getAccessibleForeground(colors.success)
+                : repeatState === "preparing"
+                  ? colors.accent
+                  : colors.textSecondary
             }
           />
         </TouchableOpacity>

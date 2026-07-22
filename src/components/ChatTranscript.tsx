@@ -24,7 +24,7 @@ interface ChatTranscriptProps {
   emptyDescription?: string;
   contentContainerStyle?: StyleProp<ViewStyle>;
   scrollEnabled?: boolean;
-  onCopyMessage?: (message: Message) => void;
+  onCopyMessage?: (message: Message) => Promise<boolean>;
   onShareMessage?: (message: Message) => void;
   onRepeatMessage?: (message: Message) => void;
   onRetryMessage?: (message: Message) => void;

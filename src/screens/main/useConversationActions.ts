@@ -53,14 +53,16 @@ export function useConversationActions({
     async (text: string, successMessage: string) => {
       if (!text.trim()) {
         showToast(t("nothingToCopyYet"));
-        return;
+        return false;
       }
 
       try {
         await Clipboard.setStringAsync(text);
         showToast(successMessage, undefined, "success");
+        return true;
       } catch {
         showToast(t("couldntCopyText"), undefined, "danger");
+        return false;
       }
     },
     [showToast, t],
@@ -77,7 +79,7 @@ export function useConversationActions({
 
   const handleCopyMessage = useCallback(
     async (content: string) => {
-      await copyText(content.trim(), t("messageCopied"));
+      return copyText(content.trim(), t("messageCopied"));
     },
     [copyText, t],
   );
