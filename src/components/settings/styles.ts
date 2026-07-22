@@ -783,9 +783,28 @@ export const styles = StyleSheet.create({
     padding: 14,
     marginTop: 10,
   },
+  voicePreviewSection: {
+    borderTopWidth: 1,
+    paddingTop: 20,
+    marginTop: 4,
+  },
+  voicePreviewHeader: {
+    marginBottom: 18,
+  },
+  voicePreviewHeaderHint: {
+    marginTop: 0,
+  },
+  voicePreviewProvider: {
+    fontSize: 17,
+    lineHeight: 22,
+    marginBottom: 16,
+    fontFamily: fonts.display,
+  },
   previewLanguageBlock: {
-    marginTop: 14,
-    paddingTop: 14,
+    borderTopWidth: 1,
+    marginTop: 4,
+    paddingTop: 18,
+    paddingBottom: 4,
   },
   localPackHeader: {
     flexDirection: "row",

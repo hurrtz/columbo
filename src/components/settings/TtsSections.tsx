@@ -4,6 +4,7 @@ import { Text, TextInput, View } from "react-native";
 import { getTtsListenLanguageLabel } from "../../constants/localTts";
 import {
   PROVIDER_DEFAULT_TTS_VOICES,
+  PROVIDER_LABELS,
   getProviderTtsVoiceOptions,
 } from "../../constants/models";
 import { useLocalization } from "../../i18n";
@@ -11,7 +12,7 @@ import { Provider, Settings, TtsListenLanguage } from "../../types";
 import { useTheme } from "../../theme/ThemeContext";
 import { Picker } from "../Picker";
 
-import { PickerSection, PreviewComposer } from "./shared";
+import { PreviewComposer } from "./shared";
 import { styles } from "./styles";
 import {
   PreviewButtonPhase,
@@ -69,25 +70,30 @@ export function ProviderVoicePreviewSection({
     "";
 
   return (
-    <PickerSection>
-      <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
-        {t("providerVoicePreviews")}
-      </Text>
-      <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
-        {t("providerVoicePreviewsHint")}
-      </Text>
+    <View
+      style={[
+        styles.voicePreviewSection,
+        { borderTopColor: colors.border },
+      ]}
+    >
+      <View style={styles.voicePreviewHeader}>
+        <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
+          {t("providerVoicePreviews")}
+        </Text>
+        <Text
+          style={[
+            styles.sectionHint,
+            styles.voicePreviewHeaderHint,
+            { color: colors.textMuted },
+          ]}
+        >
+          {t("providerVoicePreviewsHint")}
+        </Text>
+      </View>
 
-      <View
-        style={[
-          styles.localPackCard,
-          {
-            backgroundColor: colors.surface,
-            borderColor: colors.border,
-          },
-        ]}
-      >
-        <Text style={[styles.previewLabel, { color: colors.textSecondary }]}>
-          {provider}
+      <View>
+        <Text style={[styles.voicePreviewProvider, { color: colors.text }]}>
+          {PROVIDER_LABELS[provider]}
         </Text>
         {voiceOptions.length > 0 ? (
           <Picker
@@ -146,7 +152,7 @@ export function ProviderVoicePreviewSection({
           </Text>
         )}
 
-        {selectedLanguages.map((entry, index) => {
+        {selectedLanguages.map((entry) => {
           const previewId = `provider:${provider}:${entry}`;
 
           return (
@@ -154,12 +160,7 @@ export function ProviderVoicePreviewSection({
               key={`${provider}:${entry}`}
               style={[
                 styles.previewLanguageBlock,
-                index > 0
-                  ? {
-                      borderTopWidth: 1,
-                      borderTopColor: colors.border,
-                    }
-                  : null,
+                { borderTopColor: colors.border },
               ]}
             >
               <Text
@@ -184,7 +185,7 @@ export function ProviderVoicePreviewSection({
           );
         })}
       </View>
-    </PickerSection>
+    </View>
   );
 }
 
@@ -213,23 +214,28 @@ export function NativeVoicePreviewSection({
   const { t } = useLocalization();
 
   return (
-    <PickerSection>
-      <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
-        {t("nativeVoicePreviewSection")}
-      </Text>
-      <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
-        {t("nativeVoicePreviewSectionHint")}
-      </Text>
+    <View
+      style={[
+        styles.voicePreviewSection,
+        { borderTopColor: colors.border },
+      ]}
+    >
+      <View style={styles.voicePreviewHeader}>
+        <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>
+          {t("nativeVoicePreviewSection")}
+        </Text>
+        <Text
+          style={[
+            styles.sectionHint,
+            styles.voicePreviewHeaderHint,
+            { color: colors.textMuted },
+          ]}
+        >
+          {t("nativeVoicePreviewSectionHint")}
+        </Text>
+      </View>
 
-      <View
-        style={[
-          styles.localPackCard,
-          {
-            backgroundColor: colors.surface,
-            borderColor: colors.border,
-          },
-        ]}
-      >
+      <View>
         {voiceOptions.length > 0 ? (
           <>
             <Picker
@@ -238,19 +244,28 @@ export function NativeVoicePreviewSection({
               options={voiceOptions}
               onChange={onSelectVoice}
             />
-            <PreviewComposer
-              text={previewText}
-              setText={onSetPreviewText}
-              phase={
-                activePreview?.id === "native" ? activePreview.phase : "idle"
-              }
-              interactionDisabled={
-                activePreview !== null && activePreview.id !== "native"
-              }
-              onPreview={onPreview}
-              onStop={onStopPreview}
-              onTextInputFocus={onTextInputFocus}
-            />
+            <View
+              style={[
+                styles.previewLanguageBlock,
+                { borderTopColor: colors.border },
+              ]}
+            >
+              <PreviewComposer
+                text={previewText}
+                setText={onSetPreviewText}
+                phase={
+                  activePreview?.id === "native"
+                    ? activePreview.phase
+                    : "idle"
+                }
+                interactionDisabled={
+                  activePreview !== null && activePreview.id !== "native"
+                }
+                onPreview={onPreview}
+                onStop={onStopPreview}
+                onTextInputFocus={onTextInputFocus}
+              />
+            </View>
           </>
         ) : (
           <Text
@@ -263,6 +278,6 @@ export function NativeVoicePreviewSection({
           </Text>
         )}
       </View>
-    </PickerSection>
+    </View>
   );
 }
