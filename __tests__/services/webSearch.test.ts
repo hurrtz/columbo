@@ -120,6 +120,42 @@ describe("webSearch", () => {
     expect(result?.context).toContain("Does Mars have water ice?");
   });
 
+  it("uses a readable hostname when a provider only returns a citation URL", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          output_text: "The source confirms the current answer.",
+          output: [
+            {
+              type: "web_search_call",
+              action: {
+                sources: [
+                  {
+                    url: "https://www.example.com/very/long/source/path",
+                  },
+                ],
+              },
+            },
+          ],
+        }),
+    });
+
+    const result = await searchWeb({
+      provider: "xai",
+      apiKey: "xai-test",
+      language: "en",
+      query: "What changed today?",
+    });
+
+    expect(result?.sources).toEqual([
+      {
+        title: "example.com",
+        url: "https://www.example.com/very/long/source/path",
+      },
+    ]);
+  });
+
   it.each([
     {
       provider: "anthropic",
@@ -189,7 +225,7 @@ describe("webSearch", () => {
         ],
       },
       assertBody: (body: Record<string, unknown>) => {
-        expect(body.model).toBe("qwen3.7-plus");
+        expect(body.model).toBe("qwen3.7-plus-2026-05-26");
         expect(body.tools).toEqual([{ type: "web_search" }]);
         expect(body.tool_choice).toBe("required");
         expect(body.enable_thinking).toBe(false);

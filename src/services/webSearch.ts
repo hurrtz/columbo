@@ -13,6 +13,7 @@ import type { AppLanguage, WebSearchSource } from "../types";
 import { requireProviderKey } from "./llm/shared";
 import { resolveQwenApiEndpoint } from "../utils/qwenRegion";
 import { recordDebugLogEvent } from "./debugLogCapture";
+import { getWebSearchSourceDisplayTitle } from "../utils/webSearchSources";
 import { networkFetch } from "./networkFetch";
 import {
   buildProviderHttpError,
@@ -92,10 +93,17 @@ function dedupeSources(sources: WebSearchSource[]) {
       continue;
     }
 
-    const normalizedTitle = source.title.trim() || normalizedUrl;
+    const normalizedTitle = getWebSearchSourceDisplayTitle(
+      source.title,
+      normalizedUrl,
+    );
     const existing = deduped.get(normalizedUrl);
 
-    if (!existing || existing.title === existing.url) {
+    if (
+      !existing ||
+      existing.title === existing.url ||
+      existing.title === getWebSearchSourceDisplayTitle("", existing.url)
+    ) {
       deduped.set(normalizedUrl, {
         title: normalizedTitle,
         url: normalizedUrl,
