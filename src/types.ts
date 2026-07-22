@@ -177,7 +177,14 @@ export type MistralAssistantContentChunk =
   | MistralTextContentChunk
   | MistralThinkingContentChunk;
 
+export interface GeminiAssistantContentPart {
+  text?: string;
+  thought?: boolean;
+  thoughtSignature?: string;
+}
+
 export interface MessageProviderState {
+  geminiAssistantContent?: GeminiAssistantContentPart[];
   mistralAssistantContent?: MistralAssistantContentChunk[];
   kimiReasoningContent?: string;
 }

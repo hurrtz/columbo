@@ -78,6 +78,49 @@ describe("streamChat", () => {
     expect((fetch as jest.Mock).mock.calls[0][0]).toBe("https://api.openai.com/v1/chat/completions");
   });
 
+  it("does not expose or speak a provider marker echoed by the model", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'data: {"choices":[{"delta":{"content":"[Response gen"}}]}\n\n',
+          ),
+        );
+        controller.enqueue(
+          encoder.encode(
+            'data: {"choices":[{"delta":{"content":"erated by xAI using Grok 4.3]\\nClean answer."},"finish_reason":"stop"}]}\n\n',
+          ),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+    const onDone = jest.fn();
+
+    await streamChat({
+      messages: mockMessages,
+      model: "grok-4.3",
+      provider: "xai",
+      apiKey: "xai-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone,
+      onError: () => {},
+    });
+
+    expect(chunks.join("")).toBe("Clean answer.");
+    expect(onDone).toHaveBeenCalledWith(
+      "Clean answer.",
+      expect.any(Object),
+    );
+  });
+
   it("rejects an OpenAI-compatible stream that reaches its output limit", async () => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
@@ -97,7 +140,7 @@ describe("streamChat", () => {
 
     await streamChat({
       messages: mockMessages,
-      model: "gpt-5.5",
+      model: "gpt-5.5-2026-04-23",
       provider: "openai",
       apiKey: "sk-test-key",
       assistantInstructions: "",
@@ -172,7 +215,7 @@ describe("streamChat", () => {
 
     await streamChat({
       messages: mockMessages,
-      model: "qwen3.7-plus",
+      model: "qwen3.7-plus-2026-05-26",
       provider: "alibaba-qwen-dashscope",
       apiKey: "qwen-test-key|us",
       assistantInstructions: "",
@@ -482,6 +525,69 @@ describe("streamChat", () => {
     }
   });
 
+  it("keeps Kimi K3 alive while reasoning before visible output", async () => {
+    jest.useFakeTimers();
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        setTimeout(() => {
+          controller.enqueue(
+            encoder.encode(
+              'data: {"choices":[{"delta":{"reasoning_content":"Still reasoning. "}}]}\n\n',
+            ),
+          );
+        }, 4 * 60_000);
+        setTimeout(() => {
+          controller.enqueue(
+            encoder.encode(
+              'data: {"choices":[{"delta":{"content":"Final answer."},"finish_reason":"stop"}]}\n\n',
+            ),
+          );
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          controller.close();
+        }, 8 * 60_000);
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const chunks: string[] = [];
+    const onDone = jest.fn();
+    const onError = jest.fn();
+
+    try {
+      const promise = streamChat({
+        messages: mockMessages,
+        model: "kimi-k3",
+        modelEffort: "max",
+        provider: "moonshot-ai-kimi",
+        apiKey: "kimi-test-key",
+        assistantInstructions: "",
+        responseLength: "normal",
+        responseTone: "professional",
+        language: "en",
+        onChunk: (text) => chunks.push(text),
+        onDone,
+        onError,
+      });
+
+      await jest.advanceTimersByTimeAsync(8 * 60_000);
+      await promise;
+
+      expect(chunks).toEqual(["Final answer."]);
+      expect(onDone).toHaveBeenCalledWith(
+        "Final answer.",
+        expect.objectContaining({ totalTokens: expect.any(Number) }),
+        expect.objectContaining({
+          providerState: {
+            kimiReasoningContent: "Still reasoning. ",
+          },
+        }),
+      );
+      expect(onError).not.toHaveBeenCalled();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it("returns a development-only local reply for the Android smoke-test key", async () => {
     const chunks: string[] = [];
     const onDone = jest.fn();
@@ -659,7 +765,7 @@ describe("streamChat", () => {
       start(controller) {
         controller.enqueue(
           encoder.encode(
-            'data: {"candidates":[{"content":{"parts":[{"text":"Hi from Gemini"}]}}]}\n\n',
+            'data: {"candidates":[{"content":{"parts":[{"text":"Hi from Gemini"}]},"finishReason":"STOP"}]}\n\n',
           ),
         );
         controller.close();
@@ -697,13 +803,160 @@ describe("streamChat", () => {
     });
   });
 
+  it("rejects a truncated Gemini stream instead of persisting partial text", async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'data: {"candidates":[{"content":{"parts":[{"text":"Partial reply"}]},"finishReason":"MAX_TOKENS"}]}\n\n',
+          ),
+        );
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, body: stream });
+    const onDone = jest.fn();
+    const onError = jest.fn();
+
+    await streamChat({
+      messages: mockMessages,
+      model: "gemini-3.5-flash",
+      provider: "gemini",
+      apiKey: "gemini-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: () => {},
+      onDone,
+      onError,
+    });
+
+    expect(onDone).not.toHaveBeenCalled();
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringContaining("before it was complete"),
+      }),
+    );
+  });
+
+  it("preserves Gemini thought signatures and replays them unchanged", async () => {
+    const encoder = new TextEncoder();
+    const firstStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'data: {"candidates":[{"content":{"parts":[{"text":"Internal reasoning","thought":true,"thoughtSignature":"thought-sig"}]}}]}\n\n',
+          ),
+        );
+        controller.enqueue(
+          encoder.encode(
+            'data: {"candidates":[{"content":{"parts":[{"text":"The answer is 42.","thoughtSignature":"answer-sig"}]}}]}\n\n',
+          ),
+        );
+        controller.enqueue(
+          encoder.encode(
+            'data: {"candidates":[{"content":{"parts":[{"thoughtSignature":"final-sig"}]},"finishReason":"STOP"}]}\n\n',
+          ),
+        );
+        controller.close();
+      },
+    });
+    const secondStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'data: {"candidates":[{"content":{"parts":[{"text":"It is still 42."}]},"finishReason":"STOP"}]}\n\n',
+          ),
+        );
+        controller.close();
+      },
+    });
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce({ ok: true, body: firstStream })
+      .mockResolvedValueOnce({ ok: true, body: secondStream });
+    const chunks: string[] = [];
+    const firstOnDone = jest.fn();
+
+    await streamChat({
+      messages: mockMessages,
+      model: "gemini-3.5-flash",
+      provider: "gemini",
+      apiKey: "gemini-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: (text) => chunks.push(text),
+      onDone: firstOnDone,
+      onError: () => {},
+    });
+
+    expect(chunks).toEqual(["The answer is 42."]);
+    const firstMetadata = firstOnDone.mock.calls[0][2];
+    expect(firstMetadata.providerState.geminiAssistantContent).toEqual([
+      {
+        text: "Internal reasoning",
+        thought: true,
+        thoughtSignature: "thought-sig",
+      },
+      { text: "The answer is 42.", thoughtSignature: "answer-sig" },
+      { thoughtSignature: "final-sig" },
+    ]);
+
+    await streamChat({
+      messages: [
+        ...mockMessages,
+        {
+          id: "gemini-reply",
+          role: "assistant",
+          content: "The answer is 42.",
+          model: "gemini-3.5-flash",
+          provider: "gemini",
+          metadata: firstMetadata,
+          timestamp: "2026-01-01T00:00:01Z",
+        },
+        {
+          id: "gemini-follow-up",
+          role: "user",
+          content: "Are you sure?",
+          model: null,
+          provider: null,
+          timestamp: "2026-01-01T00:00:02Z",
+        },
+      ],
+      model: "gemini-3.5-flash",
+      provider: "gemini",
+      apiKey: "gemini-test-key",
+      assistantInstructions: "",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      onChunk: () => {},
+      onDone: () => {},
+      onError: () => {},
+    });
+
+    const secondBody = JSON.parse((fetch as jest.Mock).mock.calls[1][1].body);
+    expect(secondBody.contents[1]).toEqual({
+      role: "model",
+      parts: [
+        {
+          text: "[Response generated by Google using Gemini 3.5 Flash]\n",
+        },
+        ...firstMetadata.providerState.geminiAssistantContent,
+      ],
+    });
+  });
+
   it("passes Gemini effort as generateContent thinking level", async () => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       start(controller) {
         controller.enqueue(
           encoder.encode(
-            'data: {"candidates":[{"content":{"parts":[{"text":"Hi from Gemini"}]}}]}\n\n',
+            'data: {"candidates":[{"content":{"parts":[{"text":"Hi from Gemini"}]},"finishReason":"STOP"}]}\n\n',
           ),
         );
         controller.close();
@@ -740,7 +993,7 @@ describe("streamChat", () => {
       start(controller) {
         controller.enqueue(
           encoder.encode(
-            'data: {"candidates":[{"content":{"parts":[{"text":"Hi from Gemini"}]}}]}\n\n',
+            'data: {"candidates":[{"content":{"parts":[{"text":"Hi from Gemini"}]},"finishReason":"STOP"}]}\n\n',
           ),
         );
         controller.close();
@@ -780,7 +1033,7 @@ describe("streamChat", () => {
     },
     {
       provider: "openai" as const,
-      model: "gpt-5.5",
+      model: "gpt-5.5-2026-04-23",
       modelEffort: "xhigh",
       expected: { reasoning_effort: "xhigh" },
     },
@@ -799,8 +1052,8 @@ describe("streamChat", () => {
     {
       provider: "mistral" as const,
       model: "mistral-small-2603",
-      modelEffort: "minimal",
-      expected: { reasoning_effort: "minimal" },
+      modelEffort: "none",
+      expected: { reasoning_effort: "none" },
     },
     {
       provider: "bytedance-doubao-seed" as const,
@@ -837,9 +1090,15 @@ describe("streamChat", () => {
     },
     {
       provider: "alibaba-qwen-dashscope" as const,
-      model: "qwen3.7-plus",
+      model: "qwen3.7-plus-2026-05-26",
       modelEffort: "disabled",
       expected: { enable_thinking: false },
+    },
+    {
+      provider: "moonshot-ai-kimi" as const,
+      model: "kimi-k3",
+      modelEffort: "max",
+      expected: { reasoning_effort: "max" },
     },
     {
       provider: "moonshot-ai-kimi" as const,
@@ -1191,8 +1450,7 @@ describe("streamChat", () => {
     const secondBody = JSON.parse((fetch as jest.Mock).mock.calls[1][1].body);
     expect(secondBody.messages[2]).toEqual({
       role: "assistant",
-      content:
-        "[Response generated by Moonshot using Kimi K3]\nThe answer is 42.",
+      content: "The answer is 42.",
       reasoning_content: "Think carefully. ",
     });
   });
@@ -1346,7 +1604,7 @@ describe("validateProviderConnection", () => {
 
     await validateProviderConnection({
       provider: "openai",
-      model: "gpt-5.4",
+      model: "gpt-5.4-2026-03-05",
       apiKey: "sk-test-key",
       language: "en",
     });
@@ -1354,7 +1612,7 @@ describe("validateProviderConnection", () => {
     const [url, options] = (fetch as jest.Mock).mock.calls[0];
     expect(url).toBe("https://api.openai.com/v1/chat/completions");
     const body = JSON.parse(options.body);
-    expect(body.model).toBe("gpt-5.4");
+    expect(body.model).toBe("gpt-5.4-2026-03-05");
     expect(body.messages[0].role).toBe("system");
     expect(body.messages[1].content).toBe("Reply with OK only.");
   });
@@ -1411,7 +1669,7 @@ describe("validateProviderConnection", () => {
     await expect(
       validateProviderConnection({
         provider: "openai",
-        model: "gpt-5.4",
+        model: "gpt-5.4-2026-03-05",
         apiKey: "sk-test-key",
         language: "en",
       })

@@ -212,6 +212,7 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
   language: AppLanguage;
   systemPrompt: string;
   onChunk: (text: string) => void;
+  onStreamActivity?: () => void;
   onMistralAssistantContent?: (
     content: MistralAssistantContentChunk[],
   ) => void;
@@ -228,6 +229,7 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
     language,
     systemPrompt,
     onChunk,
+    onStreamActivity,
     onMistralAssistantContent,
     onKimiReasoningContent,
     abortSignal,
@@ -321,6 +323,8 @@ export async function requestChatStreamWithOpenAiCompatibleTransport(params: {
       });
     }
 
+    onStreamActivity?.();
+
     const nextFinishReason = payload.choices?.[0]?.finish_reason;
     if (nextFinishReason !== null && nextFinishReason !== undefined) {
       finishReason = nextFinishReason;
@@ -407,6 +411,7 @@ export async function requestOpenAICompatibleChatStream(params: {
   language: AppLanguage;
   systemPrompt: string;
   onChunk: (text: string) => void;
+  onStreamActivity?: () => void;
   onMistralAssistantContent?: (
     content: MistralAssistantContentChunk[],
   ) => void;
@@ -429,6 +434,7 @@ export async function requestOpenAICompatibleChatStream(params: {
     language: params.language,
     systemPrompt: params.systemPrompt,
     onChunk: params.onChunk,
+    onStreamActivity: params.onStreamActivity,
     onMistralAssistantContent: params.onMistralAssistantContent,
     onKimiReasoningContent: params.onKimiReasoningContent,
     abortSignal: params.abortSignal,

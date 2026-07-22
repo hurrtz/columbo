@@ -3,11 +3,16 @@ import {
   buildProviderHttpError,
   normalizeProviderTransportError,
 } from "../../providerErrors";
-import { AppLanguage, Provider } from "../../../types";
+import {
+  AppLanguage,
+  GeminiAssistantContentPart,
+  Provider,
+} from "../../../types";
 import {
   getModelEffortTransportParam,
   getModelEffortTransportValue,
 } from "../../../utils/modelEffort";
+import { translate } from "../../../i18n";
 
 import { readEventStream } from "../eventStream";
 import { ChatMessage, requireProviderKey } from "../shared";
@@ -35,10 +40,19 @@ function toGeminiRole(role: ChatMessage["role"]) {
 }
 
 function toGeminiContents(messages: ChatMessage[]) {
-  return messages.map((message) => ({
-    role: toGeminiRole(message.role),
-    parts: [{ text: message.content }],
-  }));
+  return messages.map((message) => {
+    const preservedAssistantContent =
+      message.role === "assistant" && message.provider === "gemini"
+        ? message.metadata?.providerState?.geminiAssistantContent
+        : undefined;
+
+    return {
+      role: toGeminiRole(message.role),
+      parts: preservedAssistantContent?.length
+        ? preservedAssistantContent
+        : [{ text: message.content }],
+    };
+  });
 }
 
 function buildGeminiGenerateContentBody(params: {
@@ -80,44 +94,91 @@ function buildGeminiGenerateContentBody(params: {
     : body;
 }
 
-function extractGeminiGenerateContentText(payload: unknown): string {
+function extractGeminiGenerateContentParts(
+  payload: unknown,
+): GeminiAssistantContentPart[] {
   if (!payload || typeof payload !== "object") {
-    return "";
+    return [];
   }
 
   const candidates = (payload as { candidates?: unknown }).candidates;
 
   if (!Array.isArray(candidates)) {
-    return "";
+    return [];
   }
 
   const firstCandidate = candidates[0];
 
   if (!firstCandidate || typeof firstCandidate !== "object") {
-    return "";
+    return [];
   }
 
   const content = (firstCandidate as { content?: unknown }).content;
 
   if (!content || typeof content !== "object") {
-    return "";
+    return [];
   }
 
   const parts = (content as { parts?: unknown }).parts;
 
   if (!Array.isArray(parts)) {
-    return "";
+    return [];
   }
 
+  return parts.flatMap((part) => {
+    if (!part || typeof part !== "object") {
+      return [];
+    }
+
+    const raw = part as {
+      text?: unknown;
+      thought?: unknown;
+      thoughtSignature?: unknown;
+    };
+    const normalized: GeminiAssistantContentPart = {
+      ...(typeof raw.text === "string" ? { text: raw.text } : {}),
+      ...(typeof raw.thought === "boolean" ? { thought: raw.thought } : {}),
+      ...(typeof raw.thoughtSignature === "string"
+        ? { thoughtSignature: raw.thoughtSignature }
+        : {}),
+    };
+
+    return Object.keys(normalized).length > 0 ? [normalized] : [];
+  });
+}
+
+function getVisibleGeminiText(parts: GeminiAssistantContentPart[]) {
   return parts
-    .map((part) =>
-      part &&
-      typeof part === "object" &&
-      typeof (part as { text?: unknown }).text === "string"
-        ? (part as { text: string }).text
-        : "",
-    )
+    .filter((part) => part.thought !== true)
+    .map((part) => part.text ?? "")
     .join("");
+}
+
+function extractGeminiGenerateContentText(payload: unknown): string {
+  return getVisibleGeminiText(extractGeminiGenerateContentParts(payload));
+}
+
+function getGeminiFinishReason(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const candidates = (payload as { candidates?: unknown }).candidates;
+  const candidate = Array.isArray(candidates) ? candidates[0] : null;
+  const finishReason =
+    candidate && typeof candidate === "object"
+      ? (candidate as { finishReason?: unknown }).finishReason
+      : null;
+
+  return typeof finishReason === "string" ? finishReason : null;
+}
+
+function buildIncompleteGeminiReplyError(language: AppLanguage) {
+  return new Error(
+    translate(language, "providerIncompleteReplyError", {
+      provider: "Google",
+    }),
+  );
 }
 
 export async function requestGeminiGenerateContentChat(params: {
@@ -194,6 +255,7 @@ export async function requestGeminiGenerateContentChatStream(params: {
   language: AppLanguage;
   systemPrompt: string;
   onChunk: (text: string) => void;
+  onAssistantContent?: (parts: GeminiAssistantContentPart[]) => void;
   abortSignal?: AbortSignal;
 }) {
   let response: Awaited<ReturnType<typeof networkFetch>>;
@@ -258,13 +320,19 @@ export async function requestGeminiGenerateContentChatStream(params: {
   }
 
   let fullText = "";
+  const assistantContent: GeminiAssistantContentPart[] = [];
+  let finishReason: string | null = null;
 
   await readEventStream(response.body, async ({ data }) => {
     if (!data || data === "[DONE]") {
       return;
     }
 
-    const chunkText = extractGeminiGenerateContentText(JSON.parse(data));
+    const payload = JSON.parse(data);
+    finishReason = getGeminiFinishReason(payload) ?? finishReason;
+    const chunkParts = extractGeminiGenerateContentParts(payload);
+    assistantContent.push(...chunkParts);
+    const chunkText = getVisibleGeminiText(chunkParts);
 
     if (!chunkText) {
       return;
@@ -273,6 +341,14 @@ export async function requestGeminiGenerateContentChatStream(params: {
     fullText += chunkText;
     params.onChunk(chunkText);
   });
+
+  if (finishReason !== "STOP") {
+    throw buildIncompleteGeminiReplyError(params.language);
+  }
+
+  if (assistantContent.length > 0) {
+    params.onAssistantContent?.(assistantContent);
+  }
 
   return fullText;
 }

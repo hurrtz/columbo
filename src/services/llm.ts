@@ -4,6 +4,7 @@ import {
   AppLanguage,
   AssistantResponseLength,
   AssistantResponseTone,
+  GeminiAssistantContentPart,
   Message,
   MessageMetadata,
   MistralAssistantContentChunk,
@@ -40,7 +41,11 @@ import {
   getProviderLlmConfig,
   ProviderLlmConfig,
 } from "./llm/shared";
-import { addResponseProvenanceToMessages } from "./llm/messageProvenance";
+import {
+  addResponseProvenanceToMessages,
+  createResponseProvenanceStreamFilter,
+  stripLeadingResponseProvenanceMarker,
+} from "./llm/messageProvenance";
 
 export { buildSystemPrompt } from "./llm/prompts";
 
@@ -82,6 +87,10 @@ interface LlmRequestParams {
 
 interface StreamingLlmRequestParams extends LlmRequestParams {
   onChunk: (text: string) => void;
+  onStreamActivity?: () => void;
+  onGeminiAssistantContent?: (
+    content: GeminiAssistantContentPart[],
+  ) => void;
   onMistralAssistantContent?: (
     content: MistralAssistantContentChunk[],
   ) => void;
@@ -233,6 +242,7 @@ const LLM_STREAM_REQUESTERS = {
       language: params.language,
       systemPrompt: params.systemPrompt,
       onChunk: params.onChunk,
+      onStreamActivity: params.onStreamActivity,
       onMistralAssistantContent: params.onMistralAssistantContent,
       onKimiReasoningContent: params.onKimiReasoningContent,
       abortSignal: params.abortSignal,
@@ -251,6 +261,7 @@ const LLM_STREAM_REQUESTERS = {
       language: params.language,
       systemPrompt: params.systemPrompt,
       onChunk: params.onChunk,
+      onAssistantContent: params.onGeminiAssistantContent,
       abortSignal: params.abortSignal,
     }),
   "openai-realtime": async (params: StreamingLlmRequestParams) =>
@@ -428,7 +439,7 @@ export async function streamChat({
   let releaseAbortSignal: (() => void) | null = null;
 
   try {
-    const requestMessages = addResponseProvenanceToMessages(messages);
+    const requestMessages = addResponseProvenanceToMessages(messages, provider);
     const systemPrompt = buildSystemPrompt({
       assistantInstructions,
       responseLength,
@@ -461,6 +472,7 @@ export async function streamChat({
     const config = getLlmProviderConfigOrThrow(provider, model, language);
     const timeoutError = buildProviderReplyTimeoutError(provider, language);
     const requestAbortController = new AbortController();
+    const provenanceStreamFilter = createResponseProvenanceStreamFilter(onChunk);
 
     if (abortSignal?.aborted) {
       requestAbortController.abort();
@@ -484,13 +496,20 @@ export async function streamChat({
         requestAbortController.abort();
       }, LLM_REPLY_INACTIVITY_TIMEOUT_MS);
     };
-    const onChunkWithTimeout = (text: string) => {
+    const onStreamActivity = () => {
       if (timedOut) {
         return;
       }
 
       armTimeout();
-      onChunk(text);
+    };
+    const onChunkWithTimeout = (text: string) => {
+      if (timedOut) {
+        return;
+      }
+
+      onStreamActivity();
+      provenanceStreamFilter.push(text);
     };
     const requestPromise = (async () => {
       let fullText = "";
@@ -508,6 +527,7 @@ export async function streamChat({
               language,
               systemPrompt,
               onChunk: onChunkWithTimeout,
+              onStreamActivity,
               onMistralAssistantContent: (content) => {
                 replyMetadata = {
                   ...replyMetadata,
@@ -542,6 +562,15 @@ export async function streamChat({
               language,
               systemPrompt,
               onChunk: onChunkWithTimeout,
+              onGeminiAssistantContent: (content) => {
+                replyMetadata = {
+                  ...replyMetadata,
+                  providerState: {
+                    ...replyMetadata?.providerState,
+                    geminiAssistantContent: content,
+                  },
+                };
+              },
               abortSignal: requestAbortController.signal,
             },
             config,
@@ -624,7 +653,10 @@ export async function streamChat({
       return;
     }
 
-    if (!fullText.trim()) {
+    const filteredFullText = stripLeadingResponseProvenanceMarker(fullText);
+    provenanceStreamFilter.flush();
+
+    if (!filteredFullText.trim()) {
       throw buildProviderEmptyReplyError(provider, language);
     }
 
@@ -634,13 +666,13 @@ export async function streamChat({
       kind: "reply",
       systemPrompt,
       messages: requestMessages,
-      completionText: fullText,
+      completionText: filteredFullText,
     });
 
     if (replyMetadata) {
-      await onDone(fullText, usage, replyMetadata);
+      await onDone(filteredFullText, usage, replyMetadata);
     } else {
-      await onDone(fullText, usage);
+      await onDone(filteredFullText, usage);
     }
   } catch (error) {
     if (abortSignal?.aborted) {
