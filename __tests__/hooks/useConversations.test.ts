@@ -82,6 +82,11 @@ describe("useConversations", () => {
     (AsyncStorage.getItem as jest.Mock).mockImplementation(
       async (key: string) => stored.get(key) ?? null,
     );
+    (AsyncStorage.setItem as jest.Mock).mockImplementation(
+      async (key: string, value: string) => {
+        stored.set(key, value);
+      },
+    );
 
     const { result } = renderHook(() => useConversations());
 
@@ -91,6 +96,63 @@ describe("useConversations", () => {
     expect(result.current.activeConversation?.messages).toEqual(
       conversation.messages,
     );
+  });
+
+  it("restores the full first-message title from the legacy 40-character format", async () => {
+    const fullTitle =
+      "This legacy conversation title should now use the complete available header width";
+    const conversation: Conversation = {
+      id: "legacy-title-thread",
+      title: "This legacy conversation title should...",
+      createdAt: "2026-07-21T08:00:00.000Z",
+      updatedAt: "2026-07-21T08:01:00.000Z",
+      messages: [
+        {
+          id: "stored-message",
+          role: "user",
+          content: fullTitle,
+          model: null,
+          provider: null,
+          timestamp: "2026-07-21T08:01:00.000Z",
+        },
+      ],
+    };
+    const stored = new Map<string, string>([
+      ["@columbo/active_conversation", conversation.id],
+      ["@columbo/conversation/legacy-title-thread", JSON.stringify(conversation)],
+      [
+        "@columbo/conversations",
+        JSON.stringify([
+          {
+            id: conversation.id,
+            title: conversation.title,
+            createdAt: conversation.createdAt,
+            updatedAt: conversation.updatedAt,
+            messageCount: 1,
+            providers: [],
+            providerModels: {},
+            lastModel: null,
+            lastProvider: null,
+            pinned: false,
+          },
+        ]),
+      ],
+    ]);
+    (AsyncStorage.getItem as jest.Mock).mockImplementation(
+      async (key: string) => stored.get(key) ?? null,
+    );
+    (AsyncStorage.setItem as jest.Mock).mockImplementation(
+      async (key: string, value: string) => {
+        stored.set(key, value);
+      },
+    );
+
+    const { result } = renderHook(() => useConversations());
+
+    await waitFor(() => {
+      expect(result.current.activeConversation?.title).toBe(fullTitle);
+    });
+    expect(result.current.conversations[0]?.title).toBe(fullTitle);
   });
 
   it("creates a new conversation", async () => {

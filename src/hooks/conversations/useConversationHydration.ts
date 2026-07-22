@@ -10,6 +10,7 @@ import {
   buildConversationMetaFromConversation,
   conversationMetaNeedsHydration,
   normalizeConversationMeta,
+  restoreLegacyConversationTitle,
   sortConversationMeta,
 } from "./meta";
 import {
@@ -17,6 +18,7 @@ import {
   readActiveConversationId,
   readConversation,
   readStoredConversationMetas,
+  saveConversation,
 } from "./storage";
 
 async function hydrateConversationMetas(metas: ConversationMeta[]) {
@@ -85,8 +87,11 @@ export function useConversationHydration(params: {
         storedMetas.map(async (meta) => {
           const needsHydration = conversationMetaNeedsHydration(meta);
           const normalizedMeta = normalizeConversationMeta(meta);
+          const mayHaveLegacyTitle =
+            normalizedMeta.title.endsWith("...") &&
+            normalizedMeta.title.length <= 43;
 
-          if (!needsHydration) {
+          if (!needsHydration && !mayHaveLegacyTitle) {
             return normalizedMeta;
           }
 
@@ -96,8 +101,14 @@ export function useConversationHydration(params: {
             return normalizedMeta;
           }
 
+          const restoredConversation =
+            restoreLegacyConversationTitle(conversation);
+          if (restoredConversation !== conversation) {
+            void saveConversation(restoredConversation);
+          }
+
           return buildConversationMetaFromConversation(
-            conversation,
+            restoredConversation,
             normalizedMeta,
           );
         }),
@@ -126,9 +137,20 @@ export function useConversationHydration(params: {
       const storedActiveConversation = activeConversationStillExists
         ? await readConversation(storedActiveConversationId)
         : null;
+      const restoredActiveConversation = storedActiveConversation
+        ? restoreLegacyConversationTitle(storedActiveConversation)
+        : null;
+
+      if (
+        storedActiveConversation &&
+        restoredActiveConversation &&
+        restoredActiveConversation !== storedActiveConversation
+      ) {
+        void saveConversation(restoredActiveConversation);
+      }
 
       if (!cancelled && !activeConversationRef.current) {
-        setActiveConversationValue(storedActiveConversation);
+        setActiveConversationValue(restoredActiveConversation);
       }
     })();
 

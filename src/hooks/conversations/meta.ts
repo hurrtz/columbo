@@ -1,6 +1,7 @@
 import { Conversation, ConversationMeta, Message, Provider } from "../../types";
 
 export const MAX_CONVERSATION_TITLE_LENGTH = 160;
+const LEGACY_CONVERSATION_TITLE_LENGTH_WITH_ELLIPSIS = 43;
 
 export function truncateConversationTitle(
   text: string,
@@ -13,6 +14,36 @@ export function truncateConversationTitle(
   const truncated = text.slice(0, max);
   const lastSpace = truncated.lastIndexOf(" ");
   return (lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated) + "...";
+}
+
+export function restoreLegacyConversationTitle(
+  conversation: Conversation,
+): Conversation {
+  const currentTitle = conversation.title.trim();
+  if (
+    !currentTitle.endsWith("...") ||
+    currentTitle.length > LEGACY_CONVERSATION_TITLE_LENGTH_WITH_ELLIPSIS
+  ) {
+    return conversation;
+  }
+
+  const legacyPrefix = currentTitle.slice(0, -3);
+  const firstUserMessage = conversation.messages
+    .find((message) => message.role === "user" && message.content.trim())
+    ?.content.trim();
+
+  if (
+    !firstUserMessage ||
+    firstUserMessage.length <= currentTitle.length ||
+    !firstUserMessage.startsWith(legacyPrefix)
+  ) {
+    return conversation;
+  }
+
+  return {
+    ...conversation,
+    title: truncateConversationTitle(firstUserMessage),
+  };
 }
 
 function inferConversationState(messages: Message[]) {
