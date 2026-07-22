@@ -1,5 +1,4 @@
-import { NativeEventEmitter, NativeModules, Platform } from "react-native";
-import { logWaveformDebug } from "../utils/waveformDebug";
+import { NativeEventEmitter, NativeModules } from "react-native";
 
 type NativeWaveformEvent =
   | {
@@ -8,21 +7,10 @@ type NativeWaveformEvent =
       uri?: string;
     }
   | {
-      type: "levels";
-      sessionId: string;
-      samples: number[];
-      averageMagnitude: number;
-    }
-  | {
       type: "error";
       sessionId: string;
       message: string;
     };
-
-type NativeWaveformAnalysis = {
-  samples: number[];
-  durationMs: number;
-};
 
 type NativeWaveformModule = {
   startRecording(
@@ -31,17 +19,6 @@ type NativeWaveformModule = {
   ): Promise<{ uri: string }>;
   stopRecording(sessionId: string): Promise<{ uri: string }>;
   cancelRecording(sessionId: string): Promise<boolean>;
-  analyzeAudioFile(
-    uri: string,
-    sampleCount?: number | null,
-  ): Promise<NativeWaveformAnalysis>;
-  startOutputPlayback(
-    itemId: string,
-    samples: number[],
-    durationMs: number,
-    elapsedMs: number,
-  ): Promise<boolean>;
-  stopOutputPlayback(itemId?: string | null): Promise<boolean>;
 };
 
 const nativeModule = NativeModules.ColumboNativeWaveform as
@@ -51,14 +28,6 @@ const nativeModule = NativeModules.ColumboNativeWaveform as
 const nativeEmitter = nativeModule
   ? new NativeEventEmitter(nativeModule as any)
   : null;
-
-export function supportsNativeOutputWaveformPlayback() {
-  return (
-    !!nativeModule &&
-    typeof (nativeModule as any).startOutputPlayback === "function" &&
-    typeof (nativeModule as any).stopOutputPlayback === "function"
-  );
-}
 
 export function isNativeWaveformAvailable() {
   return !!nativeModule;
@@ -108,89 +77,4 @@ export async function cancelNativeWaveformRecording(sessionId: string) {
   return nativeModule.cancelRecording(sessionId);
 }
 
-export async function analyzeNativeAudioFile(params: {
-  uri: string;
-  sampleCount?: number;
-}) {
-  if (!nativeModule) {
-    return null;
-  }
-
-  const analysis = await nativeModule.analyzeAudioFile(
-    params.uri,
-    params.sampleCount ?? null,
-  );
-
-  if (!analysis || !Array.isArray(analysis.samples)) {
-    return null;
-  }
-
-  return analysis;
-}
-
-export async function startNativeOutputWaveformPlayback(params: {
-  itemId: string;
-  samples: number[];
-  durationMs: number;
-  elapsedMs?: number;
-}) {
-  if (!supportsNativeOutputWaveformPlayback()) {
-    logWaveformDebug("native-output-playback-unsupported", {
-      platform: Platform.OS,
-      itemId: params.itemId,
-      nativeModuleAvailable: !!nativeModule,
-      hasStartOutputPlayback:
-        typeof (nativeModule as any)?.startOutputPlayback === "function",
-      hasStopOutputPlayback:
-        typeof (nativeModule as any)?.stopOutputPlayback === "function",
-    });
-    return false;
-  }
-
-  const module = nativeModule as NativeWaveformModule;
-  const result = await module.startOutputPlayback(
-    params.itemId,
-    params.samples,
-    params.durationMs,
-    Math.max(0, params.elapsedMs ?? 0),
-  );
-
-  logWaveformDebug("native-output-playback-start", {
-    platform: Platform.OS,
-    itemId: params.itemId,
-    durationMs: params.durationMs,
-    elapsedMs: Math.max(0, params.elapsedMs ?? 0),
-    sampleCount: params.samples.length,
-    result,
-  });
-
-  return result;
-}
-
-export async function stopNativeOutputWaveformPlayback(itemId?: string | null) {
-  if (!supportsNativeOutputWaveformPlayback()) {
-    logWaveformDebug("native-output-playback-stop-unsupported", {
-      platform: Platform.OS,
-      itemId: itemId ?? null,
-      nativeModuleAvailable: !!nativeModule,
-      hasStartOutputPlayback:
-        typeof (nativeModule as any)?.startOutputPlayback === "function",
-      hasStopOutputPlayback:
-        typeof (nativeModule as any)?.stopOutputPlayback === "function",
-    });
-    return false;
-  }
-
-  const module = nativeModule as NativeWaveformModule;
-  const result = await module.stopOutputPlayback(itemId ?? null);
-
-  logWaveformDebug("native-output-playback-stop", {
-    platform: Platform.OS,
-    itemId: itemId ?? null,
-    result,
-  });
-
-  return result;
-}
-
-export type { NativeWaveformAnalysis, NativeWaveformEvent };
+export type { NativeWaveformEvent };

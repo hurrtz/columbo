@@ -1,7 +1,6 @@
 import { Platform } from "react-native";
 import { ExpoSpeechRecognitionModule } from "expo-speech-recognition";
 import { useLocalization } from "../i18n";
-import { WaveformVisualizationVariant } from "../types";
 import { isNativeWaveformAvailable } from "../services/nativeWaveform";
 import { useRecognitionControls } from "./nativeSpeechRecognizer/useRecognitionControls";
 import { useRecognitionSession } from "./nativeSpeechRecognizer/useRecognitionSession";
@@ -22,7 +21,7 @@ function canUseNativeWaveformRecorderForRecognition() {
 export function useNativeSpeechRecognizer() {
   const { t } = useLocalization();
   const usingNativeRecorder = canUseNativeWaveformRecorderForRecognition();
-  const session = useRecognitionSession({ t, usingNativeRecorder });
+  const session = useRecognitionSession({ t });
 
   useRecognitionSubscriptions({
     session,
@@ -40,7 +39,6 @@ export function useNativeSpeechRecognizer() {
     isAvailable: ExpoSpeechRecognitionModule.isRecognitionAvailable(),
     isRecording: session.isRecording,
     lastError: session.lastError,
-    waveformVariant: (usingNativeRecorder ? "oscilloscope" : "bars") as WaveformVisualizationVariant,
     startRecognition,
     stopRecognition,
     abortRecognition,

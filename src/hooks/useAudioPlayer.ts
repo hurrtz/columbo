@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Platform } from "react-native";
 import {
   useAudioPlayer as useExpoAudioPlayer,
@@ -11,18 +11,14 @@ import {
   prepareNativeAudioQueue,
   resumeNativeAudioQueue,
 } from "../services/nativeAudioQueue";
-import { supportsNativeOutputWaveformPlayback } from "../services/nativeWaveform";
-import { logWaveformDebug } from "../utils/waveformDebug";
 import { PLAYER_STATUS_INTERVAL_MS } from "./audioPlayer/shared";
 import { useAudioClipPlayback } from "./audioPlayer/useAudioClipPlayback";
 import { useNativeAudioQueuePlayback } from "./audioPlayer/useNativeAudioQueuePlayback";
 import { useNativeAudioQueueSubscription } from "./audioPlayer/useNativeAudioQueueSubscription";
-import { useNativeOutputWaveformController } from "./audioPlayer/useNativeOutputWaveformController";
 import { useNativeSpeechPlayback } from "./audioPlayer/useNativeSpeechPlayback";
 import { usePendingPlaybackState } from "./audioPlayer/usePendingPlaybackState";
 import { usePlaybackLifecycle } from "./audioPlayer/usePlaybackLifecycle";
 import { usePlaybackSession } from "./audioPlayer/usePlaybackSession";
-import { usePlaybackVisualState } from "./audioPlayer/usePlaybackVisualState";
 import { useStopPlaybackController } from "./audioPlayer/useStopPlaybackController";
 import {
   type AudioQueueItem,
@@ -32,8 +28,6 @@ import {
 
 export function useAudioPlayer() {
   const usingNativeAudioQueue = isNativeAudioQueueAvailable();
-  const supportsNativeOutputWaveform =
-    supportsNativeOutputWaveformPlayback();
   const player = useExpoAudioPlayer(null, {
     updateInterval: PLAYER_STATUS_INTERVAL_MS,
     keepAudioSessionActive: false,
@@ -62,39 +56,12 @@ export function useAudioPlayer() {
   const [isPlaybackPaused, setPlaybackPaused] = useState(false);
   const { ensurePlaybackSession, resetPlaybackSession } =
     usePlaybackSession();
-  const {
-    publishWaveform,
-    resetVisualState,
-    setWaveformVariant,
-  } = usePlaybackVisualState({
-    player,
-    status,
-    nativeSpeaking,
-    nativeSpeakingRef,
-    nativeAudioQueuePlaying,
-    usingNativeAudioQueue,
-  });
-  const {
-    clearNativeAudioQueueState,
-    getWaveformAnalysis,
-    nativeOutputWaveformItemIdRef,
-    nativeOutputWaveformStartedAtRef,
-    pauseNativeOutputWaveform,
-    resumeNativeOutputWaveform,
-    startNativeMetering,
-    startNativeOutputWaveform,
-    stopNativeMetering,
-    stopNativeOutputWaveform,
-  } = useNativeOutputWaveformController({
-    nativeAudioQueueContextsRef,
-    nativeAudioQueuePendingCountRef,
-    nativeAudioQueuePlayingRef,
-    publishWaveform,
-    setNativeAudioQueuePlaying,
-    setWaveformVariant,
-    supportsNativeOutputWaveform,
-    usingNativeAudioQueue,
-  });
+  const clearNativeAudioQueueState = useCallback(() => {
+    nativeAudioQueueContextsRef.current.clear();
+    nativeAudioQueuePendingCountRef.current = 0;
+    nativeAudioQueuePlayingRef.current = false;
+    setNativeAudioQueuePlaying(false);
+  }, []);
   const {
     hasPendingPlayback,
     hasPendingPlaybackNow,
@@ -115,19 +82,6 @@ export function useAudioPlayer() {
     usingNativeAudioQueue,
   });
   const finalizeDrainedStateRef = useRef<() => void>(() => undefined);
-
-  useEffect(() => {
-    logWaveformDebug("audio-player-init", {
-      platform: Platform.OS,
-      usingNativeAudioQueue,
-      supportsNativeOutputWaveform,
-      expoAudioSamplingSupported: player.isAudioSamplingSupported,
-    });
-  }, [
-    player.isAudioSamplingSupported,
-    supportsNativeOutputWaveform,
-    usingNativeAudioQueue,
-  ]);
 
   const ensureAudioQueuePlaybackSession = useCallback(async () => {
     if (!usingNativeAudioQueue) {
@@ -158,7 +112,6 @@ export function useAudioPlayer() {
       currentAudioRef,
       ensurePlaybackSession,
       finalizeDrainedStateRef,
-      getWaveformAnalysis,
       hasSeenAudioPlayingRef,
       loadedSourceRef,
       nativeAudioQueueContextsRef,
@@ -169,7 +122,6 @@ export function useAudioPlayer() {
       playingRef,
       queueRef,
       startingRef,
-      supportsNativeOutputWaveform,
       updatePendingPlaybackState,
       usingNativeAudioQueue,
     });
@@ -179,10 +131,7 @@ export function useAudioPlayer() {
     setPlaybackPaused(false);
     markPlaybackEnded();
     removeLoadedAudio();
-    stopNativeMetering();
-    stopNativeOutputWaveform();
     clearNativeAudioQueueState();
-    resetVisualState();
     resetPlaybackSession();
     updatePendingPlaybackState();
   }, [
@@ -190,9 +139,6 @@ export function useAudioPlayer() {
     markPlaybackEnded,
     removeLoadedAudio,
     resetPlaybackSession,
-    resetVisualState,
-    stopNativeMetering,
-    stopNativeOutputWaveform,
     updatePendingPlaybackState,
   ]);
 
@@ -213,26 +159,19 @@ export function useAudioPlayer() {
     ensurePlaybackSession,
     finalizeDrainedState,
     playNextAudio,
-    startNativeMetering,
-    stopNativeMetering,
     updatePendingPlaybackState,
   });
 
   useNativeAudioQueueSubscription({
     usingNativeAudioQueue,
-    supportsNativeOutputWaveform,
     playNextNative,
     finalizeDrainedState,
     updatePendingPlaybackState,
-    startNativeOutputWaveform,
-    stopNativeOutputWaveform,
     setNativeAudioQueuePlaying,
     currentAudioRef,
     cancelledRef,
     playingRef,
     hasSeenAudioPlayingRef,
-    nativeOutputWaveformItemIdRef,
-    nativeOutputWaveformStartedAtRef,
     nativeAudioQueueContextsRef,
     nativeAudioQueuePendingCountRef,
     nativeAudioQueuePlayingRef,
@@ -257,8 +196,6 @@ export function useAudioPlayer() {
     setNativeAudioQueuePlaying,
     statusPlaybackState: status.playbackState,
     statusPlaying: status.playing,
-    stopNativeMetering,
-    stopNativeOutputWaveform,
     updatePendingPlaybackState,
     usingNativeAudioQueue,
   });
@@ -278,13 +215,10 @@ export function useAudioPlayer() {
     playingRef,
     removeLoadedAudio,
     resetPlaybackSession,
-    resetVisualState,
     setNativeSpeaking,
     setNativeSpeechPlaying,
     setPlaybackPaused,
     startingRef,
-    stopNativeMetering,
-    stopNativeOutputWaveform,
     updatePendingPlaybackState,
     usingNativeAudioQueue,
     queueRef,
@@ -321,12 +255,6 @@ export function useAudioPlayer() {
       playbackPausedRef.current = true;
       setPlaybackPaused(true);
       playingRef.current = false;
-      stopNativeMetering();
-      if (hasNativeAudioQueue) {
-        pauseNativeOutputWaveform();
-      } else {
-        stopNativeOutputWaveform();
-      }
       updatePendingPlaybackState();
       return true;
     } catch {
@@ -338,10 +266,7 @@ export function useAudioPlayer() {
     nativeAudioQueuePlayingRef,
     player,
     playingRef,
-    pauseNativeOutputWaveform,
     setNativeAudioQueuePlaying,
-    stopNativeMetering,
-    stopNativeOutputWaveform,
     updatePendingPlaybackState,
     usingNativeAudioQueue,
   ]);
@@ -356,7 +281,6 @@ export function useAudioPlayer() {
         await ensurePlaybackSession();
         await Speech.resume();
         setNativeSpeechPlaying(true);
-        startNativeMetering();
       } else if (usingNativeAudioQueue && currentAudioRef.current) {
         await ensureAudioQueuePlaybackSession();
         const resumed = await resumeNativeAudioQueue();
@@ -368,7 +292,6 @@ export function useAudioPlayer() {
         nativeAudioQueuePlayingRef.current = true;
         setNativeAudioQueuePlaying(true);
         playingRef.current = true;
-        resumeNativeOutputWaveform();
       } else if (currentAudioRef.current) {
         await ensurePlaybackSession();
         player.play();
@@ -411,9 +334,7 @@ export function useAudioPlayer() {
     player,
     playingRef,
     queueRef,
-    resumeNativeOutputWaveform,
     setNativeAudioQueuePlaying,
-    startNativeMetering,
     updatePendingPlaybackState,
     usingNativeAudioQueue,
   ]);

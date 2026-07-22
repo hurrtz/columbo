@@ -3,20 +3,14 @@ package com.tobiaswinkler.app.columbo
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.ReadableArray
-import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import java.io.File
-import java.util.ArrayDeque
-import kotlin.math.sqrt
 
 class ColumboNativeWaveformModule(
   reactContext: ReactApplicationContext,
@@ -24,30 +18,13 @@ class ColumboNativeWaveformModule(
   companion object {
     const val NAME = "ColumboNativeWaveform"
     private const val EVENT_NAME = "ColumboNativeWaveformEvent"
-    private const val LEVEL_HISTORY_SIZE = 48
-    private const val LEVEL_TICK_MS = 100L
   }
 
-  private val mainHandler = Handler(Looper.getMainLooper())
   private val lock = Any()
-  private val levelHistory = ArrayDeque<Double>(LEVEL_HISTORY_SIZE)
 
   private var recorder: MediaRecorder? = null
   private var activeSessionId: String? = null
   private var activeOutputFile: File? = null
-
-  private val levelTicker =
-    object : Runnable {
-      override fun run() {
-        emitLevelSnapshot()
-
-        synchronized(lock) {
-          if (activeSessionId != null) {
-            mainHandler.postDelayed(this, LEVEL_TICK_MS)
-          }
-        }
-      }
-    }
 
   override fun getName(): String = NAME
 
@@ -95,9 +72,6 @@ class ColumboNativeWaveformModule(
         recorder = nextRecorder
         activeSessionId = sessionId
         activeOutputFile = outputFile
-        levelHistory.clear()
-        startLevelTickerLocked()
-
         emitLifecycleEvent(
           type = "started",
           sessionId = sessionId,
@@ -140,8 +114,6 @@ class ColumboNativeWaveformModule(
         return
       }
 
-      stopLevelTickerLocked()
-
       try {
         currentRecorder.stop()
         currentRecorder.reset()
@@ -150,8 +122,6 @@ class ColumboNativeWaveformModule(
         recorder = null
         activeSessionId = null
         activeOutputFile = null
-        levelHistory.clear()
-
         emitLifecycleEvent(
           type = "stopped",
           sessionId = sessionId,
@@ -199,66 +169,10 @@ class ColumboNativeWaveformModule(
     }
   }
 
-  @ReactMethod
-  fun analyzeAudioFile(uri: String, sampleCount: Double?, promise: Promise) {
-    try {
-      promise.resolve(
-        ColumboWaveformAudioAnalyzer.analyze(
-          reactApplicationContext,
-          uri,
-          sampleCount?.toInt(),
-        ),
-      )
-    } catch (error: Exception) {
-      promise.reject(
-        "native_waveform_analysis_error",
-        error.message ?: "The audio file could not be analyzed for waveform output.",
-        error,
-      )
-    }
-  }
-
-  @ReactMethod
-  fun startOutputPlayback(
-    itemId: String,
-    samples: ReadableArray,
-    durationMs: Double,
-    elapsedMs: Double,
-    promise: Promise,
-  ) {
-    if (itemId.isBlank()) {
-      promise.reject(
-        "native_waveform_output_error",
-        "itemId is required.",
-      )
-      return
-    }
-
-    ColumboWaveformStateCoordinator.startPlayback(
-      channel = "output",
-      itemId = itemId,
-      samples = samples.toDoubleList(),
-      durationMs = durationMs,
-      elapsedMs = elapsedMs,
-    )
-    promise.resolve(true)
-  }
-
-  @ReactMethod
-  fun stopOutputPlayback(itemId: String?, promise: Promise) {
-    ColumboWaveformStateCoordinator.stopPlayback(
-      channel = "output",
-      itemId = itemId,
-    )
-    promise.resolve(true)
-  }
-
   override fun invalidate() {
     synchronized(lock) {
       cleanupRecorderLocked(deleteOutput = true)
     }
-    ColumboWaveformStateCoordinator.clear("input")
-    ColumboWaveformStateCoordinator.clear("output")
     super.invalidate()
   }
 
@@ -291,96 +205,13 @@ class ColumboNativeWaveformModule(
     return File(reactApplicationContext.cacheDir, fileName)
   }
 
-  private fun startLevelTickerLocked() {
-    stopLevelTickerLocked()
-    mainHandler.post(levelTicker)
-  }
-
-  private fun stopLevelTickerLocked() {
-    mainHandler.removeCallbacks(levelTicker)
-  }
-
-  private fun emitLevelSnapshot() {
-    val currentSessionId: String
-    val currentRecorder: MediaRecorder
-
-    synchronized(lock) {
-      currentSessionId = activeSessionId ?: return
-      currentRecorder = recorder ?: return
-
-      val rawAmplitude =
-        try {
-          currentRecorder.maxAmplitude
-        } catch (_: RuntimeException) {
-          0
-        }
-      val normalized = normalizeAmplitude(rawAmplitude)
-
-      if (levelHistory.size >= LEVEL_HISTORY_SIZE) {
-        levelHistory.removeFirst()
-      }
-      levelHistory.addLast(normalized)
-      ColumboWaveformStateCoordinator.setSamples(
-        channel = "input",
-        samples = levelHistory.toList(),
-      )
-    }
-
-    val payload = Arguments.createMap().apply {
-      putString("type", "levels")
-      putString("sessionId", currentSessionId)
-      putArray("samples", createSamplesArray())
-      putDouble("averageMagnitude", averageLevelMagnitude())
-    }
-
-    emitEvent(payload)
-  }
-
-  private fun createSamplesArray(): WritableArray {
-    val snapshot =
-      synchronized(lock) {
-        levelHistory.toList()
-      }
-
-    return Arguments.createArray().apply {
-      snapshot.forEach { value ->
-        pushDouble(value)
-      }
-    }
-  }
-
-  private fun averageLevelMagnitude(): Double {
-    val snapshot =
-      synchronized(lock) {
-        levelHistory.toList()
-      }
-
-    if (snapshot.isEmpty()) {
-      return 0.0
-    }
-
-    return snapshot.sum() / snapshot.size
-  }
-
-  private fun normalizeAmplitude(value: Int): Double {
-    if (value <= 0) {
-      return 0.0
-    }
-
-    val clamped = value.coerceIn(0, Short.MAX_VALUE.toInt()).toDouble()
-    return sqrt(clamped / Short.MAX_VALUE.toDouble()).coerceIn(0.0, 1.0)
-  }
-
   private fun cleanupRecorderLocked(deleteOutput: Boolean) {
-    stopLevelTickerLocked()
-
     val currentRecorder = recorder
     val outputFile = activeOutputFile
 
     recorder = null
     activeSessionId = null
     activeOutputFile = null
-    levelHistory.clear()
 
     if (currentRecorder != null) {
       try {
@@ -441,9 +272,4 @@ class ColumboNativeWaveformModule(
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
       .emit(EVENT_NAME, payload)
   }
-
-  private fun ReadableArray.toDoubleList(): List<Double> =
-    (0 until size()).map { index ->
-      getDouble(index)
-    }
 }

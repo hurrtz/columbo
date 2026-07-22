@@ -21,8 +21,6 @@ export function usePlaybackLifecycle(params: {
   setNativeAudioQueuePlaying: (value: boolean) => void;
   statusPlaybackState?: string;
   statusPlaying: boolean;
-  stopNativeMetering: () => void;
-  stopNativeOutputWaveform: () => void;
   updatePendingPlaybackState: () => void;
   usingNativeAudioQueue: boolean;
 }) {
@@ -44,8 +42,6 @@ export function usePlaybackLifecycle(params: {
     setNativeAudioQueuePlaying,
     statusPlaybackState,
     statusPlaying,
-    stopNativeMetering,
-    stopNativeOutputWaveform,
     updatePendingPlaybackState,
     usingNativeAudioQueue,
   } = params;
@@ -183,8 +179,6 @@ export function usePlaybackLifecycle(params: {
 
   useEffect(() => {
     return () => {
-      stopNativeMetering();
-      stopNativeOutputWaveform();
       setNativeAudioQueuePlaying(false);
       if (usingNativeAudioQueue) {
         void stopNativeAudioQueue();
@@ -194,8 +188,6 @@ export function usePlaybackLifecycle(params: {
   }, [
     resolveDrainWaiters,
     setNativeAudioQueuePlaying,
-    stopNativeMetering,
-    stopNativeOutputWaveform,
     usingNativeAudioQueue,
   ]);
 }

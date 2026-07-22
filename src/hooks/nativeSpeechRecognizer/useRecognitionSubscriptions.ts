@@ -1,18 +1,9 @@
 import { useEffect } from "react";
 import { ExpoSpeechRecognitionModule } from "expo-speech-recognition";
 import {
-  appendMeterHistory,
-  averageSampleMagnitude,
-  blendWaveformSamples,
-  EMPTY_OSCILLOSCOPE_SAMPLES,
-  enhanceInputWaveformSamples,
-  levelToMetering,
-} from "../../utils/audioVisualization";
-import {
   cancelNativeWaveformRecording,
   subscribeToNativeWaveform,
 } from "../../services/nativeWaveform";
-import { volumeToMetering } from "./shared";
 import type { RecognitionSession } from "./useRecognitionSession";
 
 interface UseRecognitionSubscriptionsParams {
@@ -29,18 +20,14 @@ export function useRecognitionSubscriptions({
     finalTranscriptRef,
     handleError,
     handleResult,
-    inputReferenceLevelRef,
     isRecordingRef,
     latestTranscriptRef,
     nativeSessionIdRef,
-    publishFrame,
     rejectPendingStop,
-    resetVisualState,
     resolvePendingStop,
     setIsRecording,
     stopRequestedRef,
     stopResolverRef,
-    waveformDataRef,
   } = session;
 
   useEffect(() => {
@@ -63,34 +50,11 @@ export function useRecognitionSubscriptions({
         return;
       }
 
-      if (
-        event.type !== "levels" ||
-        !nativeSessionIdRef.current ||
-        event.sessionId !== nativeSessionIdRef.current
-      ) {
-        return;
-      }
-
-      const { samples, referenceLevel } = enhanceInputWaveformSamples(
-        event.samples?.length ? event.samples : EMPTY_OSCILLOSCOPE_SAMPLES,
-        inputReferenceLevelRef.current,
-      );
-      inputReferenceLevelRef.current = referenceLevel;
-
-      const blended = blendWaveformSamples(
-        waveformDataRef.current,
-        samples,
-        0.08,
-      );
-      publishFrame(levelToMetering(averageSampleMagnitude(samples)), blended);
     });
   }, [
-    inputReferenceLevelRef,
     nativeSessionIdRef,
-    publishFrame,
     rejectPendingStop,
     usingNativeRecorder,
-    waveformDataRef,
   ]);
 
   useEffect(() => {
@@ -106,17 +70,6 @@ export function useRecognitionSubscriptions({
     const resultSubscription = ExpoSpeechRecognitionModule.addListener(
       "result",
       handleResult,
-    );
-
-    const volumeSubscription = ExpoSpeechRecognitionModule.addListener(
-      "volumechange",
-      (event) => {
-        const metering = volumeToMetering(event.value);
-        publishFrame(
-          metering,
-          appendMeterHistory(waveformDataRef.current, metering),
-        );
-      },
     );
 
     const errorSubscription = ExpoSpeechRecognitionModule.addListener(
@@ -141,13 +94,11 @@ export function useRecognitionSubscriptions({
 
       isRecordingRef.current = false;
       setIsRecording(false);
-      resetVisualState();
     });
 
     return () => {
       startSubscription.remove();
       resultSubscription.remove();
-      volumeSubscription.remove();
       errorSubscription.remove();
       endSubscription.remove();
 
@@ -162,14 +113,11 @@ export function useRecognitionSubscriptions({
     handleResult,
     isRecordingRef,
     latestTranscriptRef,
-    publishFrame,
-    resetVisualState,
     resolvePendingStop,
     setIsRecording,
     stopRequestedRef,
     stopResolverRef,
     usingNativeRecorder,
-    waveformDataRef,
   ]);
 
   useEffect(() => {

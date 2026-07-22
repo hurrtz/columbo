@@ -1,5 +1,4 @@
 import { type SpeechDiagnosticsContext } from "../../services/speech/diagnostics";
-import { type NativeWaveformAnalysis } from "../../services/nativeWaveform";
 
 export type AudioQueueItem = {
   generation: number;
@@ -23,5 +22,4 @@ export type NativeAudioQueueContext = {
   uri: string;
   diagnostics?: SpeechDiagnosticsContext;
   onPlaybackStarted?: () => void;
-  waveformAnalysis?: Promise<NativeWaveformAnalysis | null>;
 };

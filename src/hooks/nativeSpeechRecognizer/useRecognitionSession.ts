@@ -4,16 +4,6 @@ import type {
   ExpoSpeechRecognitionResultEvent,
 } from "expo-speech-recognition";
 import type { TranslationKey } from "../../i18n";
-import {
-  EMPTY_OSCILLOSCOPE_SAMPLES,
-  EMPTY_VISUAL_LEVELS,
-  INPUT_WAVEFORM_REFERENCE_FLOOR,
-} from "../../utils/audioVisualization";
-import {
-  publishWaveformFrame,
-  resetWaveformFrame,
-} from "../../state/waveformFeed";
-import type { WaveformVisualizationVariant } from "../../types";
 import { buildErrorMessage } from "./shared";
 
 type StopResolver = (value: string | null) => void;
@@ -31,13 +21,8 @@ export interface RecognitionSession {
   stopRequestedRef: React.MutableRefObject<boolean>;
   abortRequestedRef: React.MutableRefObject<boolean>;
   nativeSessionIdRef: React.MutableRefObject<string | null>;
-  inputReferenceLevelRef: React.MutableRefObject<number>;
-  waveformDataRef: React.MutableRefObject<number[]>;
-  waveformVariant: WaveformVisualizationVariant;
   setIsRecording: React.Dispatch<React.SetStateAction<boolean>>;
   setLastError: React.Dispatch<React.SetStateAction<string | null>>;
-  publishFrame: (metering: number, levels: number[]) => void;
-  resetVisualState: () => void;
   clearPendingResolution: () => void;
   resolvePendingStop: (value: string | null) => void;
   rejectPendingStop: (error: Error) => void;
@@ -51,22 +36,13 @@ interface UseRecognitionSessionParams {
     key: TranslationKey,
     params?: Record<string, string | number | undefined>,
   ) => string;
-  usingNativeRecorder: boolean;
 }
 
 export function useRecognitionSession({
   t,
-  usingNativeRecorder,
 }: UseRecognitionSessionParams): RecognitionSession {
-  const emptyWaveform = usingNativeRecorder
-    ? EMPTY_OSCILLOSCOPE_SAMPLES
-    : EMPTY_VISUAL_LEVELS;
-  const waveformVariant: WaveformVisualizationVariant = usingNativeRecorder
-    ? "oscilloscope"
-    : "bars";
   const [isRecording, setIsRecording] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
-  const waveformDataRef = useRef<number[]>(emptyWaveform);
   const isRecordingRef = useRef(false);
   const startedAtRef = useRef(0);
   const latestTranscriptRef = useRef("");
@@ -76,21 +52,6 @@ export function useRecognitionSession({
   const stopRequestedRef = useRef(false);
   const abortRequestedRef = useRef(false);
   const nativeSessionIdRef = useRef<string | null>(null);
-  const inputReferenceLevelRef = useRef(INPUT_WAVEFORM_REFERENCE_FLOOR);
-
-  const publishFrame = useCallback(
-    (metering: number, levels: number[]) => {
-      waveformDataRef.current = levels;
-      publishWaveformFrame({ metering, levels, variant: waveformVariant });
-    },
-    [waveformVariant],
-  );
-
-  const resetVisualState = useCallback(() => {
-    inputReferenceLevelRef.current = INPUT_WAVEFORM_REFERENCE_FLOOR;
-    waveformDataRef.current = emptyWaveform;
-    resetWaveformFrame();
-  }, [emptyWaveform]);
 
   const clearPendingResolution = useCallback(() => {
     stopResolverRef.current = null;
@@ -105,10 +66,9 @@ export function useRecognitionSession({
       clearPendingResolution();
       isRecordingRef.current = false;
       setIsRecording(false);
-      resetVisualState();
       resolve?.(value);
     },
-    [clearPendingResolution, resetVisualState],
+    [clearPendingResolution],
   );
 
   const rejectPendingStop = useCallback(
@@ -117,8 +77,6 @@ export function useRecognitionSession({
       clearPendingResolution();
       isRecordingRef.current = false;
       setIsRecording(false);
-      resetVisualState();
-
       if (reject) {
         reject(error);
         return;
@@ -126,7 +84,7 @@ export function useRecognitionSession({
 
       setLastError(error.message);
     },
-    [clearPendingResolution, resetVisualState],
+    [clearPendingResolution],
   );
 
   const handleResult = useCallback((event: ExpoSpeechRecognitionResultEvent) => {
@@ -176,13 +134,8 @@ export function useRecognitionSession({
     stopRequestedRef,
     abortRequestedRef,
     nativeSessionIdRef,
-    inputReferenceLevelRef,
-    waveformDataRef,
-    waveformVariant,
     setIsRecording,
     setLastError,
-    publishFrame,
-    resetVisualState,
     clearPendingResolution,
     resolvePendingStop,
     rejectPendingStop,

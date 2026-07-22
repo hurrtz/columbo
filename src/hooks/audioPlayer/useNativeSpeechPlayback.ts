@@ -48,8 +48,6 @@ export function useNativeSpeechPlayback(params: {
   ensurePlaybackSession: () => Promise<void>;
   finalizeDrainedState: () => void;
   playNextAudio: () => Promise<void>;
-  startNativeMetering: () => void;
-  stopNativeMetering: () => void;
   updatePendingPlaybackState: () => void;
 }) {
   const {
@@ -67,8 +65,6 @@ export function useNativeSpeechPlayback(params: {
     ensurePlaybackSession,
     finalizeDrainedState,
     playNextAudio,
-    startNativeMetering,
-    stopNativeMetering,
     updatePendingPlaybackState,
   } = params;
 
@@ -162,7 +158,6 @@ export function useNativeSpeechPlayback(params: {
         setNativeSpeechPlaying(false);
         nativeSpeakingRef.current = false;
         setNativeSpeaking(false);
-        stopNativeMetering();
         recordSpeechDiagnostic({
           requestId: next.diagnostics?.requestId,
           source: next.diagnostics?.source ?? "unknown",
@@ -205,7 +200,6 @@ export function useNativeSpeechPlayback(params: {
           );
         }, getNativeSpeechRuntimeTimeoutMs(next.text));
         setNativeSpeechPlaying(true);
-        startNativeMetering();
         recordSpeechDiagnostic({
           requestId: next.diagnostics?.requestId,
           source: next.diagnostics?.source ?? "unknown",
@@ -316,7 +310,6 @@ export function useNativeSpeechPlayback(params: {
       setNativeSpeechPlaying(false);
       nativeSpeakingRef.current = false;
       setNativeSpeaking(false);
-      stopNativeMetering();
       recordSpeechDiagnostic({
         requestId: next.diagnostics?.requestId,
         source: next.diagnostics?.source ?? "unknown",
@@ -350,9 +343,7 @@ export function useNativeSpeechPlayback(params: {
     playingRef,
     queueRef,
     setNativeSpeechPlaying,
-    startNativeMetering,
     startingRef,
-    stopNativeMetering,
     updatePendingPlaybackState,
   ]);
 

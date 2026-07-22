@@ -35,7 +35,6 @@ export function useRecognitionControls({
     isRecordingRef,
     latestTranscriptRef,
     nativeSessionIdRef,
-    resetVisualState,
     setIsRecording,
     setLastError,
     startedAtRef,
@@ -63,7 +62,6 @@ export function useRecognitionControls({
     latestTranscriptRef.current = "";
     finalTranscriptRef.current = "";
     clearPendingResolution();
-    resetVisualState();
     startedAtRef.current = Date.now();
     isRecordingRef.current = true;
     setIsRecording(true);
@@ -81,7 +79,6 @@ export function useRecognitionControls({
         nativeSessionIdRef.current = null;
         isRecordingRef.current = false;
         setIsRecording(false);
-        resetVisualState();
         throw error instanceof Error
           ? error
           : new Error(t("couldntStartNativeSpeechRecognition"));
@@ -106,7 +103,6 @@ export function useRecognitionControls({
     } catch (error) {
       isRecordingRef.current = false;
       setIsRecording(false);
-      resetVisualState();
       throw error instanceof Error
         ? error
         : new Error(t("couldntStartNativeSpeechRecognition"));
@@ -117,7 +113,6 @@ export function useRecognitionControls({
     isRecordingRef,
     latestTranscriptRef,
     nativeSessionIdRef,
-    resetVisualState,
     setIsRecording,
     setLastError,
     startedAtRef,
@@ -128,7 +123,6 @@ export function useRecognitionControls({
   const abortRecognition = useCallback(async () => {
     if (!isRecordingRef.current) {
       clearPendingResolution();
-      resetVisualState();
       return;
     }
 
@@ -137,7 +131,6 @@ export function useRecognitionControls({
       nativeSessionIdRef.current = null;
       isRecordingRef.current = false;
       setIsRecording(false);
-      resetVisualState();
       clearPendingResolution();
 
       if (sessionId) {
@@ -159,7 +152,6 @@ export function useRecognitionControls({
     clearPendingResolution,
     isRecordingRef,
     nativeSessionIdRef,
-    resetVisualState,
     setIsRecording,
     stopRejectRef,
     stopRequestedRef,
@@ -182,14 +174,12 @@ export function useRecognitionControls({
       if (!sessionId) {
         isRecordingRef.current = false;
         setIsRecording(false);
-        resetVisualState();
         return null;
       }
 
       nativeSessionIdRef.current = null;
       isRecordingRef.current = false;
       setIsRecording(false);
-      resetVisualState();
 
       const recording = await stopNativeWaveformRecording(sessionId);
       const fileUri = recording.uri ?? null;
@@ -227,7 +217,6 @@ export function useRecognitionControls({
     isRecordingRef,
     latestTranscriptRef,
     nativeSessionIdRef,
-    resetVisualState,
     setIsRecording,
     startedAtRef,
     stopRejectRef,

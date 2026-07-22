@@ -10,13 +10,9 @@ import {
   type NativeAudioQueueEvent,
 } from "../../services/nativeAudioQueue";
 import {
-  NativeWaveformAnalysis,
-} from "../../services/nativeWaveform";
-import {
   SpeechDiagnosticsContext,
   recordSpeechDiagnostic,
 } from "../../services/speech/diagnostics";
-import { logWaveformDebug } from "../../utils/waveformDebug";
 import {
   type AudioQueueItem,
   type NativeAudioQueueContext,
@@ -25,23 +21,14 @@ import {
 
 export function useNativeAudioQueueSubscription(params: {
   usingNativeAudioQueue: boolean;
-  supportsNativeOutputWaveform: boolean;
   playNextNative: () => Promise<void>;
   finalizeDrainedState: () => void;
   updatePendingPlaybackState: () => void;
-  startNativeOutputWaveform: (
-    itemId: string,
-    analysis: NativeWaveformAnalysis,
-    playbackStartedAtMs: number,
-  ) => void;
-  stopNativeOutputWaveform: () => void;
   setNativeAudioQueuePlaying: Dispatch<SetStateAction<boolean>>;
   currentAudioRef: MutableRefObject<AudioQueueItem | null>;
   cancelledRef: MutableRefObject<boolean>;
   playingRef: MutableRefObject<boolean>;
   hasSeenAudioPlayingRef: MutableRefObject<boolean>;
-  nativeOutputWaveformItemIdRef: MutableRefObject<string | null>;
-  nativeOutputWaveformStartedAtRef: MutableRefObject<number | null>;
   nativeAudioQueueContextsRef: MutableRefObject<
     Map<string, NativeAudioQueueContext>
   >;
@@ -53,19 +40,14 @@ export function useNativeAudioQueueSubscription(params: {
 }) {
   const {
     usingNativeAudioQueue,
-    supportsNativeOutputWaveform,
     playNextNative,
     finalizeDrainedState,
     updatePendingPlaybackState,
-    startNativeOutputWaveform,
-    stopNativeOutputWaveform,
     setNativeAudioQueuePlaying,
     currentAudioRef,
     cancelledRef,
     playingRef,
     hasSeenAudioPlayingRef,
-    nativeOutputWaveformItemIdRef,
-    nativeOutputWaveformStartedAtRef,
     nativeAudioQueueContextsRef,
     nativeAudioQueuePendingCountRef,
     nativeAudioQueuePlayingRef,
@@ -85,14 +67,6 @@ export function useNativeAudioQueueSubscription(params: {
 
       switch (event.type) {
         case "started": {
-          logWaveformDebug("native-audio-queue-event", {
-            type: event.type,
-            itemId,
-            uri: context?.uri ?? event.uri ?? null,
-            usingNativeAudioQueue,
-            supportsNativeOutputWaveform,
-          });
-          stopNativeOutputWaveform();
           if (context) {
             currentAudioRef.current = {
               generation: context.generation,
@@ -105,8 +79,6 @@ export function useNativeAudioQueueSubscription(params: {
           playingRef.current = true;
           nativeAudioQueuePlayingRef.current = true;
           setNativeAudioQueuePlaying(true);
-          nativeOutputWaveformItemIdRef.current = itemId;
-          nativeOutputWaveformStartedAtRef.current = Date.now();
           context?.onPlaybackStarted?.();
           recordSpeechDiagnostic({
             requestId:
@@ -119,43 +91,11 @@ export function useNativeAudioQueueSubscription(params: {
             provider: context?.diagnostics?.provider ?? null,
             providerModel: context?.diagnostics?.providerModel ?? null,
           });
-          if (context?.waveformAnalysis) {
-            const playbackStartedAtMs =
-              nativeOutputWaveformStartedAtRef.current ?? Date.now();
-            void context.waveformAnalysis.then((analysis) => {
-              if (
-                !analysis ||
-                !analysis.samples.length ||
-                cancelledRef.current ||
-                !nativeAudioQueuePlayingRef.current ||
-                nativeOutputWaveformItemIdRef.current !== itemId
-              ) {
-                return;
-              }
-
-              startNativeOutputWaveform(
-                itemId,
-                analysis,
-                playbackStartedAtMs,
-              );
-            });
-          }
           updatePendingPlaybackState();
           break;
         }
         case "finished":
         case "failed": {
-          logWaveformDebug("native-audio-queue-event", {
-            type: event.type,
-            itemId,
-            uri: context?.uri ?? event.uri ?? null,
-            message: event.type === "failed" ? event.message ?? null : null,
-            usingNativeAudioQueue,
-            supportsNativeOutputWaveform,
-          });
-          if (itemId && nativeOutputWaveformItemIdRef.current === itemId) {
-            stopNativeOutputWaveform();
-          }
           if (context) {
             recordSpeechDiagnostic({
               requestId:
@@ -200,25 +140,9 @@ export function useNativeAudioQueueSubscription(params: {
           break;
         }
         case "stopped": {
-          logWaveformDebug("native-audio-queue-event", {
-            type: event.type,
-            itemId,
-            usingNativeAudioQueue,
-            supportsNativeOutputWaveform,
-          });
-          if (itemId && nativeOutputWaveformItemIdRef.current === itemId) {
-            stopNativeOutputWaveform();
-          }
           break;
         }
         case "drained": {
-          logWaveformDebug("native-audio-queue-event", {
-            type: event.type,
-            itemId,
-            usingNativeAudioQueue,
-            supportsNativeOutputWaveform,
-          });
-          stopNativeOutputWaveform();
           currentAudioRef.current = null;
           hasSeenAudioPlayingRef.current = false;
           playingRef.current = false;
@@ -247,15 +171,10 @@ export function useNativeAudioQueueSubscription(params: {
     nativeAudioQueueContextsRef,
     nativeAudioQueuePendingCountRef,
     nativeAudioQueuePlayingRef,
-    nativeOutputWaveformItemIdRef,
-    nativeOutputWaveformStartedAtRef,
     nativeQueueRef,
     playNextNative,
     playingRef,
     setNativeAudioQueuePlaying,
-    startNativeOutputWaveform,
-    stopNativeOutputWaveform,
-    supportsNativeOutputWaveform,
     updatePendingPlaybackState,
     usingNativeAudioQueue,
   ]);

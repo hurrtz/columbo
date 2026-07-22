@@ -4,7 +4,6 @@ import {
   recordSpeechDiagnostic,
   type SpeechDiagnosticsContext,
 } from "../../services/speech/diagnostics";
-import { logWaveformDebug } from "../../utils/waveformDebug";
 import { nextPlaybackJobId } from "./shared";
 import { type AudioQueueItem, type NativeAudioQueueContext } from "./types";
 
@@ -14,7 +13,6 @@ export function useAudioClipPlayback(params: {
   currentAudioRef: MutableRefObject<AudioQueueItem | null>;
   ensurePlaybackSession: () => Promise<void>;
   finalizeDrainedStateRef: MutableRefObject<() => void>;
-  getWaveformAnalysis: (uri: string) => Promise<any>;
   hasSeenAudioPlayingRef: MutableRefObject<boolean>;
   loadedSourceRef: MutableRefObject<boolean>;
   nativeAudioQueueContextsRef: MutableRefObject<Map<string, NativeAudioQueueContext>>;
@@ -30,7 +28,6 @@ export function useAudioClipPlayback(params: {
   playingRef: MutableRefObject<boolean>;
   queueRef: MutableRefObject<AudioQueueItem[]>;
   startingRef: MutableRefObject<boolean>;
-  supportsNativeOutputWaveform: boolean;
   updatePendingPlaybackState: () => void;
   usingNativeAudioQueue: boolean;
 }) {
@@ -40,7 +37,6 @@ export function useAudioClipPlayback(params: {
     currentAudioRef,
     ensurePlaybackSession,
     finalizeDrainedStateRef,
-    getWaveformAnalysis,
     hasSeenAudioPlayingRef,
     loadedSourceRef,
     nativeAudioQueueContextsRef,
@@ -51,7 +47,6 @@ export function useAudioClipPlayback(params: {
     playingRef,
     queueRef,
     startingRef,
-    supportsNativeOutputWaveform,
     updatePendingPlaybackState,
     usingNativeAudioQueue,
   } = params;
@@ -162,19 +157,11 @@ export function useAudioClipPlayback(params: {
       if (usingNativeAudioQueue) {
         const itemId = nextPlaybackJobId("audio");
         const generation = playbackGenerationRef.current;
-        logWaveformDebug("output-audio-enqueued", {
-          itemId,
-          route: "native-audio-queue",
-          uri: audioUri,
-          usingNativeAudioQueue,
-          supportsNativeOutputWaveform,
-        });
         nativeAudioQueueContextsRef.current.set(itemId, {
           generation,
           uri: audioUri,
           diagnostics,
           onPlaybackStarted,
-          waveformAnalysis: getWaveformAnalysis(audioUri),
         });
         nativeAudioQueuePendingCountRef.current += 1;
         recordSpeechDiagnostic({
@@ -189,12 +176,6 @@ export function useAudioClipPlayback(params: {
         return;
       }
 
-      logWaveformDebug("output-audio-enqueued", {
-        route: "expo-audio-player",
-        uri: audioUri,
-        usingNativeAudioQueue,
-        supportsNativeOutputWaveform,
-      });
       queueRef.current.push({
         generation: playbackGenerationRef.current,
         id: nextPlaybackJobId("audio"),
@@ -221,7 +202,6 @@ export function useAudioClipPlayback(params: {
     },
     [
       cancelledRef,
-      getWaveformAnalysis,
       nativeAudioQueueContextsRef,
       nativeAudioQueuePendingCountRef,
       nativeSpeakingRef,
@@ -230,7 +210,6 @@ export function useAudioClipPlayback(params: {
       playbackGenerationRef,
       playingRef,
       startingRef,
-      supportsNativeOutputWaveform,
       updatePendingPlaybackState,
       usingNativeAudioQueue,
     ],

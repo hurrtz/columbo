@@ -20,25 +20,15 @@ jest.mock("../../src/services/speech/diagnostics", () => ({
   recordSpeechDiagnostic: jest.fn(),
 }));
 
-jest.mock("../../src/utils/waveformDebug", () => ({
-  logWaveformDebug: jest.fn(),
-}));
-
 describe("useNativeAudioQueueSubscription", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     nativeAudioQueueListener = null;
   });
 
-  it("starts and stops native output waveform around native queue playback events", async () => {
-    const startNativeOutputWaveform = jest.fn();
-    const stopNativeOutputWaveform = jest.fn();
+  it("tracks native queue playback without visualizer work", async () => {
     const setNativeAudioQueuePlaying = jest.fn();
     const onPlaybackStarted = jest.fn();
-    const waveformAnalysis = Promise.resolve({
-      samples: [0.1, 0.4, 0.2],
-      durationMs: 900,
-    });
     const nativeAudioQueueContextsRef = {
       current: new Map([
         [
@@ -46,7 +36,6 @@ describe("useNativeAudioQueueSubscription", () => {
           {
             uri: "file:///tmp/reply-1.m4a",
             onPlaybackStarted,
-            waveformAnalysis,
             diagnostics: {
               requestId: "request-1",
               source: "llm",
@@ -56,26 +45,22 @@ describe("useNativeAudioQueueSubscription", () => {
       ]),
     };
     const nativeAudioQueuePlayingRef = { current: false };
-    const nativeOutputWaveformItemIdRef = { current: null };
+    const currentAudioRef = { current: null };
+    const nativeAudioQueuePendingCountRef = { current: 1 };
 
     renderHook(() =>
       useNativeAudioQueueSubscription({
         usingNativeAudioQueue: true,
-        supportsNativeOutputWaveform: true,
         playNextNative: jest.fn(async () => undefined),
         finalizeDrainedState: jest.fn(),
         updatePendingPlaybackState: jest.fn(),
-        startNativeOutputWaveform,
-        stopNativeOutputWaveform,
         setNativeAudioQueuePlaying,
-        currentAudioRef: { current: null },
+        currentAudioRef,
         cancelledRef: { current: false },
         playingRef: { current: false },
         hasSeenAudioPlayingRef: { current: false },
-        nativeOutputWaveformItemIdRef,
-        nativeOutputWaveformStartedAtRef: { current: null },
         nativeAudioQueueContextsRef,
-        nativeAudioQueuePendingCountRef: { current: 1 },
+        nativeAudioQueuePendingCountRef,
         nativeAudioQueuePlayingRef,
         nativeQueueRef: { current: [] },
       }),
@@ -89,20 +74,13 @@ describe("useNativeAudioQueueSubscription", () => {
         requestId: "request-1",
         source: "llm",
       });
-      await waveformAnalysis;
-      await Promise.resolve();
     });
 
-    expect(stopNativeOutputWaveform).toHaveBeenCalledTimes(1);
     expect(onPlaybackStarted).toHaveBeenCalledTimes(1);
-    expect(startNativeOutputWaveform).toHaveBeenCalledWith(
-      "reply-1",
-      {
-        samples: [0.1, 0.4, 0.2],
-        durationMs: 900,
-      },
-      expect.any(Number),
+    expect(currentAudioRef.current).toEqual(
+      expect.objectContaining({ id: "reply-1" }),
     );
+    expect(nativeAudioQueuePlayingRef.current).toBe(true);
 
     act(() => {
       nativeAudioQueueListener?.({
@@ -112,8 +90,8 @@ describe("useNativeAudioQueueSubscription", () => {
       });
     });
 
-    expect(stopNativeOutputWaveform).toHaveBeenCalledTimes(2);
-    expect(nativeOutputWaveformItemIdRef.current).toBe("reply-1");
     expect(nativeAudioQueuePlayingRef.current).toBe(false);
+    expect(nativeAudioQueuePendingCountRef.current).toBe(0);
+    expect(nativeAudioQueueContextsRef.current.size).toBe(0);
   });
 });

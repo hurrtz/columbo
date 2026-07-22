@@ -2,10 +2,7 @@ import AVFoundation
 import Foundation
 
 final class ColumboWaveformRecorder {
-  static let rollingSampleCount = 192
-  private static let inputSampleChunkCount = 6
   private static let inputTapBufferSize: AVAudioFrameCount = 512
-  private static let inputReferenceFloor: Float = 0.11
   // Speech-grade recording target. STT models downsample to 16 kHz anyway, so
   // recording mono 16-bit PCM at 16 kHz keeps the uploaded WAV ~4-6x smaller
   // than the hardware-rate 32-bit float capture used previously.
@@ -15,11 +12,6 @@ final class ColumboWaveformRecorder {
   var onEvent: (([String: Any]) -> Void)?
 
   private let stateLock = NSLock()
-  private let levelEmitter = ColumboWaveformLevelEmitter(intervalMs: 80)
-  private let rollingBuffer = ColumboWaveformRollingBuffer(
-    sampleCount: ColumboWaveformRecorder.rollingSampleCount,
-    referenceFloor: ColumboWaveformRecorder.inputReferenceFloor
-  )
   private var audioEngine: AVAudioEngine?
   private var audioFile: AVAudioFile?
   private var inputToFileConverter: AVAudioConverter?
@@ -98,8 +90,6 @@ final class ColumboWaveformRecorder {
       interleaved: true
     )
 
-    rollingBuffer.reset()
-
     inputNode.installTap(
       onBus: 0,
       bufferSize: Self.inputTapBufferSize,
@@ -125,11 +115,6 @@ final class ColumboWaveformRecorder {
         )
         return
       }
-
-      self.rollingBuffer.append(
-        buffer: buffer,
-        targetCount: Self.inputSampleChunkCount
-      )
     }
 
     engine.prepare()
@@ -141,16 +126,6 @@ final class ColumboWaveformRecorder {
     self.fileFormat = fileFormat
     activeSessionId = sessionId
     self.outputURL = outputURL
-    levelEmitter.start(
-      sessionId: sessionId,
-      sampleProvider: { [weak self] in
-        self?.rollingBuffer.snapshot() ?? []
-      },
-      onLevels: { [weak self] body in
-        self?.emitEvent(body)
-      }
-    )
-
     emitEvent([
       "type": "started",
       "sessionId": sessionId,
@@ -204,8 +179,6 @@ final class ColumboWaveformRecorder {
   }
 
   private func cleanupRecording(deleteOutput: Bool) {
-    levelEmitter.stop()
-
     if let inputNode = audioEngine?.inputNode {
       inputNode.removeTap(onBus: 0)
     }
@@ -221,7 +194,6 @@ final class ColumboWaveformRecorder {
     let outputURL = self.outputURL
     self.outputURL = nil
 
-    rollingBuffer.reset()
     ColumboWaveformAudioSession.deactivate()
 
     if deleteOutput, let outputURL {

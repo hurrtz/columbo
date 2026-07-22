@@ -112,7 +112,6 @@ describe("useNativeSpeechRecognizer", () => {
       }),
     );
     expect(result.current.isRecording).toBe(true);
-    expect(result.current.waveformVariant).toBe("oscilloscope");
   });
 
   it("aborts an active native recording session", async () => {

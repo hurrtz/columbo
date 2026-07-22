@@ -4,47 +4,43 @@ describe("nativeWaveform", () => {
     jest.dontMock("react-native");
   });
 
-  it("supports Android output playback and forwards the elapsed audio offset", async () => {
-    const startOutputPlayback = jest.fn(async () => true);
-    jest.doMock("../../src/utils/waveformDebug", () => ({
-      logWaveformDebug: jest.fn(),
-    }));
+  it("forwards native speech recording lifecycle calls", async () => {
+    const startRecording = jest.fn(async () => ({ uri: "file:///recording.wav" }));
+    const stopRecording = jest.fn(async () => ({ uri: "file:///recording.wav" }));
+    const cancelRecording = jest.fn(async () => true);
     jest.doMock("react-native", () => ({
       NativeEventEmitter: jest.fn().mockImplementation(() => ({
         addListener: jest.fn(() => ({ remove: jest.fn() })),
       })),
       NativeModules: {
         ColumboNativeWaveform: {
-          startRecording: jest.fn(),
-          stopRecording: jest.fn(),
-          cancelRecording: jest.fn(),
-          analyzeAudioFile: jest.fn(),
-          startOutputPlayback,
-          stopOutputPlayback: jest.fn(),
+          startRecording,
+          stopRecording,
+          cancelRecording,
         },
-      },
-      Platform: {
-        OS: "android",
       },
     }));
 
     const {
-      startNativeOutputWaveformPlayback,
-      supportsNativeOutputWaveformPlayback,
+      cancelNativeWaveformRecording,
+      isNativeWaveformAvailable,
+      startNativeWaveformRecording,
+      stopNativeWaveformRecording,
     } = require("../../src/services/nativeWaveform");
 
-    expect(supportsNativeOutputWaveformPlayback()).toBe(true);
-    await startNativeOutputWaveformPlayback({
-      itemId: "audio-1",
-      samples: [0.1, 0.5, 0.2],
-      durationMs: 4_000,
-      elapsedMs: 850,
+    expect(isNativeWaveformAvailable()).toBe(true);
+    await startNativeWaveformRecording({
+      sessionId: "recording-1",
+      outputUri: "file:///recording.wav",
     });
-    expect(startOutputPlayback).toHaveBeenCalledWith(
-      "audio-1",
-      [0.1, 0.5, 0.2],
-      4_000,
-      850,
+    await stopNativeWaveformRecording("recording-1");
+    await cancelNativeWaveformRecording("recording-1");
+
+    expect(startRecording).toHaveBeenCalledWith(
+      "recording-1",
+      "file:///recording.wav",
     );
+    expect(stopRecording).toHaveBeenCalledWith("recording-1");
+    expect(cancelRecording).toHaveBeenCalledWith("recording-1");
   });
 });

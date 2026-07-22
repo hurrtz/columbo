@@ -17,22 +17,6 @@ RCT_EXTERN_METHOD(cancelRecording:(NSString *)sessionId
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(analyzeAudioFile:(NSString *)uri
-                  sampleCount:(NSNumber * _Nullable)sampleCount
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject)
-
-RCT_EXTERN_METHOD(startOutputPlayback:(NSString *)itemId
-                  samples:(NSArray<NSNumber *> *)samples
-                  durationMs:(NSNumber *)durationMs
-                  elapsedMs:(NSNumber *)elapsedMs
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject)
-
-RCT_EXTERN_METHOD(stopOutputPlayback:(NSString * _Nullable)itemId
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject)
-
 @end
 
 @interface RCT_EXTERN_MODULE(ColumboNativeWaveformView, RCTViewManager)

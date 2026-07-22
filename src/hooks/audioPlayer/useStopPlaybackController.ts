@@ -18,13 +18,10 @@ export function useStopPlaybackController(params: {
   playingRef: MutableRefObject<boolean>;
   removeLoadedAudio: () => void;
   resetPlaybackSession: () => void;
-  resetVisualState: () => void;
   setNativeSpeaking: Dispatch<SetStateAction<boolean>>;
   setNativeSpeechPlaying: Dispatch<SetStateAction<boolean>>;
   setPlaybackPaused: Dispatch<SetStateAction<boolean>>;
   startingRef: MutableRefObject<boolean>;
-  stopNativeMetering: () => void;
-  stopNativeOutputWaveform: () => void;
   updatePendingPlaybackState: () => void;
   usingNativeAudioQueue: boolean;
   queueRef: MutableRefObject<AudioQueueItem[]>;
@@ -46,13 +43,10 @@ export function useStopPlaybackController(params: {
     queueRef,
     removeLoadedAudio,
     resetPlaybackSession,
-    resetVisualState,
     setNativeSpeaking,
     setNativeSpeechPlaying,
     setPlaybackPaused,
     startingRef,
-    stopNativeMetering,
-    stopNativeOutputWaveform,
     updatePendingPlaybackState,
     usingNativeAudioQueue,
   } = params;
@@ -82,8 +76,6 @@ export function useStopPlaybackController(params: {
     clearNativeAudioQueueState();
     player.pause();
     removeLoadedAudio();
-    stopNativeMetering();
-    stopNativeOutputWaveform();
     nativeSpeakingRef.current = false;
     setNativeSpeaking(false);
     setNativeSpeechPlaying(false);
@@ -92,7 +84,6 @@ export function useStopPlaybackController(params: {
     if (hadPlayback) {
       markPlaybackEnded();
     }
-    resetVisualState();
     resetPlaybackSession();
     updatePendingPlaybackState();
 
@@ -125,13 +116,10 @@ export function useStopPlaybackController(params: {
     queueRef,
     removeLoadedAudio,
     resetPlaybackSession,
-    resetVisualState,
     setNativeSpeaking,
     setNativeSpeechPlaying,
     setPlaybackPaused,
     startingRef,
-    stopNativeMetering,
-    stopNativeOutputWaveform,
     updatePendingPlaybackState,
     usingNativeAudioQueue,
   ]);
@@ -164,9 +152,6 @@ export function useStopPlaybackController(params: {
     if (usingNativeAudioQueue) {
       void stopNativeAudioQueue();
     }
-    stopNativeMetering();
-    stopNativeOutputWaveform();
-    resetVisualState();
     resetPlaybackSession();
     updatePendingPlaybackState();
   }, [
@@ -185,13 +170,10 @@ export function useStopPlaybackController(params: {
     queueRef,
     removeLoadedAudio,
     resetPlaybackSession,
-    resetVisualState,
     setNativeSpeaking,
     setNativeSpeechPlaying,
     setPlaybackPaused,
     startingRef,
-    stopNativeMetering,
-    stopNativeOutputWaveform,
     updatePendingPlaybackState,
     usingNativeAudioQueue,
   ]);

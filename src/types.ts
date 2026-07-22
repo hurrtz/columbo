@@ -103,7 +103,6 @@ export interface VoicePhaseProgress {
   learned: boolean;
   overEstimate: boolean;
 }
-export type WaveformVisualizationVariant = "bars" | "oscilloscope";
 
 export interface Settings {
   inputMode: InputMode;

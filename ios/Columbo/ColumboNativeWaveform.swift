@@ -30,20 +30,6 @@ final class ColumboNativeWaveform: RCTEventEmitter {
     hasListeners = false
   }
 
-  private func logDebug(_ event: String, payload: [String: Any] = [:]) {
-    let body = NSMutableDictionary(dictionary: payload)
-    body["event"] = event
-    body["timestamp"] = ISO8601DateFormatter().string(from: Date())
-
-    if let data = try? JSONSerialization.data(withJSONObject: body, options: []),
-       let message = String(data: data, encoding: .utf8) {
-      NSLog("[waveform-debug] %@", message)
-      return
-    }
-
-    NSLog("[waveform-debug] %@", "{\"event\":\"\(event)\"}")
-  }
-
   @objc(startRecording:outputUri:resolver:rejecter:)
   func startRecording(
     _ sessionId: String,
@@ -103,89 +89,10 @@ final class ColumboNativeWaveform: RCTEventEmitter {
     }
   }
 
-  @objc(analyzeAudioFile:sampleCount:resolver:rejecter:)
-  func analyzeAudioFile(
-    _ uri: String,
-    sampleCount: NSNumber?,
-    resolver resolve: @escaping RCTPromiseResolveBlock,
-    rejecter reject: @escaping RCTPromiseRejectBlock
-  ) {
-    let targetCount = max(64, sampleCount?.intValue ?? 960)
-
-    DispatchQueue.global(qos: .userInitiated).async {
-      do {
-        let url = try self.resolveExistingFileURL(from: uri)
-        resolve(
-          try ColumboWaveformFileAnalyzer.analyzeAudioFile(
-            at: url,
-            sampleCount: targetCount
-          )
-        )
-      } catch {
-        reject("native_waveform_analysis_error", error.localizedDescription, error)
-      }
-    }
-  }
-
-  @objc(startOutputPlayback:samples:durationMs:elapsedMs:resolver:rejecter:)
-  func startOutputPlayback(
-    _ itemId: String,
-    samples: [NSNumber],
-    durationMs: NSNumber,
-    elapsedMs: NSNumber,
-    resolver resolve: @escaping RCTPromiseResolveBlock,
-    rejecter reject: @escaping RCTPromiseRejectBlock
-  ) {
-    DispatchQueue.main.async {
-      guard !itemId.isEmpty else {
-        reject("native_waveform_output_error", "itemId is required.", nil)
-        return
-      }
-
-      let normalizedSamples = samples.map(\.doubleValue)
-      self.logDebug(
-        "native-output-playback-bridge-start",
-        payload: [
-          "itemId": itemId,
-          "sampleCount": normalizedSamples.count,
-          "durationMs": durationMs.doubleValue,
-          "elapsedMs": elapsedMs.doubleValue,
-        ]
-      )
-      ColumboWaveformCoordinator.shared.startPlayback(
-        channel: .output,
-        itemId: itemId,
-        samples: normalizedSamples,
-        durationMs: durationMs.doubleValue,
-        elapsedMs: elapsedMs.doubleValue
-      )
-      resolve(true)
-    }
-  }
-
-  @objc(stopOutputPlayback:resolver:rejecter:)
-  func stopOutputPlayback(
-    _ itemId: String?,
-    resolver resolve: @escaping RCTPromiseResolveBlock,
-    rejecter reject: @escaping RCTPromiseRejectBlock
-  ) {
-    DispatchQueue.main.async {
-      self.logDebug(
-        "native-output-playback-bridge-stop",
-        payload: [
-          "itemId": itemId ?? NSNull(),
-        ]
-      )
-      ColumboWaveformCoordinator.shared.stopPlayback(channel: .output, itemId: itemId)
-      resolve(true)
-    }
-  }
-
   override func invalidate() {
     super.invalidate()
     DispatchQueue.main.async {
       self.recorder.cleanup()
-      ColumboWaveformCoordinator.shared.clear(channel: .output)
     }
   }
 
@@ -216,25 +123,5 @@ final class ColumboNativeWaveform: RCTEventEmitter {
     return cachesDirectory.appendingPathComponent(
       "native-waveform-\(Date().timeIntervalSince1970).wav"
     )
-  }
-
-  private func resolveExistingFileURL(from uri: String) throws -> URL {
-    let url: URL
-
-    if let candidate = URL(string: uri), candidate.isFileURL {
-      url = candidate
-    } else {
-      url = URL(fileURLWithPath: uri)
-    }
-
-    guard FileManager.default.fileExists(atPath: url.path) else {
-      throw NSError(
-        domain: "ColumboNativeWaveform",
-        code: 3,
-        userInfo: [NSLocalizedDescriptionKey: "The audio file could not be found for waveform analysis."]
-      )
-    }
-
-    return url
   }
 }
