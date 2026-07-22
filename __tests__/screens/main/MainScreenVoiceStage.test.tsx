@@ -330,6 +330,7 @@ describe("MainScreenVoiceStage composer", () => {
       ).backgroundColor,
     ).toBe(lightColors.phaseThinking);
     expect(screen.getByText("icon:cpu")).toBeTruthy();
+    expect(screen.queryByText("icon:info")).toBeNull();
     expect(screen.getByText("Thinking")).toBeTruthy();
     expect(screen.getByTestId("voice-stage-phase-time")).toBeTruthy();
     expect(screen.getByText("Phase")).toBeTruthy();

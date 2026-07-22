@@ -262,7 +262,6 @@ export function PhaseAwareVoiceAction({
         onPress={onOpenStatusDetails}
         style={styles.phaseLabelButton}
       >
-        <Feather name="info" size={11} color={phaseForeground} />
         <Text
           adjustsFontSizeToFit
           minimumFontScale={0.84}
@@ -370,7 +369,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 4,
   },
   phaseLabel: {
     flexShrink: 1,
