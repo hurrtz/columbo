@@ -59,6 +59,12 @@ export function MainScreenRouteControls({
           style={styles.searchSwitch}
           value={webSearchValue}
           disabled={!webSearchAvailable}
+          trackColor={{
+            false: colors.borderStrong,
+            true: colors.accent,
+          }}
+          thumbColor={colors.onAccent}
+          ios_backgroundColor={colors.borderStrong}
           onValueChange={
             webSearchAvailable ? onToggleWebSearchEnabled : undefined
           }

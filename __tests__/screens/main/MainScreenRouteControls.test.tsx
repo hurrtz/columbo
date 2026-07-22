@@ -55,6 +55,12 @@ describe("MainScreenRouteControls", () => {
     });
     expect(searchSwitch.props.disabled).toBe(false);
     expect(searchSwitch.props.value).toBe(true);
+    expect(searchSwitch.props.tintColor).toBe(lightColors.borderStrong);
+    expect(searchSwitch.props.onTintColor).toBe(lightColors.accent);
+    expect(searchSwitch.props.thumbTintColor).toBe(lightColors.onAccent);
+    expect(StyleSheet.flatten(searchSwitch.props.style).backgroundColor).toBe(
+      lightColors.borderStrong,
+    );
 
     fireEvent(searchSwitch, "valueChange", false);
     expect(onToggleWebSearchEnabled).toHaveBeenCalledTimes(1);
