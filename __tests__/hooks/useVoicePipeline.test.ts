@@ -213,6 +213,8 @@ describe("useVoicePipeline", () => {
     expect(params.player.speakText).not.toHaveBeenCalled();
     expect(params.showToast).toHaveBeenCalledWith(
       "Provider TTS unavailable",
+      undefined,
+      "danger",
     );
     expect(result.current.replayPhase).toBe("idle");
     expect(result.current.activeReplayMessageId).toBeNull();
@@ -240,7 +242,11 @@ describe("useVoicePipeline", () => {
 
     expect(params.player.enqueueAudio).not.toHaveBeenCalled();
     expect(params.player.speakText).not.toHaveBeenCalled();
-    expect(params.showToast).toHaveBeenCalledWith("Provider TTS unavailable");
+    expect(params.showToast).toHaveBeenCalledWith(
+      "Provider TTS unavailable",
+      undefined,
+      "danger",
+    );
   });
 
   it("keeps replay stream text together when the full reply is already available", async () => {
@@ -409,6 +415,9 @@ describe("useVoicePipeline", () => {
       hasPendingPlaybackNow: jest.fn(() => true),
     });
     const params = createParams({ player });
+    (params.addMessage as jest.Mock)
+      .mockReturnValueOnce({ id: "user-1" })
+      .mockReturnValueOnce({ id: "assistant-1" });
     (runVoicePipeline as jest.Mock).mockImplementation(
       async ({ callbacks }: any) => {
         callbacks.onTranscription("Hello from the microphone");
@@ -432,9 +441,97 @@ describe("useVoicePipeline", () => {
 
     expect(player.stopPlayback).not.toHaveBeenCalled();
     expect(player.waitForDrain).toHaveBeenCalled();
-    expect(params.showToast).toHaveBeenCalledWith(
-      "Gemini speech output took too long.",
-      expect.any(Function),
+    expect(params.showToast).not.toHaveBeenCalled();
+    const updateAssistant = (params.updateMessage as jest.Mock).mock.calls[0][1];
+    const updatedAssistant = updateAssistant({
+      id: "assistant-1",
+      role: "assistant",
+      content: "A completed reply with several chunks.",
+      model: "gpt-5.4",
+      provider: "openai",
+      timestamp: "2026-07-21T12:00:00.000Z",
+    });
+    expect(updatedAssistant.metadata?.notices).toEqual([
+      {
+        stage: "tts",
+        level: "error",
+        message: "The reply was saved, but it could not be spoken.",
+        detail: "Gemini speech output took too long.",
+      },
+    ]);
+  });
+
+  it("persists a failed LLM turn for inline retry without duplicating the user message", async () => {
+    const params = createParams();
+    (params.addMessage as jest.Mock)
+      .mockReturnValueOnce({ id: "user-1" })
+      .mockReturnValueOnce({ id: "assistant-1" });
+    let attempt = 0;
+    (runVoicePipeline as jest.Mock).mockImplementation(
+      async ({ callbacks }: any) => {
+        callbacks.onTranscription("Please retry this turn");
+        attempt += 1;
+
+        if (attempt === 1) {
+          await callbacks.onError(new Error("Provider request failed"));
+        } else {
+          callbacks.onResponseDone("Recovered reply");
+        }
+
+        return "Please retry this turn";
+      },
+    );
+
+    const { result } = renderHook(() => useVoicePipeline(params));
+    result.current.lastCompletedReplyRef.current = "Older reply";
+
+    await act(async () => {
+      await result.current.handleVoiceCaptureDone({
+        transcriptionOverride: "Please retry this turn",
+      });
+    });
+
+    expect(params.showToast).not.toHaveBeenCalled();
+    const failedUserMessage = {
+      id: "user-1",
+      role: "user" as const,
+      content: "Please retry this turn",
+      model: null,
+      provider: null,
+      timestamp: "2026-07-21T12:00:00.000Z",
+    };
+    const markFailure = (params.updateMessage as jest.Mock).mock.calls[0][1];
+    const markedUserMessage = markFailure(failedUserMessage);
+    expect(markedUserMessage.metadata?.replyFailure).toEqual({
+      message: "Provider request failed",
+    });
+
+    await act(async () => {
+      await result.current.handleVoiceCaptureDone({
+        existingUserMessageId: "user-1",
+        transcriptionOverride: "Please retry this turn",
+      });
+    });
+
+    expect(params.player.speakText).not.toHaveBeenCalled();
+    expect(params.addMessage).toHaveBeenCalledWith({
+      role: "user",
+      content: "Please retry this turn",
+      model: null,
+      provider: null,
+    });
+    expect(
+      (params.addMessage as jest.Mock).mock.calls.filter(
+        ([message]) => message.role === "user",
+      ),
+    ).toHaveLength(1);
+    const clearFailure = (params.updateMessage as jest.Mock).mock.calls[1][1];
+    expect(clearFailure(markedUserMessage).metadata).toBeUndefined();
+    expect(params.addMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        role: "assistant",
+        content: "Recovered reply",
+      }),
     );
   });
 
@@ -521,8 +618,10 @@ describe("useVoicePipeline", () => {
     expect(result.current.pipelinePhase).toBe("synthesizing");
     expect(result.current.phaseProgress).toMatchObject({
       phase: "turn",
-      elapsedMs: 7_000,
     });
+    expect(Date.now() - (result.current.phaseProgress?.startedAt ?? 0)).toBe(
+      7_000,
+    );
     expect(onPlaybackStarted).toEqual(expect.any(Function));
 
     act(() => {
@@ -559,6 +658,8 @@ describe("useVoicePipeline", () => {
 
     expect(params.showToast).toHaveBeenCalledWith(
       translate("en", "couldntCatchThatTryAgain"),
+      undefined,
+      "danger",
     );
     expect(result.current.pipelinePhase).toBe("idle");
   });
@@ -764,5 +865,49 @@ describe("useVoicePipeline", () => {
       resolveRun?.();
       await pending;
     });
+  });
+
+  it("coalesces rapid stream chunks into one visual frame without losing text", async () => {
+    const params = createParams();
+    let resolveRun: (() => void) | null = null;
+
+    (runVoicePipeline as jest.Mock).mockImplementation(
+      async ({ callbacks }: any) => {
+        callbacks.onChunk("One");
+        callbacks.onChunk(" two");
+        callbacks.onChunk(" three");
+
+        await new Promise<void>((resolve) => {
+          resolveRun = resolve;
+        });
+
+        return "Typed input";
+      },
+    );
+
+    const { result } = renderHook(() => useVoicePipeline(params));
+    let pending: Promise<void> | null = null;
+
+    await act(async () => {
+      pending = result.current.handleVoiceCaptureDone({
+        transcriptionOverride: "Typed input",
+      });
+      await Promise.resolve();
+    });
+
+    expect(result.current.streamingText).toBe("");
+
+    act(() => {
+      jest.advanceTimersByTime(17);
+    });
+
+    expect(result.current.streamingText).toBe("One two three");
+
+    await act(async () => {
+      resolveRun?.();
+      await pending;
+    });
+
+    expect(result.current.streamingText).toBe("");
   });
 });

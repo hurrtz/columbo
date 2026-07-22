@@ -6,6 +6,7 @@ import { Provider, Settings } from "../../../types";
 import { ShowToastFn, TranslateFn } from "../shared";
 
 export interface AudioPlayerController {
+  isActivelyPlaying?: boolean;
   isPlaybackPaused: boolean;
   isPlaying: boolean;
   pausePlayback: () => Promise<boolean>;
@@ -30,11 +31,10 @@ export interface NativeSpeechRecognizerController {
   stopRecognition: () => Promise<string | null>;
 }
 
-export interface UseVoiceSessionControllerParams<Snapshot> {
+export interface UseVoiceSessionControllerParams {
   abortRef: MutableRefObject<AbortController | null>;
   availableSttProviders: Provider[];
   availableTtsProviders: Provider[];
-  captureActiveConversationSnapshot: () => Snapshot;
   handleVoiceCaptureDone: (params: {
     audioUri?: string;
     transcriptionOverride?: string;
@@ -47,7 +47,6 @@ export interface UseVoiceSessionControllerParams<Snapshot> {
   providerApiKey: string;
   providerLabel: string;
   recorder: AudioRecorderController;
-  restoreActiveConversationSnapshot: (snapshot: Snapshot) => Promise<void>;
   setPipelinePhase: (phase: PipelinePhase) => void;
   setStreamingText: (text: string) => void;
   settings: Pick<

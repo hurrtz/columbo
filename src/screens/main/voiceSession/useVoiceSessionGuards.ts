@@ -35,12 +35,16 @@ export function useVoiceSessionGuards({
 }: UseVoiceSessionGuardsParams) {
   return useCallback(() => {
     if (!providerApiKey) {
-      showToast(t("addProviderKeyToUseProvider", { provider: providerLabel }));
+      showToast(
+        t("addProviderKeyToUseProvider", { provider: providerLabel }),
+        undefined,
+        "danger",
+      );
       return false;
     }
 
     if (settings.sttMode === "native" && !nativeSttAvailable) {
-      showToast(t("speechRecognitionUnavailableOnDevice"));
+      showToast(t("speechRecognitionUnavailableOnDevice"), undefined, "danger");
       return false;
     }
 
@@ -50,7 +54,7 @@ export function useVoiceSessionGuards({
         !availableSttProviders.includes(sttProvider) ||
         !sttApiKey)
     ) {
-      showToast(t("chooseSttBeforeVoiceSession"));
+      showToast(t("chooseSttBeforeVoiceSession"), undefined, "danger");
       return false;
     }
 
@@ -61,7 +65,7 @@ export function useVoiceSessionGuards({
         !availableTtsProviders.includes(ttsProvider) ||
         !ttsApiKey)
     ) {
-      showToast(t("chooseTtsBeforeSpokenReplies"));
+      showToast(t("chooseTtsBeforeSpokenReplies"), undefined, "danger");
       return false;
     }
 

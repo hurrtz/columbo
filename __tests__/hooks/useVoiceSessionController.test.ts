@@ -21,14 +21,13 @@ describe("useVoiceSessionController", () => {
 
   function renderController(
     overrides: Partial<
-      Parameters<typeof useVoiceSessionController<{ id: string }>>[0]
+      Parameters<typeof useVoiceSessionController>[0]
     > = {},
   ) {
     const params = {
       abortRef: { current: null as AbortController | null },
       availableSttProviders: ["openai"],
       availableTtsProviders: ["openai"],
-      captureActiveConversationSnapshot: jest.fn(() => ({ id: "snapshot" })),
       handleVoiceCaptureDone: jest.fn(async () => undefined),
       isBusy: false,
       isRecording: false,
@@ -57,7 +56,6 @@ describe("useVoiceSessionController", () => {
         startRecording: jest.fn(async () => undefined),
         stopRecording: jest.fn(async () => "file://voice.m4a"),
       },
-      restoreActiveConversationSnapshot: jest.fn(async () => undefined),
       setPipelinePhase: jest.fn(),
       setStreamingText: jest.fn(),
       settings: {
@@ -93,7 +91,11 @@ describe("useVoiceSessionController", () => {
       await result.current.handlePressIn();
     });
 
-    expect(params.showToast).toHaveBeenCalledWith("missing OpenAI");
+    expect(params.showToast).toHaveBeenCalledWith(
+      "missing OpenAI",
+      undefined,
+      "danger",
+    );
     expect(params.recorder.startRecording).not.toHaveBeenCalled();
   });
 
@@ -156,10 +158,24 @@ describe("useVoiceSessionController", () => {
 
     await waitFor(() => {
       expect(params.recorder.stopRecording).toHaveBeenCalledTimes(1);
-      expect(params.captureActiveConversationSnapshot).toHaveBeenCalledTimes(1);
       expect(params.handleVoiceCaptureDone).toHaveBeenCalledWith({
         audioUri: "file://voice.m4a",
       });
     });
+  });
+
+  it("cancels generation without erasing the submitted user turn", async () => {
+    const abortController = new AbortController();
+    const { result, params } = renderController({
+      abortRef: { current: abortController },
+      isBusy: true,
+    });
+
+    await act(async () => {
+      await result.current.handleTogglePress();
+    });
+
+    expect(abortController.signal.aborted).toBe(true);
+    expect(params.setPipelinePhase).toHaveBeenCalledWith("idle");
   });
 });

@@ -7,6 +7,7 @@ import { TranslationKey } from "../../i18n";
 import { AppLanguage, Conversation } from "../../types";
 import { formatConversationForCopy } from "../../utils/conversationExport";
 import type { useConversations } from "../../hooks/useConversations";
+import type { ShowToastFn } from "./shared";
 
 type TranslateFn = (
   key: TranslationKey,
@@ -27,7 +28,7 @@ interface UseConversationActionsParams {
   resetVoiceSessionState: () => Promise<void>;
   openMemoryConversation: (conversation: Conversation) => void;
   setMemoryConversation: (conversation: Conversation | null) => void;
-  showToast: (message: string, onRetry?: () => void) => void;
+  showToast: ShowToastFn;
   language: AppLanguage;
   t: TranslateFn;
 }
@@ -57,9 +58,9 @@ export function useConversationActions({
 
       try {
         await Clipboard.setStringAsync(text);
-        showToast(successMessage);
+        showToast(successMessage, undefined, "success");
       } catch {
-        showToast(t("couldntCopyText"));
+        showToast(t("couldntCopyText"), undefined, "danger");
       }
     },
     [showToast, t],
@@ -121,7 +122,7 @@ export function useConversationActions({
           },
         );
       } catch {
-        showToast(t("couldntShareText"));
+        showToast(t("couldntShareText"), undefined, "danger");
       }
     },
     [language, resolveConversation, showToast, t],
@@ -139,7 +140,7 @@ export function useConversationActions({
       try {
         await Share.share({ message: trimmed });
       } catch {
-        showToast(t("couldntShareText"));
+        showToast(t("couldntShareText"), undefined, "danger");
       }
     },
     [showToast, t],
@@ -148,7 +149,7 @@ export function useConversationActions({
   const handleRenameThread = useCallback(
     async (conversationId: string, nextTitle: string) => {
       await renameConversation(conversationId, nextTitle);
-      showToast(t("threadRenamed"));
+      showToast(t("threadRenamed"), undefined, "success");
     },
     [renameConversation, showToast, t],
   );
@@ -156,7 +157,11 @@ export function useConversationActions({
   const handleTogglePinned = useCallback(
     (conversationId: string) => {
       const pinned = toggleConversationPinned(conversationId);
-      showToast(pinned ? t("threadPinned") : t("threadUnpinned"));
+      showToast(
+        pinned ? t("threadPinned") : t("threadUnpinned"),
+        undefined,
+        "success",
+      );
     },
     [showToast, t, toggleConversationPinned],
   );
@@ -209,7 +214,7 @@ export function useConversationActions({
     );
 
     setMemoryConversation(updatedConversation);
-    showToast(t("memoryCleared"));
+    showToast(t("memoryCleared"), undefined, "success");
   }, [clearConversationMemory, memoryConversation, setMemoryConversation, showToast, t]);
 
   return {

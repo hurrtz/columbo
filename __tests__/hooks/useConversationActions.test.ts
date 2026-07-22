@@ -21,7 +21,44 @@ describe("useConversationActions", () => {
     jest.restoreAllMocks();
   });
 
-  it("resets the voice session before selecting a conversation", async () => {
+  it("resets the voice session before starting a fresh conversation", async () => {
+    const callOrder: string[] = [];
+    const resetVoiceSessionState = jest.fn(async () => {
+      callOrder.push("reset");
+    });
+    const clearActiveConversation = jest.fn(() => {
+      callOrder.push("clear");
+    });
+
+    const { result } = renderHook(() =>
+      useConversationActions({
+        activeConversation: null,
+        memoryConversation: null,
+        getConversationById: jest.fn(),
+        renameConversation: jest.fn(),
+        toggleConversationPinned: jest.fn(),
+        clearConversationMemory: jest.fn(),
+        selectConversation: jest.fn(),
+        clearActiveConversation,
+        resetVoiceSessionState,
+        openMemoryConversation: jest.fn(),
+        setMemoryConversation: jest.fn(),
+        showToast: jest.fn(),
+        language: "en",
+        t: (key) => key,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.handleStartNewSession();
+    });
+
+    expect(resetVoiceSessionState).toHaveBeenCalledTimes(1);
+    expect(clearActiveConversation).toHaveBeenCalledTimes(1);
+    expect(callOrder).toEqual(["reset", "clear"]);
+  });
+
+  it("resets the voice session before selecting a saved conversation", async () => {
     const callOrder: string[] = [];
     const resetVoiceSessionState = jest.fn(async () => {
       callOrder.push("reset");
@@ -53,7 +90,6 @@ describe("useConversationActions", () => {
       await result.current.handleSelectConversation("conversation-1");
     });
 
-    expect(resetVoiceSessionState).toHaveBeenCalledTimes(1);
     expect(selectConversation).toHaveBeenCalledWith("conversation-1");
     expect(callOrder).toEqual(["reset", "select"]);
   });
@@ -108,7 +144,11 @@ describe("useConversationActions", () => {
     expect(Clipboard.setStringAsync).toHaveBeenCalledWith(
       expect.stringContaining("Hello there"),
     );
-    expect(showToast).toHaveBeenCalledWith("thread copied");
+    expect(showToast).toHaveBeenCalledWith(
+      "thread copied",
+      undefined,
+      "success",
+    );
   });
 
   it("updates memory state after clearing saved conversation memory", async () => {
@@ -158,6 +198,10 @@ describe("useConversationActions", () => {
 
     expect(clearConversationMemory).toHaveBeenCalledWith("conversation-1");
     expect(setMemoryConversation).toHaveBeenCalledWith(clearedConversation);
-    expect(showToast).toHaveBeenCalledWith("memory cleared");
+    expect(showToast).toHaveBeenCalledWith(
+      "memory cleared",
+      undefined,
+      "success",
+    );
   });
 });

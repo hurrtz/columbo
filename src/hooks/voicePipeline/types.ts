@@ -15,6 +15,7 @@ import type {
   SttBackendMode,
   TtsBackendMode,
   TtsListenLanguage,
+  ToastTone,
   UsageEstimate,
   VoicePhaseProgress,
 } from "../../types";
@@ -77,7 +78,11 @@ export interface UseVoicePipelineParams {
   webSearchApiKey?: string;
   webSearchOptions?: WebSearchProviderSettings;
   isRecording: boolean;
-  showToast: (message: string, onRetry?: () => void) => void;
+  showToast: (
+    message: string,
+    onRetry?: () => void,
+    tone?: ToastTone,
+  ) => void;
   t: (
     key: TranslationKey,
     params?: Record<string, string | number | undefined>,
@@ -102,6 +107,7 @@ export interface UseVoicePipelineResult {
   stopReplay: () => Promise<void>;
   handleVoiceCaptureDone: (params: {
     audioUri?: string;
+    existingUserMessageId?: string;
     transcriptionOverride?: string;
   }) => Promise<void>;
 }

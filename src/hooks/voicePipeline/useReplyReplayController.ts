@@ -135,7 +135,7 @@ export function useReplyReplayController({
                 return;
               }
 
-              showToast(error.message);
+              showToast(error.message, undefined, "danger");
             },
           },
           diagnosticsSource: "repeat",
@@ -219,6 +219,8 @@ export function useReplyReplayController({
       } catch (error) {
         showToast(
           error instanceof Error ? error.message : t("couldntReplayReply"),
+          undefined,
+          "danger",
         );
       }
     },

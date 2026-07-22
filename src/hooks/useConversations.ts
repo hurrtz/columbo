@@ -6,13 +6,7 @@ import {
 } from "./conversations/storage";
 import { useConversationHydration } from "./conversations/useConversationHydration";
 import { useConversationMutations } from "./conversations/useConversationMutations";
-import {
-  ActiveConversationSnapshot,
-  useConversationSnapshots,
-} from "./conversations/useConversationSnapshots";
 import { useConversationSearch } from "./conversations/useConversationSearch";
-
-export type { ActiveConversationSnapshot };
 
 export function useConversations() {
   const [conversations, setConversations] = useState<ConversationMeta[]>([]);
@@ -74,17 +68,6 @@ export function useConversations() {
     conversations,
     getConversationById,
   });
-  const {
-    captureActiveConversationSnapshot,
-    restoreActiveConversationSnapshot,
-  } = useConversationSnapshots({
-    activeConversationRef,
-    conversations,
-    persistMetas,
-    setActiveConversationValue,
-    setConversations,
-  });
-
   return {
     conversations,
     activeConversation,
@@ -100,7 +83,5 @@ export function useConversations() {
     searchConversations,
     deleteConversation,
     clearActiveConversation,
-    captureActiveConversationSnapshot,
-    restoreActiveConversationSnapshot,
   };
 }

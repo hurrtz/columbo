@@ -221,6 +221,7 @@ export async function runVoicePipeline(
     });
     callbacks.onLlmStart?.();
 
+    let llmCompleted = false;
     await streamChat({
       messages: allMessages,
       model,
@@ -249,9 +250,22 @@ export async function runVoicePipeline(
             : undefined;
         callbacks.onResponseDone(fullText, usage, completedMetadata);
         await ttsQueue.handleResponseDone(fullText);
+        llmCompleted = true;
       },
       onError: callbacks.onError,
     });
+    if (!llmCompleted) {
+      recordDebugLogEvent({
+        event: abortSignal?.aborted
+          ? "voice-pipeline-llm-cancelled"
+          : "voice-pipeline-llm-failed",
+        payload: {
+          model,
+          provider,
+        },
+      });
+      return transcription;
+    }
     recordDebugLogEvent({
       event: "voice-pipeline-llm-complete",
       payload: {

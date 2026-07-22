@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+import Feather from "@expo/vector-icons/Feather";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -11,6 +10,7 @@ import Animated, {
 import { useLocalization } from "../i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { fonts } from "../theme/typography";
+import type { ToastTone } from "../types";
 
 interface ToastProps {
   message: string;
@@ -18,6 +18,7 @@ interface ToastProps {
   onDismiss: () => void;
   onRetry?: () => void;
   duration?: number;
+  tone?: ToastTone;
 }
 
 export function Toast({
@@ -26,6 +27,7 @@ export function Toast({
   onDismiss,
   onRetry,
   duration = 4000,
+  tone = "info",
 }: ToastProps) {
   const { colors } = useTheme();
   const { t } = useLocalization();
@@ -59,28 +61,45 @@ export function Toast({
 
   if (!visible) return null;
 
+  const toneColor =
+    tone === "danger"
+      ? colors.danger
+      : tone === "success"
+        ? colors.success
+        : colors.accent;
+  const toneBackground =
+    tone === "danger"
+      ? `${colors.danger}12`
+      : tone === "success"
+        ? `${colors.success}18`
+        : colors.accentSoft;
+
   return (
     <Animated.View
       testID="toast"
       style={[
         styles.container,
-        { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
+        {
+          backgroundColor: colors.surfaceElevated,
+          borderColor: tone === "info" ? colors.border : toneColor,
+        },
         animatedStyle,
       ]}
     >
-      <LinearGradient
-        colors={[colors.accentGradientStart, colors.accentGradientEnd]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.accentStripe}
+      <View
+        style={[styles.accentStripe, { backgroundColor: toneColor }]}
       />
       <View
         style={[
           styles.iconWrap,
-          { backgroundColor: colors.accentSoft, borderColor: colors.border },
+          { backgroundColor: toneBackground, borderColor: toneColor },
         ]}
       >
-        <Feather name="alert-circle" size={16} color={colors.accent} />
+        <Feather
+          name={tone === "success" ? "check" : "alert-circle"}
+          size={16}
+          color={toneColor}
+        />
       </View>
       <Text style={[styles.message, { color: colors.text }]}>{message}</Text>
       <View style={styles.actions}>
@@ -88,11 +107,11 @@ export function Toast({
           <TouchableOpacity
             style={[
               styles.retryButton,
-              { backgroundColor: colors.accentSoft, borderColor: colors.border },
+              { backgroundColor: toneBackground, borderColor: toneColor },
             ]}
             onPress={onRetry}
           >
-            <Text style={[styles.retry, { color: colors.accent }]}>
+            <Text style={[styles.retry, { color: toneColor }]}>
               {t("retry")}
             </Text>
           </TouchableOpacity>
@@ -121,7 +140,7 @@ const styles = StyleSheet.create({
     right: 16,
     padding: 14,
     paddingLeft: 0,
-    borderRadius: 22,
+    borderRadius: 14,
     borderWidth: 1,
     flexDirection: "row",
     alignItems: "center",
@@ -129,9 +148,9 @@ const styles = StyleSheet.create({
     zIndex: 1000,
     overflow: "hidden",
     shadowOffset: { width: 0, height: 18 },
-    shadowOpacity: 0.15,
-    shadowRadius: 30,
-    elevation: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 18,
+    elevation: 5,
   },
   accentStripe: {
     alignSelf: "stretch",
@@ -162,7 +181,7 @@ const styles = StyleSheet.create({
   retryButton: {
     paddingHorizontal: 12,
     paddingVertical: 9,
-    borderRadius: 999,
+    borderRadius: 10,
     borderWidth: 1,
   },
   retry: {

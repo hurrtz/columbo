@@ -8,7 +8,6 @@ import type { AudioPlayerController } from "./types";
 interface UseVoiceSessionCancellationParams {
   abortRef: MutableRefObject<AbortController | null>;
   player: AudioPlayerController;
-  rollbackCancelableVoiceTurn: () => Promise<void>;
   setPipelinePhase: (phase: PipelinePhase) => void;
   setStreamingText: (text: string) => void;
 }
@@ -16,7 +15,6 @@ interface UseVoiceSessionCancellationParams {
 export function useVoiceSessionCancellation({
   abortRef,
   player,
-  rollbackCancelableVoiceTurn,
   setPipelinePhase,
   setStreamingText,
 }: UseVoiceSessionCancellationParams) {
@@ -27,18 +25,15 @@ export function useVoiceSessionCancellation({
   }, [abortRef, setPipelinePhase, setStreamingText]);
 
   const cancelCurrentInteraction = useCallback(
-    async ({ rollbackConversation }: { rollbackConversation: boolean }) => {
+    async () => {
       resetPipelineState();
 
       if (player.isPlaying) {
         await player.stopPlayback();
       }
 
-      if (rollbackConversation) {
-        await rollbackCancelableVoiceTurn();
-      }
     },
-    [player, resetPipelineState, rollbackCancelableVoiceTurn],
+    [player, resetPipelineState],
   );
 
   return {

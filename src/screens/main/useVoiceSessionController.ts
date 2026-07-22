@@ -8,13 +8,11 @@ import { useVoiceSessionAppState } from "./voiceSession/useVoiceSessionAppState"
 import { useVoiceSessionCancellation } from "./voiceSession/useVoiceSessionCancellation";
 import { useVoiceSessionGuards } from "./voiceSession/useVoiceSessionGuards";
 import type { UseVoiceSessionControllerParams } from "./voiceSession/types";
-import { useVoiceTurnSnapshots } from "./voiceSession/useVoiceTurnSnapshots";
 
-export function useVoiceSessionController<Snapshot>({
+export function useVoiceSessionController({
   abortRef,
   availableSttProviders,
   availableTtsProviders,
-  captureActiveConversationSnapshot,
   handleVoiceCaptureDone,
   isBusy,
   isRecording,
@@ -24,7 +22,6 @@ export function useVoiceSessionController<Snapshot>({
   providerApiKey,
   providerLabel,
   recorder,
-  restoreActiveConversationSnapshot,
   setPipelinePhase,
   setStreamingText,
   settings,
@@ -34,23 +31,14 @@ export function useVoiceSessionController<Snapshot>({
   t,
   ttsApiKey,
   ttsProvider,
-}: UseVoiceSessionControllerParams<Snapshot>) {
+}: UseVoiceSessionControllerParams) {
   const suppressNextPressOutRef = useRef(false);
-  const {
-    clearCancelableVoiceTurn,
-    processCapturedVoiceTurn,
-    resetVoiceTurnSnapshots,
-    rollbackCancelableVoiceTurn,
-  } = useVoiceTurnSnapshots({
-    captureActiveConversationSnapshot,
-    handleVoiceCaptureDone,
-    restoreActiveConversationSnapshot,
-  });
+  const playbackCanPause =
+    player.isActivelyPlaying ?? player.isPlaying;
   const { cancelCurrentInteraction, resetPipelineState } =
     useVoiceSessionCancellation({
       abortRef,
       player,
-      rollbackCancelableVoiceTurn,
       setPipelinePhase,
       setStreamingText,
     });
@@ -89,7 +77,7 @@ export function useVoiceSessionController<Snapshot>({
     maxRecordingMs,
     nativeStt,
     player,
-    processCapturedVoiceTurn,
+    processCapturedVoiceTurn: handleVoiceCaptureDone,
     recorder,
     showToast,
     sttMode: settings.sttMode,
@@ -101,16 +89,12 @@ export function useVoiceSessionController<Snapshot>({
     onBackgroundSubmitError: (error) => {
       showToast(
         error instanceof Error ? error.message : t("couldntProcessVoiceInput"),
+        undefined,
+        "danger",
       );
     },
     stopVoiceCapture,
   });
-
-  useEffect(() => {
-    if (player.isPlaying) {
-      clearCancelableVoiceTurn();
-    }
-  }, [clearCancelableVoiceTurn, player.isPlaying]);
 
   const togglePlaybackPause = useCallback(async () => {
     const updated = player.isPlaybackPaused
@@ -127,7 +111,7 @@ export function useVoiceSessionController<Snapshot>({
       return;
     }
 
-    showToast(nativeStt.lastError);
+    showToast(nativeStt.lastError, undefined, "danger");
     nativeStt.clearLastError();
   }, [nativeStt, showToast]);
 
@@ -136,7 +120,7 @@ export function useVoiceSessionController<Snapshot>({
       return;
     }
 
-    showToast(recorder.lastError);
+    showToast(recorder.lastError, undefined, "danger");
     recorder.clearLastError();
   }, [recorder, showToast]);
 
@@ -150,14 +134,19 @@ export function useVoiceSessionController<Snapshot>({
       },
     });
 
-    if (player.isPlaying) {
+    if (playbackCanPause || player.isPlaybackPaused) {
       suppressNextPressOutRef.current = true;
       await togglePlaybackPause();
       return;
     }
 
     if (isBusy) {
-      await cancelCurrentInteraction({ rollbackConversation: true });
+      await cancelCurrentInteraction();
+      return;
+    }
+
+    if (player.isPlaying) {
+      await player.stopPlayback();
       return;
     }
 
@@ -177,13 +166,16 @@ export function useVoiceSessionController<Snapshot>({
           message,
         },
       });
-      showToast(message);
+      showToast(message, undefined, "danger");
     }
   }, [
     cancelCurrentInteraction,
     ensureVoiceSessionReady,
     isBusy,
+    playbackCanPause,
+    player.isPlaybackPaused,
     player.isPlaying,
+    player.stopPlayback,
     showToast,
     startVoiceCapture,
     t,
@@ -215,7 +207,7 @@ export function useVoiceSessionController<Snapshot>({
           message,
         },
       });
-      showToast(message);
+      showToast(message, undefined, "danger");
     }
   }, [showToast, stopVoiceCapture, t]);
 
@@ -238,13 +230,18 @@ export function useVoiceSessionController<Snapshot>({
       return;
     }
 
-    if (player.isPlaying) {
+    if (playbackCanPause || player.isPlaybackPaused) {
       await togglePlaybackPause();
       return;
     }
 
     if (isBusy) {
-      await cancelCurrentInteraction({ rollbackConversation: true });
+      await cancelCurrentInteraction();
+      return;
+    }
+
+    if (player.isPlaying) {
+      await player.stopPlayback();
       return;
     }
 
@@ -270,14 +267,17 @@ export function useVoiceSessionController<Snapshot>({
           message,
         },
       });
-      showToast(message);
+      showToast(message, undefined, "danger");
     }
   }, [
     cancelCurrentInteraction,
     ensureVoiceSessionReady,
     isBusy,
     isRecording,
+    playbackCanPause,
+    player.isPlaybackPaused,
     player.isPlaying,
+    player.stopPlayback,
     showToast,
     startVoiceCapture,
     stopVoiceCapture,
@@ -297,7 +297,6 @@ export function useVoiceSessionController<Snapshot>({
 
     resetPipelineState();
     lastCompletedReplyRef.current = "";
-    resetVoiceTurnSnapshots();
 
     if (player.isPlaying) {
       await player.stopPlayback();
@@ -323,7 +322,6 @@ export function useVoiceSessionController<Snapshot>({
     player,
     recorder,
     resetPipelineState,
-    resetVoiceTurnSnapshots,
     settings.sttMode,
   ]);
 

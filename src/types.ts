@@ -23,6 +23,7 @@ export type InputMode = "push-to-talk" | "toggle-to-talk";
 export type ReplyPlayback = "stream" | "wait";
 export type TtsPlayback = ReplyPlayback;
 export type ThemeMode = "light" | "dark" | "system";
+export type ToastTone = "info" | "success" | "danger";
 export type AppLanguage = "en" | "de";
 export type ResponseMode = string;
 export type TtsListenLanguage =
@@ -189,10 +190,15 @@ export interface MessageProviderState {
   kimiReasoningContent?: string;
 }
 
+export interface MessageReplyFailureMetadata {
+  message: string;
+}
+
 export interface MessageMetadata {
   webSearch?: MessageWebSearchMetadata;
   notices?: MessagePipelineNotice[];
   providerState?: MessageProviderState;
+  replyFailure?: MessageReplyFailureMetadata;
 }
 
 export const DEFAULT_ASSISTANT_INSTRUCTIONS_BY_LANGUAGE: Record<
