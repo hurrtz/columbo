@@ -1,4 +1,7 @@
-import { extractProviderErrorMessage } from "../../src/services/providerErrors";
+import {
+  buildProviderHttpError,
+  extractProviderErrorMessage,
+} from "../../src/services/providerErrors";
 
 describe("extractProviderErrorMessage", () => {
   it("returns trimmed input for a plain text error", () => {
@@ -73,6 +76,27 @@ describe("extractProviderErrorMessage", () => {
     const json = JSON.stringify({ errors: [{ code: "ERR" }] });
     expect(extractProviderErrorMessage(json)).toBe(
       '{"errors":[{"code":"ERR"}]}',
+    );
+  });
+});
+
+describe("buildProviderHttpError", () => {
+  it("treats provider capacity responses as temporary failures", () => {
+    const error = buildProviderHttpError({
+      provider: "xai",
+      language: "en",
+      status: 400,
+      errorText: JSON.stringify({
+        error: {
+          message:
+            "The model is currently at capacity due to high demand. Please try again.",
+        },
+      }),
+      action: "reply",
+    });
+
+    expect(error.message).toBe(
+      "xAI had a temporary problem during reply generation. Try again shortly.",
     );
   });
 });

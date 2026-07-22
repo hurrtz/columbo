@@ -92,6 +92,17 @@ function isRateLimitFailure(status: number, detail: string) {
   );
 }
 
+function isCapacityFailure(detail: string) {
+  const normalized = detail.toLowerCase();
+
+  return (
+    normalized.includes("at capacity") ||
+    normalized.includes("high demand") ||
+    normalized.includes("temporarily overloaded") ||
+    normalized.includes("server is overloaded")
+  );
+}
+
 function isContextTooLongFailure(detail: string) {
   const normalized = detail.toLowerCase();
 
@@ -141,7 +152,7 @@ export function buildProviderHttpError(params: {
     );
   }
 
-  if (params.status >= 500) {
+  if (params.status >= 500 || isCapacityFailure(detail)) {
     return new Error(
       translate(params.language, "providerTemporaryError", {
         provider: providerLabel,
