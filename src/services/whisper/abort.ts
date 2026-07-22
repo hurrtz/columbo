@@ -51,47 +51,47 @@ export async function fetchWithTimeout(
   onTimeout: () => Error,
   abortSignal?: AbortSignal,
 ) {
+  throwIfAborted(abortSignal);
+
   const controller = new AbortController();
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
   let timedOut = false;
   const handleAbort = () => {
     controller.abort(abortSignal?.reason);
   };
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    timeoutId = setTimeout(() => {
-      timedOut = true;
-      controller.abort();
-      reject(onTimeout());
-    }, timeoutMs);
-  });
-
-  throwIfAborted(abortSignal);
   abortSignal?.addEventListener("abort", handleAbort, { once: true });
 
-  const fetchPromise = fetch(input, {
-    ...init,
-    signal: controller.signal,
-  }).catch((error) => {
-    if (
-      error instanceof Error &&
-      (error.name === "AbortError" ||
-        error.message.toLowerCase().includes("aborted"))
-    ) {
-      if (timedOut) {
+  try {
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => {
+        timedOut = true;
+        controller.abort();
+        reject(onTimeout());
+      }, timeoutMs);
+    });
+    const fetchPromise = fetch(input, {
+      ...init,
+      signal: controller.signal,
+    }).catch((error) => {
+      if (
+        error instanceof Error &&
+        (error.name === "AbortError" ||
+          error.message.toLowerCase().includes("aborted"))
+      ) {
+        if (timedOut) {
+          throw onTimeout();
+        }
+
+        if (abortSignal?.aborted) {
+          throw createAbortError(abortSignal.reason);
+        }
+
         throw onTimeout();
       }
 
-      if (abortSignal?.aborted) {
-        throw createAbortError(abortSignal.reason);
-      }
+      throw error;
+    });
 
-      throw onTimeout();
-    }
-
-    throw error;
-  });
-
-  try {
     return await Promise.race([fetchPromise, timeoutPromise]);
   } finally {
     abortSignal?.removeEventListener("abort", handleAbort);
