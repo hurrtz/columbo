@@ -1,13 +1,11 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { PROVIDER_LABELS, getProviderModelName } from "../constants/models";
 import { useLocalization } from "../i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { fonts } from "../theme/typography";
 import { ResponseMode, ResponseModeSelections } from "../types";
 import { getResponseModeIds } from "../utils/responseModes";
-import { getResponseModeRouteEffortLabel } from "../utils/modelEffort";
 import { ProviderIcon } from "./ProviderIcon";
 
 interface ResponseModeToggleProps {
@@ -26,7 +24,7 @@ export function ResponseModeToggle({
   readyModes = getResponseModeIds(modes),
 }: ResponseModeToggleProps) {
   const { colors } = useTheme();
-  const { language, t } = useLocalization();
+  const { t } = useLocalization();
   const singleMode = modes.length === 1;
 
   return (
@@ -41,107 +39,33 @@ export function ResponseModeToggle({
         const active = id === selected;
         const highlighted = active && !singleMode;
         const ready = readyModes.includes(id);
+        const activeForeground = colors.onAccent;
         const providerLabel = PROVIDER_LABELS[route.provider];
         const modelLabel = getProviderModelName(route.provider, route.model);
-        const effortLabel = getResponseModeRouteEffortLabel(route, language);
-        const effortText = effortLabel ?? "";
-        const accessibilityRouteLabel = `${providerLabel}. ${modelLabel}${
-          effortText ? `. ${effortText}` : ""
-        }`;
-        const content = (
-          <View style={styles.optionContent}>
-            <View
-              style={[
-                styles.providerIconRow,
-                compact ? styles.providerIconRowCompact : null,
-              ]}
-            >
-              <ProviderIcon
-                provider={route.provider}
-                color={active ? colors.text : colors.textSecondary}
-              />
-            </View>
-
-            <View
-              style={[
-                styles.modelRow,
-                compact ? styles.modelRowCompact : null,
-                singleMode ? styles.modelRowSingle : null,
-                compact && singleMode ? styles.modelRowSingleCompact : null,
-              ]}
-            >
-              <View
-                style={[
-                  styles.modelTextSlot,
-                  compact ? styles.modelTextSlotCompact : null,
-                  singleMode ? styles.modelTextSlotSingle : null,
-                ]}
-              >
-                <Text
-                  testID={`response-mode-model-${id}`}
-                  style={[
-                    styles.modelText,
-                    compact ? styles.modelTextCompact : null,
-                    { color: active ? colors.text : colors.textMuted },
-                  ]}
-                  numberOfLines={singleMode ? 1 : 2}
-                >
-                  {modelLabel}
-                </Text>
-              </View>
-              {effortText ? (
-                <View
-                  testID="response-mode-effort-footer"
-                  style={[
-                    styles.effortFooter,
-                    compact ? styles.effortFooterCompact : null,
-                  ]}
-                >
-                  <View
-                    testID="response-mode-effort-divider"
-                    style={[
-                      styles.effortDivider,
-                      compact ? styles.effortDividerCompact : null,
-                      {
-                        backgroundColor: active
-                          ? colors.text
-                          : colors.borderStrong,
-                        opacity: active ? 0.28 : 1,
-                      },
-                    ]}
-                  />
-                  <Text
-                    style={[
-                      styles.effortText,
-                      compact ? styles.effortTextCompact : null,
-                      { color: active ? colors.text : colors.textMuted },
-                    ]}
-                    numberOfLines={1}
-                  >
-                    {effortText}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
-          </View>
-        );
-
+        const accessibilityRouteLabel = `${providerLabel}. ${modelLabel}`;
         return (
           <Pressable
             key={id}
             testID={`response-mode-option-${id}`}
             style={[
               styles.option,
+              compact ? styles.optionCompactStack : styles.optionRow,
+              compact ? styles.optionCompact : null,
+              singleMode ? styles.optionSingle : null,
+              compact && singleMode ? styles.optionSingleCompact : null,
               !ready ? styles.optionDisabled : null,
               highlighted
-                ? styles.optionActiveShell
+                ? {
+                    backgroundColor: colors.bubbleUser,
+                    borderColor: colors.bubbleUser,
+                  }
                 : {
                     backgroundColor: colors.surfaceElevated,
                     borderColor: colors.border,
                   },
             ]}
-            disabled={singleMode}
-            onPress={singleMode ? undefined : () => onSelect(id)}
+            disabled={!ready || singleMode}
+            onPress={!ready || singleMode ? undefined : () => onSelect(id)}
             accessibilityRole="button"
             accessibilityLabel={`${t("useResponseMode", {
               mode: accessibilityRouteLabel,
@@ -151,38 +75,66 @@ export function ResponseModeToggle({
               selected: active,
             }}
           >
-            {highlighted ? (
-              <LinearGradient
-                testID={`response-mode-option-gradient-${id}`}
-                colors={[colors.accentGradientStart, colors.accentGradientEnd]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={[
-                  styles.optionInner,
-                  compact ? styles.optionInnerCompact : null,
-                  singleMode ? styles.optionInnerSingle : null,
-                  compact && singleMode
-                    ? styles.optionInnerSingleCompact
-                    : null,
-                ]}
-              >
-                {content}
-              </LinearGradient>
-            ) : (
+            <View
+              testID={`response-mode-option-inner-${id}`}
+              style={[
+                styles.optionInner,
+                compact ? styles.optionInnerCompact : null,
+                singleMode ? styles.optionInnerSingle : null,
+                compact && singleMode ? styles.optionInnerSingleCompact : null,
+              ]}
+            >
               <View
-                testID={`response-mode-option-inner-${id}`}
                 style={[
-                  styles.optionInner,
-                  compact ? styles.optionInnerCompact : null,
-                  singleMode ? styles.optionInnerSingle : null,
-                  compact && singleMode
-                    ? styles.optionInnerSingleCompact
-                    : null,
+                  styles.optionContent,
+                  compact ? styles.optionContentCompact : null,
                 ]}
               >
-                {content}
+                <View
+                  style={[
+                    styles.providerRow,
+                    compact ? styles.providerRowCompact : null,
+                  ]}
+                >
+                  <ProviderIcon
+                    provider={route.provider}
+                    color={
+                      highlighted ? activeForeground : colors.textSecondary
+                    }
+                    size={compact ? 26 : 24}
+                  />
+                </View>
+
+                <View
+                  testID={`response-mode-model-slot-${id}`}
+                  style={[
+                    styles.modelTextSlot,
+                    compact ? styles.modelTextSlotCompact : null,
+                  ]}
+                >
+                  <Text
+                    testID={`response-mode-model-${id}`}
+                    style={[
+                      styles.modelText,
+                      compact ? styles.modelTextCompact : null,
+                      {
+                        color: highlighted
+                          ? activeForeground
+                          : active
+                            ? colors.text
+                            : colors.textSecondary,
+                      },
+                    ]}
+                    numberOfLines={singleMode ? 1 : 2}
+                  >
+                    {modelLabel}
+                  </Text>
+                </View>
+                {compact ? (
+                  <View style={styles.optionTrailingSpacerCompact} />
+                ) : null}
               </View>
-            )}
+            </View>
           </Pressable>
         );
       })}
@@ -193,122 +145,102 @@ export function ResponseModeToggle({
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    gap: 8,
-  },
-  containerCompact: {
     gap: 6,
   },
+  containerCompact: {
+    flexDirection: "column",
+    gap: 5,
+  },
   option: {
-    flex: 1,
-    borderRadius: 18,
+    minHeight: 82,
+    borderRadius: 12,
     borderWidth: 1,
     overflow: "hidden",
     alignSelf: "stretch",
   },
-  optionActiveShell: {
-    borderColor: "rgba(255,255,255,0.18)",
+  optionRow: {
+    flex: 1,
+    minWidth: 0,
+  },
+  optionCompact: {
+    minHeight: 54,
+  },
+  optionCompactStack: {
+    width: "100%",
+    flexShrink: 0,
+  },
+  optionSingle: {
+    minHeight: 80,
+  },
+  optionSingleCompact: {
+    minHeight: 68,
   },
   optionDisabled: {
     opacity: 0.5,
   },
   optionInner: {
     flex: 1,
-    minHeight: 124,
-    borderRadius: 17,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    minHeight: 82,
+    borderRadius: 11,
+    paddingHorizontal: 9,
+    paddingVertical: 9,
   },
   optionInnerCompact: {
-    minHeight: 92,
-    paddingHorizontal: 8,
+    minHeight: 54,
+    paddingHorizontal: 10,
     paddingVertical: 8,
   },
   optionInnerSingle: {
-    minHeight: 88,
-    paddingVertical: 8,
+    minHeight: 80,
   },
   optionInnerSingleCompact: {
-    minHeight: 76,
-    paddingVertical: 6,
+    minHeight: 68,
   },
   optionContent: {
-    width: "100%",
-    alignItems: "center",
-  },
-  providerIconRow: {
-    height: 32,
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  providerIconRowCompact: {
-    height: 28,
-  },
-  modelRow: {
-    height: 56,
-    width: "100%",
-    alignItems: "center",
-  },
-  modelRowCompact: {
-    height: 46,
-  },
-  modelRowSingle: {
-    height: 38,
-  },
-  modelRowSingleCompact: {
-    height: 34,
-  },
-  modelTextSlot: {
     flex: 1,
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
+    gap: 6,
+  },
+  optionContentCompact: {
+    flexDirection: "row",
+  },
+  providerRow: {
+    minHeight: 24,
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  providerRowCompact: {
+    width: 32,
+    minHeight: 26,
+    flexShrink: 0,
+  },
+  modelTextSlot: {
+    height: 30,
+    width: "100%",
+    justifyContent: "flex-start",
   },
   modelTextSlotCompact: {
-    minHeight: 28,
-  },
-  modelTextSlotSingle: {
-    minHeight: 16,
+    flex: 1,
+    width: "auto",
+    height: 30,
+    justifyContent: "center",
   },
   modelText: {
     fontSize: 12,
-    lineHeight: 16,
-    fontFamily: fonts.body,
+    lineHeight: 15,
+    fontFamily: fonts.display,
     textAlign: "center",
   },
   modelTextCompact: {
-    fontSize: 10,
-    lineHeight: 14,
+    fontSize: 12,
+    lineHeight: 15,
   },
-  effortDivider: {
-    width: 28,
-    height: 0.5,
-    borderRadius: 0.5,
-  },
-  effortDividerCompact: {
-    width: 22,
-  },
-  effortFooter: {
-    height: 20,
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    gap: 4,
-  },
-  effortFooterCompact: {
-    height: 18,
-    gap: 3,
-  },
-  effortText: {
-    fontSize: 10,
-    lineHeight: 13,
-    fontFamily: fonts.body,
-    textAlign: "center",
-  },
-  effortTextCompact: {
-    fontSize: 9,
-    lineHeight: 11,
+  optionTrailingSpacerCompact: {
+    width: 32,
+    flexShrink: 0,
   },
 });
