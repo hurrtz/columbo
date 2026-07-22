@@ -374,6 +374,52 @@ describe("useSettings", () => {
     expect(result.current.settings.webSearchMode).toBe("on");
   });
 
+  it("writes migrated settings back once without legacy fields", async () => {
+    const legacyStored: Record<string, unknown> = {
+      ...DEFAULT_SETTINGS,
+      webSearchMode: "auto",
+      webSearchEnabled: true,
+      ttsPlayback: "wait",
+      ttsVoice: "shimmer",
+      openaiModel: "gpt-5.4",
+    };
+    delete legacyStored.replyPlayback;
+
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
+      JSON.stringify(legacyStored),
+    );
+
+    const firstRender = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    expect(firstRender.result.current.settings.webSearchMode).toBe("on");
+    expect(firstRender.result.current.settings.replyPlayback).toBe("wait");
+    expect(AsyncStorage.setItem).toHaveBeenCalledTimes(1);
+
+    const serializedSettings = (AsyncStorage.setItem as jest.Mock).mock.calls[0][1];
+    const persistedSettings = JSON.parse(serializedSettings) as Record<
+      string,
+      unknown
+    >;
+
+    expect(persistedSettings.webSearchMode).toBe("on");
+    expect(persistedSettings.replyPlayback).toBe("wait");
+    expect(persistedSettings).not.toHaveProperty("webSearchEnabled");
+    expect(persistedSettings).not.toHaveProperty("ttsPlayback");
+    expect(persistedSettings).not.toHaveProperty("ttsVoice");
+    expect(persistedSettings).not.toHaveProperty("openaiModel");
+
+    firstRender.unmount();
+    jest.clearAllMocks();
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(serializedSettings);
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(null);
+
+    renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    expect(AsyncStorage.setItem).not.toHaveBeenCalled();
+  });
+
   it("migrates a stored grok voice provider id onto xai", async () => {
     const legacyStored: Record<string, unknown> = {
       ...DEFAULT_SETTINGS,

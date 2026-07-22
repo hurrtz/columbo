@@ -52,11 +52,33 @@ export function toPublicSettings(settings: Settings): PublicSettings {
   return publicSettings;
 }
 
-export function persistPublicSettings(settings: Settings) {
-  const serialized = JSON.stringify(toPublicSettings(settings));
+function persistSerializedPublicSettings(serialized: string) {
   return enqueueSettingsMutation(STORAGE_KEY, () =>
     AsyncStorage.setItem(STORAGE_KEY, serialized),
   );
+}
+
+export function persistPublicSettings(settings: Settings) {
+  return persistSerializedPublicSettings(
+    JSON.stringify(toPublicSettings(settings)),
+  );
+}
+
+export function persistNormalizedPublicSettings(
+  storedSettings: LegacyStoredSettings | undefined,
+  normalizedSettings: Settings,
+) {
+  if (!storedSettings) {
+    return Promise.resolve();
+  }
+
+  const serialized = JSON.stringify(toPublicSettings(normalizedSettings));
+
+  if (JSON.stringify(storedSettings) === serialized) {
+    return Promise.resolve();
+  }
+
+  return persistSerializedPublicSettings(serialized);
 }
 
 export async function loadStoredApiKeys(): Promise<ProviderApiKeys> {

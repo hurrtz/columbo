@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { type Settings, DEFAULT_SETTINGS } from "../types";
 import { mergeSettings } from "./settings/mergeStoredSettings";
-import { loadStoredSettingsSnapshot } from "./settings/storage";
+import {
+  loadStoredSettingsSnapshot,
+  persistNormalizedPublicSettings,
+} from "./settings/storage";
 import { useSettingsActions } from "./settings/useSettingsActions";
 import { reportPersistenceAlert } from "../services/persistenceAlerts";
 
@@ -13,11 +16,17 @@ export function useSettings() {
     let mounted = true;
 
     void loadStoredSettingsSnapshot()
-      .then(({ storedSettings, apiKeys }) => {
+      .then(async ({ storedSettings, apiKeys }) => {
         if (!mounted) {
           return;
         }
-        setSettings(mergeSettings(storedSettings, apiKeys));
+
+        const normalizedSettings = mergeSettings(storedSettings, apiKeys);
+        setSettings(normalizedSettings);
+        await persistNormalizedPublicSettings(
+          storedSettings,
+          normalizedSettings,
+        );
       })
       .catch((error) => {
         console.error("[settings-storage] failed to load settings", error);

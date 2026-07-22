@@ -67,6 +67,35 @@ const LEGACY_PROVIDER_ALIASES: Record<string, Provider> = {
   grok: "xai",
 };
 
+const LEGACY_SETTINGS_FIELD_NAMES = [
+  "webSearchEnabled",
+  "ttsPlayback",
+  "ttsVoice",
+  "localTtsVoices",
+  "openaiModel",
+  "anthropicModel",
+  "geminiModel",
+  "cohereModel",
+  "deepseekModel",
+  "groqModel",
+  "mistralModel",
+  "nvidiaModel",
+  "togetherModel",
+  "xaiModel",
+] as const satisfies readonly (keyof LegacyStoredSettings)[];
+
+function stripLegacySettingsFields(
+  storedSettings: LegacyStoredSettings,
+): LegacyStoredSettings {
+  const sanitizedSettings = { ...storedSettings };
+
+  for (const fieldName of LEGACY_SETTINGS_FIELD_NAMES) {
+    delete sanitizedSettings[fieldName];
+  }
+
+  return sanitizedSettings;
+}
+
 function migrateLegacyProviderId(value: unknown): unknown {
   return typeof value === "string" && value in LEGACY_PROVIDER_ALIASES
     ? LEGACY_PROVIDER_ALIASES[value]
@@ -549,10 +578,7 @@ export function mergeSettings(
       ? "on"
       : storedSettings?.webSearchMode;
   const sanitizedStoredSettings = storedSettings
-    ? (() => {
-        const { localTtsVoices: _localTtsVoices, ...rest } = storedSettings;
-        return rest;
-      })()
+    ? stripLegacySettingsFields(storedSettings)
     : storedSettings;
 
   return {
