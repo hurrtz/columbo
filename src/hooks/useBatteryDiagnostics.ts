@@ -1,9 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppState } from "react-native";
 
 import {
   getDebugLogCaptureState,
   recordDebugLogEvent,
+  subscribeToDebugLogCapture,
 } from "../services/debugLogCapture";
 import type { PipelinePhase } from "./useVoicePipeline";
 
@@ -39,6 +40,19 @@ export interface BatteryDiagnosticsSnapshot {
 }
 
 export function useBatteryDiagnostics(snapshot: BatteryDiagnosticsSnapshot) {
+  const [captureActive, setCaptureActive] = useState(
+    () => getDebugLogCaptureState().active,
+  );
+
+  useEffect(() => {
+    const syncCaptureState = () => {
+      setCaptureActive(getDebugLogCaptureState().active);
+    };
+
+    syncCaptureState();
+    return subscribeToDebugLogCapture(syncCaptureState);
+  }, []);
+
   // Counts every render of the consuming screen. NOTE: while a capture is
   // active, recorded events re-render the screen, so this over-counts during
   // active use; it is most meaningful across idle periods.
@@ -94,19 +108,15 @@ export function useBatteryDiagnostics(snapshot: BatteryDiagnosticsSnapshot) {
       });
       prevPhaseRef.current = { phase: snapshot.pipelinePhase, since: now };
     }
-  }, [
-    snapshot.pipelinePhase,
-    snapshot.playerIsPlaying,
-    snapshot.isRecording,
-  ]);
+  }, [snapshot.pipelinePhase, snapshot.playerIsPlaying, snapshot.isRecording]);
 
   // Periodic heartbeat (only emits while a capture session is active).
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (!getDebugLogCaptureState().active) {
-        return;
-      }
+    if (!captureActive) {
+      return;
+    }
 
+    const interval = setInterval(() => {
       const s = latestRef.current;
       const now = Date.now();
       const renders =
@@ -143,5 +153,5 @@ export function useBatteryDiagnostics(snapshot: BatteryDiagnosticsSnapshot) {
     }, HEARTBEAT_INTERVAL_MS);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [captureActive]);
 }
