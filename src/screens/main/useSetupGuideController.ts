@@ -56,6 +56,7 @@ export function useSetupGuideController({
   const { t } = useLocalization();
   const providerOptions = useMemo(() => getSetupGuideProviderOptions(), []);
   const [step, setStep] = useState<SetupGuideStep>("intro");
+  const [openedFromSettings, setOpenedFromSettings] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
     null,
   );
@@ -72,6 +73,7 @@ export function useSetupGuideController({
 
     setSelectedProvider(null);
     setStep("intro");
+    setOpenedFromSettings(false);
     setSetupGuideVisible(true);
   }, [loaded, setSetupGuideVisible, setupGuideDismissed]);
 
@@ -128,6 +130,7 @@ export function useSetupGuideController({
       setSetupGuideVisible(false);
       setStep("intro");
       setSelectedProvider(null);
+      setOpenedFromSettings(false);
 
       if (markDismissed) {
         updateSettings({ setupGuideDismissed: true });
@@ -137,10 +140,14 @@ export function useSetupGuideController({
   );
 
   const handleOpenSetupGuide = useCallback(
-    (nextStep: SetupGuideStep = "provider") => {
+    (
+      nextStep: SetupGuideStep = "provider",
+      source: "settings" | "app" = "app",
+    ) => {
       setValidationState({ status: "idle" });
       setSelectedProvider(null);
       setStep(nextStep);
+      setOpenedFromSettings(source === "settings");
       setSetupGuideVisible(true);
       void voiceTest.reset(true);
     },
@@ -360,6 +367,7 @@ export function useSetupGuideController({
 
   return {
     step,
+    openedFromSettings,
     providerOptions,
     selectedProvider,
     selectedProviderApiKey,

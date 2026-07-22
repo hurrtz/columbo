@@ -570,6 +570,10 @@ export function mergeSettings(
       typeof storedSettings?.setupGuideDismissed === "boolean"
         ? storedSettings.setupGuideDismissed
         : hasConfiguredKeys,
+    showSetupGuideShortcut:
+      typeof storedSettings?.showSetupGuideShortcut === "boolean"
+        ? storedSettings.showSetupGuideShortcut
+        : DEFAULT_SETTINGS.showSetupGuideShortcut,
     assistantInstructions,
     webSearchMode: isWebSearchMode(rawWebSearchMode)
       ? rawWebSearchMode

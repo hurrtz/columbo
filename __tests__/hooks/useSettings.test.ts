@@ -52,11 +52,13 @@ describe("useSettings", () => {
     expect(result.current.settings).toEqual(DEFAULT_SETTINGS);
     expect(result.current.settings.showUsageStats).toBe(false);
     expect(result.current.settings.showDebugLogButton).toBe(false);
+    expect(result.current.settings.showSetupGuideShortcut).toBe(true);
   });
 
   it("loads saved settings from AsyncStorage", async () => {
     const saved = { ...DEFAULT_SETTINGS, lastProvider: "anthropic" as const };
     delete (saved as Partial<typeof saved>).setupGuideDismissed;
+    delete (saved as Partial<typeof saved>).showSetupGuideShortcut;
     (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
       JSON.stringify(saved),
     );
@@ -83,6 +85,71 @@ describe("useSettings", () => {
       xai: "xai-test",
     });
     expect(result.current.settings.setupGuideDismissed).toBe(true);
+    expect(result.current.settings.showSetupGuideShortcut).toBe(true);
+  });
+
+  it("migrates rolling model aliases to canonical snapshots", async () => {
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(
+      JSON.stringify({
+        ...DEFAULT_SETTINGS,
+        providerModels: {
+          ...DEFAULT_SETTINGS.providerModels,
+          openai: "gpt-5.4",
+          "alibaba-qwen-dashscope": "qwen3.7-plus",
+          "moonshot-ai-kimi": "kimi-k2.5",
+        },
+        responseModes: [
+          {
+            id: "mode-1",
+            route: {
+              provider: "openai",
+              model: "gpt-5.4",
+              effort: "none",
+            },
+          },
+          {
+            id: "mode-2",
+            route: {
+              provider: "alibaba-qwen-dashscope",
+              model: "qwen3.7-plus",
+              effort: "enabled",
+            },
+          },
+          {
+            id: "mode-3",
+            route: {
+              provider: "moonshot-ai-kimi",
+              model: "kimi-k2.5",
+              effort: "enabled",
+            },
+          },
+        ],
+      }),
+    );
+
+    const { result } = renderHook(() => useSettings());
+    await flushSettingsLoad();
+
+    expect(result.current.settings.providerModels.openai).toBe(
+      "gpt-5.4-2026-03-05",
+    );
+    expect(
+      result.current.settings.providerModels["alibaba-qwen-dashscope"],
+    ).toBe("qwen3.7-plus-2026-05-26");
+    expect(result.current.settings.responseModes[0]?.route.model).toBe(
+      "gpt-5.4-2026-03-05",
+    );
+    expect(result.current.settings.responseModes[1]?.route.model).toBe(
+      "qwen3.7-plus-2026-05-26",
+    );
+    expect(
+      result.current.settings.providerModels["moonshot-ai-kimi"],
+    ).toBe("kimi-k3");
+    expect(result.current.settings.responseModes[2]?.route).toEqual({
+      provider: "moonshot-ai-kimi",
+      model: "kimi-k3",
+      effort: "max",
+    });
   });
 
   it("restores persisted provider validation failures", async () => {

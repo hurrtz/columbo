@@ -119,6 +119,7 @@ export interface Settings {
   language: AppLanguage;
   theme: ThemeMode;
   setupGuideDismissed: boolean;
+  showSetupGuideShortcut: boolean;
   lastProvider: Provider;
   sttMode: SttBackendMode;
   sttProvider: Provider | null;
@@ -242,6 +243,7 @@ export const DEFAULT_SETTINGS: Settings = {
   language: "en",
   theme: "system",
   setupGuideDismissed: false,
+  showSetupGuideShortcut: true,
   lastProvider: DEFAULT_RUNTIME_PROVIDER_ID,
   sttMode: "native",
   sttProvider: null,

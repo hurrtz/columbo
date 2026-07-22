@@ -17,14 +17,6 @@ jest.mock("@expo/vector-icons", () => ({
   },
 }));
 
-jest.mock("expo-linear-gradient", () => ({
-  LinearGradient: ({ children }: { children: React.ReactNode }) => {
-    const React = require("react");
-    const { View } = require("react-native");
-    return React.createElement(View, null, children);
-  },
-}));
-
 const defaultProps = {
   visible: true,
   step: "provider" as const,
@@ -125,11 +117,13 @@ describe("SetupGuideModal", () => {
     const screen = renderWithProviders(<SetupGuideModal {...defaultProps} />);
 
     expect(
-      screen.queryByText("Add an API key to continue, or cancel the setup guide."),
+      screen.queryByText(
+        "Add an API key to continue, or cancel the setup guide.",
+      ),
     ).toBeNull();
   });
 
-  it("lets the disabled-looking validate button report a missing API key", () => {
+  it("does not run validation without an API key", () => {
     const onValidateProviderKey = jest.fn();
     const screen = renderWithProviders(
       <SetupGuideModal
@@ -140,7 +134,7 @@ describe("SetupGuideModal", () => {
 
     fireEvent.press(screen.getByText("Validate key"));
 
-    expect(onValidateProviderKey).toHaveBeenCalledTimes(1);
+    expect(onValidateProviderKey).not.toHaveBeenCalled();
   });
 
   it("shows attempted missing API key guidance above the provider footer", () => {
@@ -158,11 +152,13 @@ describe("SetupGuideModal", () => {
     );
 
     expect(
-      screen.getByText("Add an API key to continue, or cancel the setup guide."),
+      screen.getByText(
+        "Add an API key to continue, or cancel the setup guide.",
+      ),
     ).toBeTruthy();
   });
 
-  it("lets validate report a missing provider", () => {
+  it("does not run validation without a provider", () => {
     const onValidateProviderKey = jest.fn();
     const screen = renderWithProviders(
       <SetupGuideModal
@@ -174,6 +170,27 @@ describe("SetupGuideModal", () => {
 
     fireEvent.press(screen.getByText("Validate key"));
 
-    expect(onValidateProviderKey).toHaveBeenCalledTimes(1);
+    expect(onValidateProviderKey).not.toHaveBeenCalled();
+  });
+
+  it("can hide the Settings shortcut when opened from Settings", () => {
+    const onChangeSettingsShortcutVisible = jest.fn();
+    const screen = renderWithProviders(
+      <SetupGuideModal
+        {...defaultProps}
+        step="intro"
+        showSettingsShortcutOption
+        settingsShortcutVisible
+        onChangeSettingsShortcutVisible={onChangeSettingsShortcutVisible}
+      />,
+    );
+
+    const shortcutSwitch = screen.getByLabelText(
+      "Show guided setup in Settings",
+    );
+    expect(shortcutSwitch.props.value).toBe(true);
+
+    fireEvent(shortcutSwitch, "valueChange", false);
+    expect(onChangeSettingsShortcutVisible).toHaveBeenCalledWith(false);
   });
 });

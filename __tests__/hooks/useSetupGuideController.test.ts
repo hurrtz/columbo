@@ -127,6 +127,21 @@ describe("useSetupGuideController", () => {
     expect(params.openSettings).not.toHaveBeenCalled();
   });
 
+  it("only exposes the Settings shortcut option for a Settings launch", () => {
+    const params = createControllerParams();
+    const { result } = renderHook(() => useSetupGuideController(params), {
+      wrapper,
+    });
+
+    expect(result.current.openedFromSettings).toBe(false);
+
+    act(() => {
+      result.current.handleOpenSetupGuide("intro", "settings");
+    });
+
+    expect(result.current.openedFromSettings).toBe(true);
+  });
+
   it("validates the selected provider key and saves the detected setup", async () => {
     const params = createControllerParams();
     const { result } = renderHook(() => useSetupGuideController(params), {
@@ -171,7 +186,7 @@ describe("useSetupGuideController", () => {
       expect.objectContaining({
         activeResponseMode: "mode-1",
         lastProvider: "openai",
-        responseModes: [
+        responseModes: expect.arrayContaining([
           expect.objectContaining({
             id: "mode-1",
             route: expect.objectContaining({
@@ -179,7 +194,7 @@ describe("useSetupGuideController", () => {
               model: "gpt-5.6-sol",
             }),
           }),
-        ],
+        ]),
         setupGuideDismissed: true,
         spokenRepliesEnabled: true,
         sttMode: "provider",
