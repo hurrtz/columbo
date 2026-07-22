@@ -1,7 +1,7 @@
 import React from "react";
 import { FlatList, Text, View } from "react-native";
 
-import { Feather } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
 
 import { useLocalization } from "../../i18n";
 import { useTheme } from "../../theme/ThemeContext";
@@ -53,7 +53,12 @@ export function ConversationDrawerList({
               { backgroundColor: colors.accentSoft, borderColor: colors.border },
             ]}
           >
-            <Feather name="message-circle" size={18} color={colors.accent} />
+            <Feather
+              name="message-circle"
+              size={18}
+              color={colors.accent}
+              accessible={false}
+            />
           </View>
           <Text style={[styles.emptyTitle, { color: colors.text }]}>
             {searchQuery.trim()

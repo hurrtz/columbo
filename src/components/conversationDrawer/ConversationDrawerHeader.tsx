@@ -1,8 +1,7 @@
 import React from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
-import { Feather } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+import Feather from "@expo/vector-icons/Feather";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useLocalization } from "../../i18n";
@@ -41,14 +40,8 @@ export function ConversationDrawerHeader({
         ]}
       >
         <View style={styles.headerCopy}>
-          <Text style={[styles.eyebrow, { color: colors.accent }]}>
-            {t("memory")}
-          </Text>
           <Text style={[styles.title, { color: colors.text }]}>
             {t("conversations")}
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            {t("drawerSubtitle")}
           </Text>
         </View>
         <TouchableOpacity
@@ -61,6 +54,8 @@ export function ConversationDrawerHeader({
             },
           ]}
           onPress={onClose}
+          accessibilityRole="button"
+          accessibilityLabel={t("dismiss")}
         >
           <Feather name="x" size={18} color={colors.textSecondary} />
         </TouchableOpacity>
@@ -70,16 +65,12 @@ export function ConversationDrawerHeader({
         testID="conversation-drawer-new-session"
         activeOpacity={0.92}
         onPress={onNewSession}
+        accessibilityRole="button"
+        accessibilityLabel={t("newSession")}
+        style={[styles.newSession, { backgroundColor: colors.bubbleUser }]}
       >
-        <LinearGradient
-          colors={[colors.accentGradientStart, colors.accentGradientEnd]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.newSession}
-        >
-          <Feather name="plus" size={16} color="#F4F8FF" />
-          <Text style={styles.newSessionText}>{t("newSession")}</Text>
-        </LinearGradient>
+        <Feather name="plus" size={17} color={colors.onAccent} />
+        <Text style={styles.newSessionText}>{t("newSession")}</Text>
       </TouchableOpacity>
 
       <View
@@ -91,7 +82,12 @@ export function ConversationDrawerHeader({
           },
         ]}
       >
-        <Feather name="search" size={16} color={colors.textMuted} />
+        <Feather
+          name="search"
+          size={16}
+          color={colors.textMuted}
+          accessible={false}
+        />
         <TextInput
           testID="conversation-drawer-search-input"
           value={searchQuery}
@@ -107,6 +103,9 @@ export function ConversationDrawerHeader({
             onPress={onClearSearch}
             style={styles.searchClearButton}
             activeOpacity={0.82}
+            accessibilityRole="button"
+            accessibilityLabel={t("clear")}
+            hitSlop={8}
           >
             <Feather name="x" size={15} color={colors.textSecondary} />
           </TouchableOpacity>

@@ -6,7 +6,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { APP_MODAL_ORIENTATIONS } from "../constants/layout";
 import { useLocalization } from "../i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { ConversationActionSheet } from "./conversationDrawer/ConversationActionSheet";
@@ -37,7 +37,7 @@ export function ConversationDrawer({
   const { t } = useLocalization();
   const { height, width } = useWindowDimensions();
   const isLandscape = width > height;
-  const drawerMaxWidth = isLandscape ? Math.min(width * 0.44, 520) : 380;
+  const drawerMaxWidth = isLandscape ? Math.min(width * 0.44, 520) : width;
   const controller = useConversationDrawerController({
     visible,
     conversations,
@@ -79,25 +79,28 @@ export function ConversationDrawer({
   );
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onDismiss={onDismiss}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onDismiss={onDismiss}
+      supportedOrientations={APP_MODAL_ORIENTATIONS}
+    >
       <View style={styles.container}>
         <View
           style={[
             styles.drawer,
-            { maxWidth: drawerMaxWidth },
+            {
+              maxWidth: drawerMaxWidth,
+              width: isLandscape ? "44%" : "100%",
+              borderRightWidth: isLandscape ? 1 : 0,
+            },
             {
               backgroundColor: colors.surface,
               borderRightColor: colors.border,
             },
           ]}
         >
-          <LinearGradient
-            colors={[colors.accentSoft, "rgba(255,255,255,0)"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.drawerGlow}
-          />
-
           <ConversationDrawerHeader
             searchQuery={controller.searchQuery}
             onChangeSearchQuery={controller.setSearchQuery}
@@ -114,11 +117,14 @@ export function ConversationDrawer({
             onSelectConversation={controller.handleSelectConversation}
           />
         </View>
-        <TouchableOpacity
-          style={[styles.backdrop, { backgroundColor: colors.overlay }]}
-          activeOpacity={1}
-          onPress={onClose}
-        />
+        {isLandscape ? (
+          <TouchableOpacity
+            style={[styles.backdrop, { backgroundColor: colors.overlay }]}
+            activeOpacity={1}
+            onPress={onClose}
+            accessible={false}
+          />
+        ) : null}
       </View>
 
       <ConversationActionSheet

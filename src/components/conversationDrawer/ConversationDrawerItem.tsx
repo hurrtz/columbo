@@ -1,8 +1,7 @@
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
-import { Feather } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+import Feather from "@expo/vector-icons/Feather";
 import { Swipeable } from "react-native-gesture-handler";
 
 import { useLocalization } from "../../i18n";
@@ -45,18 +44,23 @@ export function ConversationDrawerItem({
   const renderRightActions = () => (
     <TouchableOpacity
       testID={`conversation-drawer-delete-${conversation.id}`}
-      style={[styles.deleteAction, { backgroundColor: colors.danger }]}
+      style={[styles.deleteAction, { backgroundColor: colors.dangerFill }]}
       onPress={() => onDelete(conversation.id)}
       accessibilityRole="button"
       accessibilityLabel={t("delete")}
     >
-      <Feather name="trash-2" size={16} color="#FFFFFF" />
+      <Feather name="trash-2" size={16} color={colors.onAccent} />
       <Text style={styles.deleteText}>{t("delete")}</Text>
     </TouchableOpacity>
   );
 
   const cardBody = (
     <>
+      {active ? (
+        <View
+          style={[styles.itemActiveRail, { backgroundColor: colors.accent }]}
+        />
+      ) : null}
       <TouchableOpacity
         testID={`conversation-drawer-menu-${conversation.id}`}
         style={[
@@ -85,22 +89,7 @@ export function ConversationDrawerItem({
         <View style={styles.itemHeader}>
           <View style={styles.itemTitleRow}>
             {conversation.pinned ? (
-              <View
-                style={[
-                  styles.pinnedBadge,
-                  {
-                    backgroundColor: colors.accentSoft,
-                    borderColor: colors.borderStrong,
-                  },
-                ]}
-              >
-                <Feather name="bookmark" size={12} color={colors.accent} />
-                <Text
-                  style={[styles.pinnedBadgeText, { color: colors.accent }]}
-                >
-                  {t("pinned")}
-                </Text>
-              </View>
+              <Feather name="bookmark" size={13} color={colors.accent} />
             ) : null}
             <Text
               style={[styles.itemTitle, { color: colors.text }]}
@@ -111,118 +100,61 @@ export function ConversationDrawerItem({
           </View>
         </View>
         <View style={styles.itemMeta}>
-          <View style={styles.itemMetaCopy}>
-            <View style={styles.itemModelList}>
-              {providerModelEntries.length > 0 ? (
-                providerModelEntries.map(({ provider, models }) => (
-                  <View
-                    key={`${conversation.id}-${provider}-models`}
-                    style={styles.itemModelRow}
-                  >
-                    <View
-                      style={[
-                        styles.itemModelIconWrap,
-                        {
-                          backgroundColor: active
-                            ? colors.accentSoft
-                            : colors.surfaceAlt,
-                          borderColor: colors.border,
-                        },
-                      ]}
-                    >
-                      <ProviderIcon
-                        provider={provider}
-                        color={active ? colors.accent : colors.textSecondary}
-                      />
-                    </View>
-                    <Text
-                      style={[
-                        styles.itemModelText,
-                        { color: colors.textSecondary },
-                      ]}
-                      numberOfLines={2}
-                    >
-                      {models.length > 0 ? models.join(" · ") : t("noModelYet")}
-                    </Text>
-                  </View>
-                ))
-              ) : (
-                <Text
-                  style={[styles.itemModelText, { color: colors.textMuted }]}
-                  numberOfLines={1}
+          <View style={styles.itemModelList}>
+            {providerModelEntries.length > 0 ? (
+              providerModelEntries.map(({ provider, models }) => (
+                <View
+                  key={`${conversation.id}-${provider}-models`}
+                  style={styles.itemModelRow}
                 >
-                  {t("noProviderYet")}
-                </Text>
-              )}
-            </View>
-            <View style={styles.itemStatsRow}>
-              <View
+                  <ProviderIcon
+                    provider={provider}
+                    color={active ? colors.accent : colors.textSecondary}
+                  />
+                  <Text
+                    style={[
+                      styles.itemModelText,
+                      { color: colors.textSecondary },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {models.length > 0 ? models.join(" · ") : t("noModelYet")}
+                  </Text>
+                </View>
+              ))
+            ) : (
+              <Text
+                style={[styles.itemModelText, { color: colors.textMuted }]}
+                numberOfLines={1}
+              >
+                {t("noProviderYet")}
+              </Text>
+            )}
+          </View>
+          <View style={styles.itemFooterRow}>
+            <Text
+              style={[styles.itemFooterText, { color: colors.textMuted }]}
+              numberOfLines={1}
+            >
+              {formatDateTime(conversation.updatedAt)}
+            </Text>
+            <View style={[styles.itemFooterDot, { backgroundColor: colors.borderStrong }]} />
+            <View style={styles.itemFooterMessages}>
+              <Feather
+                name="message-square"
+                size={12}
+                color={active ? colors.accent : colors.textMuted}
+              />
+              <Text
                 style={[
-                  styles.itemStatChip,
-                  {
-                    backgroundColor: colors.surfaceAlt,
-                    borderColor: colors.border,
-                  },
+                  styles.itemFooterText,
+                  { color: active ? colors.accent : colors.textMuted },
                 ]}
               >
-                <Feather
-                  name="message-square"
-                  size={13}
-                  color={active ? colors.accent : colors.textSecondary}
-                />
-                <Text
-                  style={[
-                    styles.itemStatChipText,
-                    {
-                      color: active ? colors.accent : colors.textSecondary,
-                    },
-                  ]}
-                >
-                  {t("messageCount", {
-                    count: conversation.messageCount ?? 0,
-                  })}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.itemTimelineRow}>
-              <View style={styles.itemTimelineBlock}>
-                <Text
-                  style={[
-                    styles.itemTimelineLabel,
-                    { color: colors.textMuted },
-                  ]}
-                >
-                  {t("startedAt")}
-                </Text>
-                <Text
-                  style={[
-                    styles.itemTimelineValue,
-                    { color: colors.textSecondary },
-                  ]}
-                  numberOfLines={1}
-                >
-                  {formatDateTime(conversation.createdAt ?? conversation.updatedAt)}
-                </Text>
-              </View>
-              <View style={styles.itemTimelineBlock}>
-                <Text
-                  style={[
-                    styles.itemTimelineLabel,
-                    { color: colors.textMuted },
-                  ]}
-                >
-                  {t("endedAt")}
-                </Text>
-                <Text
-                  style={[
-                    styles.itemTimelineValue,
-                    { color: colors.textSecondary },
-                  ]}
-                  numberOfLines={1}
-                >
-                  {formatDateTime(conversation.updatedAt)}
-                </Text>
-              </View>
+                {t("messageCount", {
+                  count: conversation.messageCount ?? 0,
+                })}
+              </Text>
             </View>
           </View>
         </View>
@@ -232,37 +164,17 @@ export function ConversationDrawerItem({
 
   return (
     <Swipeable renderRightActions={renderRightActions}>
-      {active ? (
-        <LinearGradient
-          colors={[colors.accentGradientStart, colors.accentGradientEnd]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.itemFrame, { shadowColor: colors.glow }]}
-        >
-          <View
-            style={[
-              styles.item,
-              { backgroundColor: colors.surfaceElevated },
-            ]}
-          >
-            {cardBody}
-          </View>
-        </LinearGradient>
-      ) : (
-        <View
-          style={[
-            styles.itemFrame,
-            styles.itemFrameInactive,
-            {
-              borderColor: colors.border,
-              backgroundColor: colors.surface,
-              shadowColor: "transparent",
-            },
-          ]}
-        >
-          <View style={styles.item}>{cardBody}</View>
-        </View>
-      )}
+      <View
+        style={[
+          styles.itemFrame,
+          {
+            borderColor: active ? colors.borderStrong : colors.border,
+            backgroundColor: active ? colors.accentSoft : colors.surface,
+          },
+        ]}
+      >
+        <View style={styles.item}>{cardBody}</View>
+      </View>
     </Swipeable>
   );
 }

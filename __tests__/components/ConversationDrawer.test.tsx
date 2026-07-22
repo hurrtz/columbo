@@ -18,14 +18,6 @@ jest.mock("@expo/vector-icons", () => ({
   },
 }));
 
-jest.mock("expo-linear-gradient", () => ({
-  LinearGradient: ({ children }: { children: React.ReactNode }) => {
-    const React = require("react");
-    const { View } = require("react-native");
-    return React.createElement(View, null, children);
-  },
-}));
-
 jest.mock("react-native-gesture-handler", () => ({
   Swipeable: ({
     children,
