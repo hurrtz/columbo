@@ -77,6 +77,7 @@ describe("getMainScreenViewModel", () => {
       model: "gpt-5.4",
       pipelinePhase: "thinking",
       player: {
+        isActivelyPlaying: false,
         isPlaybackPaused: false,
         isPlaying: false,
       },
@@ -103,7 +104,7 @@ describe("getMainScreenViewModel", () => {
     expect(viewModel.activeConversationTitle).toBe("Planning");
   });
 
-  it("keeps the speaking visual phase while playback is about to start", () => {
+  it("shows synthesis rather than speaking while audio is only pending", () => {
     const viewModel = getMainScreenViewModel({
       activeConversation: null,
       availableTtsProviders: ["openai"],
@@ -112,6 +113,7 @@ describe("getMainScreenViewModel", () => {
       model: "gpt-5.4",
       pipelinePhase: "speaking",
       player: {
+        isActivelyPlaying: false,
         isPlaybackPaused: false,
         isPlaying: false,
       },
@@ -127,8 +129,36 @@ describe("getMainScreenViewModel", () => {
       ttsProvider: "openai",
     });
 
-    expect(viewModel.visualPhase).toBe("speaking");
+    expect(viewModel.visualPhase).toBe("synthesizing");
     expect(viewModel.isActive).toBe(true);
+  });
+
+  it("keeps paused playback in the speaking visual state", () => {
+    const viewModel = getMainScreenViewModel({
+      activeConversation: null,
+      availableTtsProviders: ["openai"],
+      isRecording: false,
+      language: "en",
+      model: "gpt-5.4",
+      pipelinePhase: "speaking",
+      player: {
+        isActivelyPlaying: false,
+        isPlaybackPaused: true,
+        isPlaying: true,
+      },
+      provider: "openai",
+      selectedSttModel: "",
+      selectedTtsModel: "gpt-4o-mini-tts",
+      selectedTtsVoice: "alloy",
+      settings: DEFAULT_SETTINGS,
+      streamingText: "",
+      sttProvider: null,
+      t,
+      ttsApiKey: "sk-test",
+      ttsProvider: "openai",
+    });
+
+    expect(viewModel.visualPhase).toBe("speaking");
   });
 
   it("does not expose the default model route when no reply provider is configured", () => {
@@ -140,6 +170,7 @@ describe("getMainScreenViewModel", () => {
       model: DEFAULT_SETTINGS.responseModes[0].route.model,
       pipelinePhase: "idle",
       player: {
+        isActivelyPlaying: false,
         isPlaybackPaused: false,
         isPlaying: false,
       },

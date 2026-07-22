@@ -72,36 +72,36 @@ export function getStatusDisplayData(params: {
     playbackPaused && visualPhase === "speaking"
       ? t("paused")
       : visualPhase === "recording"
-      ? t("listening")
-      : visualPhase === "searching"
-        ? t("webSearch")
-      : visualPhase === "speaking"
-        ? t("speaking")
-        : pipelinePhase === "synthesizing"
-          ? t("voiceOutput")
-          : visualPhase === "transcribing"
-            ? t("parsing")
-            : visualPhase === "thinking"
-              ? t("thinking")
-              : t("idle");
+        ? t("listening")
+        : visualPhase === "searching"
+          ? t("webSearch")
+          : visualPhase === "speaking"
+            ? t("speaking")
+            : visualPhase === "synthesizing"
+              ? t("voiceOutput")
+              : visualPhase === "transcribing"
+                ? t("parsing")
+                : visualPhase === "thinking"
+                  ? t("thinking")
+                  : t("idle");
   const statusDetail =
     playbackPaused && visualPhase === "speaking"
       ? t("speechPaused")
       : visualPhase === "recording"
-      ? t("listeningToYourVoice")
-      : visualPhase === "searching"
-        ? t("searchingTheWeb")
-      : visualPhase === "speaking"
-        ? t("speakingBackToYou")
-        : pipelinePhase === "synthesizing"
-          ? t("preparingVoiceWithProvider", {
-              provider: ttsProviderLabel,
-            })
-          : visualPhase === "transcribing"
-            ? t("parsingYourVoiceInput")
-            : visualPhase === "thinking"
-              ? t("waitingForProvider", { provider: providerLabel })
-              : (messageCountLabel ?? t("freshSession"));
+        ? t("listeningToYourVoice")
+        : visualPhase === "searching"
+          ? t("searchingTheWeb")
+          : visualPhase === "speaking"
+            ? t("speakingBackToYou")
+            : visualPhase === "synthesizing"
+              ? t("preparingVoiceWithProvider", {
+                  provider: ttsProviderLabel,
+                })
+              : visualPhase === "transcribing"
+                ? t("parsingYourVoiceInput")
+                : visualPhase === "thinking"
+                  ? t("waitingForProvider", { provider: providerLabel })
+                  : (messageCountLabel ?? t("freshSession"));
 
   return {
     actionLabel,
@@ -174,13 +174,13 @@ export function getStatusIndicatorTone(
   visualPhase: VoiceVisualPhase,
   pipelinePhase: PipelinePhase,
   playbackPaused = false,
-): "danger" | "accent" | "muted" | "success" | "accentWarm" {
+): "danger" | "accent" | "muted" | "success" {
   if (playbackPaused && visualPhase === "speaking") {
     return "muted";
   }
 
   if (visualPhase === "recording") {
-    return "danger";
+    return "accent";
   }
 
   if (visualPhase === "speaking") {
@@ -188,18 +188,18 @@ export function getStatusIndicatorTone(
   }
 
   if (
-    pipelinePhase === "synthesizing" ||
+    visualPhase === "synthesizing" ||
     pipelinePhase === "searching" ||
     visualPhase === "thinking" ||
     visualPhase === "transcribing" ||
     visualPhase === "searching"
   ) {
-    return "muted";
+    return "accent";
   }
 
   if (visualPhase !== "idle") {
     return "success";
   }
 
-  return "accentWarm";
+  return "muted";
 }

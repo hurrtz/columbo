@@ -7,9 +7,10 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { APP_MODAL_ORIENTATIONS } from "../../constants/layout";
 import { Colors } from "../../theme/colors";
 
 import { TranslateFn } from "./shared";
@@ -54,6 +55,7 @@ export function StatusDetailsModal({
       transparent
       animationType="fade"
       onRequestClose={onClose}
+      supportedOrientations={APP_MODAL_ORIENTATIONS}
     >
       <SafeAreaView style={styles.statusDetailsOverlay}>
         <TouchableOpacity
@@ -116,8 +118,8 @@ export function StatusDetailsModal({
                   styles.liveDot,
                   {
                     backgroundColor: isActive
-                      ? colors.success
-                      : colors.accentWarm,
+                      ? colors.accent
+                      : colors.textMuted,
                   },
                 ]}
               />

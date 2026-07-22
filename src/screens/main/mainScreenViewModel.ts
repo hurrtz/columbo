@@ -23,6 +23,7 @@ import { getConversationUsageDisplayData } from "./usageSelectors";
 import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
 
 interface AudioSignalState {
+  isActivelyPlaying: boolean;
   isPlaybackPaused: boolean;
   isPlaying: boolean;
 }
@@ -114,8 +115,11 @@ export function getMainScreenViewModel({
       ? "transcribing"
       : pipelinePhase === "searching"
         ? "searching"
-      : player.isPlaying || pipelinePhase === "speaking"
+      : player.isActivelyPlaying ||
+          (player.isPlaybackPaused && pipelinePhase === "speaking")
         ? "speaking"
+        : pipelinePhase === "speaking"
+          ? "synthesizing"
         : pipelinePhase === "synthesizing"
           ? "synthesizing"
           : pipelinePhase === "thinking"
