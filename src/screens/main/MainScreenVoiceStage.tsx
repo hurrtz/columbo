@@ -1,16 +1,21 @@
 import React from "react";
-import { Animated, Text, TouchableOpacity, View } from "react-native";
-
-import { Feather } from "@expo/vector-icons";
-
-import { WaveformCircle } from "../../components/WaveformCircle";
-import { PipelinePhase } from "../../hooks/useVoicePipeline";
-import { Colors } from "../../theme/colors";
 import {
-  InputMode,
-  VoicePhaseProgress,
-  VoiceVisualPhase,
-} from "../../types";
+  Animated,
+  Keyboard,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+import Feather from "@expo/vector-icons/Feather";
+
+import { WaveformBar } from "../../components/WaveformBar";
+import { PipelinePhase } from "../../hooks/useVoicePipeline";
+import { useReducedMotion } from "../../hooks/useReducedMotion";
+import { Colors } from "../../theme/colors";
+import { InputMode, VoicePhaseProgress, VoiceVisualPhase } from "../../types";
+import { formatLatencyCountdown } from "../../utils/latencyDisplay";
 
 import {
   formatThinkingStatus,
@@ -47,13 +52,11 @@ function useLongRunningElapsedSeconds(pipelinePhase: PipelinePhase): number {
 }
 
 interface MainScreenVoiceStageProps {
-  circleSize?: number;
   colors: Colors;
   disabled?: boolean;
   inputMode: InputMode;
   isActive: boolean;
   layout?: "portrait" | "landscape";
-  maxRecordingMs?: number;
   onOpenStatusDetails: () => void;
   onPausePlayback?: () => void | Promise<void>;
   onPress: () => void;
@@ -61,12 +64,12 @@ interface MainScreenVoiceStageProps {
   onPressOut: () => void;
   onResumePlayback?: () => void | Promise<void>;
   onStopPlayback?: () => void | Promise<void>;
+  onSubmitTextMessage?: (text: string) => void;
   pausePlaybackLabel?: string;
   phaseProgress?: VoicePhaseProgress | null;
   pipelinePhase: PipelinePhase;
   playbackActive?: boolean;
   playbackPaused?: boolean;
-  providerLabel: string;
   resumePlaybackLabel?: string;
   showStatusStrip?: boolean;
   statusDetail: string;
@@ -75,6 +78,35 @@ interface MainScreenVoiceStageProps {
   stopPlaybackLabel?: string;
   t: TranslateFn;
   visualPhase: VoiceVisualPhase;
+}
+
+function usePhaseProgressCopy(
+  phaseProgress: VoicePhaseProgress | null | undefined,
+  countdownLabel: string,
+  overtimeLabel: string,
+) {
+  const [now, setNow] = React.useState(Date.now());
+
+  React.useEffect(() => {
+    if (!phaseProgress) {
+      return;
+    }
+
+    setNow(Date.now());
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, [phaseProgress?.startedAt]);
+
+  if (!phaseProgress) {
+    return null;
+  }
+
+  const countdown = formatLatencyCountdown(
+    Math.max(0, now - phaseProgress.startedAt),
+    phaseProgress.estimatedMs,
+  );
+
+  return `${countdown.overtime ? overtimeLabel : countdownLabel} · ${countdown.text}`;
 }
 
 function getStatusIndicatorColor(statusIndicatorTone: string, colors: Colors) {
@@ -88,7 +120,7 @@ function getStatusIndicatorColor(statusIndicatorTone: string, colors: Colors) {
     case "success":
       return colors.success;
     default:
-      return colors.accentWarm;
+      return colors.textMuted;
   }
 }
 
@@ -134,9 +166,10 @@ export function MainScreenStatusStrip({
   const elapsedSeconds = useLongRunningElapsedSeconds(pipelinePhase);
   const workingPulse = React.useRef(new Animated.Value(1)).current;
   const pipelineWorking = isPipelineWorking(pipelinePhase);
+  const reducedMotion = useReducedMotion();
 
   React.useEffect(() => {
-    if (!pipelineWorking) {
+    if (!pipelineWorking || reducedMotion) {
       workingPulse.stopAnimation();
       workingPulse.setValue(1);
       return;
@@ -161,13 +194,12 @@ export function MainScreenStatusStrip({
     return () => {
       animation.stop();
     };
-  }, [pipelineWorking, workingPulse]);
+  }, [pipelineWorking, reducedMotion, workingPulse]);
   const displayedDetail = formatThinkingStatus({
     baseDetail: statusDetail,
     elapsedSeconds,
     reassurance: t("deepThinkingReassurance"),
-    withElapsed: (detail, seconds) =>
-      t("thinkingElapsed", { detail, seconds }),
+    withElapsed: (detail, seconds) => t("thinkingElapsed", { detail, seconds }),
   });
   // Portrait: let the status strip stretch to the full content width so it
   // lines up with the route card above. Landscape keeps a tighter cap.
@@ -176,12 +208,14 @@ export function MainScreenStatusStrip({
 
   return (
     <View
+      testID="main-screen-status-strip"
       style={[
         styles.statusStrip,
         layout === "landscape" ? styles.statusStripLandscape : null,
         fullWidth ? styles.statusStripFullWidth : null,
         {
-          backgroundColor: colors.surface,
+          backgroundColor:
+            layout === "landscape" ? "transparent" : colors.surface,
           borderColor: colors.border,
           maxWidth: statusStripMaxWidth,
           shadowColor: colors.glow,
@@ -210,7 +244,10 @@ export function MainScreenStatusStrip({
               },
             ]}
           />
-          <Text style={[styles.statusStripTitle, { color: colors.text }]}>
+          <Text
+            testID="voice-stage-status-title"
+            style={[styles.statusStripTitle, { color: colors.text }]}
+          >
             {statusTitle}
           </Text>
         </View>
@@ -226,18 +263,27 @@ export function MainScreenStatusStrip({
             <TouchableOpacity
               style={[
                 styles.statusStripInfoButton,
+                layout === "landscape"
+                  ? styles.statusStripUtilityButtonLandscape
+                  : null,
                 {
-                  backgroundColor: colors.surfaceElevated,
+                  backgroundColor:
+                    layout === "landscape"
+                      ? "transparent"
+                      : colors.surfaceElevated,
                   borderColor: colors.border,
                 },
               ]}
               onPress={() => {
-                void (playbackPaused ? onResumePlayback?.() : onPausePlayback?.());
+                void (playbackPaused
+                  ? onResumePlayback?.()
+                  : onPausePlayback?.());
               }}
               activeOpacity={0.85}
               accessibilityLabel={
                 playbackPaused ? resumePlaybackLabel : pausePlaybackLabel
               }
+              accessibilityRole="button"
             >
               <Feather
                 name={playbackPaused ? "play" : "pause"}
@@ -248,8 +294,14 @@ export function MainScreenStatusStrip({
             <TouchableOpacity
               style={[
                 styles.statusStripInfoButton,
+                layout === "landscape"
+                  ? styles.statusStripUtilityButtonLandscape
+                  : null,
                 {
-                  backgroundColor: colors.surfaceElevated,
+                  backgroundColor:
+                    layout === "landscape"
+                      ? "transparent"
+                      : colors.surfaceElevated,
                   borderColor: colors.border,
                 },
               ]}
@@ -258,6 +310,7 @@ export function MainScreenStatusStrip({
               }}
               activeOpacity={0.85}
               accessibilityLabel={stopPlaybackLabel}
+              accessibilityRole="button"
             >
               <Feather name="square" size={14} color={colors.textSecondary} />
             </TouchableOpacity>
@@ -266,13 +319,19 @@ export function MainScreenStatusStrip({
         <TouchableOpacity
           style={[
             styles.statusStripInfoButton,
+            layout === "landscape"
+              ? styles.statusStripUtilityButtonLandscape
+              : null,
             {
-              backgroundColor: colors.surfaceElevated,
+              backgroundColor:
+                layout === "landscape" ? "transparent" : colors.surfaceElevated,
               borderColor: colors.border,
             },
           ]}
           onPress={onOpenStatusDetails}
           activeOpacity={0.85}
+          accessibilityRole="button"
+          accessibilityLabel={t("statusDetails")}
         >
           <Feather name="info" size={16} color={colors.textSecondary} />
         </TouchableOpacity>
@@ -282,13 +341,11 @@ export function MainScreenStatusStrip({
 }
 
 export function MainScreenVoiceStage({
-  circleSize = 260,
   colors,
   disabled = false,
   inputMode,
   isActive,
   layout = "portrait",
-  maxRecordingMs,
   onOpenStatusDetails,
   onPausePlayback,
   onPress,
@@ -296,12 +353,12 @@ export function MainScreenVoiceStage({
   onPressOut,
   onResumePlayback,
   onStopPlayback,
+  onSubmitTextMessage,
   pausePlaybackLabel,
   phaseProgress,
   pipelinePhase,
   playbackActive = false,
   playbackPaused = false,
-  providerLabel,
   resumePlaybackLabel,
   showStatusStrip = true,
   statusDetail,
@@ -311,7 +368,24 @@ export function MainScreenVoiceStage({
   t,
   visualPhase,
 }: MainScreenVoiceStageProps) {
-  const haloSize = Math.round(circleSize * 1.08);
+  const [textMessage, setTextMessage] = React.useState("");
+  const trimmedTextMessage = textMessage.trim();
+  const hasTextMessage = trimmedTextMessage.length > 0;
+  const textSubmitDisabled = disabled || isActive || !trimmedTextMessage;
+  const progressCopy = usePhaseProgressCopy(
+    phaseProgress,
+    t("speechEtaCountdown"),
+    t("speechEtaOvertime"),
+  );
+  const handleSubmitTextMessage = React.useCallback(() => {
+    if (textSubmitDisabled || !onSubmitTextMessage) {
+      return;
+    }
+
+    onSubmitTextMessage(trimmedTextMessage);
+    setTextMessage("");
+    Keyboard.dismiss();
+  }, [onSubmitTextMessage, textSubmitDisabled, trimmedTextMessage]);
 
   return (
     <View
@@ -322,52 +396,111 @@ export function MainScreenVoiceStage({
     >
       <View
         style={[
-          styles.stageHalo,
+          styles.voiceDock,
           {
-            width: haloSize,
-            height: haloSize,
-            borderRadius: haloSize / 2,
-            backgroundColor: disabled ? colors.borderStrong : colors.glowStrong,
-            opacity: disabled ? 0.55 : 1,
+            backgroundColor: "transparent",
+            borderColor: "transparent",
           },
         ]}
-      />
-      <WaveformCircle
-        accessibilityLabel={statusTitle}
-        disabled={disabled}
-        isActive={isActive}
-        phase={visualPhase}
-        providerLabel={providerLabel}
-        phaseProgress={phaseProgress}
-        phaseProgressCountdownLabel={t("speechEtaCountdown")}
-        phaseProgressOvertimeLabel={t("speechEtaOvertime")}
-        size={circleSize}
-        inputMode={inputMode}
-        maxRecordingMs={maxRecordingMs}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-        onPress={onPress}
-      />
-      {showStatusStrip ? (
-        <MainScreenStatusStrip
-          colors={colors}
-          layout={layout}
-          onOpenStatusDetails={onOpenStatusDetails}
-          onPausePlayback={onPausePlayback}
-          onResumePlayback={onResumePlayback}
-          onStopPlayback={onStopPlayback}
-          pausePlaybackLabel={pausePlaybackLabel}
-          pipelinePhase={pipelinePhase}
-          playbackActive={playbackActive}
-          playbackPaused={playbackPaused}
-          resumePlaybackLabel={resumePlaybackLabel}
-          statusDetail={statusDetail}
-          statusIndicatorTone={statusIndicatorTone}
-          statusTitle={statusTitle}
-          stopPlaybackLabel={stopPlaybackLabel}
-          t={t}
-        />
-      ) : null}
+      >
+        {isActive || !onSubmitTextMessage ? (
+          <WaveformBar
+            isActive={isActive}
+            phase={visualPhase}
+            statusLabel={progressCopy ?? statusTitle}
+            inputMode={inputMode}
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
+            onPress={onPress}
+          />
+        ) : (
+          <View
+            testID="voice-text-composer"
+            style={[
+              styles.voiceDockComposer,
+              {
+                backgroundColor: colors.surfaceElevated,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <TextInput
+              testID="voice-text-input"
+              value={textMessage}
+              onChangeText={setTextMessage}
+              placeholder={t("textMessagePlaceholder")}
+              placeholderTextColor={colors.textMuted}
+              editable={!disabled}
+              multiline
+              returnKeyType="send"
+              submitBehavior="submit"
+              onSubmitEditing={handleSubmitTextMessage}
+              style={[styles.voiceDockInput, { color: colors.text }]}
+            />
+            <TouchableOpacity
+              testID="voice-text-primary-action"
+              accessibilityLabel={
+                hasTextMessage ? t("sendTextMessage") : statusTitle
+              }
+              accessibilityRole="button"
+              accessibilityState={{ disabled }}
+              disabled={disabled}
+              onPress={
+                hasTextMessage
+                  ? handleSubmitTextMessage
+                  : inputMode === "toggle-to-talk"
+                    ? onPress
+                    : undefined
+              }
+              onPressIn={
+                !hasTextMessage && inputMode === "push-to-talk"
+                  ? onPressIn
+                  : undefined
+              }
+              onPressOut={
+                !hasTextMessage && inputMode === "push-to-talk"
+                  ? onPressOut
+                  : undefined
+              }
+              activeOpacity={0.8}
+              style={[
+                styles.voiceDockPrimaryButton,
+                {
+                  backgroundColor: disabled
+                    ? colors.surfaceAlt
+                    : colors.bubbleUser,
+                },
+              ]}
+            >
+              <Feather
+                name={hasTextMessage ? "arrow-up" : "mic"}
+                size={18}
+                color={disabled ? colors.textMuted : colors.onAccent}
+              />
+            </TouchableOpacity>
+          </View>
+        )}
+        {showStatusStrip && isActive ? (
+          <MainScreenStatusStrip
+            colors={colors}
+            layout={layout}
+            onOpenStatusDetails={onOpenStatusDetails}
+            onPausePlayback={onPausePlayback}
+            onResumePlayback={onResumePlayback}
+            onStopPlayback={onStopPlayback}
+            pausePlaybackLabel={pausePlaybackLabel}
+            pipelinePhase={pipelinePhase}
+            playbackActive={playbackActive}
+            playbackPaused={playbackPaused}
+            resumePlaybackLabel={resumePlaybackLabel}
+            statusDetail={statusDetail}
+            statusIndicatorTone={statusIndicatorTone}
+            statusTitle={statusTitle}
+            stopPlaybackLabel={stopPlaybackLabel}
+            t={t}
+          />
+        ) : null}
+      </View>
     </View>
   );
 }
