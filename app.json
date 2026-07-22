@@ -4,6 +4,7 @@
     "slug": "columbo",
     "scheme": "columbo",
     "version": "2.4.0",
+    "platforms": ["ios", "android"],
     "ios": {
       "bundleIdentifier": "com.tobiaswinkler.app.columbo"
     },
