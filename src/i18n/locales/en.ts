@@ -1,676 +1,703 @@
 import type { TranslationDictionary } from "../types";
 
 export const en: TranslationDictionary = {
-    retry: "Retry",
-    dismiss: "Dismiss",
-    unavailable: "Unavailable",
-    selection: "Selection",
-    chooseCompatibleProviderFirst: "Choose a compatible provider first",
-    settings: "Settings",
-    all: "All",
-    firstRun: "First Run",
-    instructions: "Instructions",
-    providers: "Providers",
-    webSearch: "Web Search",
-    stt: "STT",
-    tts: "TTS",
-    ui: "UI",
-    settingsRuntimeReadiness: "Runtime Readiness",
-    settingsReadinessThink: "Think",
-    settingsReadinessListen: "Listen",
-    settingsReadinessSpeak: "Speak",
-    settingsReadinessSearch: "Search",
-    settingsReadinessReady: "Ready",
-    settingsReadinessNeedsAttention: "Attention",
-    settingsReadinessBroken: "Broken",
-    settingsReadinessOff: "Off",
-    settingsConnections: "Connections",
-    settingsThinking: "Thinking",
-    settingsListening: "Listening",
-    settingsSpeaking: "Speaking",
-    settingsSearch: "Search",
-    settingsAppDiagnostics: "App & diagnostics",
-    settingsConnectionsSummary: "Provider keys, validation, and capabilities.",
-    settingsThinkingSummary: "Home cards, models, effort, and system prompt.",
-    settingsListeningSummary: "Input mode and speech-to-text routing.",
-    settingsSpeakingSummary: "Spoken replies, playback, voices, and previews.",
-    settingsSearchSummary: "Web search provider and search quality controls.",
-    settingsAppDiagnosticsSummary:
-      "Theme, language, usage, debug logs, and recent activity.",
-    settingsBackToOverview: "Back to overview",
-    settingsOpenSection: ({ section }) => `Open ${section}`,
-    theme: "Theme",
-    language: "Language",
-    usageStats: "Usage Stats",
-    model: "Model",
-    effort: "Effort",
-    effortValue: ({ effort }) => `Effort: ${effort}`,
-    english: "English",
-    german: "German",
-    light: "Light",
-    dark: "Dark",
-    system: "System",
-    languageCoverage: ({ note }) => `Language coverage: ${note}`,
-    recordingLimits: ({ note }) => `Recording limits: ${note}`,
-    replyGenerationAction: "reply generation",
-    speechTranscriptionAction: "speech transcription",
-    instructionsTabDescription:
-      "Shape the hidden guidance that steers the assistant before any provider sees the request.",
-    providersTabDescription:
-      "Store external-service credentials on-device and configure the response modes you want to use.",
-    webSearchTabDescription:
-      "Configure optional live web context before replies.",
-    catalogOnlyProvidersHint: ({ count }) =>
-      `Showing ${count} extra catalog-only providers here for UI inspection. Only the wired providers can be configured and called right now.`,
-    openProviderCatalogDetails: ({ provider }) =>
-      `Open ${provider} catalog details`,
-    responseModes: "Response Modes",
-    responseModeItemTitle: ({ index }) => `Response mode ${index}`,
-    addResponseMode: "Add response mode",
-    removeResponseMode: "Remove response mode",
-    responseModesNoConfiguredProviders:
-      "Add credentials first. Route controls stay hidden until at least one compatible service is configured.",
-    useResponseMode: ({ mode }) => `Use ${mode}`,
-    sttTabDescription:
-      "Control how speech is captured and which backend turns audio into text before it reaches the model.",
-    ttsTabDescription:
-      "Control when replies start speaking and which backend handles spoken output.",
-    brief: "Brief",
-    briefDescription:
-      "Keep the answer tight. Use the minimum number of sentences needed to fully answer the user.",
-    normal: "Normal",
-    normalDescription:
-      "Aim for a balanced response length. Cover the important points without dragging the answer out.",
-    thorough: "Thorough",
-    thoroughDescription:
-      "Go deep and be comprehensive. Include nuance, detail, tradeoffs, and the reasoning that matters.",
-    professional: "Professional",
-    professionalDescription:
-      "Speak like a senior consultant briefing a client. Precise language, no slang, measured and authoritative.",
-    casual: "Casual",
-    casualDescription:
-      "Speak like a smart friend at a coffee shop. Relaxed, natural, conversational. Contractions are fine, tangents are fine.",
-    nerdy: "Nerdy",
-    nerdyDescription:
-      "Speak like an enthusiastic expert who loves going deep. Use technical terminology freely, geek out about details, assume the user can keep up.",
-    concise: "Concise",
-    conciseDescription:
-      "Be as brief as possible while still being complete. No preamble, no filler, just the answer. Think telegram style.",
-    socratic: "Socratic",
-    socraticDescription:
-      "Challenge the user's thinking. Ask counter-questions, offer alternative perspectives, don't just confirm what they said. Be a sparring partner, not a yes-machine.",
-    eli5: "ELI5",
-    eli5Description:
-      "Explain everything as simply as possible. Use analogies, everyday language, zero jargon. Assume no prior knowledge on any topic.",
-    openProviderSettings: ({ provider }) => `Open ${provider} settings`,
-    createProviderApiKey: ({ provider }) => `Edit ${provider} credentials`,
-    useProvider: ({ provider }) => `Use ${provider}`,
-    createApiKey: "Credentials",
-    aboutThisProvider: "About this provider",
-    providerStatusInvalid: "Invalid",
-    providerStatusTesting: "Testing",
-    providerStatusConfigured: "Configured",
-    providerStatusNotSetup: "Not set up",
-    testProviderKey: "Test key",
-    providerValidationUnavailable:
-      "Live validation is not wired for this provider yet. Save the key here and verify it during actual use.",
-    providerNeedsAttention: "needs attention",
-    catalogProviderReadOnlyHint:
-      "This provider is present in the central catalog for inspection, but it is not wired into the app runtime yet.",
-    catalogProviderReferenceHint:
-      "Catalog reference for this provider:",
-    catalogProviderModelCounts: ({ llm, stt, tts }) =>
-      `Catalog models: ${llm} LLM, ${stt} STT, ${tts} TTS.`,
-    catalogProviderSupportSummary: ({ llm, stt, tts }) =>
-      `Verified support: LLM ${llm}, STT ${stt}, TTS ${tts}.`,
-    catalogProviderLiveDiscoveryHint:
-      "This provider has a dynamic catalog, so a real integration will likely need live model discovery.",
-    catalogProviderLimitsSummary: ({ summary }) => `Limits: ${summary}`,
-    catalogProviderRegionSummary: ({ summary }) => `Region: ${summary}`,
-    catalogProviderSttLanguagesSummary: ({ summary }) =>
-      `STT languages: ${summary}`,
-    catalogProviderTtsLanguagesSummary: ({ summary }) =>
-      `TTS languages: ${summary}`,
-    catalogProviderIntegrationNotesSummary: ({ summary }) =>
-      `Integration notes: ${summary}`,
-    catalogProviderNoModels: "No documented models.",
-    validateKey: "Validate key",
-    validatingKey: "Validating...",
-    showKey: "Show key",
-    hideKey: "Hide key",
-    apiKeyProtectedHint:
-      "Stored keys stay hidden by default. Reveal them only when you need to verify or edit a value.",
-    assistantInstructions: "Assistant Instructions",
-    systemPrompt: "System Prompt",
-    assistantInstructionsIntro:
-      "Shape the hidden guidance the model receives before every reply.",
-    baseInstructions: "Base Instructions",
-    assistantInstructionsPlaceholder: "Define how the assistant should behave.",
-    assistantInstructionsHint:
-      "This is always prepended before the selected response length and tone.",
-    adaptiveLength: "Adaptive Length",
-    responseTone: "Response Tone",
-    homeStyleChipLabel: ({ tone, length }) => `Style — ${tone} · ${length}`,
-    styleSheetTitle: "Style & Length",
-    styleSheetSubtitle: "How the assistant replies to you.",
-    openStyleSheet: "Open style and length",
-    inputMode: "Input Mode",
-    voiceInput: "Voice Input",
-    voiceInputDescription:
-      "Control how your speech is captured before it reaches the model.",
-    pushToTalk: "Push to Talk",
-    pushToTalkDescription:
-      "Hold the main button while speaking, then release to send.",
-    toggleToTalk: "Toggle to Talk",
-    toggleToTalkDescription:
-      "Tap once to start recording and tap again when you are done.",
-    speechToText: "Speech to Text",
-    appNative: "System Recognition",
-    nativeSttDescription:
-      "Use the operating system's speech recognizer. Depending on device settings, recognition may run on-device or through the system service. No provider key is required.",
-    provider: "Provider",
-    webSearchProvider: "Web Search Provider",
-    webSearchProviderHint:
-      "Choose the configured service that performs live web lookups. Its credentials are stored on-device.",
-    webSearchProviderMissingHint:
-      "Configure at least one search-capable service in Credentials to enable web grounding here.",
-    webSearchModelHint: ({ model }) =>
-      `Uses ${model} behind the scenes for live web grounding.`,
-    webSearchHomeHint:
-      "Use the home-screen toggle to switch web grounding on or off for this thread.",
-    settingsWebSearchCompactHint:
-      "Optionally prepend fresh web context before the main model replies.",
-    webSearchAdvanced: "Advanced Search Controls",
-    webSearchSetupNeeded: "Add credentials to use live web search.",
-    webSearchEnabledDescription:
-      "Fresh web context is added before the model replies.",
-    webSearchDisabledDescription:
-      "Use live web context for this thread when current facts matter.",
-    webSearchQualityControls: "Search Quality",
-    webSearchSearchMode: "Search Mode",
-    webSearchSearchModeQuick: "Quick",
-    webSearchSearchModeBalanced: "Balanced",
-    webSearchSearchModeDeep: "Deep",
-    webSearchDepth: "Search Depth",
-    webSearchDepthStandard: "Standard",
-    webSearchDepthDeep: "Deep",
-    webSearchResultCount: "Result Count",
-    webSearchQualityHint: ({ provider }) =>
-      `These controls tune how ${provider} gathers fresh context before the reply.`,
-    webSearchNoExtraControls: ({ provider }) =>
-      `${provider} does not expose extra search-quality controls in this app yet.`,
-    setWebSearchMode: ({ mode }) => `Set web search mode to ${mode}`,
-    openWebSearchSettings: "Open web search settings",
-    providerSttDescription:
-      "Use a configured external service to transcribe your voice before it is sent to the reply route.",
-    sttProvider: "STT Provider",
-    sttProviderEnabledHint:
-      "Only enabled providers with transcription support appear here.",
-    sttProviderMissingHint:
-      "Add credentials for a service with STT support to choose it here.",
-    nativeSttHint:
-      "System recognition works independently of your provider keys and may be processed on-device or by the operating system's speech service.",
-    replyPlayback: "Reply Playback",
-    sentencesArrive: "Sentences Arrive",
-    sentencesArriveDescription:
-      "Start speaking as soon as complete sentences are ready.",
-    fullReplyFirst: "Full Reply First",
-    fullReplyFirstDescription:
-      "Generate the entire answer first, then play it in one pass.",
-    textToSpeech: "Text to Speech",
-    spokenReplies: "Spoken Replies",
-    spokenRepliesEnabledDescription:
-      "Read assistant replies aloud when a voice route is available.",
-    spokenRepliesDisabledDescription:
-      "Keep replies text-only for now. Your preferred TTS route stays saved for later.",
-    nativeTtsDescription:
-      "Use the device speech engine for spoken replies and voice preview.",
-    voiceOutputDescription:
-      "Pick the speech engine, listening languages, and voice previews for spoken replies.",
-    localTts: "Local",
-    localTtsDescription:
-      "Try a matching downloaded local voice first, then the selected configured service if available, then the system voice.",
-    providerTtsDescription:
-      "Try the selected configured service first, then a matching downloaded local voice, then the system voice.",
-    ttsProvider: "TTS Provider",
-    ttsProviderEnabledHint:
-      "Only enabled providers with spoken-reply support appear here.",
-    ttsProviderMissingHint:
-      "Add credentials for a service with TTS support to choose it here.",
-    localTtsOrderHint:
-      "Playback order: matching local voice first, then the selected provider if configured, then the system voice.",
-    providerTtsOrderHint:
-      "Playback order: selected provider first, then a matching downloaded local voice, then the system voice.",
-    nativeTtsHint:
-      "Native TTS uses the system voice stack and does not require a provider key.",
-    localTtsLanguageCoverageHint:
-      "Local packs currently cover English, German, Simplified Chinese, Spanish, Portuguese, Hindi, French, and Italian. Japanese still falls back automatically.",
-    ttsVoice: "TTS Voice",
-    mistralVoiceId: "Mistral Voice ID",
-    mistralVoiceIdPlaceholder: "Preset or custom voice ID",
-    mistralVoiceIdHint:
-      "Choose a preset voice or create a voice in Mistral Studio, then paste its voice ID here.",
-    mistralVoiceIdRequired:
-      "Enter a Mistral preset or custom voice ID before using speech output.",
-    qwenSpeechUnavailableInUs:
-      "Columbo's current Qwen speech routes are not available in the US region. Choose Singapore or Beijing for Qwen speech.",
-    qwenApiRegion: "Qwen API Region",
-    qwenRegionSingapore: "Singapore",
-    qwenRegionUs: "US (Virginia)",
-    qwenRegionBeijing: "China (Beijing)",
-    qwenRegionHint:
-      "The selected region must match the region in which this API key was created.",
-    qwenRegionUsSpeechHint:
-      "US-region keys support chat and web search here. Columbo's current Qwen STT and TTS routes require a Singapore or Beijing key.",
-    providerDefaultVoiceHint:
-      "This provider currently uses its default voice for preview and spoken replies.",
-    listenLanguages: "Listen Languages",
-    listenLanguagesHint:
-      "Pick the reply languages you want to sound good. Columbo tries them in this order when routing speech output.",
-    localVoicePacks: "Local Voice Packs",
-    localVoicePacksHint:
-      "Each language keeps its own local voice. Choose the voice you want for that language, then download only the packs you actually care about.",
-    localVoiceForLanguage: ({ languageLabel }) => `Voice for ${languageLabel}`,
-    providerVoicePreviews: "Provider Voice Previews",
-    providerVoicePreviewsHint:
-      "Test the currently selected TTS route here with a separate preview text for each reply language.",
-    nativeVoicePreviewSection: "Native Voice Preview",
-    nativeVoicePreviewSectionHint:
-      "This speaks directly through the phone's built-in speech synthesizer so you can compare it against local and cloud voices.",
-    nativeVoiceUnavailable:
-      "This device did not report any native system voices for preview.",
-    speechDiagnostics: "Recent Speech Activity",
-    speechDiagnosticsHint:
-      "Shows the latest speech requests, the route they asked for, the route they actually used, and any fallback reason.",
-    speechDiagnosticsEmpty:
-      "No recent speech requests yet. Preview a voice or play a reply to see routing details here.",
-    clearSpeechDiagnosticsConfirmationTitle: "Clear recent speech activity?",
-    clearSpeechDiagnosticsConfirmationMessage:
-      "This removes all captured speech-routing diagnostics. This action cannot be undone.",
-    speechDiagnosticSourceConversation: "Conversation reply",
-    speechDiagnosticSourceRepeat: "Repeat reply",
-    speechDiagnosticSourcePreview: "Voice preview",
-    speechDiagnosticSourceUnknown: "Speech request",
-    speechDiagnosticRouteLine: ({ requested, actual }) =>
-      `Requested: ${requested} -> Actual: ${actual}`,
-    speechDiagnosticStageLine: ({ stage }) => `Latest stage: ${stage}`,
-    speechDiagnosticLanguageLine: ({ languageLabel }) =>
-      `Language: ${languageLabel}`,
-    speechDiagnosticProviderLine: ({ provider }) => `Provider: ${provider}`,
-    speechDiagnosticVoiceLine: ({ voice }) => `Voice: ${voice}`,
-    localTtsPackReady: "Installed on this device.",
-    localTtsPackBroken:
-      "Downloaded, but this voice failed local verification on this device. Re-download it or choose another voice.",
-    localTtsPackMissing:
-      "Not installed yet. Cloud TTS or the system voice will be used until you download it.",
-    localTtsUnsupportedLanguageFallback:
-      "A local pack is not available yet for this language. Cloud TTS or the system voice will handle it.",
-    downloadingLocalTtsPack: ({ progress }) =>
-      `Downloading local pack... ${progress}%`,
-    download: "Download",
-    downloadingShort: "Loading...",
-    voicePreviewText: "Voice Preview Text",
-    voicePreviewPlaceholder: "Type a phrase to hear this voice.",
-    voicePreviewHint:
-      "Uses the currently selected reply voice backend without sending anything to the language model.",
-    previewVoice: "Preview Voice",
-    generatingPreview: "Generating Preview...",
-    playingPreview: "Playing Preview...",
-    systemVoice: "System voice",
-    spokenRepliesOff: "Text only",
-    noTtsProvider: "No TTS provider",
-    nothingToCopyYet: "Nothing to copy yet.",
-    couldntCopyText: "Couldn't copy that text.",
-    nothingToShareYet: "Nothing to share yet.",
-    couldntShareText: "Couldn't share that text.",
-    couldntReplayReply: "Couldn't replay that reply.",
-    messageCopied: "Message copied.",
-    noConversationToCopyYet: "No conversation to copy yet.",
-    noConversationToShareYet: "No conversation to share yet.",
-    noReplyToRepeatYet: "No reply to replay yet.",
-    threadCopied: "Thread copied.",
-    threadRenamed: "Thread renamed.",
-    threadPinned: "Thread pinned.",
-    threadUnpinned: "Thread unpinned.",
-    addProviderKeyToUseProvider: ({ provider }) =>
-      `Add credentials for ${provider} in Settings before using this route.`,
-    configureCredentialsBeforeVoiceSession:
-      "Add credentials in Settings before starting a voice session.",
-    endpointCredentialFormatInvalid: ({ provider }) =>
-      `For ${provider}, enter the provider base URL and API key as https://your-endpoint.example.com|your-api-key.`,
-    speechRecognitionUnavailableOnDevice:
-      "Speech recognition is unavailable on this device.",
-    debugLogLabel: "LOG",
-    debugLogCaptureStarted: "Debug logging started.",
-    debugLogCaptureStopped: ({ entryCount, fileName }) =>
-      `Debug log saved as ${fileName} and copied to the clipboard (${entryCount} entries).`,
-    debugLogCaptureStoppedNoClipboard: ({ entryCount, fileName }) =>
-      `Debug log saved as ${fileName} (${entryCount} entries).`,
-    debugLogCaptureRecovered: ({ entryCount, fileName }) =>
-      `Recovered previous debug log ${fileName} and copied it to the clipboard (${entryCount} entries).`,
-    debugLogCaptureRecoveredNoClipboard: ({ entryCount, fileName }) =>
-      `Recovered previous debug log ${fileName} (${entryCount} entries).`,
-    debugLogCaptureFailed: "Couldn't save the debug log.",
-    chooseSttBeforeVoiceSession:
-      "Choose a configured STT route in Settings before starting a voice session.",
-    chooseTtsBeforeSpokenReplies:
-      "Choose a configured TTS route in Settings before using spoken replies.",
-    stopSessionBeforeReplay:
-      "Stop the active voice session before replaying the last reply.",
-    couldntCatchThatTryAgain: "Couldn't catch that, try again.",
-    couldntStartVoiceInput: "Couldn't start voice input.",
-    couldntProcessVoiceInput: "Couldn't process voice input.",
-    maxRecordingLengthReached:
-      "Maximum recording length reached — sending what I have.",
-    sttRecordingTooLarge: ({ provider, limit }) =>
-      `That recording is too long for ${provider} speech-to-text (max ${limit}). Try a shorter message, or switch Speech-to-Text to System Recognition.`,
-    addProviderKeyToEnableProvider: ({ provider }) =>
-      `Add credentials for ${provider} in Settings before using this route.`,
-    stopSessionBeforePreview:
-      "Stop the active voice session before previewing a voice.",
-    chooseTtsToPreviewVoices:
-      "Choose a configured TTS route in Settings to preview voices.",
-    downloadSelectedLocalVoiceFirst: ({ languageLabel }) =>
-      `Download the selected ${languageLabel} local voice first.`,
-    couldntPreviewVoice: "Couldn't preview voice.",
-    spokenRepliesDisabled:
-      "Spoken replies are turned off in Settings.",
-    providerVoiceFallback:
-      "Configured voice route failed. Switched this reply to a fallback voice.",
-    localVoiceFallback:
-      "Local voice was unavailable. Switched this reply to a fallback voice.",
-    localTtsPackInstalled: ({ languageLabel }) =>
-      `${languageLabel} local voice pack installed.`,
-    localTtsPackInstallFailed: "Couldn't install the local voice pack.",
-    clear: "Clear",
-    voiceOutput: "Voice Output",
-    currentSetup: "Current Setup",
-    listeningToYourVoice: "Listening to your voice",
-    parsingYourVoiceInput: "Turning your voice into text",
-    searchingTheWeb: "Searching the web for fresh context",
-    waitingForProvider: ({ provider }) => `Waiting for ${provider}`,
-    preparingVoiceWithProvider: ({ provider }) =>
-      `Preparing voice with ${provider}`,
-    deepThinkingReassurance: "Good answers take a moment…",
-    thinkingElapsed: ({ detail, seconds }) => `${detail} · ${seconds}s`,
-    speechEtaCountdown: "Until speech",
-    speechEtaOvertime: "Extra time",
-    speakingBackToYou: "Speaking back to you",
-    freshSession: "Fresh session",
-    messageCount: ({ count }) =>
-      Number(count) === 1 ? "1 message" : `${count} messages`,
-    speechInputRoute: ({ route }) => `Speech in: ${route}`,
-    replyModelRoute: ({ route }) => `Reply model: ${route}`,
-    voiceOutputRoute: ({ route }) => `Voice out: ${route}`,
-    fallbackVoiceOutputRoute: ({ route }) => `Fallback voice out: ${route}`,
-    conversation: "Conversation",
-    show: "Show",
-    showTranscript: "Show transcript",
-    hide: "Hide",
-    copyThread: "Copy Thread",
-    shareThread: "Share Thread",
-    repeatReply: "Repeat Reply",
-    renameThread: "Rename Thread",
-    renameThreadHint:
-      "Give this conversation a title you can find quickly later.",
-    threadTitle: "Thread title",
-    noTranscriptYet: "No transcript yet",
-    previewTranscriptEmptyDescription:
-      "Start with the voice stage above. Your messages and the model reply will land here instantly.",
-    noConversationYet: "No conversation yet",
-    expandedTranscriptEmptyDescription:
-      "Speak with the control above, or type below. Close this screen when you want to return to the main stage.",
-    transcriptSelectionHint:
-      "Select any message text directly, or share and copy individual messages below.",
-    textMessagePlaceholder: "Type a message",
-    sendTextMessage: "Send message",
-    usageStatsHiddenDescription:
-      "Keep token estimates out of the transcript UI.",
-    usageStatsVisibleDescription:
-      "Show estimated token usage for replies and conversation totals.",
-    debugLogButton: "Debug Log Button",
-    debugLogButtonHiddenDescription:
-      "Keep the home-screen LOG button hidden unless a capture is already running.",
-    debugLogButtonVisibleDescription:
-      "Show the home-screen LOG button for starting and stopping debug captures.",
-    debugLogButtonUsageDescription:
-      "How to use the button: toggling it on will start capturing logs. Toggling it off will stop capturing logs and move the captured ones into the clipboard.",
-    estimatedUsageTitle: "Estimated Usage",
-    estimatedUsageCounts: ({ replies, summaries }) =>
-      `${replies} replies · ${summaries} memory updates`,
-    estimatedUsageConversationScope:
-      "Totals include every route and model used inside this conversation.",
-    estimatedPromptTokens: ({ count }) => `Prompt: ${count}`,
-    estimatedReplyTokens: ({ count }) => `Reply: ${count}`,
-    estimatedTotalTokens: ({ count }) => `Total: ${count}`,
-    estimatedUsageInline: ({ prompt, completion, total }) =>
-      `Est. ${prompt} in · ${completion} out · ${total} total`,
-    usedWebSearch: "Used web search",
-    sources: "Sources",
-    openSourceLink: ({ source }) => `Open source: ${source}`,
-    estimatedRouteUsageTokensOnly: ({ tokens }) => `${tokens} tokens`,
-    unknownUsageRoute: "Unknown route",
-    setupGuideConnectProviderTitle: "Configure credentials",
-    setupGuideConnectProviderDescription:
-      "Add credentials in Settings, then choose the routes you want to use.",
-    idle: "Idle",
-    yourConversationAppearsHere: "Your conversation appears here",
-    defaultTranscriptEmptyDescription:
-      "Press and hold the voice control, then speak naturally. Columbo will keep the thread and speak back.",
-    delete: "Delete",
-    deleteConversationConfirmationTitle: ({ title }) => `Delete “${title}”?`,
-    deleteConversationConfirmationMessage:
-      "This permanently deletes the conversation and all its messages. This action cannot be undone.",
-    memory: "Memory",
-    conversations: "Conversations",
-    drawerSubtitle: "Jump between live threads or start a fresh room.",
-    newSession: "New Session",
-    noSavedConversationsYet: "No saved conversations yet",
-    drawerEmptyDescription:
-      "Start speaking from the main view and Columbo will build a session automatically.",
-    setupGuideTitle: "Configure the app",
-    setupGuideSubtitle:
-      "Add credentials and choose routes in Settings.",
-    fastestStartPreset: "Minimal setup",
-    fastestStartDescription:
-      "Use device speech where available and configure only the reply route you need.",
-    fullVoicePreset: "Configured voice",
-    fullVoiceDescription:
-      "Use configured services for replies, transcription, and spoken output when you choose them.",
-    setupGuideNote:
-      "We will open Settings next so you can paste and validate credentials.",
-    useThisSetup: "Use this setup",
-    notNow: "Not now",
-    setupGuideIntroTitle: "How Columbo works",
-    setupGuideIntroBody:
-      "Columbo starts blank. Add credentials for external services you already use, then choose how replies, speech input, spoken output, and optional web context are routed.",
-    setupGuideIntroNote:
-      "After setup, use the main voice control to start and stop a conversation. Threads are saved in the drawer, and every route can be changed later in Settings.",
-    setupGuideProviderTitle: "Add Credentials",
-    setupGuideProviderBody:
-      "Choose the external service you want to configure, then paste credentials with reply access.",
-    setupGuideProviderPickerLabel: "Reply service",
-    setupGuideSelectProvider: "Select a provider",
-    setupGuideSelectProviderFirst: "Select a provider first.",
-    setupGuideApiKeyLabel: "API key",
-    setupGuideApiKeyPlaceholder: "Paste credentials",
-    setupGuideContinue: "Continue",
-    setupGuideOpenSettings: "Open Settings",
-    setupGuideBack: "Back",
-    setupGuideValidateKey: "Validate key",
-    setupGuideApiKeyRequiredOrCancel:
-      "Add an API key to continue, or cancel the setup guide.",
-    setupGuideProviderAndApiKeyRequiredOrCancel:
-      "Choose a provider and add an API key to continue, or cancel the setup guide.",
-    setupGuideProviderKeyNeedsLlmAccess: ({ provider }) =>
-      `These ${provider} credentials do not allow reply requests.`,
-    setupGuideVoiceTestTitle: "Test Your Setup",
-    setupGuideVoiceTestBody:
-      "Say a short sentence. Columbo will test microphone access, transcription, the configured reply route, and spoken output when an acceptable voice route is available.",
-    setupGuideVoiceTestNoInputBody:
-      "Voice input is not available with this setup. Continue to review the detected routes, then adjust speech settings later if needed.",
-    setupGuideVoiceTestTextOnlyNote:
-      "This test stays text-only because no acceptable spoken voice route is ready yet.",
-    setupGuideVoiceTestStart: "Start test",
-    setupGuideVoiceTestStop: "Stop recording",
-    setupGuideVoiceTestRetry: "Run again",
-    setupGuideVoiceTestTranscribing: "Transcribing…",
-    setupGuideVoiceTestThinking: "Testing reply…",
-    setupGuideVoiceTestSynthesizing: "Preparing voice…",
-    setupGuideVoiceTestSpeaking: "Playing reply…",
-    setupGuideVoiceTestTranscript: "Transcript",
-    setupGuideVoiceTestReply: "Reply",
-    setupGuideVoiceTestReset: "Clear this result",
-    setupGuideVoiceInputUnavailable:
-      "Voice input is not available for this setup on this device.",
-    setupGuideSummaryTitle: "Setup Complete",
-    setupGuideSummaryBody:
-      "Here is the route Columbo will use with your current configuration.",
-    setupGuideSummaryLlm: "LLM",
-    setupGuideSummaryStt: "Speech to text",
-    setupGuideSummaryTts: "Text to speech",
-    setupGuideSummaryWebSearch: "Web search",
-    setupGuideRouteProviderLlm: ({ provider }) => `Enabled via ${provider}`,
-    setupGuideRouteOnDeviceStt: "Enabled via system speech recognition",
-    setupGuideRouteProviderStt: ({ provider }) =>
-      `Enabled via ${provider} speech transcription`,
-    setupGuideRouteProviderTts: ({ provider }) =>
-      `Enabled via ${provider} voice`,
-    setupGuideRouteLocalTts: "Enabled via local voice pack",
-    setupGuideRouteUnavailable: "Not available",
-    setupGuideRouteOff: "Off",
-    setupGuideWebSearchAvailableOff: ({ provider }) =>
-      `Available via ${provider}, currently off`,
-    setupGuideSummaryTextOnlyNote:
-      "Spoken replies are off for now. Replies stay in text until you enable a provider or local voice.",
-    setupGuideFinish: "Done",
-    searchConversationsPlaceholder: "Search titles, models, and message text",
-    noMatchingConversations: "No matching conversations",
-    noMatchingConversationsDescription:
-      "Try a different title, route, model, or phrase from the transcript.",
-    memoryModalTitle: "Conversation memory",
-    memoryModalDescription:
-      "This is the compact summary Columbo carries forward once a thread gets long enough to compress older turns.",
-    memorySummary: "Saved summary",
-    memorySummaryEmpty:
-      "No compact memory yet. Once this thread gets longer, older turns will be summarized here.",
-    summarizedTurnsCount: ({ count }) =>
-      Number(count) === 1 ? "1 summarized turn" : `${count} summarized turns`,
-    copyMemory: "Copy memory",
-    forgetMemory: "Forget memory",
-    memoryCopied: "Memory copied.",
-    memoryCleared: "Conversation memory cleared.",
-    noConversationToManageYet: "No conversation memory available yet.",
-    noProviderYet: "No provider yet",
-    noModelYet: "No model yet",
-    startedAt: "Started",
-    endedAt: "Ended",
-    pinned: "Pinned",
-    copy: "Copy",
-    share: "Share",
-    rename: "Rename",
-    pin: "Pin",
-    unpin: "Unpin",
-    save: "Save",
-    cancel: "Cancel",
-    stop: "Stop",
-    pause: "Pause",
-    resume: "Resume",
-    paused: "Paused",
-    listening: "Listening",
-    parsing: "Transcribing",
-    webSearchAction: "web search",
-    thinking: "Thinking",
-    speaking: "Speaking",
-    speechPaused: "Speech is paused",
-    pausePlaybackUnavailable:
-      "This voice route can't be paused. Stop it or switch to provider/local voice output.",
-    holdToSpeak: "Hold to speak",
-    tapToSpeak: "Tap to speak",
-    tapAgainToSend: "Tap again to send",
-    waitingForReply: "Waiting for reply",
-    parsingYourVoice: "Parsing your voice",
-    providerConfiguredInSettings: ({ provider }) =>
-      `${provider} is not configured in Settings.`,
-    providerNetworkError: ({ provider, action }) =>
-      `Couldn't reach ${provider} for ${action}. Check the connection and try again.`,
-    providerAuthError: ({ provider, action }) =>
-      `${provider} rejected the credentials for ${action}. Check the API key and permissions.`,
-    providerRateLimitError: ({ provider, action }) =>
-      `${provider} is rate limiting ${action} right now. Try again in a moment.`,
-    providerTimeoutError: ({ provider, action }) =>
-      `${provider} took too long during ${action}. Try again.`,
-    providerTemporaryError: ({ provider, action }) =>
-      `${provider} had a temporary problem during ${action}. Try again shortly.`,
-    providerEmptyReplyError: ({ provider }) =>
-      `${provider} finished without returning a reply. Try again.`,
-    providerIncompleteReplyError: ({ provider }) =>
-      `${provider}'s reply ended before it was complete. Try again.`,
-    providerContextTooLong: ({ provider }) =>
-      `${provider} rejected the reply because the conversation got too long. Start a fresh thread or shorten the request.`,
-    providerRequestRejected: ({ provider, action, detail }) =>
-      detail
-        ? `${provider} rejected the ${action} request: ${detail}`
-        : `${provider} rejected the ${action} request.`,
-    providerWebSearchNotRun: ({ provider }) =>
-      `${provider} returned a response without running web search.`,
-    providerValidationSuccess: ({ provider }) => `${provider} is ready to use.`,
-    providerValidationFailed: "Provider validation failed.",
-    providerHealthSummaryReady: ({ count }) => `Ready ${count}`,
-    providerHealthSummaryConfigured: ({ count }) => `Configured ${count}`,
-    providerHealthSummaryChecking: ({ count }) => `Checking ${count}`,
-    providerHealthSummaryFailing: ({ count }) => `Failing ${count}`,
-    providerHealthSummaryMissing: ({ count }) => `Missing ${count}`,
-    webSearchFallback:
-      "Web search was unavailable, so the reply continued without live web context.",
-    noBase64EncoderAvailable: "No base64 encoder available.",
-    noBase64DecoderAvailable: "No base64 decoder available.",
-    azureSpeechApiKeyFormat:
-      "Microsoft Azure TTS needs Azure Speech credentials in the format <key>|<region>, for example abc123|westeurope, or the combined Azure format <endpoint>|<api-key>|<key>|<region>.",
-    googleCloudSpeechCredentialFormat: ({ provider }) =>
-      `${provider} STT needs Google Cloud Speech credentials in the format <project-id>|<access-token>|<location>, or the combined Gemini format <Gemini API key>|<project-id>|<access-token>|<location>.`,
-    bytedanceSpeechCredentialFormat: ({ provider }) =>
-      `${provider} STT needs Doubao Speech credentials in the format <app-key>|<access-key>, optionally <app-key>|<access-key>|<resource-id>, or the combined format <ark-api-key>|<app-key>|<access-key>|<resource-id>.`,
-    nativeTtsDoesNotSynthesizeAudioFiles:
-      "Native TTS does not synthesize audio files.",
-    localTtsUnavailableForLanguage: ({ languageLabel }) =>
-      `No local or cloud voice route is ready for ${languageLabel}.`,
-    chooseTextToSpeechProviderInSettings:
-      "Choose a text-to-speech provider in Settings.",
-    ttsNotSupportedYet: ({ provider }) =>
-      `${provider} TTS is not supported yet.`,
-    ttsError: ({ provider, status, errorText }) =>
-      `${provider} TTS error (${status}): ${errorText}`,
-    ttsReplyTooLong: ({ provider }) =>
-      `${provider} speech output rejected the reply because it was too long.`,
-    ttsTimeout: ({ provider }) => `${provider} speech output took too long.`,
-    sttTimeout: ({ provider }) =>
-      `${provider} speech transcription took too long.`,
-    sttFileSizeLimitExceeded: ({ provider, model, limit }) =>
-      `${provider} ${model} only accepts recordings up to ${limit}. Use a shorter clip or switch STT models.`,
-    voiceInputCaptureIncomplete:
-      "Voice input could not be captured cleanly. Please try again.",
-    ttsDidNotReturnAudio: ({ provider }) =>
-      `${provider} TTS did not return audio.`,
-    nativeSttHandledInApp: "System STT is handled directly in the app.",
-    chooseSpeechToTextProviderInSettings:
-      "Choose a speech-to-text provider in Settings.",
-    sttNotSupportedYet: ({ provider }) =>
-      `${provider} STT is not supported yet.`,
-    providerNotWiredUpYet: ({ provider }) => `${provider} is not wired up yet.`,
-    you: "You",
-    assistant: "Assistant",
-    untitledConversation: "Untitled conversation",
-    conversationExportHeader: ({ title }) => `Conversation: ${title}`,
-    speechRecognitionPermissionNotGranted:
-      "Speech recognition permission not granted.",
-    speechRecognitionUnavailableForDeviceLanguage:
-      "Speech recognition is not available for the current device language.",
-    nativeSpeechRecognitionNeedsNetwork:
-      "Native speech recognition needs network access right now.",
-    noSpeechDetected: "No speech was detected.",
-    nativeSpeechRecognitionFailed: "Native speech recognition failed.",
-    couldntStartNativeSpeechRecognition:
-      "Couldn't start native speech recognition.",
-    microphonePermissionNotGranted: "Microphone permission not granted",
-  }
+  retry: "Retry",
+  dismiss: "Dismiss",
+  unavailable: "Unavailable",
+  selection: "Selection",
+  chooseCompatibleProviderFirst: "Choose a compatible provider first",
+  settings: "Settings",
+  all: "All",
+  firstRun: "First Run",
+  instructions: "Instructions",
+  providers: "Providers",
+  webSearch: "Web Search",
+  stt: "STT",
+  tts: "TTS",
+  ui: "UI",
+  settingsRuntimeReadiness: "Runtime Readiness",
+  settingsReadinessThink: "Think",
+  settingsReadinessListen: "Listen",
+  settingsReadinessSpeak: "Speak",
+  settingsReadinessSearch: "Search",
+  settingsReadinessReady: "Ready",
+  settingsReadinessNeedsAttention: "Attention",
+  settingsReadinessBroken: "Broken",
+  settingsReadinessOff: "Off",
+  settingsConnections: "Connections",
+  settingsThinking: "Thinking",
+  settingsListening: "Listening",
+  settingsSpeaking: "Speaking",
+  settingsSearch: "Search",
+  settingsAppDiagnostics: "App & diagnostics",
+  settingsGuidedSetup: "Guided setup",
+  settingsGuidedSetupSummary:
+    "Review connections and test the complete voice route.",
+  setupGuideShowInSettings: "Show guided setup in Settings",
+  setupGuideShowInSettingsSummary:
+    "Turn this off to remove the shortcut after you close this guide.",
+  settingsConnectionsSummary: "Provider keys, validation, and capabilities.",
+  settingsThinkingSummary: "Home cards, models, effort, and system prompt.",
+  settingsListeningSummary: "Input mode and speech-to-text routing.",
+  settingsSpeakingSummary: "Spoken replies, playback, voices, and previews.",
+  settingsSearchSummary: "Web search provider and search quality controls.",
+  settingsAppDiagnosticsSummary:
+    "Theme, language, usage, debug logs, and recent activity.",
+  settingsBackToOverview: "Back to overview",
+  settingsOpenSection: ({ section }) => `Open ${section}`,
+  theme: "Theme",
+  language: "Language",
+  usageStats: "Usage Stats",
+  model: "Model",
+  effort: "Effort",
+  effortValue: ({ effort }) => `Effort: ${effort}`,
+  english: "English",
+  german: "German",
+  light: "Light",
+  dark: "Dark",
+  system: "System",
+  languageCoverage: ({ note }) => `Language coverage: ${note}`,
+  recordingLimits: ({ note }) => `Recording limits: ${note}`,
+  replyGenerationAction: "reply generation",
+  speechTranscriptionAction: "speech transcription",
+  instructionsTabDescription:
+    "Shape the hidden guidance that steers the assistant before any provider sees the request.",
+  providersTabDescription:
+    "Store external-service credentials on-device and configure the response modes you want to use.",
+  webSearchTabDescription:
+    "Configure optional live web context before replies.",
+  catalogOnlyProvidersHint: ({ count }) =>
+    `Showing ${count} extra catalog-only providers here for UI inspection. Only the wired providers can be configured and called right now.`,
+  openProviderCatalogDetails: ({ provider }) =>
+    `Open ${provider} catalog details`,
+  responseModes: "Response Modes",
+  responseModeItemTitle: ({ index }) => `Response mode ${index}`,
+  addResponseMode: "Add response mode",
+  removeResponseMode: "Remove response mode",
+  responseModesNoConfiguredProviders:
+    "Add credentials first. Route controls stay hidden until at least one compatible service is configured.",
+  useResponseMode: ({ mode }) => `Use ${mode}`,
+  sttTabDescription:
+    "Control how speech is captured and which backend turns audio into text before it reaches the model.",
+  ttsTabDescription:
+    "Control when replies start speaking and which backend handles spoken output.",
+  brief: "Brief",
+  briefDescription:
+    "Keep the answer tight. Use the minimum number of sentences needed to fully answer the user.",
+  normal: "Normal",
+  normalDescription:
+    "Aim for a balanced response length. Cover the important points without dragging the answer out.",
+  thorough: "Thorough",
+  thoroughDescription:
+    "Go deep and be comprehensive. Include nuance, detail, tradeoffs, and the reasoning that matters.",
+  professional: "Professional",
+  professionalDescription:
+    "Speak like a senior consultant briefing a client. Precise language, no slang, measured and authoritative.",
+  casual: "Casual",
+  casualDescription:
+    "Speak like a smart friend at a coffee shop. Relaxed, natural, conversational. Contractions are fine, tangents are fine.",
+  nerdy: "Nerdy",
+  nerdyDescription:
+    "Speak like an enthusiastic expert who loves going deep. Use technical terminology freely, geek out about details, assume the user can keep up.",
+  concise: "Concise",
+  conciseDescription:
+    "Be as brief as possible while still being complete. No preamble, no filler, just the answer. Think telegram style.",
+  socratic: "Socratic",
+  socraticDescription:
+    "Challenge the user's thinking. Ask counter-questions, offer alternative perspectives, don't just confirm what they said. Be a sparring partner, not a yes-machine.",
+  eli5: "ELI5",
+  eli5Description:
+    "Explain everything as simply as possible. Use analogies, everyday language, zero jargon. Assume no prior knowledge on any topic.",
+  openProviderSettings: ({ provider }) => `Open ${provider} settings`,
+  createProviderApiKey: ({ provider }) => `Edit ${provider} credentials`,
+  useProvider: ({ provider }) => `Use ${provider}`,
+  createApiKey: "Credentials",
+  aboutThisProvider: "About this provider",
+  providerStatusInvalid: "Invalid",
+  providerStatusTesting: "Testing",
+  providerStatusConfigured: "Configured",
+  providerStatusNotSetup: "Not set up",
+  testProviderKey: "Test key",
+  providerValidationUnavailable:
+    "Live validation is not wired for this provider yet. Save the key here and verify it during actual use.",
+  providerNeedsAttention: "needs attention",
+  catalogProviderReadOnlyHint:
+    "This provider is present in the central catalog for inspection, but it is not wired into the app runtime yet.",
+  catalogProviderReferenceHint: "Catalog reference for this provider:",
+  catalogProviderModelCounts: ({ llm, stt, tts }) =>
+    `Catalog models: ${llm} LLM, ${stt} STT, ${tts} TTS.`,
+  catalogProviderSupportSummary: ({ llm, stt, tts }) =>
+    `Verified support: LLM ${llm}, STT ${stt}, TTS ${tts}.`,
+  catalogProviderLiveDiscoveryHint:
+    "This provider has a dynamic catalog, so a real integration will likely need live model discovery.",
+  catalogProviderLimitsSummary: ({ summary }) => `Limits: ${summary}`,
+  catalogProviderRegionSummary: ({ summary }) => `Region: ${summary}`,
+  catalogProviderSttLanguagesSummary: ({ summary }) =>
+    `STT languages: ${summary}`,
+  catalogProviderTtsLanguagesSummary: ({ summary }) =>
+    `TTS languages: ${summary}`,
+  catalogProviderIntegrationNotesSummary: ({ summary }) =>
+    `Integration notes: ${summary}`,
+  catalogProviderNoModels: "No documented models.",
+  validateKey: "Validate key",
+  validatingKey: "Validating...",
+  showKey: "Show key",
+  hideKey: "Hide key",
+  apiKeyProtectedHint:
+    "Stored keys stay hidden by default. Reveal them only when you need to verify or edit a value.",
+  assistantInstructions: "Assistant Instructions",
+  systemPrompt: "System Prompt",
+  assistantInstructionsIntro:
+    "Shape the hidden guidance the model receives before every reply.",
+  baseInstructions: "Base Instructions",
+  assistantInstructionsPlaceholder: "Define how the assistant should behave.",
+  assistantInstructionsHint:
+    "This is always prepended before the selected response length and tone.",
+  adaptiveLength: "Adaptive Length",
+  responseTone: "Response Tone",
+  homeStyleChipLabel: ({ tone, length }) => `Style — ${tone} · ${length}`,
+  styleSheetTitle: "Conversation settings",
+  styleSheetSubtitle: "Shape replies and manage this conversation.",
+  openStyleSheet: "Open conversation settings",
+  conversationTitle: "Conversation Title",
+  conversationTitleGenerationDescription:
+    "Run the selected model once to create a short title from the current conversation.",
+  conversationTitleGenerate: "Generate title",
+  conversationTitleGenerating: "Generating title…",
+  conversationTitleGenerated: "Conversation renamed.",
+  conversationTitleNeedsContent:
+    "Start a conversation before generating a title.",
+  conversationTitleNeedsProvider:
+    "Configure the selected model before generating a title.",
+  conversationTitleGenerationFailed:
+    "Couldn’t generate a conversation title.",
+  conversationTitleGenerationTimedOut:
+    "Title generation took too long. Please try again.",
+  inputMode: "Input Mode",
+  voiceInput: "Voice Input",
+  voiceInputDescription:
+    "Control how your speech is captured before it reaches the model.",
+  pushToTalk: "Push to Talk",
+  pushToTalkDescription:
+    "Hold the main button while speaking, then release to send.",
+  toggleToTalk: "Toggle to Talk",
+  toggleToTalkDescription:
+    "Tap once to start recording and tap again when you are done.",
+  speechToText: "Speech to Text",
+  appNative: "System Recognition",
+  nativeSttDescription:
+    "Use the operating system's speech recognizer. Depending on device settings, recognition may run on-device or through the system service. No provider key is required.",
+  provider: "Provider",
+  webSearchProvider: "Web Search Provider",
+  webSearchProviderHint:
+    "Choose the configured service that performs live web lookups. Its credentials are stored on-device.",
+  webSearchProviderMissingHint:
+    "Configure at least one search-capable service in Credentials to enable web grounding here.",
+  webSearchModelHint: ({ model }) =>
+    `Uses ${model} behind the scenes for live web grounding.`,
+  webSearchHomeHint:
+    "Use the home-screen toggle to switch web grounding on or off for this thread.",
+  settingsWebSearchCompactHint:
+    "Optionally prepend fresh web context before the main model replies.",
+  webSearchAdvanced: "Advanced Search Controls",
+  webSearchSetupNeeded: "Add credentials to use live web search.",
+  webSearchEnabledDescription:
+    "Fresh web context is added before the model replies.",
+  webSearchDisabledDescription:
+    "Use live web context for this thread when current facts matter.",
+  webSearchQualityControls: "Search Quality",
+  webSearchSearchMode: "Search Mode",
+  webSearchSearchModeQuick: "Quick",
+  webSearchSearchModeBalanced: "Balanced",
+  webSearchSearchModeDeep: "Deep",
+  webSearchDepth: "Search Depth",
+  webSearchDepthStandard: "Standard",
+  webSearchDepthDeep: "Deep",
+  webSearchResultCount: "Result Count",
+  webSearchQualityHint: ({ provider }) =>
+    `These controls tune how ${provider} gathers fresh context before the reply.`,
+  webSearchNoExtraControls: ({ provider }) =>
+    `${provider} does not expose extra search-quality controls in this app yet.`,
+  setWebSearchMode: ({ mode }) => `Set web search mode to ${mode}`,
+  openWebSearchSettings: "Open web search settings",
+  providerSttDescription:
+    "Use a configured external service to transcribe your voice before it is sent to the reply route.",
+  sttProvider: "STT Provider",
+  sttProviderEnabledHint:
+    "Only enabled providers with transcription support appear here.",
+  sttProviderMissingHint:
+    "Add credentials for a service with STT support to choose it here.",
+  nativeSttHint:
+    "System recognition works independently of your provider keys and may be processed on-device or by the operating system's speech service.",
+  replyPlayback: "Reply Playback",
+  sentencesArrive: "Sentences Arrive",
+  sentencesArriveDescription:
+    "Start speaking as soon as complete sentences are ready.",
+  fullReplyFirst: "Full Reply First",
+  fullReplyFirstDescription:
+    "Generate the entire answer first, then play it in one pass.",
+  textToSpeech: "Text to Speech",
+  spokenReplies: "Spoken Replies",
+  spokenRepliesEnabledDescription:
+    "Read assistant replies aloud when a voice route is available.",
+  spokenRepliesDisabledDescription:
+    "Keep replies text-only for now. Your preferred TTS route stays saved for later.",
+  nativeTtsDescription:
+    "Use the device speech engine for spoken replies and voice preview.",
+  voiceOutputDescription:
+    "Pick the speech engine, listening languages, and voice previews for spoken replies.",
+  localTts: "Local",
+  localTtsDescription:
+    "Try a matching downloaded local voice first, then the selected configured service if available, then the system voice.",
+  providerTtsDescription:
+    "Use the selected configured service first. If it cannot start the reply, Columbo falls back to the system voice.",
+  ttsProvider: "TTS Provider",
+  ttsProviderEnabledHint:
+    "Only enabled providers with spoken-reply support appear here.",
+  ttsProviderMissingHint:
+    "Add credentials for a service with TTS support to choose it here.",
+  localTtsOrderHint:
+    "Playback order: matching local voice first, then the selected provider if configured, then the system voice.",
+  providerTtsOrderHint:
+    "Playback order: selected provider first, then the system voice when a provider reply cannot start.",
+  nativeTtsHint:
+    "Native TTS uses the system voice stack and does not require a provider key.",
+  localTtsLanguageCoverageHint:
+    "Local packs currently cover English, German, Simplified Chinese, Spanish, Portuguese, Hindi, French, and Italian. Japanese still falls back automatically.",
+  ttsVoice: "TTS Voice",
+  mistralVoiceId: "Mistral Voice ID",
+  mistralVoiceIdPlaceholder: "Preset or custom voice ID",
+  mistralVoiceIdHint:
+    "Choose a preset voice or create a voice in Mistral Studio, then paste its voice ID here.",
+  mistralVoiceIdRequired:
+    "Enter a Mistral preset or custom voice ID before using speech output.",
+  qwenSpeechUnavailableInUs:
+    "Columbo's current Qwen speech routes are not available in the US region. Choose Singapore or Beijing for Qwen speech.",
+  qwenApiRegion: "Qwen API Region",
+  qwenRegionSingapore: "Singapore",
+  qwenRegionUs: "US (Virginia)",
+  qwenRegionBeijing: "China (Beijing)",
+  qwenRegionHint:
+    "The selected region must match the region in which this API key was created.",
+  qwenRegionUsSpeechHint:
+    "US-region keys support chat and web search here. Columbo's current Qwen STT and TTS routes require a Singapore or Beijing key.",
+  providerDefaultVoiceHint:
+    "This provider currently uses its default voice for preview and spoken replies.",
+  listenLanguages: "Listen Languages",
+  listenLanguagesHint:
+    "Pick the reply languages you want to sound good. Columbo tries them in this order when routing speech output.",
+  localVoicePacks: "Local Voice Packs",
+  localVoicePacksHint:
+    "Each language keeps its own local voice. Choose the voice you want for that language, then download only the packs you actually care about.",
+  localVoiceForLanguage: ({ languageLabel }) => `Voice for ${languageLabel}`,
+  providerVoicePreviews: "Provider Voice Previews",
+  providerVoicePreviewsHint:
+    "Test the currently selected TTS route here with a separate preview text for each reply language.",
+  nativeVoicePreviewSection: "Native Voice Preview",
+  nativeVoicePreviewSectionHint:
+    "This speaks directly through the phone's built-in speech synthesizer so you can compare it with configured provider voices.",
+  nativeVoiceUnavailable:
+    "This device did not report any native system voices for preview.",
+  speechDiagnostics: "Recent Speech Activity",
+  speechDiagnosticsHint:
+    "Shows the latest speech requests, the route they asked for, the route they actually used, and any fallback reason.",
+  speechDiagnosticsEmpty:
+    "No recent speech requests yet. Preview a voice or play a reply to see routing details here.",
+  clearSpeechDiagnosticsConfirmationTitle: "Clear recent speech activity?",
+  clearSpeechDiagnosticsConfirmationMessage:
+    "This removes all captured speech-routing diagnostics. This action cannot be undone.",
+  speechDiagnosticSourceConversation: "Conversation reply",
+  speechDiagnosticSourceRepeat: "Repeat reply",
+  speechDiagnosticSourcePreview: "Voice preview",
+  speechDiagnosticSourceUnknown: "Speech request",
+  speechDiagnosticRouteLine: ({ requested, actual }) =>
+    `Requested: ${requested} -> Actual: ${actual}`,
+  speechDiagnosticStageLine: ({ stage }) => `Latest stage: ${stage}`,
+  speechDiagnosticLanguageLine: ({ languageLabel }) =>
+    `Language: ${languageLabel}`,
+  speechDiagnosticProviderLine: ({ provider }) => `Provider: ${provider}`,
+  speechDiagnosticVoiceLine: ({ voice }) => `Voice: ${voice}`,
+  localTtsPackReady: "Installed on this device.",
+  localTtsPackBroken:
+    "Downloaded, but this voice failed local verification on this device. Re-download it or choose another voice.",
+  localTtsPackMissing:
+    "Not installed yet. Cloud TTS or the system voice will be used until you download it.",
+  localTtsUnsupportedLanguageFallback:
+    "A local pack is not available yet for this language. Cloud TTS or the system voice will handle it.",
+  downloadingLocalTtsPack: ({ progress }) =>
+    `Downloading local pack... ${progress}%`,
+  download: "Download",
+  downloadingShort: "Loading...",
+  voicePreviewText: "Voice Preview Text",
+  voicePreviewPlaceholder: "Type a phrase to hear this voice.",
+  voicePreviewHint:
+    "Uses the currently selected reply voice backend without sending anything to the language model.",
+  previewVoice: "Preview Voice",
+  generatingPreview: "Generating Preview...",
+  playingPreview: "Playing Preview...",
+  systemVoice: "System voice",
+  spokenRepliesOff: "Text only",
+  noTtsProvider: "No TTS provider",
+  nothingToCopyYet: "Nothing to copy yet.",
+  couldntCopyText: "Couldn't copy that text.",
+  nothingToShareYet: "Nothing to share yet.",
+  couldntShareText: "Couldn't share that text.",
+  couldntReplayReply: "Couldn't replay that reply.",
+  replyFailed: "Reply failed",
+  retryReply: "Retry reply",
+  replyFailedHint: "You can choose another model above before retrying.",
+  spokenReplyFailed: "The reply was saved, but it could not be spoken.",
+  retrySpeech: "Retry speech",
+  openSpeakingSettings: "Speaking settings",
+  messageCopied: "Message copied.",
+  noConversationToCopyYet: "No conversation to copy yet.",
+  noConversationToShareYet: "No conversation to share yet.",
+  noReplyToRepeatYet: "No reply to replay yet.",
+  threadCopied: "Thread copied.",
+  threadRenamed: "Thread renamed.",
+  threadPinned: "Thread pinned.",
+  threadUnpinned: "Thread unpinned.",
+  addProviderKeyToUseProvider: ({ provider }) =>
+    `Add credentials for ${provider} in Settings before using this route.`,
+  configureCredentialsBeforeVoiceSession:
+    "Add credentials in Settings before starting a voice session.",
+  endpointCredentialFormatInvalid: ({ provider }) =>
+    `For ${provider}, enter the provider base URL and API key as https://your-endpoint.example.com|your-api-key.`,
+  speechRecognitionUnavailableOnDevice:
+    "Speech recognition is unavailable on this device.",
+  debugLogLabel: "LOG",
+  debugLogCaptureStarted: "Debug logging started.",
+  debugLogCaptureStopped: ({ entryCount, fileName }) =>
+    `Debug log saved as ${fileName} and copied to the clipboard (${entryCount} entries).`,
+  debugLogCaptureStoppedNoClipboard: ({ entryCount, fileName }) =>
+    `Debug log saved as ${fileName} (${entryCount} entries).`,
+  debugLogCaptureRecovered: ({ entryCount, fileName }) =>
+    `Recovered previous debug log ${fileName} and copied it to the clipboard (${entryCount} entries).`,
+  debugLogCaptureRecoveredNoClipboard: ({ entryCount, fileName }) =>
+    `Recovered previous debug log ${fileName} (${entryCount} entries).`,
+  debugLogCaptureFailed: "Couldn't save the debug log.",
+  chooseSttBeforeVoiceSession:
+    "Choose a configured STT route in Settings before starting a voice session.",
+  chooseTtsBeforeSpokenReplies:
+    "Choose a configured TTS route in Settings before using spoken replies.",
+  stopSessionBeforeReplay:
+    "Stop the active voice session before replaying the last reply.",
+  couldntCatchThatTryAgain: "Couldn't catch that, try again.",
+  couldntStartVoiceInput: "Couldn't start voice input.",
+  couldntProcessVoiceInput: "Couldn't process voice input.",
+  maxRecordingLengthReached:
+    "Maximum recording length reached — sending what I have.",
+  sttRecordingTooLarge: ({ provider, limit }) =>
+    `That recording is too long for ${provider} speech-to-text (max ${limit}). Try a shorter message, or switch Speech-to-Text to System Recognition.`,
+  addProviderKeyToEnableProvider: ({ provider }) =>
+    `Add credentials for ${provider} in Settings before using this route.`,
+  stopSessionBeforePreview:
+    "Stop the active voice session before previewing a voice.",
+  chooseTtsToPreviewVoices:
+    "Choose a configured TTS route in Settings to preview voices.",
+  downloadSelectedLocalVoiceFirst: ({ languageLabel }) =>
+    `Download the selected ${languageLabel} local voice first.`,
+  couldntPreviewVoice: "Couldn't preview voice.",
+  spokenRepliesDisabled: "Spoken replies are turned off in Settings.",
+  providerVoiceFallback:
+    "Configured voice route failed. Switched this reply to a fallback voice.",
+  localVoiceFallback:
+    "Local voice was unavailable. Switched this reply to a fallback voice.",
+  localTtsPackInstalled: ({ languageLabel }) =>
+    `${languageLabel} local voice pack installed.`,
+  localTtsPackInstallFailed: "Couldn't install the local voice pack.",
+  clear: "Clear",
+  voiceOutput: "Voice Output",
+  currentSetup: "Current Setup",
+  listeningToYourVoice: "Listening to your voice",
+  parsingYourVoiceInput: "Turning your voice into text",
+  searchingTheWeb: "Searching the web for fresh context",
+  waitingForProvider: ({ provider }) => `Waiting for ${provider}`,
+  preparingVoiceWithProvider: ({ provider }) =>
+    `Preparing voice with ${provider}`,
+  deepThinkingReassurance: "Good answers take a moment…",
+  thinkingElapsed: ({ detail, seconds }) => `${detail} · ${seconds}s`,
+  speechEtaCountdown: "Estimated wait",
+  speechEtaOvertime: "Beyond estimate",
+  speakingBackToYou: "Speaking back to you",
+  freshSession: "Fresh session",
+  messageCount: ({ count }) =>
+    Number(count) === 1 ? "1 message" : `${count} messages`,
+  speechInputRoute: ({ route }) => `Speech in: ${route}`,
+  replyModelRoute: ({ route }) => `Reply model: ${route}`,
+  voiceOutputRoute: ({ route }) => `Voice out: ${route}`,
+  fallbackVoiceOutputRoute: ({ route }) => `Fallback voice out: ${route}`,
+  conversation: "Conversation",
+  conversationActions: "Conversation actions",
+  statusDetails: "Status details",
+  persistenceFailure:
+    "Columbo couldn't save data on this device. Keep the app open and try again; recent changes may be lost after restart.",
+  show: "Show",
+  showTranscript: "Show transcript",
+  hide: "Hide",
+  copyThread: "Copy Thread",
+  shareThread: "Share Thread",
+  repeatReply: "Repeat Reply",
+  renameThread: "Rename Thread",
+  renameThreadHint:
+    "Give this conversation a title you can find quickly later.",
+  threadTitle: "Thread title",
+  noTranscriptYet: "No transcript yet",
+  previewTranscriptEmptyDescription:
+    "Speak or type below. Your conversation will appear here.",
+  noConversationYet: "No conversation yet",
+  expandedTranscriptEmptyDescription:
+    "Speak with the control above, or type below. Close this screen when you want to return to the main stage.",
+  transcriptSelectionHint:
+    "Select any message text directly, or share and copy individual messages below.",
+  textMessagePlaceholder: "Type a message",
+  sendTextMessage: "Send message",
+  usageStatsHiddenDescription: "Keep token estimates out of the transcript UI.",
+  usageStatsVisibleDescription:
+    "Show estimated token usage for replies and conversation totals.",
+  debugLogButton: "Debug Log Button",
+  debugLogButtonHiddenDescription:
+    "Keep the home-screen LOG button hidden unless a capture is already running.",
+  debugLogButtonVisibleDescription:
+    "Show the home-screen LOG button for starting and stopping debug captures.",
+  debugLogButtonUsageDescription:
+    "How to use the button: toggling it on will start capturing logs. Toggling it off will stop capturing logs and move the captured ones into the clipboard.",
+  estimatedUsageTitle: "Estimated Usage",
+  estimatedUsageCounts: ({ replies, summaries }) =>
+    `${replies} replies · ${summaries} memory updates`,
+  estimatedUsageConversationScope:
+    "Totals include every route and model used inside this conversation.",
+  estimatedPromptTokens: ({ count }) => `Prompt: ${count}`,
+  estimatedReplyTokens: ({ count }) => `Reply: ${count}`,
+  estimatedTotalTokens: ({ count }) => `Total: ${count}`,
+  estimatedUsageInline: ({ prompt, completion, total }) =>
+    `Est. ${prompt} in · ${completion} out · ${total} total`,
+  searchQuery: "Search query",
+  expandWebSearchDetails: "Show web search details",
+  collapseWebSearchDetails: "Hide web search details",
+  webSearchSourceCount: ({ count }) =>
+    `${count} ${Number(count) === 1 ? "source" : "sources"}`,
+  sources: "Sources",
+  openSourceLink: ({ source }) => `Open source: ${source}`,
+  estimatedRouteUsageTokensOnly: ({ tokens }) => `${tokens} tokens`,
+  unknownUsageRoute: "Unknown route",
+  setupGuideConnectProviderTitle: "Configure credentials",
+  setupGuideConnectProviderDescription:
+    "Add credentials in Settings, then choose the routes you want to use.",
+  idle: "Idle",
+  yourConversationAppearsHere: "Your conversation appears here",
+  defaultTranscriptEmptyDescription:
+    "Speak or type below. Columbo will keep the thread and respond here.",
+  delete: "Delete",
+  deleteConversationConfirmationTitle: ({ title }) => `Delete “${title}”?`,
+  deleteConversationConfirmationMessage:
+    "This permanently deletes the conversation and all its messages. This action cannot be undone.",
+  memory: "Memory",
+  conversations: "Conversations",
+  drawerSubtitle: "Jump between live threads or start a fresh room.",
+  newSession: "New Session",
+  noSavedConversationsYet: "No saved conversations yet",
+  drawerEmptyDescription:
+    "Start speaking from the main view and Columbo will build a session automatically.",
+  setupGuideTitle: "Configure the app",
+  setupGuideSubtitle: "Add credentials and choose routes in Settings.",
+  fastestStartPreset: "Minimal setup",
+  fastestStartDescription:
+    "Use device speech where available and configure only the reply route you need.",
+  fullVoicePreset: "Configured voice",
+  fullVoiceDescription:
+    "Use configured services for replies, transcription, and spoken output when you choose them.",
+  setupGuideNote:
+    "We will open Settings next so you can paste and validate credentials.",
+  useThisSetup: "Use this setup",
+  notNow: "Not now",
+  setupGuideIntroTitle: "How Columbo works",
+  setupGuideIntroBody:
+    "Columbo starts blank. Add credentials for external services you already use, then choose how replies, speech input, spoken output, and optional web context are routed.",
+  setupGuideIntroNote:
+    "After setup, use the main voice control to start and stop a conversation. The current transcript stays available on the home screen, and every route can be changed later in Settings.",
+  setupGuideProviderTitle: "Add Credentials",
+  setupGuideProviderBody:
+    "Choose the external service you want to configure, then paste credentials with reply access.",
+  setupGuideProviderPickerLabel: "Reply service",
+  setupGuideSelectProvider: "Select a provider",
+  setupGuideSelectProviderFirst: "Select a provider first.",
+  setupGuideApiKeyLabel: "API key",
+  setupGuideApiKeyPlaceholder: "Paste credentials",
+  setupGuideContinue: "Continue",
+  setupGuideOpenSettings: "Open Settings",
+  setupGuideBack: "Back",
+  setupGuideValidateKey: "Validate key",
+  setupGuideApiKeyRequiredOrCancel:
+    "Add an API key to continue, or cancel the setup guide.",
+  setupGuideProviderAndApiKeyRequiredOrCancel:
+    "Choose a provider and add an API key to continue, or cancel the setup guide.",
+  setupGuideProviderKeyNeedsLlmAccess: ({ provider }) =>
+    `These ${provider} credentials do not allow reply requests.`,
+  setupGuideVoiceTestTitle: "Test Your Setup",
+  setupGuideVoiceTestBody:
+    "Say a short sentence. Columbo will test microphone access, transcription, the configured reply route, and spoken output when an acceptable voice route is available.",
+  setupGuideVoiceTestNoInputBody:
+    "Voice input is not available with this setup. Continue to review the detected routes, then adjust speech settings later if needed.",
+  setupGuideVoiceTestTextOnlyNote:
+    "This test stays text-only because no acceptable spoken voice route is ready yet.",
+  setupGuideVoiceTestStart: "Start test",
+  setupGuideVoiceTestStop: "Stop recording",
+  setupGuideVoiceTestRetry: "Run again",
+  setupGuideVoiceTestTranscribing: "Transcribing…",
+  setupGuideVoiceTestThinking: "Testing reply…",
+  setupGuideVoiceTestSynthesizing: "Preparing voice…",
+  setupGuideVoiceTestSpeaking: "Playing reply…",
+  setupGuideVoiceTestTranscript: "Transcript",
+  setupGuideVoiceTestReply: "Reply",
+  setupGuideVoiceTestReset: "Clear this result",
+  setupGuideVoiceInputUnavailable:
+    "Voice input is not available for this setup on this device.",
+  setupGuideSummaryTitle: "Setup Complete",
+  setupGuideSummaryBody:
+    "Here is the route Columbo will use with your current configuration.",
+  setupGuideSummaryLlm: "LLM",
+  setupGuideSummaryStt: "Speech to text",
+  setupGuideSummaryTts: "Text to speech",
+  setupGuideSummaryWebSearch: "Web search",
+  setupGuideRouteProviderLlm: ({ provider }) => `Enabled via ${provider}`,
+  setupGuideRouteOnDeviceStt: "Enabled via system speech recognition",
+  setupGuideRouteProviderStt: ({ provider }) =>
+    `Enabled via ${provider} speech transcription`,
+  setupGuideRouteProviderTts: ({ provider }) => `Enabled via ${provider} voice`,
+  setupGuideRouteLocalTts: "Enabled via local voice pack",
+  setupGuideRouteUnavailable: "Not available",
+  setupGuideRouteOff: "Off",
+  setupGuideWebSearchAvailableOff: ({ provider }) =>
+    `Available via ${provider}, currently off`,
+  setupGuideSummaryTextOnlyNote:
+    "Spoken replies are off for now. Replies stay in text until you enable a provider or local voice.",
+  setupGuideFinish: "Done",
+  searchConversationsPlaceholder: "Search titles, models, and message text",
+  noMatchingConversations: "No matching conversations",
+  noMatchingConversationsDescription:
+    "Try a different title, route, model, or phrase from the transcript.",
+  memoryModalTitle: "Conversation memory",
+  memoryModalDescription:
+    "This is the compact summary Columbo carries forward once a thread gets long enough to compress older turns.",
+  memorySummary: "Saved summary",
+  memorySummaryEmpty:
+    "No compact memory yet. Once this thread gets longer, older turns will be summarized here.",
+  summarizedTurnsCount: ({ count }) =>
+    Number(count) === 1 ? "1 summarized turn" : `${count} summarized turns`,
+  copyMemory: "Copy memory",
+  forgetMemory: "Forget memory",
+  memoryCopied: "Memory copied.",
+  memoryCleared: "Conversation memory cleared.",
+  noConversationToManageYet: "No conversation memory available yet.",
+  noProviderYet: "No provider yet",
+  noModelYet: "No model yet",
+  startedAt: "Started",
+  endedAt: "Ended",
+  pinned: "Pinned",
+  copy: "Copy",
+  share: "Share",
+  rename: "Rename",
+  pin: "Pin",
+  unpin: "Unpin",
+  save: "Save",
+  cancel: "Cancel",
+  stop: "Stop",
+  pause: "Pause",
+  resume: "Resume",
+  paused: "Paused",
+  listening: "Listening",
+  parsing: "Transcribing",
+  webSearchAction: "web search",
+  thinking: "Thinking",
+  speaking: "Speaking",
+  speechPaused: "Speech is paused",
+  pausePlaybackUnavailable:
+    "This voice route can't be paused. Stop it or switch to provider voice output.",
+  holdToSpeak: "Hold to speak",
+  tapToSpeak: "Tap to speak",
+  tapAgainToSend: "Tap again to send",
+  waitingForReply: "Waiting for reply",
+  parsingYourVoice: "Parsing your voice",
+  providerConfiguredInSettings: ({ provider }) =>
+    `${provider} is not configured in Settings.`,
+  providerNetworkError: ({ provider, action }) =>
+    `Couldn't reach ${provider} for ${action}. Check the connection and try again.`,
+  providerAuthError: ({ provider, action }) =>
+    `${provider} rejected the credentials for ${action}. Check the API key and permissions.`,
+  providerRateLimitError: ({ provider, action }) =>
+    `${provider} is rate limiting ${action} right now. Try again in a moment.`,
+  providerTimeoutError: ({ provider, action }) =>
+    `${provider} took too long during ${action}. Try again.`,
+  providerTemporaryError: ({ provider, action }) =>
+    `${provider} had a temporary problem during ${action}. Try again shortly.`,
+  providerEmptyReplyError: ({ provider }) =>
+    `${provider} finished without returning a reply. Try again.`,
+  providerIncompleteReplyError: ({ provider }) =>
+    `${provider}'s reply ended before it was complete. Try again.`,
+  providerContextTooLong: ({ provider }) =>
+    `${provider} rejected the reply because the conversation got too long. Start a fresh thread or shorten the request.`,
+  providerRequestRejected: ({ provider, action, detail }) =>
+    detail
+      ? `${provider} rejected the ${action} request: ${detail}`
+      : `${provider} rejected the ${action} request.`,
+  providerWebSearchNotRun: ({ provider }) =>
+    `${provider} returned a response without running web search.`,
+  providerValidationSuccess: ({ provider }) => `${provider} is ready to use.`,
+  providerValidationFailed: "Provider validation failed.",
+  providerHealthSummaryReady: ({ count }) => `Ready ${count}`,
+  providerHealthSummaryConfigured: ({ count }) => `Configured ${count}`,
+  providerHealthSummaryChecking: ({ count }) => `Checking ${count}`,
+  providerHealthSummaryFailing: ({ count }) => `Failing ${count}`,
+  providerHealthSummaryMissing: ({ count }) => `Missing ${count}`,
+  webSearchFallback:
+    "Web search was unavailable, so the reply continued without live web context.",
+  noBase64EncoderAvailable: "No base64 encoder available.",
+  noBase64DecoderAvailable: "No base64 decoder available.",
+  azureSpeechApiKeyFormat:
+    "Microsoft Azure TTS needs Azure Speech credentials in the format <key>|<region>, for example abc123|westeurope, or the combined Azure format <endpoint>|<api-key>|<key>|<region>.",
+  googleCloudSpeechCredentialFormat: ({ provider }) =>
+    `${provider} STT needs Google Cloud Speech credentials in the format <project-id>|<access-token>|<location>, or the combined Gemini format <Gemini API key>|<project-id>|<access-token>|<location>.`,
+  bytedanceSpeechCredentialFormat: ({ provider }) =>
+    `${provider} STT needs Doubao Speech credentials in the format <app-key>|<access-key>, optionally <app-key>|<access-key>|<resource-id>, or the combined format <ark-api-key>|<app-key>|<access-key>|<resource-id>.`,
+  nativeTtsDoesNotSynthesizeAudioFiles:
+    "Native TTS does not synthesize audio files.",
+  localTtsUnavailableForLanguage: ({ languageLabel }) =>
+    `No local or cloud voice route is ready for ${languageLabel}.`,
+  chooseTextToSpeechProviderInSettings:
+    "Choose a text-to-speech provider in Settings.",
+  ttsNotSupportedYet: ({ provider }) => `${provider} TTS is not supported yet.`,
+  ttsError: ({ provider, status, errorText }) =>
+    `${provider} TTS error (${status}): ${errorText}`,
+  ttsReplyTooLong: ({ provider }) =>
+    `${provider} speech output rejected the reply because it was too long.`,
+  ttsTimeout: ({ provider }) => `${provider} speech output took too long.`,
+  sttTimeout: ({ provider }) =>
+    `${provider} speech transcription took too long.`,
+  sttFileSizeLimitExceeded: ({ provider, model, limit }) =>
+    `${provider} ${model} only accepts recordings up to ${limit}. Use a shorter clip or switch STT models.`,
+  voiceInputCaptureIncomplete:
+    "Voice input could not be captured cleanly. Please try again.",
+  ttsDidNotReturnAudio: ({ provider }) =>
+    `${provider} TTS did not return audio.`,
+  nativeSttHandledInApp: "System STT is handled directly in the app.",
+  chooseSpeechToTextProviderInSettings:
+    "Choose a speech-to-text provider in Settings.",
+  sttNotSupportedYet: ({ provider }) => `${provider} STT is not supported yet.`,
+  providerNotWiredUpYet: ({ provider }) => `${provider} is not wired up yet.`,
+  you: "You",
+  assistant: "Assistant",
+  untitledConversation: "Untitled conversation",
+  conversationExportHeader: ({ title }) => `Conversation: ${title}`,
+  speechRecognitionPermissionNotGranted:
+    "Speech recognition permission not granted.",
+  speechRecognitionUnavailableForDeviceLanguage:
+    "Speech recognition is not available for the current device language.",
+  nativeSpeechRecognitionNeedsNetwork:
+    "Native speech recognition needs network access right now.",
+  noSpeechDetected: "No speech was detected.",
+  nativeSpeechRecognitionFailed: "Native speech recognition failed.",
+  couldntStartNativeSpeechRecognition:
+    "Couldn't start native speech recognition.",
+  microphonePermissionNotGranted: "Microphone permission not granted",
+};
