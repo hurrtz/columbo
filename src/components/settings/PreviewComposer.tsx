@@ -79,13 +79,13 @@ export function PreviewComposer({
           ]}
         >
           {isGenerating ? (
-            <ActivityIndicator size="small" color={colors.onAccent} />
+            <ActivityIndicator size="small" color={colors.onPrimary} />
           ) : isPlaying ? (
-            <Feather name="square" size={14} color={colors.onAccent} />
+            <Feather name="square" size={14} color={colors.onPrimary} />
           ) : (
-            <Feather name="volume-2" size={16} color={colors.onAccent} />
+            <Feather name="volume-2" size={16} color={colors.onPrimary} />
           )}
-          <Text style={styles.previewButtonText}>
+          <Text style={[styles.previewButtonText, { color: colors.onPrimary }]}>
             {isBusy ? t("stop") : t("previewVoice")}
           </Text>
         </View>

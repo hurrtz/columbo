@@ -337,6 +337,25 @@ describe("MainScreenVoiceStage composer", () => {
     expect(screen.queryByTestId("main-screen-status-strip")).toBeNull();
   });
 
+  it("gives brief request preparation its own color and icon", () => {
+    const screen = render(
+      <MainScreenVoiceStage
+        {...createProps({
+          isActive: true,
+          phaseLabel: "Thinking",
+          visualPhase: "thinking-briefly",
+        })}
+      />,
+    );
+
+    expect(
+      StyleSheet.flatten(
+        screen.getByTestId("voice-stage-action-surface").props.style,
+      ).backgroundColor,
+    ).toBe(lightColors.phaseThinkingBriefly);
+    expect(screen.getByText("icon:zap")).toBeTruthy();
+  });
+
   it("shows separate countdowns for the current phase and the whole turn", () => {
     const now = Date.now();
     const screen = render(

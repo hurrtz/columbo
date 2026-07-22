@@ -69,8 +69,10 @@ export function ConversationDrawerHeader({
         accessibilityLabel={t("newSession")}
         style={[styles.newSession, { backgroundColor: colors.bubbleUser }]}
       >
-        <Feather name="plus" size={17} color={colors.onAccent} />
-        <Text style={styles.newSessionText}>{t("newSession")}</Text>
+        <Feather name="plus" size={17} color={colors.onPrimary} />
+        <Text style={[styles.newSessionText, { color: colors.onPrimary }]}>
+          {t("newSession")}
+        </Text>
       </TouchableOpacity>
 
       <View

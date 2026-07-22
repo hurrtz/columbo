@@ -41,7 +41,7 @@ export function ResponseModeToggle({
         const active = id === selected;
         const highlighted = active && !singleMode;
         const ready = readyModes.includes(id);
-        const activeForeground = colors.onAccent;
+        const activeForeground = colors.onPrimary;
         const providerLabel = PROVIDER_LABELS[route.provider];
         const modelLabel = getProviderModelName(route.provider, route.model);
         const accessibilityRouteLabel = `${providerLabel}. ${modelLabel}`;

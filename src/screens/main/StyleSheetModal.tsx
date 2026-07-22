@@ -331,7 +331,7 @@ export function StyleSheetModal({
             <Text
               style={[
                 styles.styleSheetDoneButtonText,
-                { color: colors.onAccent },
+                { color: colors.onPrimary },
               ]}
             >
               {t("setupGuideFinish")}

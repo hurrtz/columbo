@@ -10,7 +10,10 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useReducedMotion } from "../../hooks/useReducedMotion";
-import { Colors } from "../../theme/colors";
+import {
+  Colors,
+  getAccessiblePhaseForeground,
+} from "../../theme/colors";
 import { fonts } from "../../theme/typography";
 import {
   InputMode,
@@ -63,6 +66,8 @@ function getPhaseIcon(
       return "square";
     case "transcribing":
       return "file-text";
+    case "thinking-briefly":
+      return "zap";
     case "searching":
       return "globe";
     case "thinking":
@@ -82,6 +87,8 @@ function getPhaseColor(visualPhase: VoiceVisualPhase, colors: Colors) {
       return colors.phaseRecordingTrack;
     case "transcribing":
       return colors.phaseTranscribing;
+    case "thinking-briefly":
+      return colors.phaseThinkingBriefly;
     case "searching":
       return colors.phaseSearching;
     case "thinking":
@@ -171,6 +178,7 @@ export function PhaseAwareVoiceAction({
   const reducedMotion = useReducedMotion();
   const recordingProgress = useSharedValue(0);
   const phaseColor = getPhaseColor(visualPhase, colors);
+  const phaseForeground = getAccessiblePhaseForeground(phaseColor);
   const animatedPhaseColor = useSharedValue(phaseColor);
   const timeLabels = usePhaseTimeLabels(
     visualPhase,
@@ -235,7 +243,7 @@ export function PhaseAwareVoiceAction({
         onPressOut={inputMode === "push-to-talk" ? onPressOut : undefined}
         style={styles.primaryAction}
       >
-        <View style={[styles.phaseIcon, { backgroundColor: colors.onAccent }]}>
+        <View style={[styles.phaseIcon, { backgroundColor: phaseForeground }]}>
           <Feather
             name={getPhaseIcon(visualPhase, playbackPaused)}
             size={21}
@@ -254,12 +262,12 @@ export function PhaseAwareVoiceAction({
         onPress={onOpenStatusDetails}
         style={styles.phaseLabelButton}
       >
-        <Feather name="info" size={11} color={colors.onAccent} />
+        <Feather name="info" size={11} color={phaseForeground} />
         <Text
           adjustsFontSizeToFit
           minimumFontScale={0.84}
           numberOfLines={1}
-          style={[styles.phaseLabel, { color: colors.onAccent }]}
+          style={[styles.phaseLabel, { color: phaseForeground }]}
         >
           {phaseLabel}
         </Text>
@@ -274,9 +282,15 @@ export function PhaseAwareVoiceAction({
           onPress={() => {
             void onStopPlayback?.();
           }}
-          style={styles.stopButton}
+          style={[
+            styles.stopButton,
+            {
+              backgroundColor: `${phaseForeground}1F`,
+              borderColor: `${phaseForeground}7A`,
+            },
+          ]}
         >
-          <Feather name="square" size={13} color={colors.onAccent} />
+          <Feather name="square" size={13} color={phaseForeground} />
         </TouchableOpacity>
       ) : (
         <View
@@ -285,7 +299,7 @@ export function PhaseAwareVoiceAction({
         >
           <Text
             numberOfLines={1}
-            style={[styles.phaseTimeLine, { color: colors.onAccent }]}
+            style={[styles.phaseTimeLine, { color: phaseForeground }]}
           >
             <Text style={styles.phaseTimeScope}>
               {t("phaseTimeRemaining")}
@@ -300,7 +314,7 @@ export function PhaseAwareVoiceAction({
           </Text>
           <Text
             numberOfLines={1}
-            style={[styles.phaseTimeLine, { color: colors.onAccent }]}
+            style={[styles.phaseTimeLine, { color: phaseForeground }]}
           >
             <Text style={styles.phaseTimeScope}>
               {t("totalTimeRemaining")}
@@ -407,8 +421,6 @@ const styles = StyleSheet.create({
     height: 38,
     borderRadius: 19,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255, 255, 255, 0.48)",
-    backgroundColor: "rgba(255, 255, 255, 0.12)",
     alignItems: "center",
     justifyContent: "center",
   },

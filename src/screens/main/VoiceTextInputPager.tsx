@@ -337,7 +337,7 @@ export function VoiceTextInputPager({
                     {
                       backgroundColor: disabled
                         ? colors.surfaceElevated
-                        : colors.onAccent,
+                        : colors.onPrimary,
                     },
                   ]}
                 >
@@ -411,7 +411,7 @@ export function VoiceTextInputPager({
                     name="arrow-up"
                     size={19}
                     color={
-                      textSubmitDisabled ? colors.textMuted : colors.onAccent
+                      textSubmitDisabled ? colors.textMuted : colors.onPrimary
                     }
                   />
                 </TouchableOpacity>

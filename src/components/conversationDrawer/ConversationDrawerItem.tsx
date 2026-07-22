@@ -49,8 +49,10 @@ export function ConversationDrawerItem({
       accessibilityRole="button"
       accessibilityLabel={t("delete")}
     >
-      <Feather name="trash-2" size={16} color={colors.onAccent} />
-      <Text style={styles.deleteText}>{t("delete")}</Text>
+      <Feather name="trash-2" size={16} color={colors.onDanger} />
+      <Text style={[styles.deleteText, { color: colors.onDanger }]}>
+        {t("delete")}
+      </Text>
     </TouchableOpacity>
   );
 

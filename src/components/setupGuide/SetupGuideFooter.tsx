@@ -89,7 +89,10 @@ function PrimaryButton({
           disabled ? styles.primaryButtonDisabled : null,
         ]}
       >
-        <Text numberOfLines={1} style={styles.primaryButtonText}>
+        <Text
+          numberOfLines={1}
+          style={[styles.primaryButtonText, { color: colors.onPrimary }]}
+        >
           {label}
         </Text>
       </View>
