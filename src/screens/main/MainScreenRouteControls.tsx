@@ -1,0 +1,108 @@
+import React from "react";
+import { StyleSheet, Switch, Text, View } from "react-native";
+
+import type { Colors } from "../../theme/colors";
+import { fonts } from "../../theme/typography";
+import type { TranslateFn } from "./shared";
+
+interface MainScreenRouteControlsProps {
+  colors: Colors;
+  layout?: "portrait" | "landscape";
+  onToggleWebSearchEnabled?: () => void;
+  t: TranslateFn;
+  webSearchEnabled?: boolean;
+  webSearchReady?: boolean;
+}
+
+export function MainScreenRouteControls({
+  colors,
+  layout = "portrait",
+  onToggleWebSearchEnabled,
+  t,
+  webSearchEnabled = false,
+  webSearchReady = false,
+}: MainScreenRouteControlsProps) {
+  const webSearchAvailable =
+    webSearchReady && Boolean(onToggleWebSearchEnabled);
+  const webSearchValue = webSearchAvailable && webSearchEnabled;
+
+  return (
+    <View
+      testID="route-controls-row"
+      style={[
+        styles.row,
+        layout === "landscape" ? styles.rowLandscape : null,
+      ]}
+    >
+      <View
+        testID="route-web-search-container"
+        style={[
+          styles.searchControl,
+          !webSearchAvailable ? styles.searchControlDisabled : null,
+        ]}
+      >
+        <Text
+          testID="route-web-search-label"
+          style={[
+            styles.searchLabel,
+            {
+              color: webSearchAvailable
+                ? colors.textSecondary
+                : colors.textMuted,
+            },
+          ]}
+        >
+          {t("webSearch")}
+        </Text>
+        <Switch
+          testID="route-web-search-control"
+          style={styles.searchSwitch}
+          value={webSearchValue}
+          disabled={!webSearchAvailable}
+          onValueChange={
+            webSearchAvailable ? onToggleWebSearchEnabled : undefined
+          }
+          accessibilityRole="switch"
+          accessibilityLabel={t("webSearch")}
+          accessibilityState={{
+            checked: webSearchValue,
+            disabled: !webSearchAvailable,
+          }}
+        />
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  row: {
+    minHeight: 44,
+    marginTop: -6,
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+  },
+  rowLandscape: {
+    marginTop: 6,
+  },
+  searchControl: {
+    height: 44,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  searchControlDisabled: {
+    opacity: 0.52,
+  },
+  searchLabel: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontFamily: fonts.body,
+    includeFontPadding: false,
+    textAlignVertical: "center",
+  },
+  searchSwitch: {
+    alignSelf: "center",
+  },
+});
