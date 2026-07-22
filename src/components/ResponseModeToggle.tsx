@@ -26,6 +26,7 @@ export function ResponseModeToggle({
   const { colors } = useTheme();
   const { t } = useLocalization();
   const singleMode = modes.length === 1;
+  const denseCompact = compact && modes.length === 4;
 
   return (
     <View
@@ -33,6 +34,7 @@ export function ResponseModeToggle({
       style={[
         styles.container,
         compact ? styles.containerCompact : null,
+        denseCompact ? styles.containerCompactDense : null,
       ]}
     >
       {modes.map(({ id, route }) => {
@@ -51,6 +53,7 @@ export function ResponseModeToggle({
               styles.option,
               compact ? styles.optionCompactStack : styles.optionRow,
               compact ? styles.optionCompact : null,
+              denseCompact ? styles.optionCompactDense : null,
               singleMode ? styles.optionSingle : null,
               compact && singleMode ? styles.optionSingleCompact : null,
               !ready ? styles.optionDisabled : null,
@@ -80,6 +83,7 @@ export function ResponseModeToggle({
               style={[
                 styles.optionInner,
                 compact ? styles.optionInnerCompact : null,
+                denseCompact ? styles.optionInnerCompactDense : null,
                 singleMode ? styles.optionInnerSingle : null,
                 compact && singleMode ? styles.optionInnerSingleCompact : null,
               ]}
@@ -94,6 +98,7 @@ export function ResponseModeToggle({
                   style={[
                     styles.providerRow,
                     compact ? styles.providerRowCompact : null,
+                    denseCompact ? styles.providerRowCompactDense : null,
                   ]}
                 >
                   <ProviderIcon
@@ -101,7 +106,7 @@ export function ResponseModeToggle({
                     color={
                       highlighted ? activeForeground : colors.textSecondary
                     }
-                    size={compact ? 26 : 24}
+                    size={denseCompact ? 22 : compact ? 26 : 24}
                   />
                 </View>
 
@@ -131,7 +136,14 @@ export function ResponseModeToggle({
                   </Text>
                 </View>
                 {compact ? (
-                  <View style={styles.optionTrailingSpacerCompact} />
+                  <View
+                    style={[
+                      styles.optionTrailingSpacerCompact,
+                      denseCompact
+                        ? styles.optionTrailingSpacerCompactDense
+                        : null,
+                    ]}
+                  />
                 ) : null}
               </View>
             </View>
@@ -151,6 +163,9 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     gap: 5,
   },
+  containerCompactDense: {
+    gap: 4,
+  },
   option: {
     minHeight: 82,
     borderRadius: 12,
@@ -164,6 +179,9 @@ const styles = StyleSheet.create({
   },
   optionCompact: {
     minHeight: 54,
+  },
+  optionCompactDense: {
+    minHeight: 46,
   },
   optionCompactStack: {
     width: "100%",
@@ -189,6 +207,11 @@ const styles = StyleSheet.create({
     minHeight: 54,
     paddingHorizontal: 10,
     paddingVertical: 8,
+  },
+  optionInnerCompactDense: {
+    minHeight: 46,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
   },
   optionInnerSingle: {
     minHeight: 80,
@@ -218,6 +241,10 @@ const styles = StyleSheet.create({
     minHeight: 26,
     flexShrink: 0,
   },
+  providerRowCompactDense: {
+    width: 28,
+    minHeight: 22,
+  },
   modelTextSlot: {
     height: 30,
     width: "100%",
@@ -242,5 +269,8 @@ const styles = StyleSheet.create({
   optionTrailingSpacerCompact: {
     width: 32,
     flexShrink: 0,
+  },
+  optionTrailingSpacerCompactDense: {
+    width: 28,
   },
 });

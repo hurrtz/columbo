@@ -185,6 +185,7 @@ describe("ResponseModeToggle", () => {
     expect(listStyle.flexWrap).toBeUndefined();
     expect(optionStyle.width).toBe("100%");
     expect(optionStyle.flexShrink).toBe(0);
+    expect(optionStyle.minHeight).toBe(54);
     expect(screen.getByText("openai:26")).toBeTruthy();
     expect(
       StyleSheet.flatten(
@@ -239,6 +240,20 @@ describe("ResponseModeToggle", () => {
     expect(optionStyle.width).toBe("100%");
     expect(optionStyle.flexGrow).toBeUndefined();
     expect(optionStyle.flexShrink).toBe(0);
+    expect(optionStyle.minHeight).toBe(46);
+    expect(listStyle.gap).toBe(4);
+    expect(screen.getByText("openai:22")).toBeTruthy();
+    expect(
+      StyleSheet.flatten(
+        screen.getByTestId("response-mode-option-inner-mode-1").props.style,
+      ),
+    ).toEqual(
+      expect.objectContaining({
+        minHeight: 46,
+        paddingHorizontal: 8,
+        paddingVertical: 5,
+      }),
+    );
   });
 
   it("does not allow a response route that is not ready to be selected", () => {
