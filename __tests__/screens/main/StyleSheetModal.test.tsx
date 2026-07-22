@@ -9,34 +9,59 @@ jest.mock("@expo/vector-icons", () => ({
 }));
 
 describe("StyleSheetModal", () => {
-  function setup(overrides: Partial<React.ComponentProps<typeof StyleSheetModal>> = {}) {
+  function setup(
+    overrides: Partial<React.ComponentProps<typeof StyleSheetModal>> = {},
+  ) {
     const onChange = jest.fn();
     const onClose = jest.fn();
+    const onAutoRenameConversation = jest.fn();
     const utils = renderWithProviders(
       <StyleSheetModal
+        canAutoRenameConversation
+        isAutoRenamingConversation={false}
         visible
         responseLength="brief"
         responseTone="casual"
+        onAutoRenameConversation={onAutoRenameConversation}
         onChange={onChange}
         onClose={onClose}
         {...overrides}
       />,
     );
-    return { ...utils, onChange, onClose };
+    return { ...utils, onAutoRenameConversation, onChange, onClose };
   }
 
   it("renders title, subtitle, and active option descriptions", () => {
     const { getByText } = setup();
-    expect(getByText("Style & Length")).toBeTruthy();
-    expect(getByText("How the assistant replies to you.")).toBeTruthy();
+    expect(getByText("Conversation settings")).toBeTruthy();
+    expect(
+      getByText("Shape replies and manage this conversation."),
+    ).toBeTruthy();
     // brief description
-    expect(
-      getByText(/Keep the answer tight/),
-    ).toBeTruthy();
+    expect(getByText(/Keep the answer tight/)).toBeTruthy();
     // casual description
-    expect(
-      getByText(/Speak like a smart friend/),
-    ).toBeTruthy();
+    expect(getByText(/Speak like a smart friend/)).toBeTruthy();
+  });
+
+  it("offers a one-off title generation action", () => {
+    const { getByTestId, getByText, onAutoRenameConversation } = setup();
+
+    expect(getByText("Conversation Title")).toBeTruthy();
+    expect(getByText("Generate title")).toBeTruthy();
+    fireEvent.press(getByTestId("auto-rename-conversation"));
+
+    expect(onAutoRenameConversation).toHaveBeenCalledTimes(1);
+  });
+
+  it("disables title generation without conversation content", () => {
+    const { getByTestId, onAutoRenameConversation } = setup({
+      canAutoRenameConversation: false,
+    });
+    const button = getByTestId("auto-rename-conversation");
+
+    expect(button.props.accessibilityState).toEqual({ disabled: true });
+    fireEvent.press(button);
+    expect(onAutoRenameConversation).not.toHaveBeenCalled();
   });
 
   it("renders all length and tone pills", () => {

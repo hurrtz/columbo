@@ -1,7 +1,9 @@
 import React from "react";
 import {
+  ActivityIndicator,
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -9,21 +11,22 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Feather from "@expo/vector-icons/Feather";
 
+import { APP_MODAL_ORIENTATIONS } from "../../constants/layout";
 import {
   getResponseLengthOptions,
   getResponseToneOptions,
 } from "../../components/settings/helpers";
 import { useLocalization } from "../../i18n";
 import { useTheme } from "../../theme/ThemeContext";
-import {
-  AssistantResponseLength,
-  AssistantResponseTone,
-} from "../../types";
+import { AssistantResponseLength, AssistantResponseTone } from "../../types";
 
 import { styles } from "./styles";
 
 interface StyleSheetModalProps {
+  canAutoRenameConversation: boolean;
+  isAutoRenamingConversation: boolean;
   visible: boolean;
   responseLength: AssistantResponseLength;
   responseTone: AssistantResponseTone;
@@ -32,14 +35,18 @@ interface StyleSheetModalProps {
       | { responseLength: AssistantResponseLength }
       | { responseTone: AssistantResponseTone },
   ) => void;
+  onAutoRenameConversation: () => void;
   onClose: () => void;
 }
 
 export function StyleSheetModal({
+  canAutoRenameConversation,
+  isAutoRenamingConversation,
   visible,
   responseLength,
   responseTone,
   onChange,
+  onAutoRenameConversation,
   onClose,
 }: StyleSheetModalProps) {
   const { colors } = useTheme();
@@ -59,6 +66,7 @@ export function StyleSheetModal({
       transparent
       animationType="fade"
       onRequestClose={onClose}
+      supportedOrientations={APP_MODAL_ORIENTATIONS}
     >
       <SafeAreaView style={styles.styleSheetOverlay}>
         <TouchableOpacity
@@ -71,6 +79,7 @@ export function StyleSheetModal({
           style={[
             styles.styleSheetCard,
             { maxWidth: cardMaxWidth },
+            { maxHeight: Math.max(280, height - 32) },
             {
               backgroundColor: colors.surface,
               borderColor: colors.border,
@@ -78,122 +87,243 @@ export function StyleSheetModal({
             },
           ]}
         >
-          <View style={styles.styleSheetHeader}>
-            <Text style={[styles.styleSheetTitle, { color: colors.text }]}>
-              {t("styleSheetTitle")}
-            </Text>
-            <Text
+          <ScrollView
+            style={styles.styleSheetScroll}
+            contentContainerStyle={[
+              styles.styleSheetScrollContent,
+              isLandscape ? styles.styleSheetScrollContentLandscape : null,
+            ]}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.styleSheetHeader}>
+              <Text style={[styles.styleSheetTitle, { color: colors.text }]}>
+                {t("styleSheetTitle")}
+              </Text>
+              <Text
+                style={[
+                  styles.styleSheetSubtitle,
+                  { color: colors.textSecondary },
+                ]}
+              >
+                {t("styleSheetSubtitle")}
+              </Text>
+            </View>
+
+            <View
+              style={
+                isLandscape
+                  ? styles.styleSheetOptionsRowLandscape
+                  : styles.styleSheetOptionsColumn
+              }
+            >
+              <View
+                style={[
+                  styles.styleSheetGroup,
+                  isLandscape ? styles.styleSheetGroupLandscape : null,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.styleSheetGroupLabel,
+                    { color: colors.textMuted },
+                  ]}
+                >
+                  {t("adaptiveLength")}
+                </Text>
+                <View style={styles.styleSheetPillRow}>
+                  {lengthOptions.map((option) => {
+                    const active = option.value === responseLength;
+                    return (
+                      <Pressable
+                        key={option.value}
+                        style={[
+                          styles.styleSheetPill,
+                          {
+                            backgroundColor: active
+                              ? colors.accentSoft
+                              : colors.surfaceElevated,
+                            borderColor: active ? colors.accent : colors.border,
+                          },
+                        ]}
+                        onPress={() =>
+                          onChange({ responseLength: option.value })
+                        }
+                        accessibilityRole="button"
+                        accessibilityState={{ selected: active }}
+                      >
+                        <Text
+                          style={[
+                            styles.styleSheetPillText,
+                            {
+                              color: active
+                                ? colors.text
+                                : colors.textSecondary,
+                            },
+                          ]}
+                        >
+                          {option.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+                {activeLength ? (
+                  <Text
+                    style={[
+                      styles.styleSheetDescription,
+                      { color: colors.textMuted },
+                    ]}
+                  >
+                    {activeLength.description}
+                  </Text>
+                ) : null}
+              </View>
+
+              <View
+                style={[
+                  styles.styleSheetGroup,
+                  isLandscape ? styles.styleSheetGroupLandscape : null,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.styleSheetGroupLabel,
+                    { color: colors.textMuted },
+                  ]}
+                >
+                  {t("responseTone")}
+                </Text>
+                <View style={styles.styleSheetPillRow}>
+                  {toneOptions.map((option) => {
+                    const active = option.value === responseTone;
+                    return (
+                      <Pressable
+                        key={option.value}
+                        style={[
+                          styles.styleSheetPill,
+                          {
+                            backgroundColor: active
+                              ? colors.accentSoft
+                              : colors.surfaceElevated,
+                            borderColor: active ? colors.accent : colors.border,
+                          },
+                        ]}
+                        onPress={() => onChange({ responseTone: option.value })}
+                        accessibilityRole="button"
+                        accessibilityState={{ selected: active }}
+                      >
+                        <Text
+                          style={[
+                            styles.styleSheetPillText,
+                            {
+                              color: active
+                                ? colors.text
+                                : colors.textSecondary,
+                            },
+                          ]}
+                        >
+                          {option.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+                {activeTone ? (
+                  <Text
+                    style={[
+                      styles.styleSheetDescription,
+                      { color: colors.textMuted },
+                    ]}
+                  >
+                    {activeTone.description}
+                  </Text>
+                ) : null}
+              </View>
+            </View>
+
+            <View
               style={[
-                styles.styleSheetSubtitle,
-                { color: colors.textSecondary },
+                styles.styleSheetAutoRenameCard,
+                isLandscape ? styles.styleSheetAutoRenameCardLandscape : null,
+                {
+                  backgroundColor: colors.surfaceElevated,
+                  borderColor: colors.border,
+                },
               ]}
             >
-              {t("styleSheetSubtitle")}
-            </Text>
-          </View>
-
-          <View style={styles.styleSheetGroup}>
-            <Text
-              style={[styles.styleSheetGroupLabel, { color: colors.textMuted }]}
-            >
-              {t("adaptiveLength")}
-            </Text>
-            <View style={styles.styleSheetPillRow}>
-              {lengthOptions.map((option) => {
-                const active = option.value === responseLength;
-                return (
-                  <Pressable
-                    key={option.value}
-                    style={[
-                      styles.styleSheetPill,
-                      {
-                        backgroundColor: active
-                          ? colors.accentSoft
-                          : colors.surfaceElevated,
-                        borderColor: active ? colors.accent : colors.border,
-                      },
-                    ]}
-                    onPress={() => onChange({ responseLength: option.value })}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: active }}
-                  >
-                    <Text
-                      style={[
-                        styles.styleSheetPillText,
-                        { color: active ? colors.text : colors.textSecondary },
-                      ]}
-                    >
-                      {option.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-            {activeLength ? (
-              <Text
+              <View style={styles.styleSheetAutoRenameCopy}>
+                <Text
+                  style={[
+                    styles.styleSheetGroupLabel,
+                    { color: colors.textMuted },
+                  ]}
+                >
+                  {t("conversationTitle")}
+                </Text>
+                <Text
+                  style={[
+                    styles.styleSheetDescription,
+                    { color: colors.textSecondary },
+                  ]}
+                >
+                  {t("conversationTitleGenerationDescription")}
+                </Text>
+              </View>
+              <TouchableOpacity
+                testID="auto-rename-conversation"
                 style={[
-                  styles.styleSheetDescription,
-                  { color: colors.textMuted },
+                  styles.styleSheetAutoRenameButton,
+                  {
+                    backgroundColor: canAutoRenameConversation
+                      ? colors.accentSoft
+                      : colors.surfaceAlt,
+                    borderColor: canAutoRenameConversation
+                      ? colors.borderStrong
+                      : colors.border,
+                  },
                 ]}
+                disabled={!canAutoRenameConversation}
+                onPress={onAutoRenameConversation}
+                activeOpacity={0.82}
+                accessibilityRole="button"
+                accessibilityState={{ disabled: !canAutoRenameConversation }}
               >
-                {activeLength.description}
-              </Text>
-            ) : null}
-          </View>
-
-          <View style={styles.styleSheetGroup}>
-            <Text
-              style={[styles.styleSheetGroupLabel, { color: colors.textMuted }]}
-            >
-              {t("responseTone")}
-            </Text>
-            <View style={styles.styleSheetPillRow}>
-              {toneOptions.map((option) => {
-                const active = option.value === responseTone;
-                return (
-                  <Pressable
-                    key={option.value}
-                    style={[
-                      styles.styleSheetPill,
-                      {
-                        backgroundColor: active
-                          ? colors.accentSoft
-                          : colors.surfaceElevated,
-                        borderColor: active ? colors.accent : colors.border,
-                      },
-                    ]}
-                    onPress={() => onChange({ responseTone: option.value })}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: active }}
-                  >
-                    <Text
-                      style={[
-                        styles.styleSheetPillText,
-                        { color: active ? colors.text : colors.textSecondary },
-                      ]}
-                    >
-                      {option.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
+                {isAutoRenamingConversation ? (
+                  <ActivityIndicator size="small" color={colors.accent} />
+                ) : (
+                  <Feather
+                    name="edit-3"
+                    size={14}
+                    color={
+                      canAutoRenameConversation
+                        ? colors.accent
+                        : colors.textMuted
+                    }
+                  />
+                )}
+                <Text
+                  style={[
+                    styles.styleSheetAutoRenameButtonText,
+                    {
+                      color: canAutoRenameConversation
+                        ? colors.accent
+                        : colors.textMuted,
+                    },
+                  ]}
+                >
+                  {isAutoRenamingConversation
+                    ? t("conversationTitleGenerating")
+                    : t("conversationTitleGenerate")}
+                </Text>
+              </TouchableOpacity>
             </View>
-            {activeTone ? (
-              <Text
-                style={[
-                  styles.styleSheetDescription,
-                  { color: colors.textMuted },
-                ]}
-              >
-                {activeTone.description}
-              </Text>
-            ) : null}
-          </View>
+          </ScrollView>
 
           <TouchableOpacity
             style={[
               styles.styleSheetDoneButton,
-              { backgroundColor: colors.accent },
+              { backgroundColor: colors.bubbleUser },
             ]}
             onPress={onClose}
             accessibilityRole="button"
@@ -201,7 +331,7 @@ export function StyleSheetModal({
             <Text
               style={[
                 styles.styleSheetDoneButtonText,
-                { color: colors.surface },
+                { color: colors.onAccent },
               ]}
             >
               {t("setupGuideFinish")}
