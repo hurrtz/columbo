@@ -1,5 +1,11 @@
-import { useEffect, useMemo, type Dispatch, type SetStateAction } from "react";
-import { ConversationMeta } from "../../types";
+import {
+  useEffect,
+  useMemo,
+  type Dispatch,
+  type MutableRefObject,
+  type SetStateAction,
+} from "react";
+import { Conversation, ConversationMeta } from "../../types";
 import {
   buildConversationMetaFromConversation,
   conversationMetaNeedsHydration,
@@ -8,6 +14,7 @@ import {
 } from "./meta";
 import {
   persistConversationMeta,
+  readActiveConversationId,
   readConversation,
   readStoredConversationMetas,
 } from "./storage";
@@ -37,10 +44,17 @@ async function hydrateConversationMetas(metas: ConversationMeta[]) {
 }
 
 export function useConversationHydration(params: {
+  activeConversationRef: MutableRefObject<Conversation | null>;
   conversations: ConversationMeta[];
+  setActiveConversationValue: (conversation: Conversation | null) => void;
   setConversations: Dispatch<SetStateAction<ConversationMeta[]>>;
 }) {
-  const { conversations, setConversations } = params;
+  const {
+    activeConversationRef,
+    conversations,
+    setActiveConversationValue,
+    setConversations,
+  } = params;
 
   const hydrateConversationMetasCallback = useMemo(
     () => hydrateConversationMetas,
@@ -51,9 +65,19 @@ export function useConversationHydration(params: {
     let cancelled = false;
 
     void (async () => {
-      const storedMetas = await readStoredConversationMetas();
+      const [storedMetas, storedActiveConversationId] = await Promise.all([
+        readStoredConversationMetas(),
+        readActiveConversationId(),
+      ]);
 
-      if (cancelled || storedMetas.length === 0) {
+      if (cancelled) {
+        return;
+      }
+
+      if (storedMetas.length === 0) {
+        if (storedActiveConversationId && !activeConversationRef.current) {
+          setActiveConversationValue(null);
+        }
         return;
       }
 
@@ -91,12 +115,32 @@ export function useConversationHydration(params: {
       if (JSON.stringify(sortedMetas) !== JSON.stringify(storedMetas)) {
         persistConversationMeta(sortedMetas);
       }
+
+      if (!storedActiveConversationId) {
+        return;
+      }
+
+      const activeConversationStillExists = sortedMetas.some(
+        (conversation) => conversation.id === storedActiveConversationId,
+      );
+      const storedActiveConversation = activeConversationStillExists
+        ? await readConversation(storedActiveConversationId)
+        : null;
+
+      if (!cancelled && !activeConversationRef.current) {
+        setActiveConversationValue(storedActiveConversation);
+      }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [hydrateConversationMetasCallback, setConversations]);
+  }, [
+    activeConversationRef,
+    hydrateConversationMetasCallback,
+    setActiveConversationValue,
+    setConversations,
+  ]);
 
   useEffect(() => {
     let cancelled = false;

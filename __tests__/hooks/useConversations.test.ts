@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { renderHook, act } from "@testing-library/react-native";
+import { renderHook, act, waitFor } from "@testing-library/react-native";
 import { useConversations } from "../../src/hooks/useConversations";
 import {
   readConversation,
@@ -39,6 +39,58 @@ describe("useConversations", () => {
     const { result } = renderHook(() => useConversations());
     expect(result.current.conversations).toEqual([]);
     expect(result.current.activeConversation).toBeNull();
+  });
+
+  it("restores the conversation that was active before app reload", async () => {
+    const conversation: Conversation = {
+      id: "restored-active-thread",
+      title: "Keep my place",
+      createdAt: "2026-07-21T08:00:00.000Z",
+      updatedAt: "2026-07-21T08:01:00.000Z",
+      messages: [
+        {
+          id: "stored-message",
+          role: "user",
+          content: "Continue here after relaunch",
+          model: null,
+          provider: null,
+          timestamp: "2026-07-21T08:01:00.000Z",
+        },
+      ],
+    };
+    const stored = new Map<string, string>([
+      ["@columbo/active_conversation", conversation.id],
+      ["@columbo/conversation/restored-active-thread", JSON.stringify(conversation)],
+      [
+        "@columbo/conversations",
+        JSON.stringify([
+          {
+            id: conversation.id,
+            title: conversation.title,
+            createdAt: conversation.createdAt,
+            updatedAt: conversation.updatedAt,
+            messageCount: 1,
+            providers: [],
+            providerModels: {},
+            lastModel: null,
+            lastProvider: null,
+            pinned: false,
+          },
+        ]),
+      ],
+    ]);
+    (AsyncStorage.getItem as jest.Mock).mockImplementation(
+      async (key: string) => stored.get(key) ?? null,
+    );
+
+    const { result } = renderHook(() => useConversations());
+
+    await waitFor(() => {
+      expect(result.current.activeConversation?.id).toBe(conversation.id);
+    });
+    expect(result.current.activeConversation?.messages).toEqual(
+      conversation.messages,
+    );
   });
 
   it("creates a new conversation", async () => {

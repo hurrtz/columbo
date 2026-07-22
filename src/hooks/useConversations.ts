@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Conversation, ConversationMeta } from "../types";
-import { persistConversationMeta } from "./conversations/storage";
+import {
+  persistActiveConversationId,
+  persistConversationMeta,
+} from "./conversations/storage";
 import { useConversationHydration } from "./conversations/useConversationHydration";
 import { useConversationMutations } from "./conversations/useConversationMutations";
 import {
@@ -20,6 +23,7 @@ export function useConversations() {
     (conversation: Conversation | null) => {
       activeConversationRef.current = conversation;
       setActiveConversation(conversation);
+      void persistActiveConversationId(conversation?.id ?? null);
     },
     [],
   );
@@ -28,7 +32,9 @@ export function useConversations() {
   }, []);
 
   useConversationHydration({
+    activeConversationRef,
     conversations,
+    setActiveConversationValue,
     setConversations,
   });
 
