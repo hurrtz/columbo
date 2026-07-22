@@ -1,13 +1,16 @@
-import React, { useRef, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   FlatList,
+  LayoutChangeEvent,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   StyleProp,
   StyleSheet,
   Text,
   View,
   ViewStyle,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
 import { ChatBubble } from "./ChatBubble";
 import { useLocalization } from "../i18n";
 import { useTheme } from "../theme/ThemeContext";
@@ -24,10 +27,24 @@ interface ChatTranscriptProps {
   onCopyMessage?: (message: Message) => void;
   onShareMessage?: (message: Message) => void;
   onRepeatMessage?: (message: Message) => void;
+  onRetryMessage?: (message: Message) => void;
+  onOpenSpeakingSettings?: () => void;
   activeRepeatMessageId?: string | null;
   repeatPlaybackStatus?: "idle" | "preparing" | "speaking";
   messageSelectionEnabled?: boolean;
   showUsageStats?: boolean;
+  conversationId?: string | null;
+}
+
+const FOLLOW_TAIL_THRESHOLD_PX = 48;
+
+export function getTranscriptDistanceFromBottom(event: NativeScrollEvent) {
+  return Math.max(
+    0,
+    event.contentSize.height -
+      event.layoutMeasurement.height -
+      event.contentOffset.y,
+  );
 }
 
 export function ChatTranscript({
@@ -40,32 +57,138 @@ export function ChatTranscript({
   onCopyMessage,
   onShareMessage,
   onRepeatMessage,
+  onRetryMessage,
+  onOpenSpeakingSettings,
   activeRepeatMessageId = null,
   repeatPlaybackStatus = "idle",
   messageSelectionEnabled = false,
   showUsageStats = false,
+  conversationId = null,
 }: ChatTranscriptProps) {
   const { colors } = useTheme();
   const { t } = useLocalization();
   const listRef = useRef<FlatList>(null);
+  const followTailRef = useRef(true);
+  const userScrollingRef = useRef(false);
+  const distanceFromBottomRef = useRef(0);
+  const tailScrollFrameRef = useRef<number | null>(null);
+  const conversationKey = useMemo(
+    () => conversationId ?? messages[0]?.id ?? "empty-conversation",
+    [conversationId, messages],
+  );
   const resolvedEmptyTitle = emptyTitle ?? t("yourConversationAppearsHere");
   const resolvedEmptyDescription =
     emptyDescription ?? t("defaultTranscriptEmptyDescription");
 
+  const scrollToTail = useCallback((animated: boolean) => {
+    followTailRef.current = true;
+    distanceFromBottomRef.current = 0;
+    listRef.current?.scrollToEnd({ animated });
+  }, []);
+
+  const scheduleScrollToTail = useCallback(
+    (animated: boolean) => {
+      if (tailScrollFrameRef.current !== null) {
+        cancelAnimationFrame(tailScrollFrameRef.current);
+      }
+
+      tailScrollFrameRef.current = requestAnimationFrame(() => {
+        tailScrollFrameRef.current = null;
+        if (followTailRef.current && !userScrollingRef.current) {
+          scrollToTail(animated);
+        }
+      });
+    },
+    [scrollToTail],
+  );
+
+  useEffect(
+    () => () => {
+      if (tailScrollFrameRef.current !== null) {
+        cancelAnimationFrame(tailScrollFrameRef.current);
+      }
+    },
+    [],
+  );
+
   useEffect(() => {
-    if (messages.length > 0) {
-      setTimeout(() => {
-        listRef.current?.scrollToEnd({ animated: true });
-      }, 100);
+    followTailRef.current = true;
+    userScrollingRef.current = false;
+    distanceFromBottomRef.current = 0;
+    if (messages.length === 0) {
+      listRef.current?.scrollToOffset({ offset: 0, animated: false });
+    }
+  }, [conversationKey]);
+
+  const handleContentSizeChange = useCallback(() => {
+    if (
+      messages.length === 0 ||
+      !followTailRef.current ||
+      userScrollingRef.current
+    ) {
       return;
     }
 
-    listRef.current?.scrollToOffset({ offset: 0, animated: false });
-  }, [messages.length]);
+    // Streaming replies can resize the list many times per second. Keeping the
+    // tail anchored without starting overlapping native scroll animations is
+    // both smoother and more deterministic on iOS.
+    scheduleScrollToTail(false);
+  }, [messages.length, scheduleScrollToTail]);
+
+  const handleLayout = useCallback(
+    (_event: LayoutChangeEvent) => {
+      if (
+        messages.length === 0 ||
+        !followTailRef.current ||
+        userScrollingRef.current
+      ) {
+        return;
+      }
+
+      // A transcript inside a hidden Modal can receive its content size before
+      // it has a visible viewport. Retry once the viewport is laid out so the
+      // initial scroll does not become a no-op on iOS.
+      scheduleScrollToTail(false);
+    },
+    [messages.length, scheduleScrollToTail],
+  );
+
+  const updateUserScrollPosition = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const distanceFromBottom = getTranscriptDistanceFromBottom(
+        event.nativeEvent,
+      );
+      distanceFromBottomRef.current = distanceFromBottom;
+      if (userScrollingRef.current) {
+        followTailRef.current =
+          distanceFromBottom <= FOLLOW_TAIL_THRESHOLD_PX;
+      }
+    },
+    [],
+  );
+
+  const handleScrollBeginDrag = useCallback(() => {
+    if (tailScrollFrameRef.current !== null) {
+      cancelAnimationFrame(tailScrollFrameRef.current);
+      tailScrollFrameRef.current = null;
+    }
+    userScrollingRef.current = true;
+  }, []);
+
+  const handleScrollInteractionEnd = useCallback(() => {
+    followTailRef.current =
+      distanceFromBottomRef.current <= FOLLOW_TAIL_THRESHOLD_PX;
+    userScrollingRef.current = false;
+
+    if (followTailRef.current) {
+      scheduleScrollToTail(true);
+    }
+  }, [scheduleScrollToTail]);
 
   return (
     <FlatList
       ref={listRef}
+      testID="chat-transcript-list"
       style={styles.listView}
       data={messages}
       keyExtractor={(item) => item.id}
@@ -75,6 +198,8 @@ export function ChatTranscript({
           onCopy={onCopyMessage}
           onShare={onShareMessage}
           onRepeat={onRepeatMessage}
+          onRetry={onRetryMessage}
+          onOpenSpeakingSettings={onOpenSpeakingSettings}
           repeatState={
             activeRepeatMessageId === item.id ? repeatPlaybackStatus : "idle"
           }
@@ -88,15 +213,7 @@ export function ChatTranscript({
         contentContainerStyle,
       ]}
       ListEmptyComponent={
-        <View
-          style={[
-            styles.emptyCard,
-            {
-              backgroundColor: colors.surface,
-              borderColor: colors.border,
-            },
-          ]}
-        >
+        <View style={styles.emptyCard}>
           <View
             style={[
               styles.emptyIcon,
@@ -120,6 +237,13 @@ export function ChatTranscript({
       }
       showsVerticalScrollIndicator={false}
       scrollEnabled={scrollEnabled}
+      scrollEventThrottle={16}
+      onLayout={handleLayout}
+      onContentSizeChange={handleContentSizeChange}
+      onScroll={updateUserScrollPosition}
+      onScrollBeginDrag={handleScrollBeginDrag}
+      onScrollEndDrag={handleScrollInteractionEnd}
+      onMomentumScrollEnd={handleScrollInteractionEnd}
       onTouchStart={onTap}
     />
   );
@@ -138,13 +262,11 @@ const styles = StyleSheet.create({
     paddingBottom: 18,
   },
   emptyCard: {
-    borderWidth: 1,
-    borderRadius: 28,
-    paddingHorizontal: 22,
-    paddingVertical: 26,
+    paddingHorizontal: 26,
+    paddingVertical: 22,
     alignItems: "center",
     gap: 12,
-    marginVertical: 10,
+    marginVertical: 8,
   },
   emptyIcon: {
     width: 48,
@@ -155,14 +277,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   emptyTitle: {
-    fontSize: 18,
+    fontSize: 17,
     lineHeight: 24,
     textAlign: "center",
     fontFamily: fonts.display,
   },
   emptyDescription: {
-    fontSize: 14,
-    lineHeight: 21,
+    fontSize: 13,
+    lineHeight: 19,
     textAlign: "center",
   },
 });

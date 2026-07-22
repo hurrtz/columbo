@@ -1,396 +1,79 @@
-import React, { useEffect, useRef } from "react";
-import {
-  Animated,
-  Linking,
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { getProviderModelName, PROVIDER_LABELS } from "../constants/models";
-import { useLocalization } from "../i18n";
+import React from "react";
+import { TouchableOpacity, View } from "react-native";
+
 import { useTheme } from "../theme/ThemeContext";
-import { fonts } from "../theme/typography";
-import { Message } from "../types";
-import { formatTokenCount } from "../utils/usageStats";
+import { ChatBubbleContent } from "./chatBubble/ChatBubbleContent";
+import { styles } from "./chatBubble/styles";
+import type { ChatBubbleProps } from "./chatBubble/types";
 
-interface ChatBubbleProps {
-  message: Message;
-  onCopy?: (message: Message) => void;
-  onShare?: (message: Message) => void;
-  onRepeat?: (message: Message) => void;
-  repeatState?: "idle" | "preparing" | "speaking";
-  selectable?: boolean;
-  showUsageStats?: boolean;
-}
-
-function RepeatActionIcon({
-  state,
-  color,
+function MessageRowSurface({
+  messageId,
+  isUser,
+  selectable,
+  children,
 }: {
-  state: "idle" | "preparing" | "speaking";
-  color: string;
+  messageId: string;
+  isUser: boolean;
+  selectable: boolean;
+  children: React.ReactNode;
 }) {
-  const rotation = useRef(new Animated.Value(0)).current;
+  const { colors } = useTheme();
 
-  useEffect(() => {
-    if (state !== "preparing") {
-      rotation.stopAnimation();
-      rotation.setValue(0);
-      return;
-    }
-
-    const animation = Animated.loop(
-      Animated.timing(rotation, {
-        toValue: 1,
-        duration: 1100,
-        useNativeDriver: true,
-      }),
-    );
-    animation.start();
-
-    return () => {
-      animation.stop();
-      rotation.stopAnimation();
-      rotation.setValue(0);
-    };
-  }, [rotation, state]);
-
-  if (state === "speaking") {
-    return <Feather name="square" size={14} color={color} />;
-  }
-
-  if (state === "preparing") {
-    return (
-      <Animated.View
-        style={{
-          transform: [
-            {
-              rotate: rotation.interpolate({
-                inputRange: [0, 1],
-                outputRange: ["0deg", "360deg"],
-              }),
+  return (
+    <View
+      testID={`chat-message-row-${messageId}`}
+      style={[
+        styles.messageRow,
+        isUser ? styles.messageRowUser : styles.messageRowAssistant,
+        selectable ? styles.messageRowSelectable : null,
+        isUser
+          ? {
+              backgroundColor: colors.accentSoft,
+              borderColor: colors.borderStrong,
+              borderRightColor: colors.accent,
+            }
+          : {
+              backgroundColor: colors.surface,
+              borderColor: colors.border,
+              borderLeftColor: colors.borderStrong,
             },
-          ],
-        }}
-      >
-        <Feather name="loader" size={14} color={color} />
-      </Animated.View>
-    );
-  }
-
-  return <Feather name="volume-2" size={14} color={color} />;
+      ]}
+    >
+      {children}
+    </View>
+  );
 }
 
-export function ChatBubble({
+export const ChatBubble = React.memo(function ChatBubble({
   message,
   onCopy,
   onShare,
   onRepeat,
+  onRetry,
+  onOpenSpeakingSettings,
   repeatState = "idle",
   selectable = false,
   showUsageStats = false,
 }: ChatBubbleProps) {
-  const { colors, isDark } = useTheme();
-  const { t } = useLocalization();
   const isUser = message.role === "user";
-  const providerLabel = message.provider
-    ? PROVIDER_LABELS[message.provider]
-    : null;
-  const modelLabel =
-    message.provider && message.model
-      ? getProviderModelName(message.provider, message.model)
-      : message.model;
-  const usage = !isUser && showUsageStats ? message.usage : undefined;
-  const webSearch = !isUser ? message.metadata?.webSearch : undefined;
-  const notices = !isUser ? message.metadata?.notices ?? [] : [];
-  const hasSources = !!webSearch?.sources.length;
-  const hasContent = message.content.trim().length > 0;
-
-  const bubbleContent = (
-    <>
-      {!isUser && (message.model || webSearch) ? (
-        <View style={styles.metaRow}>
-          {message.model ? (
-            <View
-              style={[
-                styles.modelChip,
-                {
-                  backgroundColor: colors.accentSoft,
-                  borderColor: colors.borderStrong,
-                },
-              ]}
-            >
-              <Text style={[styles.providerLabel, { color: colors.accent }]}>
-                {providerLabel}
-              </Text>
-              <Text
-                style={[styles.modelLabel, { color: colors.textSecondary }]}
-              >
-                {modelLabel}
-              </Text>
-            </View>
-          ) : null}
-          {webSearch ? (
-            <View
-              style={[
-                styles.statusChip,
-                {
-                  backgroundColor: colors.surfaceAlt,
-                  borderColor: colors.border,
-                },
-              ]}
-            >
-              <Feather name="globe" size={12} color={colors.textSecondary} />
-              <Text
-                style={[
-                  styles.statusChipLabel,
-                  { color: colors.textSecondary },
-                ]}
-              >
-                {t("usedWebSearch")}
-              </Text>
-            </View>
-          ) : null}
-        </View>
-      ) : null}
-      {hasContent ? (
-        selectable ? (
-          <TextInput
-            value={message.content}
-            multiline
-            readOnly
-            scrollEnabled={false}
-            selectionColor={colors.accent}
-            testID={`selectable-message-${message.id}`}
-            style={[
-              styles.content,
-              styles.selectableContent,
-              { color: isUser ? "#F5FBFF" : colors.text },
-            ]}
-          />
-        ) : (
-          <Text
-            style={[styles.content, { color: isUser ? "#F5FBFF" : colors.text }]}
-          >
-            {message.content}
-          </Text>
-        )
-      ) : null}
-      {notices.length > 0 ? (
-        <View style={styles.noticeList}>
-          {notices.map((notice, index) => (
-            <View
-              key={`${notice.stage}:${notice.message}:${notice.detail ?? ""}:${index}`}
-              style={[
-                styles.noticeCard,
-                {
-                  backgroundColor: colors.surfaceAlt,
-                  borderColor:
-                    notice.level === "error" ? colors.danger : colors.border,
-                },
-              ]}
-            >
-              <View
-                style={[
-                  styles.noticeIcon,
-                  {
-                    backgroundColor:
-                      notice.level === "error"
-                        ? colors.surface
-                        : colors.accentSoft,
-                    borderColor:
-                      notice.level === "error"
-                        ? colors.danger
-                        : colors.borderStrong,
-                  },
-                ]}
-              >
-                <Feather
-                  name={notice.level === "error" ? "alert-triangle" : "info"}
-                  size={12}
-                  color={
-                    notice.level === "error" ? colors.danger : colors.accent
-                  }
-                />
-              </View>
-              <View style={styles.noticeCopy}>
-                <Text
-                  style={[
-                    styles.noticeLabel,
-                    { color: notice.level === "error" ? colors.danger : colors.text },
-                  ]}
-                >
-                  {notice.stage === "stt"
-                    ? t("speechToText")
-                    : notice.stage === "tts"
-                      ? t("textToSpeech")
-                      : t("webSearch")}
-                </Text>
-                <Text
-                  style={[styles.noticeText, { color: colors.textSecondary }]}
-                >
-                  {notice.message}
-                </Text>
-                {notice.detail ? (
-                  <Text
-                    style={[
-                      styles.noticeDetail,
-                      { color: colors.textMuted },
-                    ]}
-                  >
-                    {notice.detail}
-                  </Text>
-                ) : null}
-              </View>
-            </View>
-          ))}
-        </View>
-      ) : null}
-      {webSearch ? (
-        <View
-          style={[
-            styles.referenceCard,
-            {
-              backgroundColor: colors.surfaceAlt,
-              borderColor: colors.border,
-            },
-          ]}
-        >
-          <Text style={[styles.referenceSummary, { color: colors.textSecondary }]}>
-            {webSearch.summary}
-          </Text>
-          {hasSources ? (
-            <>
-              <Text
-                style={[styles.referenceHeading, { color: colors.textMuted }]}
-              >
-                {t("sources")}
-              </Text>
-              <View style={styles.sourcesRow}>
-                {webSearch.sources.map((source) => (
-                  <TouchableOpacity
-                    key={source.url}
-                    style={[
-                      styles.sourceChip,
-                      {
-                        backgroundColor: colors.background,
-                        borderColor: colors.border,
-                      },
-                    ]}
-                    onPress={() => {
-                      void Linking.openURL(source.url);
-                    }}
-                    activeOpacity={0.86}
-                    accessibilityRole="link"
-                    accessibilityLabel={t("openSourceLink", {
-                      source: source.title,
-                    })}
-                  >
-                    <Text
-                      numberOfLines={1}
-                      style={[styles.sourceLabel, { color: colors.text }]}
-                    >
-                      {source.title}
-                    </Text>
-                    <Feather
-                      name="arrow-up-right"
-                      size={12}
-                      color={colors.textSecondary}
-                    />
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </>
-          ) : null}
-        </View>
-      ) : null}
-      {usage ? (
-        <View
-          style={[
-            styles.usageCard,
-            {
-              backgroundColor: colors.surfaceAlt,
-              borderColor: colors.border,
-            },
-          ]}
-        >
-          <Text style={[styles.usageText, { color: colors.textSecondary }]}>
-            {t("estimatedUsageInline", {
-              prompt: formatTokenCount(usage.promptTokens),
-              completion: formatTokenCount(usage.completionTokens),
-              total: formatTokenCount(usage.totalTokens),
-            })}
-          </Text>
-        </View>
-      ) : null}
-      {selectable && (onCopy || onShare || onRepeat) ? (
-        <View style={styles.actionRow}>
-          {onRepeat ? (
-            <TouchableOpacity
-              style={[
-                styles.iconAction,
-                {
-                  backgroundColor:
-                    repeatState === "idle"
-                      ? colors.surfaceAlt
-                      : colors.accentSoft,
-                  borderColor:
-                    repeatState === "idle" ? colors.border : colors.borderStrong,
-                },
-              ]}
-              onPress={() => onRepeat(message)}
-              activeOpacity={0.88}
-              accessibilityLabel={
-                repeatState === "speaking" ? t("stop") : t("repeatReply")
-              }
-            >
-              <RepeatActionIcon
-                state={repeatState}
-                color={
-                  repeatState === "idle" ? colors.textSecondary : colors.accent
-                }
-              />
-            </TouchableOpacity>
-          ) : null}
-          {onCopy ? (
-            <TouchableOpacity
-              style={[
-                styles.iconAction,
-                {
-                  backgroundColor: colors.surfaceAlt,
-                  borderColor: colors.border,
-                },
-              ]}
-              onPress={() => onCopy(message)}
-              activeOpacity={0.88}
-              accessibilityLabel={t("copy")}
-            >
-              <Feather name="copy" size={14} color={colors.textSecondary} />
-            </TouchableOpacity>
-          ) : null}
-          {onShare ? (
-            <TouchableOpacity
-              style={[
-                styles.iconAction,
-                {
-                  backgroundColor: colors.surfaceAlt,
-                  borderColor: colors.border,
-                },
-              ]}
-              onPress={() => onShare(message)}
-              activeOpacity={0.88}
-              accessibilityLabel={t("share")}
-            >
-              <Feather name="share-2" size={14} color={colors.textSecondary} />
-            </TouchableOpacity>
-          ) : null}
-        </View>
-      ) : null}
-    </>
+  const content = (
+    <MessageRowSurface
+      messageId={message.id}
+      isUser={isUser}
+      selectable={selectable}
+    >
+      <ChatBubbleContent
+        message={message}
+        onCopy={onCopy}
+        onShare={onShare}
+        onRepeat={onRepeat}
+        onRetry={onRetry}
+        onOpenSpeakingSettings={onOpenSpeakingSettings}
+        repeatState={repeatState}
+        selectable={selectable}
+        showUsageStats={showUsageStats}
+      />
+    </MessageRowSurface>
   );
 
   return (
@@ -402,264 +85,17 @@ export function ChatBubble({
     >
       {onCopy && !selectable ? (
         <TouchableOpacity
+          style={styles.messageRowTouchTarget}
           activeOpacity={0.92}
           onLongPress={() => onCopy(message)}
           delayLongPress={220}
+          accessible={false}
         >
-          {isUser ? (
-            <LinearGradient
-              colors={[colors.accentGradientStart, colors.accentGradientEnd]}
-              start={{ x: 0.08, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={[
-                styles.bubble,
-                styles.bubbleUser,
-                selectable ? styles.bubbleSelectable : null,
-                {
-                  borderColor: "rgba(255, 255, 255, 0.14)",
-                  shadowColor: colors.glowStrong,
-                },
-              ]}
-            >
-              {bubbleContent}
-            </LinearGradient>
-          ) : (
-            <View
-              style={[
-                styles.bubble,
-                styles.bubbleAssistant,
-                selectable ? styles.bubbleSelectable : null,
-                {
-                  backgroundColor: colors.bubbleAssistant,
-                  borderColor: colors.border,
-                  shadowColor: isDark ? "#000000" : colors.glow,
-                },
-              ]}
-            >
-              {bubbleContent}
-            </View>
-          )}
+          {content}
         </TouchableOpacity>
-      ) : isUser ? (
-        <LinearGradient
-          colors={[colors.accentGradientStart, colors.accentGradientEnd]}
-          start={{ x: 0.08, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[
-            styles.bubble,
-            styles.bubbleUser,
-            selectable ? styles.bubbleSelectable : null,
-            {
-              borderColor: "rgba(255, 255, 255, 0.14)",
-              shadowColor: colors.glowStrong,
-            },
-          ]}
-        >
-          {bubbleContent}
-        </LinearGradient>
       ) : (
-        <View
-          style={[
-            styles.bubble,
-            styles.bubbleAssistant,
-            selectable ? styles.bubbleSelectable : null,
-            {
-              backgroundColor: colors.bubbleAssistant,
-              borderColor: colors.border,
-              shadowColor: isDark ? "#000000" : colors.glow,
-            },
-          ]}
-        >
-          {bubbleContent}
-        </View>
+        content
       )}
     </View>
   );
-}
-
-const styles = StyleSheet.create({
-  wrapper: { marginVertical: 5 },
-  wrapperUser: { alignItems: "flex-end" },
-  wrapperAssistant: { alignItems: "flex-start" },
-  bubble: {
-    maxWidth: "86%",
-    paddingHorizontal: 15,
-    paddingVertical: 13,
-    borderRadius: 22,
-    borderWidth: 1,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.18,
-    shadowRadius: 24,
-    elevation: 6,
-  },
-  bubbleUser: {
-    borderBottomRightRadius: 8,
-  },
-  bubbleAssistant: {
-    borderBottomLeftRadius: 8,
-  },
-  bubbleSelectable: {
-    width: "86%",
-  },
-  metaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: 8,
-    marginBottom: 10,
-  },
-  modelChip: {
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    borderWidth: 1,
-  },
-  statusChip: {
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    borderWidth: 1,
-  },
-  providerLabel: {
-    fontSize: 10,
-    letterSpacing: 1.1,
-    textTransform: "uppercase",
-    fontFamily: fonts.mono,
-  },
-  modelLabel: {
-    fontSize: 10,
-    fontFamily: fonts.mono,
-  },
-  statusChipLabel: {
-    fontSize: 10,
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-    fontFamily: fonts.mono,
-  },
-  content: {
-    fontSize: 15,
-    lineHeight: 22,
-    fontFamily: fonts.body,
-  },
-  selectableContent: {
-    width: "100%",
-    padding: 0,
-  },
-  noticeList: {
-    gap: 8,
-    marginTop: 10,
-  },
-  noticeCard: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 10,
-    borderRadius: 16,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 9,
-  },
-  noticeIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 1,
-  },
-  noticeCopy: {
-    flex: 1,
-    gap: 3,
-  },
-  noticeLabel: {
-    fontSize: 11,
-    letterSpacing: 0.9,
-    textTransform: "uppercase",
-    fontFamily: fonts.mono,
-  },
-  noticeText: {
-    fontSize: 12,
-    lineHeight: 18,
-    fontFamily: fonts.body,
-  },
-  noticeDetail: {
-    fontSize: 11,
-    lineHeight: 16,
-    fontFamily: fonts.mono,
-  },
-  referenceCard: {
-    alignSelf: "stretch",
-    marginTop: 10,
-    borderRadius: 16,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 9,
-    gap: 8,
-  },
-  referenceSummary: {
-    fontSize: 12,
-    lineHeight: 18,
-    fontFamily: fonts.body,
-  },
-  referenceHeading: {
-    fontSize: 10,
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    fontFamily: fonts.mono,
-  },
-  sourcesRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  sourceChip: {
-    maxWidth: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    borderRadius: 999,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-  },
-  sourceLabel: {
-    maxWidth: 180,
-    fontSize: 12,
-    fontFamily: fonts.body,
-  },
-  usageCard: {
-    alignSelf: "stretch",
-    marginTop: 10,
-    borderRadius: 16,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    gap: 4,
-  },
-  usageText: {
-    fontSize: 11,
-    lineHeight: 16,
-    fontFamily: fonts.mono,
-  },
-  actionRow: {
-    flexDirection: "row",
-    gap: 8,
-    marginTop: 12,
-  },
-  iconAction: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
 });

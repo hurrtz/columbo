@@ -7,8 +7,9 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { APP_MODAL_ORIENTATIONS } from "../constants/layout";
 import { useLocalization } from "../i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { fonts } from "../theme/typography";
@@ -42,7 +43,12 @@ export function ConversationMemoryModal({
   const hasSummary = trimmedSummary.length > 0;
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      supportedOrientations={APP_MODAL_ORIENTATIONS}
+    >
       <View
         style={[
           styles.overlay,
@@ -175,13 +181,13 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxWidth: 440,
-    borderRadius: 28,
+    borderRadius: 16,
     borderWidth: 1,
     padding: 22,
     shadowOffset: { width: 0, height: 24 },
-    shadowOpacity: 0.16,
-    shadowRadius: 40,
-    elevation: 10,
+    shadowOpacity: 0.12,
+    shadowRadius: 28,
+    elevation: 8,
   },
   header: {
     flexDirection: "row",
@@ -210,7 +216,7 @@ const styles = StyleSheet.create({
   closeButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 10,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
@@ -223,7 +229,7 @@ const styles = StyleSheet.create({
   },
   summaryCard: {
     marginTop: 16,
-    borderRadius: 22,
+    borderRadius: 12,
     borderWidth: 1,
     padding: 16,
     gap: 8,
@@ -247,7 +253,7 @@ const styles = StyleSheet.create({
   actionButton: {
     flex: 1,
     minHeight: 46,
-    borderRadius: 16,
+    borderRadius: 10,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",

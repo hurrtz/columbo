@@ -12,8 +12,6 @@ export function useMainScreenUiState() {
   const [settingsFocusTab, setSettingsFocusTab] = useState<SettingsTab | undefined>();
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [statusDetailsVisible, setStatusDetailsVisible] = useState(false);
-  const [transcriptVisible, setTranscriptVisible] = useState(false);
-  const [conversationMenuVisible, setConversationMenuVisible] = useState(false);
   const [setupGuideVisible, setSetupGuideVisible] = useState(false);
   const [memoryConversation, setMemoryConversation] =
     useState<Conversation | null>(null);
@@ -56,30 +54,12 @@ export function useMainScreenUiState() {
     setMemoryConversation(null);
   }, []);
 
-  const openTranscript = useCallback(() => {
-    setConversationMenuVisible(false);
-    setTranscriptVisible(true);
-  }, []);
-
-  const closeTranscript = useCallback(() => {
-    setConversationMenuVisible(false);
-    setTranscriptVisible(false);
-  }, []);
-
   const openStatusDetails = useCallback(() => {
     setStatusDetailsVisible(true);
   }, []);
 
   const closeStatusDetails = useCallback(() => {
     setStatusDetailsVisible(false);
-  }, []);
-
-  const closeConversationMenu = useCallback(() => {
-    setConversationMenuVisible(false);
-  }, []);
-
-  const toggleConversationMenu = useCallback(() => {
-    setConversationMenuVisible((previous) => !previous);
   }, []);
 
   const runAfterDrawerDismiss = useCallback(
@@ -107,8 +87,6 @@ export function useMainScreenUiState() {
     settingsFocusTab,
     drawerVisible,
     statusDetailsVisible,
-    transcriptVisible,
-    conversationMenuVisible,
     setupGuideVisible,
     memoryConversation,
     memoryVisible,
@@ -120,12 +98,8 @@ export function useMainScreenUiState() {
     closeSettings,
     openMemoryConversation,
     closeMemory,
-    openTranscript,
-    closeTranscript,
     openStatusDetails,
     closeStatusDetails,
-    closeConversationMenu,
-    toggleConversationMenu,
     runAfterDrawerDismiss,
     handleDrawerDismiss,
   };
