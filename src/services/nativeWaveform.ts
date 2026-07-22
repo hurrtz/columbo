@@ -39,6 +39,7 @@ type NativeWaveformModule = {
     itemId: string,
     samples: number[],
     durationMs: number,
+    elapsedMs: number,
   ): Promise<boolean>;
   stopOutputPlayback(itemId?: string | null): Promise<boolean>;
 };
@@ -131,6 +132,7 @@ export async function startNativeOutputWaveformPlayback(params: {
   itemId: string;
   samples: number[];
   durationMs: number;
+  elapsedMs?: number;
 }) {
   if (!supportsNativeOutputWaveformPlayback()) {
     logWaveformDebug("native-output-playback-unsupported", {
@@ -150,12 +152,14 @@ export async function startNativeOutputWaveformPlayback(params: {
     params.itemId,
     params.samples,
     params.durationMs,
+    Math.max(0, params.elapsedMs ?? 0),
   );
 
   logWaveformDebug("native-output-playback-start", {
     platform: Platform.OS,
     itemId: params.itemId,
     durationMs: params.durationMs,
+    elapsedMs: Math.max(0, params.elapsedMs ?? 0),
     sampleCount: params.samples.length,
     result,
   });

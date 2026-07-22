@@ -94,7 +94,7 @@ enum ColumboWaveformRendering {
     }
 
     let midY = bounds.midY
-    let amplitude = max(10, bounds.height * 0.31)
+    let amplitude = max(11, bounds.height * 0.41)
     let points: [CGPoint] = samples.enumerated().map { index, sample in
       let x = CGFloat(index) * max(1, bounds.width) / CGFloat(max(1, samples.count - 1))
       let y = midY - sample * amplitude
@@ -137,10 +137,10 @@ enum ColumboWaveformRendering {
     }
 
     let midY = bounds.midY
-    let amplitude = max(10, bounds.height * 0.31)
+    let amplitude = max(11, bounds.height * 0.41)
     let reversedPoints: [CGPoint] = samples.enumerated().reversed().map { index, sample in
       let x = CGFloat(index) * max(1, bounds.width) / CGFloat(max(1, samples.count - 1))
-      let y = midY + sample * amplitude * 0.82
+      let y = midY + sample * amplitude * 0.9
       return CGPoint(x: x, y: y)
     }
 
@@ -239,13 +239,29 @@ enum ColumboWaveformRendering {
       return samples
     }
 
+    let audibleMagnitudes = samples
+      .map(abs)
+      .filter { $0 >= 0.01 }
+      .sorted()
+    let referenceMagnitude: CGFloat
+    if audibleMagnitudes.isEmpty {
+      referenceMagnitude = 1
+    } else {
+      let percentileIndex = min(
+        audibleMagnitudes.count - 1,
+        Int(Double(audibleMagnitudes.count - 1) * 0.86)
+      )
+      referenceMagnitude = max(0.12, audibleMagnitudes[percentileIndex])
+    }
+    let adaptiveGain = min(4.2, max(1, 0.78 / referenceMagnitude))
+
     let shapedMagnitudes = samples.map { sample -> CGFloat in
       let magnitude = abs(sample)
       guard magnitude >= 0.01 else {
         return .zero
       }
 
-      return min(1, pow(magnitude, 0.8) * 1.2 + magnitude * 0.28)
+      return min(1, pow(magnitude, 0.9) * adaptiveGain)
     }
 
     let firstPass = shapedMagnitudes.enumerated().map { index, sample in
@@ -254,16 +270,10 @@ enum ColumboWaveformRendering {
       return previous * 0.24 + sample * 0.52 + next * 0.24
     }
 
-    let secondPass = firstPass.enumerated().map { index, sample in
+    return firstPass.enumerated().map { index, sample in
       let previous = firstPass[index - 1 >= 0 ? index - 1 : index]
       let next = firstPass[index + 1 < firstPass.count ? index + 1 : index]
-      return previous * 0.2 + sample * 0.6 + next * 0.2
-    }
-
-    return secondPass.enumerated().map { index, sample in
-      let previous = secondPass[index - 1 >= 0 ? index - 1 : index]
-      let next = secondPass[index + 1 < secondPass.count ? index + 1 : index]
-      return previous * 0.16 + sample * 0.68 + next * 0.16
+      return previous * 0.14 + sample * 0.72 + next * 0.14
     }
   }
 

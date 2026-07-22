@@ -223,6 +223,7 @@ class ColumboNativeWaveformModule(
     itemId: String,
     samples: ReadableArray,
     durationMs: Double,
+    elapsedMs: Double,
     promise: Promise,
   ) {
     if (itemId.isBlank()) {
@@ -238,6 +239,7 @@ class ColumboNativeWaveformModule(
       itemId = itemId,
       samples = samples.toDoubleList(),
       durationMs = durationMs,
+      elapsedMs = elapsedMs,
     )
     promise.resolve(true)
   }

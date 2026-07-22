@@ -290,21 +290,41 @@ export function resampleWaveformSamples(samples: number[], count: number) {
   });
 }
 
-export function getTrailingWaveformWindow(
+export function getPlaybackWaveformWindow(
   samples: number[],
   progress: number,
   count = OSCILLOSCOPE_SAMPLE_COUNT
 ) {
+  if (count <= 0) {
+    return [];
+  }
+
   if (!samples.length) {
     return EMPTY_OSCILLOSCOPE_SAMPLES.slice(0, count);
   }
 
-  const normalizedProgress = clamp(progress);
-  const currentIndex = Math.round(normalizedProgress * (samples.length - 1));
-  const slice = samples.slice(Math.max(0, currentIndex - count + 1), currentIndex + 1);
+  if (samples.length <= count) {
+    return resampleWaveformSamples(samples, count);
+  }
 
-  return [
-    ...Array.from({ length: Math.max(0, count - slice.length) }, () => 0),
-    ...slice,
-  ];
+  const normalizedProgress = clamp(progress);
+  const currentPosition = normalizedProgress * (samples.length - 1);
+  const playheadOffset = Math.max(0, count - 1) * 0.18;
+  const maximumStart = samples.length - count;
+  const startPosition = Math.min(
+    maximumStart,
+    Math.max(0, currentPosition - playheadOffset),
+  );
+
+  return Array.from({ length: count }, (_, index) => {
+    const position = startPosition + index;
+    const leftIndex = Math.floor(position);
+    const rightIndex = Math.min(samples.length - 1, leftIndex + 1);
+    const blend = position - leftIndex;
+
+    return clampSigned(
+      (samples[leftIndex] ?? 0) * (1 - blend) +
+        (samples[rightIndex] ?? 0) * blend,
+    );
+  });
 }

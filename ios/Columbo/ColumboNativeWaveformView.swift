@@ -81,6 +81,7 @@ final class ColumboWaveformView: UIView {
     fillLayer.frame = bounds
     glowLayer.frame = bounds
     waveformLayer.frame = bounds
+    updateBaselinePath()
     redrawCurrentFrame()
   }
 
@@ -156,10 +157,11 @@ final class ColumboWaveformView: UIView {
 
     let link = CADisplayLink(target: self, selector: #selector(handleDisplayLink))
     if #available(iOS 15.0, *) {
+      let maximumFramesPerSecond = Float(UIScreen.main.maximumFramesPerSecond)
       link.preferredFrameRateRange = CAFrameRateRange(
-        minimum: 40,
-        maximum: 120,
-        preferred: 60
+        minimum: min(60, maximumFramesPerSecond),
+        maximum: maximumFramesPerSecond,
+        preferred: maximumFramesPerSecond
       )
     } else {
       link.preferredFramesPerSecond = 60
@@ -197,8 +199,10 @@ final class ColumboWaveformView: UIView {
     } else {
       let previousWeight: CGFloat = waveformChannel == .output ? 0.42 : 0.34
       let nextWeight: CGFloat = 1 - previousWeight
-      renderedSamples = zip(renderedSamples, spatiallySmoothed).map {
-        $0 * previousWeight + $1 * nextWeight
+      for index in renderedSamples.indices {
+        renderedSamples[index] =
+          renderedSamples[index] * previousWeight +
+          spatiallySmoothed[index] * nextWeight
       }
     }
 
@@ -209,12 +213,6 @@ final class ColumboWaveformView: UIView {
     guard bounds.width > 1, bounds.height > 1 else {
       return
     }
-
-    baselineLayer.path =
-      ColumboWaveformRendering.buildBaselinePath(
-        bounds: bounds,
-        displayScale: displayScale
-      ).cgPath
 
     if resolvedRenderStyle == .envelope {
       let inputLinePath = ColumboWaveformRendering.buildEnvelopeLinePath(
@@ -251,6 +249,19 @@ final class ColumboWaveformView: UIView {
             displayScale: displayScale
           ).cgPath
         : nil
+  }
+
+  private func updateBaselinePath() {
+    guard bounds.width > 1, bounds.height > 1 else {
+      baselineLayer.path = nil
+      return
+    }
+
+    baselineLayer.path =
+      ColumboWaveformRendering.buildBaselinePath(
+        bounds: bounds,
+        displayScale: displayScale
+      ).cgPath
   }
 }
 

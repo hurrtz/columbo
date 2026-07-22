@@ -38,13 +38,14 @@ object ColumboWaveformStateCoordinator {
     itemId: String,
     samples: List<Double>,
     durationMs: Double,
+    elapsedMs: Double = 0.0,
   ) {
     synchronized(lock) {
       playbackStateByChannel[channel] = PlaybackState(
         itemId = itemId,
         samples = normalize(samples),
         durationMs = max(1.0, durationMs),
-        startedAtMs = System.currentTimeMillis(),
+        startedAtMs = System.currentTimeMillis() - elapsedMs.coerceAtLeast(0.0).toLong(),
       )
     }
   }

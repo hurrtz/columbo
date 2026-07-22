@@ -15,7 +15,9 @@ final class ColumboWaveformCoordinator {
   static let shared = ColumboWaveformCoordinator()
 
   private let stateLock = NSLock()
-  private let defaultSampleCount = 192
+  // Match the rendered oscilloscope window so the wave front fills the dock
+  // quickly instead of spending the first half of short clips mostly flat.
+  private let defaultSampleCount = 96
   private let inputVisualDelayMs: CFTimeInterval = 72
   private let maxLiveSnapshots = 40
   private var liveSnapshotsByChannel: [ColumboWaveformChannel: [ColumboWaveformLiveSnapshot]]
@@ -103,14 +105,15 @@ final class ColumboWaveformCoordinator {
     channel: ColumboWaveformChannel,
     itemId: String,
     samples: [Double],
-    durationMs: Double
+    durationMs: Double,
+    elapsedMs: Double = 0
   ) {
     stateLock.lock()
     playbackStateByChannel[channel] = ColumboWaveformPlaybackState(
       itemId: itemId,
       samples: ColumboWaveformMath.normalize(samples: samples),
       durationMs: max(1, durationMs),
-      startedAt: CACurrentMediaTime()
+      startedAt: CACurrentMediaTime() - max(0, elapsedMs) / 1_000
     )
     stateLock.unlock()
   }

@@ -133,18 +133,34 @@ enum ColumboWaveformMath {
       1,
       max(0, ((now - playbackState.startedAt) * 1000) / max(1, playbackState.durationMs))
     )
-    let currentIndex = Int(
-      round(progress * Double(max(0, playbackState.samples.count - 1)))
-    )
-    let lowerBound = max(0, currentIndex - defaultSampleCount + 1)
-    let window = Array(playbackState.samples[lowerBound...currentIndex])
-
-    if window.count >= defaultSampleCount {
-      return window
+    let sampleCount = max(1, defaultSampleCount)
+    guard playbackState.samples.count > sampleCount else {
+      return (0..<sampleCount).map { index in
+        let position =
+          CGFloat(index) / CGFloat(max(1, sampleCount - 1)) *
+          CGFloat(max(0, playbackState.samples.count - 1))
+        return sampleValue(in: playbackState.samples, at: position)
+      }
     }
 
-    return
-      Array(repeating: 0, count: defaultSampleCount - window.count) +
-      window
+    // Keep a small amount of waveform history to the left of the implied
+    // playhead, while rendering upcoming audio across the rest of the dock.
+    // The previous trailing-only window was padded with silence at startup,
+    // producing a conspicuous wave front that crawled in from the right.
+    let currentPosition =
+      CGFloat(progress) * CGFloat(playbackState.samples.count - 1)
+    let playheadOffset = CGFloat(sampleCount - 1) * 0.18
+    let maximumStart = CGFloat(playbackState.samples.count - sampleCount)
+    let startPosition = min(
+      maximumStart,
+      max(0, currentPosition - playheadOffset)
+    )
+
+    return (0..<sampleCount).map { index in
+      sampleValue(
+        in: playbackState.samples,
+        at: startPosition + CGFloat(index)
+      )
+    }
   }
 }

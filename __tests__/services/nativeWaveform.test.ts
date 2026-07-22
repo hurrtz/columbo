@@ -4,7 +4,8 @@ describe("nativeWaveform", () => {
     jest.dontMock("react-native");
   });
 
-  it("supports output waveform playback on Android when native methods exist", () => {
+  it("supports Android output playback and forwards the elapsed audio offset", async () => {
+    const startOutputPlayback = jest.fn(async () => true);
     jest.doMock("../../src/utils/waveformDebug", () => ({
       logWaveformDebug: jest.fn(),
     }));
@@ -18,7 +19,7 @@ describe("nativeWaveform", () => {
           stopRecording: jest.fn(),
           cancelRecording: jest.fn(),
           analyzeAudioFile: jest.fn(),
-          startOutputPlayback: jest.fn(),
+          startOutputPlayback,
           stopOutputPlayback: jest.fn(),
         },
       },
@@ -28,9 +29,22 @@ describe("nativeWaveform", () => {
     }));
 
     const {
+      startNativeOutputWaveformPlayback,
       supportsNativeOutputWaveformPlayback,
     } = require("../../src/services/nativeWaveform");
 
     expect(supportsNativeOutputWaveformPlayback()).toBe(true);
+    await startNativeOutputWaveformPlayback({
+      itemId: "audio-1",
+      samples: [0.1, 0.5, 0.2],
+      durationMs: 4_000,
+      elapsedMs: 850,
+    });
+    expect(startOutputPlayback).toHaveBeenCalledWith(
+      "audio-1",
+      [0.1, 0.5, 0.2],
+      4_000,
+      850,
+    );
   });
 });

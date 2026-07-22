@@ -15,10 +15,15 @@ const EMPTY_FRAME: WaveformFrame = {
 
 let currentFrame: WaveformFrame = EMPTY_FRAME;
 const listeners = new Set<() => void>();
+const variantListeners = new Set<() => void>();
 
 export function publishWaveformFrame(frame: WaveformFrame) {
+  const variantChanged = currentFrame.variant !== frame.variant;
   currentFrame = frame;
   listeners.forEach((listener) => listener());
+  if (variantChanged) {
+    variantListeners.forEach((listener) => listener());
+  }
 }
 
 export function resetWaveformFrame() {
@@ -27,6 +32,7 @@ export function resetWaveformFrame() {
   }
   currentFrame = EMPTY_FRAME;
   listeners.forEach((listener) => listener());
+  variantListeners.forEach((listener) => listener());
 }
 
 function subscribe(listener: () => void) {
@@ -40,6 +46,25 @@ function getSnapshot() {
   return currentFrame;
 }
 
+function subscribeToVariant(listener: () => void) {
+  variantListeners.add(listener);
+  return () => {
+    variantListeners.delete(listener);
+  };
+}
+
+function getVariantSnapshot() {
+  return currentFrame.variant;
+}
+
 export function useWaveformFrame(): WaveformFrame {
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+}
+
+export function useWaveformVariant(): WaveformVisualizationVariant {
+  return useSyncExternalStore(
+    subscribeToVariant,
+    getVariantSnapshot,
+    getVariantSnapshot,
+  );
 }

@@ -25,6 +25,7 @@ RCT_EXTERN_METHOD(analyzeAudioFile:(NSString *)uri
 RCT_EXTERN_METHOD(startOutputPlayback:(NSString *)itemId
                   samples:(NSArray<NSNumber *> *)samples
                   durationMs:(NSNumber *)durationMs
+                  elapsedMs:(NSNumber *)elapsedMs
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 

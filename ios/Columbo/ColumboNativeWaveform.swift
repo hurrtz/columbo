@@ -127,11 +127,12 @@ final class ColumboNativeWaveform: RCTEventEmitter {
     }
   }
 
-  @objc(startOutputPlayback:samples:durationMs:resolver:rejecter:)
+  @objc(startOutputPlayback:samples:durationMs:elapsedMs:resolver:rejecter:)
   func startOutputPlayback(
     _ itemId: String,
     samples: [NSNumber],
     durationMs: NSNumber,
+    elapsedMs: NSNumber,
     resolver resolve: @escaping RCTPromiseResolveBlock,
     rejecter reject: @escaping RCTPromiseRejectBlock
   ) {
@@ -148,13 +149,15 @@ final class ColumboNativeWaveform: RCTEventEmitter {
           "itemId": itemId,
           "sampleCount": normalizedSamples.count,
           "durationMs": durationMs.doubleValue,
+          "elapsedMs": elapsedMs.doubleValue,
         ]
       )
       ColumboWaveformCoordinator.shared.startPlayback(
         channel: .output,
         itemId: itemId,
         samples: normalizedSamples,
-        durationMs: durationMs.doubleValue
+        durationMs: durationMs.doubleValue,
+        elapsedMs: elapsedMs.doubleValue
       )
       resolve(true)
     }
