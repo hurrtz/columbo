@@ -1,27 +1,34 @@
 import React from "react";
-import { Image, Text } from "react-native";
-import { SvgUri } from "react-native-svg";
+import { Text } from "react-native";
+import type { SvgProps } from "react-native-svg";
+import AlibabaQwenIcon from "../../assets/providers/alibaba-qwen-dashscope.svg";
+import AnthropicIcon from "../../assets/providers/anthropic.svg";
+import ByteDanceIcon from "../../assets/providers/bytedance-doubao-seed.svg";
+import DeepSeekIcon from "../../assets/providers/deepseek.svg";
+import GoogleIcon from "../../assets/providers/google-vertex-ai-studio.svg";
+import MistralIcon from "../../assets/providers/mistral-ai.svg";
+import MoonshotIcon from "../../assets/providers/moonshot-ai-kimi.svg";
+import OpenAIIcon from "../../assets/providers/openai.svg";
+import PerplexityIcon from "../../assets/providers/perplexity.svg";
+import XaiIcon from "../../assets/providers/xai.svg";
 import { Provider } from "../types";
 
-const PROVIDER_ICON_ASSETS: Record<string, number> = {
-  "alibaba-qwen-dashscope": require(
-    "../../assets/providers/alibaba-qwen-dashscope.svg"
-  ),
-  anthropic: require("../../assets/providers/anthropic.svg"),
-  "bytedance-doubao-seed": require(
-    "../../assets/providers/bytedance-doubao-seed.svg"
-  ),
-  deepseek: require("../../assets/providers/deepseek.svg"),
-  gemini: require("../../assets/providers/google-vertex-ai-studio.svg"),
-  "google-vertex-ai-studio": require(
-    "../../assets/providers/google-vertex-ai-studio.svg"
-  ),
-  mistral: require("../../assets/providers/mistral-ai.svg"),
-  "mistral-ai": require("../../assets/providers/mistral-ai.svg"),
-  "moonshot-ai-kimi": require("../../assets/providers/moonshot-ai-kimi.svg"),
-  openai: require("../../assets/providers/openai.svg"),
-  perplexity: require("../../assets/providers/perplexity.svg"),
-  xai: require("../../assets/providers/xai.svg"),
+const PROVIDER_ICON_COMPONENTS: Record<
+  string,
+  React.ComponentType<SvgProps>
+> = {
+  "alibaba-qwen-dashscope": AlibabaQwenIcon,
+  anthropic: AnthropicIcon,
+  "bytedance-doubao-seed": ByteDanceIcon,
+  deepseek: DeepSeekIcon,
+  gemini: GoogleIcon,
+  "google-vertex-ai-studio": GoogleIcon,
+  mistral: MistralIcon,
+  "mistral-ai": MistralIcon,
+  "moonshot-ai-kimi": MoonshotIcon,
+  openai: OpenAIIcon,
+  perplexity: PerplexityIcon,
+  xai: XaiIcon,
 };
 
 const PROVIDER_ICON_SIZES: Record<string, { width: number; height: number }> = {
@@ -39,6 +46,7 @@ interface ProviderIconProps {
   provider: Provider | string;
   color: string;
   label?: string;
+  size?: number;
 }
 
 function getFallbackProviderGlyph(value: string) {
@@ -55,10 +63,15 @@ function getFallbackProviderGlyph(value: string) {
   return normalized.slice(0, 2) || "AI";
 }
 
-export function ProviderIcon({ provider, color, label }: ProviderIconProps) {
-  const asset = PROVIDER_ICON_ASSETS[provider];
+export function ProviderIcon({
+  provider,
+  color,
+  label,
+  size: requestedSize,
+}: ProviderIconProps) {
+  const Icon = PROVIDER_ICON_COMPONENTS[provider];
 
-  if (!asset) {
+  if (!Icon) {
     return (
       <Text
         style={{
@@ -73,18 +86,21 @@ export function ProviderIcon({ provider, color, label }: ProviderIconProps) {
     );
   }
 
-  const uri = Image.resolveAssetSource(asset).uri;
-  const size = PROVIDER_ICON_SIZES[provider] ?? {
-    width: 24,
-    height: 24,
-  };
+  const size = requestedSize
+    ? { width: requestedSize, height: requestedSize }
+    : PROVIDER_ICON_SIZES[provider] ?? {
+        width: 24,
+        height: 24,
+      };
 
   return (
-    <SvgUri
+    <Icon
       width={size.width}
       height={size.height}
-      uri={uri}
       color={color}
+      fill={color}
+      accessible={false}
+      testID={`provider-icon-${provider}`}
     />
   );
 }

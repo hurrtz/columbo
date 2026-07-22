@@ -1,11 +1,15 @@
 module.exports = {
-  preset: 'react-native',
+  preset: "react-native",
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
+    "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(jest-)?react-native|@react-native(-community)?|@react-native-async-storage|react-native-uuid|@testing-library)',
+    "node_modules/(?!(jest-)?react-native|@react-native(-community)?|@react-native-async-storage|react-native-uuid|@testing-library)",
   ],
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
-  testMatch: ['**/__tests__/**/*.test.(ts|tsx|js)'],
+  moduleNameMapper: {
+    "\\.svg$": "<rootDir>/__mocks__/svgMock.js",
+    "^@expo/vector-icons/Feather$": "<rootDir>/__mocks__/FeatherIcon.js",
+  },
+  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "svg"],
+  testMatch: ["**/__tests__/**/*.test.(ts|tsx|js)"],
 };
