@@ -4,10 +4,22 @@ export function splitIntoSentences(text: string): string[] {
   const result: string[] = [];
   let current = "";
 
-  for (const char of text) {
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
     current += char;
 
-    if (char === "." || char === "!" || char === "?" || char === "\n") {
+    const previousChar = index > 0 ? text[index - 1] : "";
+    const nextChar = index + 1 < text.length ? text[index + 1] : "";
+    const isInternalPeriod =
+      char === "." &&
+      ((/[A-Za-z0-9]/.test(previousChar) &&
+        /[A-Za-z0-9]/.test(nextChar)) ||
+        nextChar === ".");
+
+    if (
+      !isInternalPeriod &&
+      (char === "." || char === "!" || char === "?" || char === "\n")
+    ) {
       result.push(current);
       current = "";
     }

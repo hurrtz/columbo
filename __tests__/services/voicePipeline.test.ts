@@ -741,6 +741,57 @@ describe("runVoicePipeline", () => {
     expect(callbacks.onAudioReady).toHaveBeenCalledTimes(2);
   });
 
+  it("does not synthesize a streamed domain as a tiny trailing fragment", async () => {
+    (streamChat as jest.Mock).mockImplementation(
+      async ({
+        onChunk,
+        onDone,
+      }: {
+        onChunk: (text: string) => void;
+        onDone: (text: string) => Promise<void>;
+      }) => {
+        onChunk("The official site is x.");
+        await Promise.resolve();
+        expect(synthesizeSpeech).not.toHaveBeenCalled();
+        onChunk("ai.");
+        await onDone("The official site is x.ai.");
+      },
+    );
+
+    (synthesizeSpeech as jest.Mock).mockResolvedValueOnce("/tmp/domain.mp3");
+
+    await runVoicePipeline({
+      transcriptionOverride: "Find the official site.",
+      messages: [],
+      model: "gpt-5.4",
+      provider: "openai",
+      providerApiKey: "sk-test",
+      sttMode: "native",
+      ttsMode: "provider",
+      ttsProvider: "openai",
+      ttsApiKey: "sk-test",
+      ttsVoice: "alloy",
+      replyPlayback: "stream",
+      assistantInstructions: "You are a voice assistant.",
+      responseLength: "normal",
+      responseTone: "professional",
+      language: "en",
+      callbacks: {
+        onTranscription: jest.fn(),
+        onChunk: jest.fn(),
+        onResponseDone: jest.fn(),
+        onAudioReady: jest.fn(),
+        onSpeechTextReady: jest.fn(),
+        onError: jest.fn(),
+      },
+    });
+
+    expect(synthesizeSpeech).toHaveBeenCalledTimes(1);
+    expect(synthesizeSpeech).toHaveBeenCalledWith(
+      expect.objectContaining({ text: "The official site is x.ai." }),
+    );
+  });
+
   it("chunks long provider TTS replies in wait mode", async () => {
     const longReply = Array.from(
       { length: 180 },

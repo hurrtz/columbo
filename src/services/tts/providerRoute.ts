@@ -67,8 +67,7 @@ async function withTransientTtsRetries<T>(request: () => Promise<T>) {
       const retryLimit =
         error instanceof TtsTimeoutError ? 1 : TTS_RETRY_DELAYS_MS.length;
       const shouldRetry =
-        attempt < retryLimit &&
-        isRetryableTtsTransportError(error);
+        attempt < retryLimit && isRetryableTtsTransportError(error);
 
       if (!shouldRetry) {
         throw error;
@@ -199,9 +198,7 @@ export async function synthesizeProviderSpeech(params: {
 
   if (
     provider === "alibaba-qwen-dashscope" &&
-    !qwenRegionSupportsAppSpeech(
-      parseQwenApiCredential(apiKey ?? "").region,
-    )
+    !qwenRegionSupportsAppSpeech(parseQwenApiCredential(apiKey ?? "").region)
   ) {
     throw new Error(translate(language, "qwenSpeechUnavailableInUs"));
   }
@@ -211,6 +208,15 @@ export async function synthesizeProviderSpeech(params: {
     requestedVoice: voice,
     config,
   });
+
+  if (
+    config.kind === "binary" &&
+    config.requestFormat === "mistral-speech" &&
+    !selectedVoice
+  ) {
+    throw new Error(translate(language, "mistralVoiceIdRequired"));
+  }
+
   const selectedModel = getSelectedProviderModel({
     provider,
     providerModel,

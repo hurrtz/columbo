@@ -81,7 +81,13 @@ describe("splitIntoSentences", () => {
   });
 
   it("handles consecutive terminators", () => {
-    expect(splitIntoSentences("Wait...")).toEqual(["Wait.", ".", "."]);
+    expect(splitIntoSentences("Wait...")).toEqual(["Wait..."]);
+  });
+
+  it("does not split domains, decimals, or dotted abbreviations", () => {
+    expect(
+      splitIntoSentences("Visit x.ai. Version 1.2 works in the U.S."),
+    ).toEqual(["Visit x.ai.", " Version 1.2 works in the U.S."]);
   });
 });
 
@@ -137,6 +143,12 @@ describe("splitTextForTts", () => {
     const chunks = splitTextForTts("Hello   world.   Goodbye   world.");
     expect(chunks).toEqual(["Hello world. Goodbye world."]);
   });
+
+  it("keeps domains intact while normalizing TTS text", () => {
+    expect(splitTextForTts("Visit x.ai. It works.")).toEqual([
+      "Visit x.ai. It works.",
+    ]);
+  });
 });
 
 describe("synthesizeSpeech", () => {
@@ -157,9 +169,9 @@ describe("synthesizeSpeech", () => {
     expect(result).toMatch(/^\/tmp\/tts-.*\.wav$/);
     expect(fetch).not.toHaveBeenCalled();
     expect(FileSystem.writeAsStringAsync).toHaveBeenCalledTimes(1);
-    expect((FileSystem.writeAsStringAsync as jest.Mock).mock.calls[0][1]).toMatch(
-      /^UklGR/,
-    );
+    expect(
+      (FileSystem.writeAsStringAsync as jest.Mock).mock.calls[0][1],
+    ).toMatch(/^UklGR/);
   });
 
   it("calls the configured provider TTS API and returns a cached file path", async () => {
@@ -404,12 +416,7 @@ describe("synthesizeSpeech", () => {
     });
   });
 
-  it("lets Mistral use its default voice when no voice ID is saved", async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ audio_data: "ZmFrZQ==" }),
-    });
-
+  it("rejects Mistral speech locally when no voice ID is saved", async () => {
     await expect(
       synthesizeSpeech({
         text: "Hallo Welt",
@@ -419,14 +426,10 @@ describe("synthesizeSpeech", () => {
         apiKey: "mistral-test-key",
         language: "en",
       }),
-    ).resolves.toMatch(/^\/tmp\/tts-.*\.mp3$/);
-
-    const [, options] = (fetch as jest.Mock).mock.calls[0];
-    expect(JSON.parse(options.body)).toEqual({
-      model: "voxtral-mini-tts-2603",
-      input: "Hallo Welt",
-      response_format: "mp3",
-    });
+    ).rejects.toThrow(
+      "Enter a Mistral preset or custom voice ID before using speech output.",
+    );
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it("splits long provider speech into multiple synthesis requests", async () => {
@@ -530,7 +533,7 @@ describe("synthesizeSpeech", () => {
     expect(getProviderTtsTargetChunkChars("gemini")).toBe(600);
     expect(getProviderTtsTargetChunkChars("alibaba-qwen-dashscope")).toBe(550);
     expect(getProviderTtsTargetChunkChars("openai")).toBe(600);
-    expect(getProviderTtsTargetChunkChars("xai")).toBe(600);
+    expect(getProviderTtsTargetChunkChars("xai")).toBe(240);
   });
 
   it("gives slower provider TTS routes realistic timeout budgets", () => {
