@@ -14,6 +14,7 @@ import {
 } from "./types";
 
 const mutationQueues = new Map<string, Promise<void>>();
+const SECURE_STORE_READ_BATCH_SIZE = 3;
 
 function enqueueSettingsMutation(
   key: string,
@@ -82,24 +83,73 @@ export function persistNormalizedPublicSettings(
 }
 
 export async function loadStoredApiKeys(): Promise<ProviderApiKeys> {
-  const apiKeyEntries = await Promise.all(
-    RUNTIME_PROVIDER_IDS.map(async (provider) => {
-      const stored = await SecureStore.getItemAsync(getApiKeyStorageKey(provider));
-      return [provider, stored?.trim() ?? ""] as const;
-    }),
-  );
+  const apiKeys = Object.fromEntries(
+    RUNTIME_PROVIDER_IDS.map((provider) => [provider, ""]),
+  ) as ProviderApiKeys;
+  const failedStorageKeys = new Set<string>();
 
-  const apiKeys = Object.fromEntries(apiKeyEntries) as ProviderApiKeys;
+  const readStoredValue = async (key: string, label: string) => {
+    try {
+      return await SecureStore.getItemAsync(key);
+    } catch (error) {
+      failedStorageKeys.add(key);
+      console.error(`[settings-storage] failed to load API key for ${label}`, error);
+      return null;
+    }
+  };
+
+  for (
+    let startIndex = 0;
+    startIndex < RUNTIME_PROVIDER_IDS.length;
+    startIndex += SECURE_STORE_READ_BATCH_SIZE
+  ) {
+    const providerBatch = RUNTIME_PROVIDER_IDS.slice(
+      startIndex,
+      startIndex + SECURE_STORE_READ_BATCH_SIZE,
+    );
+    const apiKeyEntries = await Promise.all(
+      providerBatch.map(async (provider) => {
+        const stored = await readStoredValue(
+          getApiKeyStorageKey(provider),
+          provider,
+        );
+        return [provider, stored?.trim() ?? ""] as const;
+      }),
+    );
+
+    for (const [provider, apiKey] of apiKeyEntries) {
+      apiKeys[provider] = apiKey;
+    }
+  }
 
   // Migrate a legacy standalone Grok voice key onto the merged xAI provider.
-  if (!apiKeys.xai) {
-    const legacyGrokKey = await SecureStore.getItemAsync(
-      `${API_KEY_STORAGE_PREFIX}.grok`,
+  const xaiStorageKey = getApiKeyStorageKey("xai");
+  if (!apiKeys.xai && !failedStorageKeys.has(xaiStorageKey)) {
+    const legacyGrokStorageKey = `${API_KEY_STORAGE_PREFIX}.grok`;
+    const legacyGrokKey = await readStoredValue(
+      legacyGrokStorageKey,
+      "legacy grok",
     );
 
     if (legacyGrokKey?.trim()) {
-      apiKeys.xai = legacyGrokKey.trim();
+      const migratedApiKey = legacyGrokKey.trim();
+      apiKeys.xai = migratedApiKey;
+
+      try {
+        await SecureStore.setItemAsync(xaiStorageKey, migratedApiKey);
+        await SecureStore.deleteItemAsync(legacyGrokStorageKey);
+      } catch (error) {
+        console.error(
+          "[settings-storage] failed to persist the legacy grok API key migration",
+          error,
+        );
+        reportPersistenceAlert("settings", "save");
+      }
     }
+  }
+
+  if (failedStorageKeys.size > 0) {
+    reportPersistenceAlert("settings", "load");
   }
 
   return apiKeys;
