@@ -1,30 +1,53 @@
 import React from "react";
-import { fireEvent } from "@testing-library/react-native";
+import { StyleSheet, useWindowDimensions } from "react-native";
+import { fireEvent, within } from "@testing-library/react-native";
 
 import { MainScreen } from "../../src/screens/MainScreen";
 import { DEFAULT_SETTINGS, type Settings } from "../../src/types";
 import { getDefaultModelForProvider } from "../../src/utils/responseModes";
 import { renderWithProviders } from "../test-utils/renderWithProviders";
 
+jest.mock("react-native", () => {
+  const actual = jest.requireActual("react-native");
+  const mockedUseWindowDimensions = jest.fn(() => ({
+    fontScale: 1,
+    height: 932,
+    scale: 3,
+    width: 430,
+  }));
+
+  return new Proxy(actual, {
+    get(target, property, receiver) {
+      return property === "useWindowDimensions"
+        ? mockedUseWindowDimensions
+        : Reflect.get(target, property, receiver);
+    },
+  });
+});
+
+const mockUseWindowDimensions = jest.mocked(useWindowDimensions);
+
 jest.mock("@expo/vector-icons", () => ({
   Feather: ({ children }: { children?: React.ReactNode }) => children ?? null,
 }));
 
 jest.mock("react-native-safe-area-context", () => ({
-  SafeAreaView: ({ children }: { children: React.ReactNode }) => {
+  SafeAreaView: ({
+    children,
+    edges,
+  }: {
+    children: React.ReactNode;
+    edges?: string[];
+  }) => {
     const React = require("react");
     const { View } = require("react-native");
-    return React.createElement(View, null, children);
+    return React.createElement(
+      View,
+      { testID: "main-safe-area", edges },
+      children,
+    );
   },
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
-}));
-
-jest.mock("expo-linear-gradient", () => ({
-  LinearGradient: ({ children }: { children: React.ReactNode }) => {
-    const React = require("react");
-    const { View } = require("react-native");
-    return React.createElement(View, null, children);
-  },
 }));
 
 jest.mock("expo-status-bar", () => ({
@@ -122,6 +145,7 @@ jest.mock("../../src/hooks/useVoicePipeline", () => ({
 }));
 
 jest.mock("../../src/services/llm", () => ({
+  generateConversationTitle: jest.fn(async () => "Generated title"),
   validateProviderConnection: jest.fn(async () => undefined),
 }));
 
@@ -144,11 +168,13 @@ jest.mock("../../src/screens/main/MainScreenTopBar", () => ({
     const children = [];
 
     if (onToggleDebugLog) {
-      children.push(React.createElement(
-        TouchableOpacity,
-        { key: "debug-log", onPress: onToggleDebugLog },
-        React.createElement(Text, null, "toggle-debug-log"),
-      ));
+      children.push(
+        React.createElement(
+          TouchableOpacity,
+          { key: "debug-log", onPress: onToggleDebugLog },
+          React.createElement(Text, null, "toggle-debug-log"),
+        ),
+      );
     }
 
     children.push(
@@ -169,18 +195,19 @@ jest.mock("../../src/screens/main/MainScreenTopBar", () => ({
 }));
 
 jest.mock("../../src/screens/main/MainScreenRouteCard", () => ({
-  MainScreenRouteCard: ({ showStyleChip }: { showStyleChip?: boolean }) => {
+  MainScreenRouteCard: () => {
     const React = require("react");
     const { Text } = require("react-native");
-    return React.createElement(
-      Text,
-      null,
-      showStyleChip ? "route-card-with-style-chip" : "route-card",
-    );
+    return React.createElement(Text, null, "route-card");
   },
 }));
 
 jest.mock("../../src/screens/main/MainScreenVoiceStage", () => ({
+  MainScreenStatusStrip: () => {
+    const React = require("react");
+    const { Text } = require("react-native");
+    return React.createElement(Text, null, "status-strip");
+  },
   MainScreenVoiceStage: ({ disabled }: { disabled?: boolean }) => {
     const React = require("react");
     const { Text } = require("react-native");
@@ -193,13 +220,28 @@ jest.mock("../../src/screens/main/MainScreenVoiceStage", () => ({
 }));
 
 jest.mock("../../src/screens/main/TranscriptPreviewCard", () => ({
-  TranscriptPreviewCard: ({ showWhenEmpty }: { showWhenEmpty?: boolean }) => {
+  TranscriptPreviewCard: ({
+    showStyleControl,
+    showWhenEmpty,
+  }: {
+    showStyleControl?: boolean;
+    showWhenEmpty?: boolean;
+  }) => {
     const React = require("react");
-    const { Text } = require("react-native");
+    const { Text, View } = require("react-native");
     return React.createElement(
-      Text,
-      null,
-      showWhenEmpty ? "transcript-preview:empty-visible" : "transcript-preview",
+      View,
+      { testID: "transcript-preview" },
+      React.createElement(
+        Text,
+        null,
+        showWhenEmpty
+          ? "transcript-preview:empty-visible"
+          : "transcript-preview",
+      ),
+      showStyleControl
+        ? React.createElement(Text, null, "transcript-style-control")
+        : null,
     );
   },
 }));
@@ -208,23 +250,40 @@ jest.mock("../../src/screens/main/StatusDetailsModal", () => ({
   StatusDetailsModal: ({ visible }: { visible: boolean }) => {
     const React = require("react");
     const { Text } = require("react-native");
-    return React.createElement(Text, null, visible ? "status:open" : "status:closed");
-  },
-}));
-
-jest.mock("../../src/screens/main/TranscriptModal", () => ({
-  TranscriptModal: ({ visible }: { visible: boolean }) => {
-    const React = require("react");
-    const { Text } = require("react-native");
-    return React.createElement(Text, null, visible ? "transcript:open" : "transcript:closed");
+    return React.createElement(
+      Text,
+      null,
+      visible ? "status:open" : "status:closed",
+    );
   },
 }));
 
 jest.mock("../../src/components/SettingsModal", () => ({
-  SettingsModal: ({ visible }: { visible: boolean }) => {
+  SettingsModal: ({
+    visible,
+    onOpenSetupGuide,
+  }: {
+    visible: boolean;
+    onOpenSetupGuide?: () => void;
+  }) => {
     const React = require("react");
-    const { Text } = require("react-native");
-    return React.createElement(Text, null, visible ? "settings:open" : "settings:closed");
+    const { Text, TouchableOpacity, View } = require("react-native");
+    return React.createElement(
+      View,
+      null,
+      React.createElement(
+        Text,
+        null,
+        visible ? "settings:open" : "settings:closed",
+      ),
+      visible && onOpenSetupGuide
+        ? React.createElement(
+            TouchableOpacity,
+            { onPress: onOpenSetupGuide },
+            React.createElement(Text, null, "guided-setup-shortcut"),
+          )
+        : null,
+    );
   },
 }));
 
@@ -232,7 +291,11 @@ jest.mock("../../src/components/SetupGuideModal", () => ({
   SetupGuideModal: ({ visible }: { visible: boolean }) => {
     const React = require("react");
     const { Text } = require("react-native");
-    return React.createElement(Text, null, visible ? "setup:open" : "setup:closed");
+    return React.createElement(
+      Text,
+      null,
+      visible ? "setup:open" : "setup:closed",
+    );
   },
 }));
 
@@ -240,7 +303,11 @@ jest.mock("../../src/components/ConversationMemoryModal", () => ({
   ConversationMemoryModal: ({ visible }: { visible: boolean }) => {
     const React = require("react");
     const { Text } = require("react-native");
-    return React.createElement(Text, null, visible ? "memory:open" : "memory:closed");
+    return React.createElement(
+      Text,
+      null,
+      visible ? "memory:open" : "memory:closed",
+    );
   },
 }));
 
@@ -248,7 +315,11 @@ jest.mock("../../src/components/ConversationDrawer", () => ({
   ConversationDrawer: ({ visible }: { visible: boolean }) => {
     const React = require("react");
     const { Text } = require("react-native");
-    return React.createElement(Text, null, visible ? "drawer:open" : "drawer:closed");
+    return React.createElement(
+      Text,
+      null,
+      visible ? "drawer:open" : "drawer:closed",
+    );
   },
 }));
 
@@ -264,6 +335,8 @@ jest.mock("../../src/screens/main/useSetupGuideController", () => ({
   useSetupGuideController: jest.fn(() => ({
     handleDismissSetupGuide: jest.fn(),
     handleChooseSetupPreset: jest.fn(),
+    handleOpenSetupGuide: jest.fn(),
+    openedFromSettings: false,
   })),
 }));
 
@@ -325,17 +398,49 @@ function createSharedSettingsValue(settingsOverrides: Partial<Settings> = {}) {
 
 describe("MainScreen", () => {
   beforeEach(() => {
+    mockUseWindowDimensions.mockReturnValue({
+      fontScale: 1,
+      height: 932,
+      scale: 3,
+      width: 430,
+    });
     useSharedSettings.mockReturnValue(createSharedSettingsValue());
   });
 
   it("renders the shell with the route card", () => {
     const screen = renderWithProviders(<MainScreen />);
+    const inputSection = within(screen.getByTestId("portrait-input-section"));
+    const transcriptPane = within(
+      screen.getByTestId("portrait-transcript-pane"),
+    );
 
     expect(screen.getByText("route-card")).toBeTruthy();
-    expect(screen.getByText("voice-stage:disabled")).toBeTruthy();
-    expect(screen.getByText("transcript-preview:empty-visible")).toBeTruthy();
+    expect(screen.getByTestId("route-web-search-control").props.disabled).toBe(
+      true,
+    );
+    expect(inputSection.getByText("voice-stage:disabled")).toBeTruthy();
+    expect(
+      transcriptPane.getByText("transcript-preview:empty-visible"),
+    ).toBeTruthy();
+    expect(transcriptPane.queryByTestId("portrait-pane-divider")).toBeNull();
     expect(screen.getByText("settings:closed")).toBeTruthy();
     expect(screen.getByText("drawer:closed")).toBeTruthy();
+    expect(screen.getByText("open-drawer")).toBeTruthy();
+  });
+
+  it("keeps Web Search visible but disabled when its provider has no key", () => {
+    useSharedSettings.mockReturnValue(
+      createSharedSettingsValue({
+        webSearchProvider: DEFAULT_SETTINGS.responseModes[0].route.provider,
+      }),
+    );
+
+    const screen = renderWithProviders(<MainScreen />);
+
+    expect(screen.getByTestId("route-web-search-control")).toBeTruthy();
+    expect(screen.getByTestId("route-web-search-control").props.disabled).toBe(
+      true,
+    );
   });
 
   it("enables the voice stage when the active reply provider is configured", () => {
@@ -353,14 +458,27 @@ describe("MainScreen", () => {
     expect(screen.getByText("voice-stage:enabled")).toBeTruthy();
   });
 
-  it("opens settings and the drawer from the top bar", () => {
+  it("opens settings and the session drawer from the top bar", () => {
     const screen = renderWithProviders(<MainScreen />);
 
     fireEvent.press(screen.getByText("open-settings"));
     fireEvent.press(screen.getByText("open-drawer"));
 
     expect(screen.getByText("settings:open")).toBeTruthy();
+    expect(screen.getByText("guided-setup-shortcut")).toBeTruthy();
     expect(screen.getByText("drawer:open")).toBeTruthy();
+  });
+
+  it("hides the guided-setup shortcut after it is disabled", () => {
+    useSharedSettings.mockReturnValue(
+      createSharedSettingsValue({ showSetupGuideShortcut: false }),
+    );
+    const screen = renderWithProviders(<MainScreen />);
+
+    fireEvent.press(screen.getByText("open-settings"));
+
+    expect(screen.getByText("settings:open")).toBeTruthy();
+    expect(screen.queryByText("guided-setup-shortcut")).toBeNull();
   });
 
   it("hides the debug log action by default", () => {
@@ -379,14 +497,14 @@ describe("MainScreen", () => {
     expect(screen.getByText("toggle-debug-log")).toBeTruthy();
   });
 
-  it("hides the style chip when no provider is configured", () => {
+  it("hides the conversation style control when no provider is configured", () => {
     const screen = renderWithProviders(<MainScreen />);
 
-    expect(screen.queryByText("route-card-with-style-chip")).toBeNull();
+    expect(screen.queryByText("transcript-style-control")).toBeNull();
     expect(screen.getByText("route-card")).toBeTruthy();
   });
 
-  it("renders the style chip when a reply provider is configured", () => {
+  it("renders the style control in the conversation header when a provider is configured", () => {
     const provider = DEFAULT_SETTINGS.responseModes[0].route.provider;
     const route = {
       provider,
@@ -405,6 +523,53 @@ describe("MainScreen", () => {
 
     const screen = renderWithProviders(<MainScreen />);
 
-    expect(screen.getByText("route-card-with-style-chip")).toBeTruthy();
+    expect(screen.getByText("route-card")).toBeTruthy();
+    expect(screen.getByText("transcript-style-control")).toBeTruthy();
+  });
+
+  it("uses the reduced two-pane landscape hierarchy", () => {
+    const provider = DEFAULT_SETTINGS.responseModes[0].route.provider;
+    const route = {
+      provider,
+      model: getDefaultModelForProvider(provider),
+    };
+    mockUseWindowDimensions.mockReturnValue({
+      fontScale: 1,
+      height: 430,
+      scale: 3,
+      width: 932,
+    });
+    useSharedSettings.mockReturnValue(
+      createSharedSettingsValue({
+        responseModes: [{ id: "mode-1", route }],
+        apiKeys: {
+          ...DEFAULT_SETTINGS.apiKeys,
+          [provider]: "provider-key",
+        },
+        showDebugLogButton: true,
+        webSearchProvider: provider,
+      }),
+    );
+
+    const screen = renderWithProviders(<MainScreen />);
+    const leftPane = within(screen.getByTestId("landscape-left-pane"));
+    const rightPane = within(screen.getByTestId("landscape-right-pane"));
+
+    expect(screen.getByTestId("main-safe-area").props.edges).toEqual(["top"]);
+    expect(
+      StyleSheet.flatten(
+        screen.getByTestId("landscape-left-pane").props.style,
+      ).flex,
+    ).toBe(0.42);
+    expect(screen.getByTestId("landscape-pane-divider")).toBeTruthy();
+    expect(screen.getByTestId("route-web-search-control").props.disabled).toBe(
+      false,
+    );
+    expect(leftPane.queryByTestId("route-style-control")).toBeNull();
+    expect(leftPane.queryByText("status-strip")).toBeNull();
+    expect(leftPane.queryByText("toggle-debug-log")).toBeNull();
+    expect(screen.queryByTestId("landscape-status-area")).toBeNull();
+    expect(rightPane.getByTestId("transcript-preview")).toBeTruthy();
+    expect(rightPane.getByText("transcript-style-control")).toBeTruthy();
   });
 });

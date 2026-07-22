@@ -1,17 +1,17 @@
 import React, { useState, useCallback, useEffect, useMemo } from "react";
-import { ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { StatusBar } from "expo-status-bar";
 import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import { ConversationMemoryModal } from "../components/ConversationMemoryModal";
+  KeyboardAvoidingView,
+  Platform,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ConversationDrawer } from "../components/ConversationDrawer";
+import { ConversationMemoryModal } from "../components/ConversationMemoryModal";
 import { SettingsModal } from "../components/SettingsModal";
 import { SetupGuideModal } from "../components/SetupGuideModal";
 import { Toast } from "../components/Toast";
-import { type WebSearchProvider } from "../constants/webSearch";
 import {
   PROVIDER_DEFAULT_STT_MODELS,
   PROVIDER_DEFAULT_TTS_MODELS,
@@ -26,58 +26,43 @@ import { useConversations } from "../hooks/useConversations";
 import { useVoicePipeline } from "../hooks/useVoicePipeline";
 import { useBatteryDiagnostics } from "../hooks/useBatteryDiagnostics";
 import { useLocalization } from "../i18n";
-import {
-  getDebugLogCaptureState,
-  installDebugLogConsoleCapture,
-  recoverPendingDebugLogCapture,
-  recordDebugLogEvent,
-  startDebugLogCapture,
-  stopDebugLogCapture,
-  subscribeToDebugLogCapture,
-} from "../services/debugLogCapture";
-import { validateProviderConnection } from "../services/llm";
-import { validateTtsProviderConnection } from "../services/providerValidation";
-import { validateWebSearchConnection } from "../services/webSearch";
+import { recordDebugLogEvent } from "../services/debugLogCapture";
 import { useTheme } from "../theme/ThemeContext";
-import {
-  Provider,
-  ResponseMode,
-} from "../types";
+import { Provider, ResponseMode, ToastTone } from "../types";
 import {
   getEnabledSttProviders,
   getEnabledTtsProviders,
 } from "../utils/providerCapabilities";
 import { hasProviderCredentialForCapability } from "../utils/providerCredentials";
-import { getMaxRecordingMs } from "../utils/recordingLimits";
 import {
   getAvailableResponseModes,
-  getProviderValidationModel,
   getResponseModeRoute,
 } from "../utils/responseModes";
 import { MainScreenTopBar } from "./main/MainScreenTopBar";
 import { MainScreenRouteCard } from "./main/MainScreenRouteCard";
+import { MainScreenRouteControls } from "./main/MainScreenRouteControls";
 import { StyleSheetModal } from "./main/StyleSheetModal";
-import {
-  MainScreenStatusStrip,
-  MainScreenVoiceStage,
-} from "./main/MainScreenVoiceStage";
+import { MainScreenVoiceStage } from "./main/MainScreenVoiceStage";
 import { StatusDetailsModal } from "./main/StatusDetailsModal";
 import { TranscriptPreviewCard } from "./main/TranscriptPreviewCard";
 import { getMainScreenViewModel } from "./main/mainScreenViewModel";
-import { TranscriptModal } from "./main/TranscriptModal";
 import { styles } from "./main/styles";
 import { useConversationActions } from "./main/useConversationActions";
+import { useConversationTitleGenerator } from "./main/useConversationTitleGenerator";
+import { useDebugLogCaptureController } from "./main/useDebugLogCaptureController";
 import { useMainScreenUiState } from "./main/useMainScreenUiState";
+import { useMainScreenDiagnostics } from "./main/useMainScreenDiagnostics";
 import { usePreviewVoiceController } from "./main/usePreviewVoiceController";
+import { usePersistenceFailureAlert } from "./main/usePersistenceFailureAlert";
 import { useProviderAvailabilityGuards } from "./main/useProviderAvailabilityGuards";
+import { useProviderConnectionValidation } from "./main/useProviderConnectionValidation";
 import { useSetupGuideController } from "./main/useSetupGuideController";
+import { useTextTurnSubmitController } from "./main/useTextTurnSubmitController";
 import { useVoiceSessionController } from "./main/useVoiceSessionController";
-import { getProviderValidationTarget } from "../components/settings/providerSupport";
 
 export function MainScreen() {
   const { colors, isDark } = useTheme();
   const { t, language } = useLocalization();
-  const insets = useSafeAreaInsets();
   const { height, width } = useWindowDimensions();
   const {
     settings,
@@ -107,8 +92,6 @@ export function MainScreen() {
     searchConversations,
     deleteConversation,
     clearActiveConversation,
-    captureActiveConversationSnapshot,
-    restoreActiveConversationSnapshot,
   } = useConversations();
 
   const recorder = useAudioRecorder();
@@ -118,19 +101,15 @@ export function MainScreen() {
   const [toast, setToast] = useState<{
     message: string;
     onRetry?: () => void;
+    tone?: ToastTone;
   } | null>(null);
   const [styleSheetVisible, setStyleSheetVisible] = useState(false);
-  const [debugLogCaptureState, setDebugLogCaptureState] = useState(
-    () => getDebugLogCaptureState(),
-  );
   const {
     settingsVisible,
     settingsFocusCatalogProviderId,
     settingsFocusTab,
     drawerVisible,
     statusDetailsVisible,
-    transcriptVisible,
-    conversationMenuVisible,
     setupGuideVisible,
     memoryConversation,
     memoryVisible,
@@ -141,12 +120,8 @@ export function MainScreen() {
     closeSettings,
     openMemoryConversation,
     closeMemory,
-    openTranscript,
-    closeTranscript,
     openStatusDetails,
     closeStatusDetails,
-    closeConversationMenu,
-    toggleConversationMenu,
     runAfterDrawerDismiss,
     handleDrawerDismiss,
   } = useMainScreenUiState();
@@ -178,14 +153,25 @@ export function MainScreen() {
   const webSearchOptions = webSearchProvider
     ? settings.webSearchProviderSettings[webSearchProvider]
     : undefined;
-  const webSearchReady = !!webSearchProvider && !!webSearchApiKey;
+  const webSearchReady =
+    !!webSearchProvider &&
+    hasProviderCredentialForCapability(
+      webSearchProvider,
+      webSearchApiKey,
+      "search",
+    );
   const webSearchOn = webSearchMode === "on";
   const webSearchActive = webSearchMode !== "off" && webSearchReady;
   const isLandscape = width > height;
   const showStyleChip = loaded && availableResponseModes.length > 0;
-  const stageCircleSize = isLandscape
-    ? Math.max(172, Math.min(208, Math.round(Math.min(height * 0.44, width * 0.24))))
-    : 260;
+  const mainSurfaceVisible = !(
+    drawerVisible ||
+    memoryVisible ||
+    settingsVisible ||
+    setupGuideVisible ||
+    statusDetailsVisible ||
+    styleSheetVisible
+  );
   const selectedSttModel = sttProvider
     ? settings.providerSttModels[sttProvider] ||
       PROVIDER_DEFAULT_STT_MODELS[sttProvider] ||
@@ -206,38 +192,21 @@ export function MainScreen() {
     settings.sttMode === "native"
       ? nativeStt.isRecording
       : recorder.isRecording;
-  // Auto-send cap for the current STT model — drives the "glass filling" fill on
-  // the voice circle so the user can see how long until a long turn auto-sends.
-  const maxRecordingMs = useMemo(
-    () =>
-      getMaxRecordingMs({
-        sttMode: settings.sttMode,
-        sttProvider,
-        sttModel: selectedSttModel,
-      }),
-    [settings.sttMode, sttProvider, selectedSttModel],
+  const showToast = useCallback(
+    (message: string, onRetry?: () => void, tone: ToastTone = "info") => {
+      recordDebugLogEvent({
+        event: "toast-shown",
+        payload: {
+          hasRetry: Boolean(onRetry),
+          message,
+          tone,
+        },
+      });
+      setToast({ message, onRetry, tone });
+    },
+    [],
   );
-
-  const showToast = useCallback((message: string, onRetry?: () => void) => {
-    recordDebugLogEvent({
-      event: "toast-shown",
-      payload: {
-        hasRetry: Boolean(onRetry),
-        message,
-      },
-    });
-    setToast({ message, onRetry });
-  }, []);
-
-  useEffect(() => {
-    const syncState = () => {
-      setDebugLogCaptureState(getDebugLogCaptureState());
-    };
-
-    syncState();
-
-    return subscribeToDebugLogCapture(syncState);
-  }, []);
+  usePersistenceFailureAlert(showToast, t);
 
   const {
     pipelinePhase,
@@ -315,25 +284,11 @@ export function MainScreen() {
     [activeReplayMessageId, handleRepeatLastReply, stopReplay],
   );
 
-  const handleSubmitTextMessage = useCallback(
-    (text: string) => {
-      const trimmed = text.trim();
-
-      if (!trimmed || isBusy) {
-        return;
-      }
-
-      recordDebugLogEvent({
-        event: "text-message-submit-requested",
-        payload: {
-          textLength: trimmed.length,
-        },
-      });
-
-      void handleVoiceCaptureDone({ transcriptionOverride: trimmed });
-    },
-    [handleVoiceCaptureDone, isBusy],
-  );
+  const { handleRetryMessage, handleSubmitTextMessage } =
+    useTextTurnSubmitController({
+      handleVoiceCaptureDone,
+      isBusy,
+    });
 
   const handlePausePlayback = useCallback(async () => {
     const paused = await player.pausePlayback();
@@ -380,6 +335,8 @@ export function MainScreen() {
     handleContinueFromVoiceTest,
     handleFinishSetupGuide,
     handleOpenSettingsFromSummary,
+    handleOpenSetupGuide,
+    openedFromSettings: setupGuideOpenedFromSettings,
     step: setupGuideStep,
     providerOptions: setupGuideProviderOptions,
     selectedProvider: setupGuideSelectedProvider,
@@ -410,7 +367,6 @@ export function MainScreen() {
     abortRef,
     availableSttProviders,
     availableTtsProviders,
-    captureActiveConversationSnapshot,
     handleVoiceCaptureDone,
     isBusy,
     isRecording,
@@ -420,7 +376,6 @@ export function MainScreen() {
     providerApiKey,
     providerLabel,
     recorder,
-    restoreActiveConversationSnapshot,
     setPipelinePhase,
     setStreamingText,
     settings,
@@ -458,6 +413,23 @@ export function MainScreen() {
     setMemoryConversation,
     showToast,
     language,
+    t,
+  });
+
+  const {
+    canGenerateTitle,
+    handleGenerateTitle,
+    isGeneratingTitle,
+  } = useConversationTitleGenerator({
+    activeConversation,
+    apiKey: providerApiKey,
+    language,
+    model,
+    modelEffort,
+    provider,
+    providerReady: !voiceInputDisabled,
+    renameConversation,
+    showToast,
     t,
   });
 
@@ -527,109 +499,10 @@ export function MainScreen() {
     t,
   });
 
-  const handleValidateProvider = useCallback(
-    async (nextProvider: Provider) => {
-      const apiKey = settings.apiKeys[nextProvider].trim();
-      const target = getProviderValidationTarget(settings, nextProvider);
-
-      recordDebugLogEvent({
-        event: "provider-validation-requested",
-        payload: {
-          provider: nextProvider,
-          target: target.kind,
-        },
-      });
-
-      try {
-        if (target.kind === "llm") {
-          await validateProviderConnection({
-            provider: nextProvider,
-            model: getProviderValidationModel(settings, nextProvider),
-            apiKey,
-            language,
-          });
-        } else if (target.kind === "tts") {
-          const voice =
-            (() => {
-              try {
-                const parsed = target.configKey
-                  ? JSON.parse(target.configKey)
-                  : null;
-                return typeof parsed?.voice === "string" ? parsed.voice : "";
-              } catch {
-                return "";
-              }
-            })();
-
-          await validateTtsProviderConnection({
-            provider: nextProvider,
-            model: target.model,
-            voice,
-            apiKey,
-            language,
-          });
-        }
-        recordDebugLogEvent({
-          event: "provider-validation-succeeded",
-          payload: {
-            provider: nextProvider,
-            target: target.kind,
-          },
-        });
-      } catch (error) {
-        recordDebugLogEvent({
-          event: "provider-validation-failed",
-          level: "error",
-          payload: {
-            message: error instanceof Error ? error.message : String(error),
-            provider: nextProvider,
-            target: target.kind,
-          },
-        });
-        throw error;
-      }
-    },
-    [language, settings],
-  );
-
-  const handleValidateWebSearchProvider = useCallback(
-    async (nextProvider: WebSearchProvider) => {
-      const apiKey = settings.apiKeys[nextProvider].trim();
-
-      recordDebugLogEvent({
-        event: "web-search-validation-requested",
-        payload: {
-          provider: nextProvider,
-        },
-      });
-
-      try {
-        await validateWebSearchConnection({
-          provider: nextProvider,
-          apiKey,
-          language,
-          options: settings.webSearchProviderSettings[nextProvider],
-        });
-        recordDebugLogEvent({
-          event: "web-search-validation-succeeded",
-          payload: {
-            provider: nextProvider,
-          },
-        });
-      } catch (error) {
-        recordDebugLogEvent({
-          event: "web-search-validation-failed",
-          level: "error",
-          payload: {
-            message: error instanceof Error ? error.message : String(error),
-            provider: nextProvider,
-          },
-        });
-        throw error;
-      }
-    },
-    [language, settings.apiKeys],
-  );
+  const {
+    validateProvider: handleValidateProvider,
+    validateWebSearchProvider: handleValidateWebSearchProvider,
+  } = useProviderConnectionValidation({ language, settings });
 
   const {
     activeConversationTitle,
@@ -642,7 +515,6 @@ export function MainScreen() {
     statusIndicatorTone,
     sttStatusLabel,
     ttsStatusLabel,
-    usageDisplay,
     visualPhase,
   } = getMainScreenViewModel({
     activeConversation,
@@ -677,367 +549,83 @@ export function MainScreen() {
     lastCompletedReplyRef.current = lastAssistantReply;
   }, [lastAssistantReply, lastCompletedReplyRef]);
 
-  useEffect(() => {
-    if (__DEV__) {
-      installDebugLogConsoleCapture();
-    }
-
-    recordDebugLogEvent({
-      event: "main-screen-mounted",
-    });
-
-    return () => {
-      recordDebugLogEvent({
-        event: "main-screen-unmounted",
-      });
-    };
-  }, []);
-
-  const handleToggleDebugLog = useCallback(async () => {
-    if (!debugLogCaptureState.active) {
-      startDebugLogCapture({
-        activeConversationId: activeConversation?.id ?? null,
-        inputMode: settings.inputMode,
-        model,
-        pipelinePhase,
-        provider,
-        sttMode: settings.sttMode,
-        sttProvider,
-        sttModel: selectedSttModel,
-        ttsMode: settings.ttsMode,
-        ttsProvider,
-        ttsModel: selectedTtsModel,
-        replyPlayback: settings.replyPlayback,
-        spokenRepliesEnabled: settings.spokenRepliesEnabled,
-      });
-      showToast(t("debugLogCaptureStarted"));
-      return;
-    }
-
-    try {
-      const result = await stopDebugLogCapture({
-        activeConversationId: activeConversation?.id ?? null,
-        inputMode: settings.inputMode,
-        model,
-        pipelinePhase,
-        provider,
-        sttMode: settings.sttMode,
-        sttProvider,
-        sttModel: selectedSttModel,
-        ttsMode: settings.ttsMode,
-        ttsProvider,
-        ttsModel: selectedTtsModel,
-        replyPlayback: settings.replyPlayback,
-        spokenRepliesEnabled: settings.spokenRepliesEnabled,
-      });
-
-      if (!result) {
-        return;
-      }
-
-      const fileName =
-        result.path.split("/").filter(Boolean).pop() ??
-        result.sessionId ??
-        "debug-log.log";
-
-      showToast(
-        result.copiedToClipboard
-          ? t("debugLogCaptureStopped", {
-              entryCount: result.entryCount,
-              fileName,
-            })
-          : t("debugLogCaptureStoppedNoClipboard", {
-              entryCount: result.entryCount,
-              fileName,
-            }),
-      );
-    } catch (error) {
-      recordDebugLogEvent({
-        event: "debug-log-stop-failed",
-        level: "error",
-        payload: {
-          message: error instanceof Error ? error.message : String(error),
-        },
-      });
-      showToast(t("debugLogCaptureFailed"));
-    }
-  }, [
-    activeConversation?.id,
-    debugLogCaptureState.active,
+  const {
+    captureState: debugLogCaptureState,
+    handleToggle: handleToggleDebugLog,
+  } = useDebugLogCaptureController({
+    activeConversationId: activeConversation?.id ?? null,
+    inputMode: settings.inputMode,
     model,
     pipelinePhase,
     provider,
+    replyPlayback: settings.replyPlayback,
     selectedSttModel,
     selectedTtsModel,
-    settings.replyPlayback,
-    settings.inputMode,
-    settings.spokenRepliesEnabled,
-    settings.sttMode,
-    settings.ttsMode,
     showToast,
+    spokenRepliesEnabled: settings.spokenRepliesEnabled,
+    sttMode: settings.sttMode,
     sttProvider,
     t,
+    ttsMode: settings.ttsMode,
     ttsProvider,
-  ]);
+  });
 
-  useEffect(() => {
-    let cancelled = false;
-
-    void recoverPendingDebugLogCapture()
-      .then((result) => {
-        if (cancelled || !result) {
-          return;
-        }
-
-        const fileName =
-          result.path.split("/").filter(Boolean).pop() ??
-          result.sessionId ??
-          "recovered-debug-log.log";
-
-        showToast(
-          result.copiedToClipboard
-            ? t("debugLogCaptureRecovered", {
-                entryCount: result.entryCount,
-                fileName,
-              })
-            : t("debugLogCaptureRecoveredNoClipboard", {
-                entryCount: result.entryCount,
-                fileName,
-              }),
-        );
-      })
-      .catch((error) => {
-        recordDebugLogEvent({
-          event: "debug-log-recovery-failed",
-          level: "error",
-          payload: {
-            message: error instanceof Error ? error.message : String(error),
-          },
-        });
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [showToast, t]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "main-screen-loaded-state-changed",
-      payload: {
-        loaded,
-      },
-    });
-  }, [loaded]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "route-selection-changed",
-      payload: {
-        activeResponseMode,
-        inputMode: settings.inputMode,
-        model,
-        modelEffort: modelEffort ?? null,
-        provider,
-        replyPlayback: settings.replyPlayback,
-        responseLength: settings.responseLength,
-        responseTone: settings.responseTone,
-        spokenRepliesEnabled: settings.spokenRepliesEnabled,
-        sttMode: settings.sttMode,
-        sttProvider,
-        ttsMode: settings.ttsMode,
-        ttsProvider,
-      },
-    });
-  }, [
+  useMainScreenDiagnostics({
+    activeConversationId: activeConversation?.id ?? null,
+    activeConversationTitle: activeConversation?.title ?? null,
+    activeReplayMessageId,
     activeResponseMode,
+    conversationCount: conversations.length,
+    drawerVisible,
+    inputMode: settings.inputMode,
+    isRecording,
+    loaded,
+    memoryConversationId: memoryConversation?.id ?? null,
+    memoryVisible,
+    messageCount: messages.length,
     model,
     modelEffort,
+    pipelinePhase,
+    playerIsPlaying: player.isPlaying,
     provider,
-    settings.inputMode,
-    settings.replyPlayback,
-    settings.responseLength,
-    settings.responseTone,
-    settings.spokenRepliesEnabled,
-    settings.sttMode,
-    settings.ttsMode,
+    replayPhase,
+    replyPlayback: settings.replyPlayback,
+    responseLength: settings.responseLength,
+    responseTone: settings.responseTone,
+    settingsFocusCatalogProviderId: settingsFocusCatalogProviderId ?? null,
+    settingsVisible,
+    setupGuideVisible,
+    spokenRepliesEnabled: settings.spokenRepliesEnabled,
+    statusDetailsVisible,
+    sttMode: settings.sttMode,
     sttProvider,
+    ttsMode: settings.ttsMode,
     ttsProvider,
-  ]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "pipeline-phase-changed",
-      payload: {
-        pipelinePhase,
-      },
-    });
-  }, [pipelinePhase]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "visual-phase-changed",
-      payload: {
-        visualPhase,
-      },
-    });
-  }, [visualPhase]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "recording-state-changed",
-      payload: {
-        isRecording,
-        sttMode: settings.sttMode,
-      },
-    });
-  }, [isRecording, settings.sttMode]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "audio-playback-state-changed",
-      payload: {
-        activeReplayMessageId,
-        isPlaying: player.isPlaying,
-        replayPhase,
-      },
-    });
-  }, [activeReplayMessageId, player.isPlaying, replayPhase]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "streaming-text-length-changed",
-      payload: {
-        length: streamingText.length,
-      },
-    });
-  }, [streamingText.length]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "active-conversation-changed",
-      payload: {
-        conversationCount: conversations.length,
-        id: activeConversation?.id ?? null,
-        title: activeConversation?.title ?? null,
-      },
-    });
-  }, [activeConversation?.id, activeConversation?.title, conversations.length]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "message-count-changed",
-      payload: {
-        count: messages.length,
-      },
-    });
-  }, [messages.length]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "settings-visibility-changed",
-      payload: {
-        focusCatalogProviderId: settingsFocusCatalogProviderId ?? null,
-        visible: settingsVisible,
-      },
-    });
-  }, [settingsFocusCatalogProviderId, settingsVisible]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "drawer-visibility-changed",
-      payload: {
-        visible: drawerVisible,
-      },
-    });
-  }, [drawerVisible]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "transcript-visibility-changed",
-      payload: {
-        visible: transcriptVisible,
-      },
-    });
-  }, [transcriptVisible]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "status-details-visibility-changed",
-      payload: {
-        visible: statusDetailsVisible,
-      },
-    });
-  }, [statusDetailsVisible]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "conversation-menu-visibility-changed",
-      payload: {
-        visible: conversationMenuVisible,
-      },
-    });
-  }, [conversationMenuVisible]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "memory-modal-visibility-changed",
-      payload: {
-        conversationId: memoryConversation?.id ?? null,
-        visible: memoryVisible,
-      },
-    });
-  }, [memoryConversation?.id, memoryVisible]);
-
-  useEffect(() => {
-    recordDebugLogEvent({
-      event: "setup-guide-visibility-changed",
-      payload: {
-        visible: setupGuideVisible,
-      },
-    });
-  }, [setupGuideVisible]);
+    visualPhase,
+  });
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
-      edges={["top", "left", "right"]}
+      edges={
+        Platform.OS === "ios" && isLandscape
+          ? ["top"]
+          : ["top", "left", "right"]
+      }
     >
       <StatusBar style={isDark ? "light" : "dark"} />
-
-      <LinearGradient
-        colors={[
-          colors.background,
-          colors.backgroundSecondary,
-          colors.background,
-        ]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
-      <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-        <LinearGradient
-          colors={[colors.accentSoft, "rgba(255,255,255,0)"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.orb, styles.orbTop]}
-        />
-        <LinearGradient
-          colors={[`${colors.accentWarm}55`, "rgba(255,255,255,0)"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.orb, styles.orbBottom]}
-        />
-      </View>
 
       <Toast
         message={toast?.message || ""}
         visible={!!toast}
         onDismiss={() => setToast(null)}
         onRetry={toast?.onRetry}
+        tone={toast?.tone}
       />
 
-      <View
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
         style={[
           styles.defaultLayout,
           isLandscape ? styles.defaultLayoutLandscape : null,
@@ -1045,53 +633,50 @@ export function MainScreen() {
       >
         {isLandscape ? (
           <View style={styles.landscapeShell}>
-            <View style={styles.landscapeLeftColumn}>
+            <View
+              testID="landscape-left-pane"
+              style={styles.landscapeLeftColumn}
+            >
               <MainScreenTopBar
                 colors={colors}
-                debugLogActive={debugLogCaptureState.active}
-                debugLogLabel={t("debugLogLabel")}
+                drawerLabel={t("conversations")}
                 onOpenDrawer={() => setDrawerVisible(true)}
                 onOpenSettings={() => openSettings()}
-                onToggleDebugLog={
-                  settings.showDebugLogButton || debugLogCaptureState.active
-                    ? handleToggleDebugLog
-                    : undefined
-                }
+                settingsLabel={t("settings")}
               />
 
               <MainScreenRouteCard
                 activeResponseMode={activeResponseMode}
                 availableResponseModes={loaded ? availableResponseModes : []}
-                compactResponseModes
                 colors={colors}
+                compact
                 onOpenSetupGuide={() => openSettings(undefined, "providers")}
-                onOpenStyleSheet={() => setStyleSheetVisible(true)}
                 onSelectResponseMode={handleResponseModeChange}
+                responseModes={settings.responseModes}
+                style={styles.heroCardLandscape}
+                t={t}
+              />
+
+              <MainScreenRouteControls
+                colors={colors}
+                layout="landscape"
                 onToggleWebSearchEnabled={() => {
                   updateSettings({
                     webSearchMode: webSearchOn ? "off" : "on",
                   });
                 }}
-                responseLength={settings.responseLength}
-                responseModes={settings.responseModes}
-                responseTone={settings.responseTone}
-                showStyleChip={showStyleChip}
-                style={styles.heroCardLandscape}
                 t={t}
                 webSearchEnabled={webSearchActive}
-                webSearchProvider={webSearchProvider}
                 webSearchReady={webSearchReady}
               />
 
               <View style={styles.landscapeStageArea}>
                 <MainScreenVoiceStage
-                  circleSize={stageCircleSize}
                   colors={colors}
                   disabled={voiceInputDisabled}
                   inputMode={settings.inputMode}
-                  isActive={isActive}
+                  isActive={isActive && mainSurfaceVisible}
                   layout="landscape"
-                  maxRecordingMs={maxRecordingMs}
                   onOpenStatusDetails={openStatusDetails}
                   onPausePlayback={handlePausePlayback}
                   onPress={handleTogglePress}
@@ -1099,14 +684,13 @@ export function MainScreen() {
                   onPressOut={handlePressOut}
                   onResumePlayback={handleResumePlayback}
                   onStopPlayback={handleStopPlayback}
+                  onSubmitTextMessage={handleSubmitTextMessage}
                   pausePlaybackLabel={t("pause")}
                   phaseProgress={phaseProgress}
                   pipelinePhase={pipelinePhase}
                   playbackActive={player.isPlaying}
                   playbackPaused={player.isPlaybackPaused}
-                  providerLabel={providerLabel}
                   resumePlaybackLabel={t("resume")}
-                  showStatusStrip={false}
                   statusDetail={statusDisplay.statusDetail}
                   statusIndicatorTone={statusIndicatorTone}
                   statusTitle={statusDisplay.actionLabel}
@@ -1117,37 +701,41 @@ export function MainScreen() {
               </View>
             </View>
 
-            <View style={styles.landscapeRightColumn}>
-              <MainScreenStatusStrip
-                colors={colors}
-                fullWidth
-                layout="landscape"
-                onOpenStatusDetails={openStatusDetails}
-                onPausePlayback={handlePausePlayback}
-                onResumePlayback={handleResumePlayback}
-                onStopPlayback={handleStopPlayback}
-                pausePlaybackLabel={t("pause")}
-                pipelinePhase={pipelinePhase}
-                playbackActive={player.isPlaying}
-                playbackPaused={player.isPlaybackPaused}
-                resumePlaybackLabel={t("resume")}
-                statusDetail={statusDisplay.statusDetail}
-                statusIndicatorTone={statusIndicatorTone}
-                statusTitle={statusDisplay.actionLabel}
-                stopPlaybackLabel={t("stop")}
-                t={t}
-              />
+            <View
+              testID="landscape-pane-divider"
+              style={[
+                styles.landscapePaneDivider,
+                { backgroundColor: colors.border },
+              ]}
+            />
 
+            <View
+              testID="landscape-right-pane"
+              style={styles.landscapeRightColumn}
+            >
               <TranscriptPreviewCard
+                activeConversationId={activeConversation?.id ?? null}
+                activeConversationTitle={activeConversationTitle}
                 colors={colors}
                 layout="landscape"
                 messages={messages}
+                activeReplayMessageId={activeReplayMessageId}
                 onCopyMessage={(message) => {
                   void handleCopyMessage(message.content);
                 }}
-                onOpenTranscript={openTranscript}
+                onRepeatMessage={(message) => {
+                  void handleRepeatMessage(message);
+                }}
+                onRetryMessage={handleRetryMessage}
+                onOpenStyleSheet={() => setStyleSheetVisible(true)}
+                onOpenSpeakingSettings={() => openSettings(undefined, "tts")}
+                onShareMessage={(message) => {
+                  void handleShareMessage(message.content);
+                }}
+                replayPhase={replayPhase}
                 scrollEnabled
                 showUsageStats={settings.showUsageStats}
+                showStyleControl={showStyleChip}
                 showWhenEmpty
                 style={styles.landscapeTranscriptCard}
                 t={t}
@@ -1160,6 +748,7 @@ export function MainScreen() {
               colors={colors}
               debugLogActive={debugLogCaptureState.active}
               debugLogLabel={t("debugLogLabel")}
+              drawerLabel={t("conversations")}
               onOpenDrawer={() => setDrawerVisible(true)}
               onOpenSettings={() => openSettings()}
               onToggleDebugLog={
@@ -1167,84 +756,114 @@ export function MainScreen() {
                   ? handleToggleDebugLog
                   : undefined
               }
+              settingsLabel={t("settings")}
             />
 
-            <ScrollView
-              style={styles.defaultScroll}
-              contentContainerStyle={styles.defaultLayoutContent}
-              showsVerticalScrollIndicator={false}
-            >
+            <View style={styles.workspaceBody}>
               <MainScreenRouteCard
                 activeResponseMode={activeResponseMode}
                 availableResponseModes={loaded ? availableResponseModes : []}
                 colors={colors}
                 onOpenSetupGuide={() => openSettings(undefined, "providers")}
-                onOpenStyleSheet={() => setStyleSheetVisible(true)}
                 onSelectResponseMode={handleResponseModeChange}
+                responseModes={settings.responseModes}
+                t={t}
+              />
+
+              <MainScreenRouteControls
+                colors={colors}
                 onToggleWebSearchEnabled={() => {
                   updateSettings({
                     webSearchMode: webSearchOn ? "off" : "on",
                   });
                 }}
-                responseLength={settings.responseLength}
-                responseModes={settings.responseModes}
-                responseTone={settings.responseTone}
-                showStyleChip={showStyleChip}
                 t={t}
                 webSearchEnabled={webSearchActive}
-                webSearchProvider={webSearchProvider}
                 webSearchReady={webSearchReady}
               />
 
-              <MainScreenVoiceStage
-                circleSize={stageCircleSize}
-                colors={colors}
-                disabled={voiceInputDisabled}
-                inputMode={settings.inputMode}
-                isActive={isActive}
-                maxRecordingMs={maxRecordingMs}
-                onOpenStatusDetails={openStatusDetails}
-                onPausePlayback={handlePausePlayback}
-                onPress={handleTogglePress}
-                onPressIn={handlePressIn}
-                onPressOut={handlePressOut}
-                onResumePlayback={handleResumePlayback}
-                onStopPlayback={handleStopPlayback}
-                pausePlaybackLabel={t("pause")}
-                phaseProgress={phaseProgress}
-                pipelinePhase={pipelinePhase}
-                playbackActive={player.isPlaying}
-                playbackPaused={player.isPlaybackPaused}
-                providerLabel={providerLabel}
-                resumePlaybackLabel={t("resume")}
-                statusDetail={statusDisplay.statusDetail}
-                statusIndicatorTone={statusIndicatorTone}
-                statusTitle={statusDisplay.actionLabel}
-                stopPlaybackLabel={t("stop")}
-                t={t}
-                visualPhase={visualPhase}
-              />
+              <View
+                testID="portrait-conversation-stack"
+                style={styles.portraitConversationStack}
+              >
+                <View testID="portrait-input-section">
+                  <MainScreenVoiceStage
+                    colors={colors}
+                    disabled={voiceInputDisabled}
+                    inputMode={settings.inputMode}
+                    isActive={isActive && mainSurfaceVisible}
+                    onOpenStatusDetails={openStatusDetails}
+                    onPausePlayback={handlePausePlayback}
+                    onPress={handleTogglePress}
+                    onPressIn={handlePressIn}
+                    onPressOut={handlePressOut}
+                    onResumePlayback={handleResumePlayback}
+                    onStopPlayback={handleStopPlayback}
+                    onSubmitTextMessage={handleSubmitTextMessage}
+                    pausePlaybackLabel={t("pause")}
+                    phaseProgress={phaseProgress}
+                    pipelinePhase={pipelinePhase}
+                    playbackActive={player.isPlaying}
+                    playbackPaused={player.isPlaybackPaused}
+                    resumePlaybackLabel={t("resume")}
+                    statusDetail={statusDisplay.statusDetail}
+                    statusIndicatorTone={statusIndicatorTone}
+                    statusTitle={statusDisplay.actionLabel}
+                    stopPlaybackLabel={t("stop")}
+                    t={t}
+                    visualPhase={visualPhase}
+                  />
+                </View>
 
-              <TranscriptPreviewCard
-                colors={colors}
-                messages={messages}
-                onCopyMessage={(message) => {
-                  void handleCopyMessage(message.content);
-                }}
-                onOpenTranscript={openTranscript}
-                showWhenEmpty
-                showUsageStats={settings.showUsageStats}
-                t={t}
-              />
-            </ScrollView>
+                <View
+                  testID="portrait-transcript-pane"
+                  style={styles.portraitTranscriptPane}
+                >
+                  <TranscriptPreviewCard
+                    activeConversationId={activeConversation?.id ?? null}
+                    activeConversationTitle={activeConversationTitle}
+                    colors={colors}
+                    messages={messages}
+                    activeReplayMessageId={activeReplayMessageId}
+                    onCopyMessage={(message) => {
+                      void handleCopyMessage(message.content);
+                    }}
+                    onRepeatMessage={(message) => {
+                      void handleRepeatMessage(message);
+                    }}
+                    onRetryMessage={handleRetryMessage}
+                    onOpenStyleSheet={() => setStyleSheetVisible(true)}
+                    onOpenSpeakingSettings={() =>
+                      openSettings(undefined, "tts")
+                    }
+                    onShareMessage={(message) => {
+                      void handleShareMessage(message.content);
+                    }}
+                    presentation="canvas"
+                    replayPhase={replayPhase}
+                    scrollEnabled
+                    showWhenEmpty
+                    showStyleControl={showStyleChip}
+                    showUsageStats={settings.showUsageStats}
+                    style={styles.workspaceTranscript}
+                    t={t}
+                  />
+                </View>
+              </View>
+            </View>
           </>
         )}
-      </View>
+      </KeyboardAvoidingView>
 
       <StyleSheetModal
+        canAutoRenameConversation={canGenerateTitle}
+        isAutoRenamingConversation={isGeneratingTitle}
         visible={styleSheetVisible}
         responseLength={settings.responseLength}
         responseTone={settings.responseTone}
+        onAutoRenameConversation={() => {
+          void handleGenerateTitle();
+        }}
         onChange={(partial) => updateSettings(partial)}
         onClose={() => setStyleSheetVisible(false)}
       />
@@ -1264,51 +883,6 @@ export function MainScreen() {
         ttsStatusLabel={ttsStatusLabel}
       />
 
-      <TranscriptModal
-        visible={transcriptVisible}
-        activeConversationTitle={activeConversationTitle}
-        activeReplayMessageId={activeReplayMessageId}
-        colors={colors}
-        conversationMenuVisible={conversationMenuVisible}
-        insets={insets}
-        isActive={isActive}
-        messages={messages}
-        onClose={closeTranscript}
-        onCloseConversationMenu={closeConversationMenu}
-        onCopyMessage={(message) => {
-          void handleCopyMessage(message.content);
-        }}
-        onCopyThread={() => {
-          closeConversationMenu();
-          void handleCopyThread();
-        }}
-        onManageMemory={() => {
-          closeConversationMenu();
-          void openMemory();
-        }}
-        onPress={handleTogglePress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        onRepeatMessage={(message) => {
-          void handleRepeatMessage(message);
-        }}
-        onShareMessage={(message) => {
-          void handleShareMessage(message.content);
-        }}
-        onShareThread={() => {
-          closeConversationMenu();
-          void handleShareThread();
-        }}
-        onSubmitTextMessage={handleSubmitTextMessage}
-        replayPhase={replayPhase}
-        settingsShowUsageStats={settings.showUsageStats}
-        t={t}
-        toggleConversationMenu={toggleConversationMenu}
-        usageDisplay={usageDisplay}
-        visualPhase={visualPhase}
-        waveformInputMode={settings.inputMode}
-      />
-
       <SettingsModal
         visible={settingsVisible}
         settings={settings}
@@ -1326,6 +900,14 @@ export function MainScreen() {
         onStopPreviewVoice={stopPreviewVoice}
         onValidateProvider={handleValidateProvider}
         onValidateWebSearchProvider={handleValidateWebSearchProvider}
+        onOpenSetupGuide={
+          settings.showSetupGuideShortcut
+            ? () => {
+                closeSettings();
+                handleOpenSetupGuide("intro", "settings");
+              }
+            : undefined
+        }
         onClose={closeSettings}
       />
       <SetupGuideModal
@@ -1358,6 +940,11 @@ export function MainScreen() {
         }}
         onOpenSettings={() => {
           void handleOpenSettingsFromSummary();
+        }}
+        showSettingsShortcutOption={setupGuideOpenedFromSettings}
+        settingsShortcutVisible={settings.showSetupGuideShortcut}
+        onChangeSettingsShortcutVisible={(visible) => {
+          updateSettings({ showSetupGuideShortcut: visible });
         }}
       />
       <ConversationMemoryModal
