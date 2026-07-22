@@ -159,6 +159,7 @@ export const en: TranslationDictionary = {
   styleSheetTitle: "Conversation settings",
   styleSheetSubtitle: "Shape replies and manage this conversation.",
   openStyleSheet: "Open conversation settings",
+  scrollToLatest: "Scroll to latest message",
   conversationTitle: "Conversation Title",
   conversationTitleGenerationDescription:
     "Run the selected model once to create a short title from the current conversation.",

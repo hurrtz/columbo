@@ -163,6 +163,7 @@ export const de: TranslationDictionary = {
   styleSheetTitle: "Gesprächseinstellungen",
   styleSheetSubtitle: "Passe Antworten an und verwalte dieses Gespräch.",
   openStyleSheet: "Gesprächseinstellungen öffnen",
+  scrollToLatest: "Zur neuesten Nachricht scrollen",
   conversationTitle: "Gesprächstitel",
   conversationTitleGenerationDescription:
     "Nutze das ausgewählte Modell einmalig, um aus dem aktuellen Gespräch einen kurzen Titel zu erzeugen.",

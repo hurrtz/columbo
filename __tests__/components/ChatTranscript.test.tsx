@@ -121,7 +121,7 @@ describe("ChatTranscript follow-tail scrolling", () => {
     fireEvent(list, "scrollBeginDrag");
     fireEvent(list, "scroll", scrollEvent(600));
     fireEvent(list, "scrollEndDrag", scrollEvent(600));
-    expect(scrollToEnd).toHaveBeenLastCalledWith({ animated: true });
+    expect(scrollToEnd).not.toHaveBeenCalled();
     scrollToEnd.mockClear();
 
     screen.rerender(
@@ -133,6 +133,53 @@ describe("ChatTranscript follow-tail scrolling", () => {
     list = screen.getByTestId("chat-transcript-list");
     fireEvent(list, "contentSizeChange", 320, 900);
     expect(scrollToEnd).toHaveBeenLastCalledWith({ animated: false });
+
+    scrollToEnd.mockRestore();
+    global.requestAnimationFrame = originalRequestAnimationFrame;
+    global.cancelAnimationFrame = originalCancelAnimationFrame;
+  });
+
+  it("does not pull back to the tail when a user starts scrolling upward", () => {
+    const originalRequestAnimationFrame = global.requestAnimationFrame;
+    const originalCancelAnimationFrame = global.cancelAnimationFrame;
+    global.requestAnimationFrame = (callback) => {
+      callback(0);
+      return 1;
+    };
+    global.cancelAnimationFrame = () => undefined;
+    const scrollToEnd = jest
+      .spyOn(FlatList.prototype, "scrollToEnd")
+      .mockImplementation(() => undefined);
+    const firstMessages = [message("user-1", "Hello")];
+    const renderTranscript = (messages: Message[]) => (
+      <ThemeProvider mode="light">
+        <LocalizationProvider language="en">
+          <ChatTranscript
+            conversationId="conversation-1"
+            messages={messages}
+          />
+        </LocalizationProvider>
+      </ThemeProvider>
+    );
+    const screen = render(renderTranscript(firstMessages));
+    let list = screen.getByTestId("chat-transcript-list");
+
+    fireEvent(list, "scroll", scrollEvent(600));
+    fireEvent(list, "scrollBeginDrag");
+    fireEvent(list, "scroll", scrollEvent(595));
+    fireEvent(list, "scrollEndDrag", scrollEvent(595));
+    scrollToEnd.mockClear();
+
+    screen.rerender(
+      renderTranscript([
+        ...firstMessages,
+        message("assistant-1", "Incoming content while reading above"),
+      ]),
+    );
+    list = screen.getByTestId("chat-transcript-list");
+    fireEvent(list, "contentSizeChange", 320, 700);
+
+    expect(scrollToEnd).not.toHaveBeenCalled();
 
     scrollToEnd.mockRestore();
     global.requestAnimationFrame = originalRequestAnimationFrame;

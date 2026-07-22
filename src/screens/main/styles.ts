@@ -279,12 +279,14 @@ export const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   transcriptHeaderCopy: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
     minWidth: 0,
   },
   transcriptHeaderControls: {
     flexDirection: "row",
     alignItems: "center",
+    flexShrink: 0,
     marginLeft: 8,
     gap: 4,
   },
@@ -295,6 +297,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   transcriptTitle: {
+    width: "100%",
     fontSize: 15,
     lineHeight: 20,
     fontFamily: fonts.display,

@@ -34,9 +34,12 @@ interface ChatTranscriptProps {
   messageSelectionEnabled?: boolean;
   showUsageStats?: boolean;
   conversationId?: string | null;
+  onTailStateChange?: (isAtTail: boolean) => void;
+  scrollToLatestRequest?: number;
 }
 
-const FOLLOW_TAIL_THRESHOLD_PX = 48;
+const AT_TAIL_THRESHOLD_PX = 4;
+const SCROLL_AWAY_DELTA_PX = 0.5;
 
 export function getTranscriptDistanceFromBottom(event: NativeScrollEvent) {
   return Math.max(
@@ -64,14 +67,19 @@ export function ChatTranscript({
   messageSelectionEnabled = false,
   showUsageStats = false,
   conversationId = null,
+  onTailStateChange,
+  scrollToLatestRequest = 0,
 }: ChatTranscriptProps) {
   const { colors } = useTheme();
   const { t } = useLocalization();
   const listRef = useRef<FlatList>(null);
   const followTailRef = useRef(true);
   const userScrollingRef = useRef(false);
+  const userMovedAwayFromTailRef = useRef(false);
   const distanceFromBottomRef = useRef(0);
+  const isAtTailRef = useRef(true);
   const tailScrollFrameRef = useRef<number | null>(null);
+  const handledScrollRequestRef = useRef(scrollToLatestRequest);
   const conversationKey = useMemo(
     () => conversationId ?? messages[0]?.id ?? "empty-conversation",
     [conversationId, messages],
@@ -80,11 +88,28 @@ export function ChatTranscript({
   const resolvedEmptyDescription =
     emptyDescription ?? t("defaultTranscriptEmptyDescription");
 
-  const scrollToTail = useCallback((animated: boolean) => {
-    followTailRef.current = true;
-    distanceFromBottomRef.current = 0;
-    listRef.current?.scrollToEnd({ animated });
-  }, []);
+  const setTailState = useCallback(
+    (isAtTail: boolean) => {
+      if (isAtTailRef.current === isAtTail) {
+        return;
+      }
+
+      isAtTailRef.current = isAtTail;
+      onTailStateChange?.(isAtTail);
+    },
+    [onTailStateChange],
+  );
+
+  const scrollToTail = useCallback(
+    (animated: boolean) => {
+      followTailRef.current = true;
+      userMovedAwayFromTailRef.current = false;
+      distanceFromBottomRef.current = 0;
+      setTailState(true);
+      listRef.current?.scrollToEnd({ animated });
+    },
+    [setTailState],
+  );
 
   const scheduleScrollToTail = useCallback(
     (animated: boolean) => {
@@ -114,11 +139,22 @@ export function ChatTranscript({
   useEffect(() => {
     followTailRef.current = true;
     userScrollingRef.current = false;
+    userMovedAwayFromTailRef.current = false;
     distanceFromBottomRef.current = 0;
+    setTailState(true);
     if (messages.length === 0) {
       listRef.current?.scrollToOffset({ offset: 0, animated: false });
     }
-  }, [conversationKey]);
+  }, [conversationKey, setTailState]);
+
+  useEffect(() => {
+    if (handledScrollRequestRef.current === scrollToLatestRequest) {
+      return;
+    }
+
+    handledScrollRequestRef.current = scrollToLatestRequest;
+    scrollToTail(true);
+  }, [scrollToLatestRequest, scrollToTail]);
 
   const handleContentSizeChange = useCallback(() => {
     if (
@@ -158,13 +194,26 @@ export function ChatTranscript({
       const distanceFromBottom = getTranscriptDistanceFromBottom(
         event.nativeEvent,
       );
+      const previousDistanceFromBottom = distanceFromBottomRef.current;
       distanceFromBottomRef.current = distanceFromBottom;
+      const isAtTail = distanceFromBottom <= AT_TAIL_THRESHOLD_PX;
+      setTailState(isAtTail);
+
       if (userScrollingRef.current) {
-        followTailRef.current =
-          distanceFromBottom <= FOLLOW_TAIL_THRESHOLD_PX;
+        const movingAwayFromTail =
+          distanceFromBottom >
+          previousDistanceFromBottom + SCROLL_AWAY_DELTA_PX;
+
+        if (movingAwayFromTail) {
+          userMovedAwayFromTailRef.current = true;
+          followTailRef.current = false;
+        } else if (isAtTail) {
+          userMovedAwayFromTailRef.current = false;
+          followTailRef.current = true;
+        }
       }
     },
-    [],
+    [setTailState],
   );
 
   const handleScrollBeginDrag = useCallback(() => {
@@ -173,17 +222,18 @@ export function ChatTranscript({
       tailScrollFrameRef.current = null;
     }
     userScrollingRef.current = true;
+    userMovedAwayFromTailRef.current = false;
   }, []);
 
   const handleScrollInteractionEnd = useCallback(() => {
+    const isAtTail =
+      distanceFromBottomRef.current <= AT_TAIL_THRESHOLD_PX;
     followTailRef.current =
-      distanceFromBottomRef.current <= FOLLOW_TAIL_THRESHOLD_PX;
+      isAtTail && !userMovedAwayFromTailRef.current;
     userScrollingRef.current = false;
-
-    if (followTailRef.current) {
-      scheduleScrollToTail(true);
-    }
-  }, [scheduleScrollToTail]);
+    userMovedAwayFromTailRef.current = false;
+    setTailState(isAtTail);
+  }, [setTailState]);
 
   return (
     <FlatList
@@ -243,6 +293,7 @@ export function ChatTranscript({
       onScroll={updateUserScrollPosition}
       onScrollBeginDrag={handleScrollBeginDrag}
       onScrollEndDrag={handleScrollInteractionEnd}
+      onMomentumScrollBegin={handleScrollBeginDrag}
       onMomentumScrollEnd={handleScrollInteractionEnd}
       onTouchStart={onTap}
     />

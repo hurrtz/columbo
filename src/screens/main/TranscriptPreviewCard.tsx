@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleProp,
   Text,
@@ -63,6 +63,13 @@ export function TranscriptPreviewCard({
   style,
   t,
 }: TranscriptPreviewCardProps) {
+  const [isAtTranscriptTail, setIsAtTranscriptTail] = useState(true);
+  const [scrollToLatestRequest, setScrollToLatestRequest] = useState(0);
+
+  useEffect(() => {
+    setIsAtTranscriptTail(true);
+  }, [activeConversationId]);
+
   if (!showWhenEmpty && messages.length === 0) {
     return null;
   }
@@ -71,6 +78,10 @@ export function TranscriptPreviewCard({
     layout === "landscape" || presentation === "canvas";
   const usesPortraitCanvas =
     layout === "portrait" && presentation === "canvas";
+  const showScrollToLatest =
+    scrollEnabled && messages.length > 0 && !isAtTranscriptTail;
+  const showHeaderControls =
+    (showStyleControl && Boolean(onOpenStyleSheet)) || showScrollToLatest;
 
   return (
     <View
@@ -101,8 +112,12 @@ export function TranscriptPreviewCard({
           },
         ]}
       >
-        <View style={styles.transcriptHeaderCopy}>
+        <View
+          testID="transcript-header-copy"
+          style={styles.transcriptHeaderCopy}
+        >
           <Text
+            testID="transcript-title"
             numberOfLines={1}
             style={[styles.transcriptTitle, { color: colors.text }]}
           >
@@ -110,18 +125,43 @@ export function TranscriptPreviewCard({
           </Text>
         </View>
 
-        {showStyleControl && onOpenStyleSheet ? (
+        {showHeaderControls ? (
           <View style={styles.transcriptHeaderControls}>
-            <TouchableOpacity
-              testID="conversation-style-control"
-              style={styles.transcriptStyleControl}
-              onPress={onOpenStyleSheet}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel={t("openStyleSheet")}
-            >
-              <Feather name="sliders" size={19} color={colors.textSecondary} />
-            </TouchableOpacity>
+            {showStyleControl && onOpenStyleSheet ? (
+              <TouchableOpacity
+                testID="conversation-style-control"
+                style={styles.transcriptStyleControl}
+                onPress={onOpenStyleSheet}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={t("openStyleSheet")}
+              >
+                <Feather
+                  name="sliders"
+                  size={19}
+                  color={colors.textSecondary}
+                />
+              </TouchableOpacity>
+            ) : null}
+            {showScrollToLatest ? (
+              <TouchableOpacity
+                testID="scroll-to-latest-control"
+                style={styles.transcriptStyleControl}
+                onPress={() => {
+                  setIsAtTranscriptTail(true);
+                  setScrollToLatestRequest((request) => request + 1);
+                }}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={t("scrollToLatest")}
+              >
+                <Feather
+                  name="arrow-down"
+                  size={19}
+                  color={colors.textSecondary}
+                />
+              </TouchableOpacity>
+            ) : null}
           </View>
         ) : null}
       </View>
@@ -143,6 +183,8 @@ export function TranscriptPreviewCard({
           onOpenSpeakingSettings={onOpenSpeakingSettings}
           onShareMessage={onShareMessage}
           repeatPlaybackStatus={replayPhase}
+          onTailStateChange={setIsAtTranscriptTail}
+          scrollToLatestRequest={scrollToLatestRequest}
         />
       </View>
     </View>
