@@ -420,6 +420,8 @@ export const en: TranslationDictionary = {
   thinkingElapsed: ({ detail, seconds }) => `${detail} · ${seconds}s`,
   speechEtaCountdown: "Estimated wait",
   speechEtaOvertime: "Beyond estimate",
+  phaseTimeRemaining: "Phase",
+  totalTimeRemaining: "Total",
   speakingBackToYou: "Speaking back to you",
   freshSession: "Fresh session",
   messageCount: ({ count }) =>

@@ -73,6 +73,8 @@ const t = ((key: string) => {
     showVoiceInput: "Show voice input",
     showTextInput: "Show text input",
     statusDetails: "Status details",
+    phaseTimeRemaining: "Phase",
+    totalTimeRemaining: "Total",
     speechEtaCountdown: "About",
     speechEtaOvertime: "Still working",
   };
@@ -133,6 +135,12 @@ describe("MainScreenVoiceStage composer", () => {
     });
 
     fireEvent.press(screen.getByLabelText("Show text input"));
+
+    expect(
+      StyleSheet.flatten(
+        screen.getByTestId("voice-text-input-pager").props.style,
+      ),
+    ).toEqual(expect.objectContaining({ gap: 32, width: 672 }));
 
     expect(
       screen.getByLabelText("Show text input").props.accessibilityState,
@@ -324,7 +332,48 @@ describe("MainScreenVoiceStage composer", () => {
     expect(screen.getByText("icon:cpu")).toBeTruthy();
     expect(screen.getByText("Thinking")).toBeTruthy();
     expect(screen.getByTestId("voice-stage-phase-time")).toBeTruthy();
+    expect(screen.getByText("Phase")).toBeTruthy();
+    expect(screen.getByText("Total")).toBeTruthy();
     expect(screen.queryByTestId("main-screen-status-strip")).toBeNull();
+  });
+
+  it("shows separate countdowns for the current phase and the whole turn", () => {
+    const now = Date.now();
+    const screen = render(
+      <MainScreenVoiceStage
+        {...createProps({
+          isActive: true,
+          phaseLabel: "Thinking",
+          phaseProgress: {
+            phase: "thinking",
+            progress: 0.4,
+            elapsedMs: 5_000,
+            startedAt: now - 5_000,
+            estimatedMs: 12_000,
+            sampleCount: 3,
+            learned: true,
+            overEstimate: false,
+            overall: {
+              progress: 0.3,
+              elapsedMs: 8_000,
+              startedAt: now - 8_000,
+              estimatedMs: 24_000,
+              sampleCount: 5,
+              learned: true,
+              overEstimate: false,
+            },
+          },
+          visualPhase: "thinking",
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("voice-stage-current-time")).toHaveTextContent(
+      "0:07",
+    );
+    expect(screen.getByTestId("voice-stage-total-time")).toHaveTextContent(
+      "0:16",
+    );
   });
 
   it("keeps playback controls inside the stable speaking CTA", () => {

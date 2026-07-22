@@ -431,6 +431,8 @@ export const de: TranslationDictionary = {
   thinkingElapsed: ({ detail, seconds }) => `${detail} · ${seconds}s`,
   speechEtaCountdown: "Geschätzte Wartezeit",
   speechEtaOvertime: "Über der Schätzung",
+  phaseTimeRemaining: "Phase",
+  totalTimeRemaining: "Gesamt",
   speakingBackToYou: "Antwortet dir",
   freshSession: "Neues Gespräch",
   messageCount: ({ count }) =>

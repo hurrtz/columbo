@@ -66,6 +66,9 @@ const SURFACE_INDEX: Record<InputSurface, number> = {
   voice: 0,
   text: 1,
 };
+// Preserve the same 16pt breathing room on both sides while one surface
+// leaves and the other enters the viewport.
+const PAGE_GAP = 32;
 
 export function VoiceTextInputPager({
   colors,
@@ -101,7 +104,8 @@ export function VoiceTextInputPager({
   const [textFocused, setTextFocused] = React.useState(false);
   const [textMessage, setTextMessage] = React.useState(initialTextMessage);
   const pageWidth = viewportWidth || Math.max(1, windowWidth - 32);
-  const pageWidthShared = useSharedValue(pageWidth);
+  const pageStride = pageWidth + PAGE_GAP;
+  const pageStrideShared = useSharedValue(pageStride);
   const trackTranslateX = useSharedValue(0);
   const gestureStartX = useSharedValue(0);
   const activeSurfaceIndex = useSharedValue(0);
@@ -136,7 +140,7 @@ export function VoiceTextInputPager({
 
   const selectSurface = React.useCallback(
     (surface: InputSurface) => {
-      const targetX = -SURFACE_INDEX[surface] * pageWidth;
+      const targetX = -SURFACE_INDEX[surface] * pageStride;
       if (reducedMotion) {
         trackTranslateX.value = targetX;
         applySurface(surface, surface === "text");
@@ -153,18 +157,18 @@ export function VoiceTextInputPager({
         },
       );
     },
-    [applySurface, pageWidth, reducedMotion, trackTranslateX],
+    [applySurface, pageStride, reducedMotion, trackTranslateX],
   );
 
   React.useEffect(() => {
-    pageWidthShared.value = pageWidth;
+    pageStrideShared.value = pageStride;
     activeSurfaceIndex.value = SURFACE_INDEX[activeSurface];
-    trackTranslateX.value = -SURFACE_INDEX[activeSurface] * pageWidth;
+    trackTranslateX.value = -SURFACE_INDEX[activeSurface] * pageStride;
   }, [
     activeSurface,
     activeSurfaceIndex,
-    pageWidth,
-    pageWidthShared,
+    pageStride,
+    pageStrideShared,
     trackTranslateX,
   ]);
 
@@ -198,15 +202,15 @@ export function VoiceTextInputPager({
         .onUpdate((event) => {
           const nextX = gestureStartX.value + event.translationX;
           trackTranslateX.value = Math.max(
-            -pageWidthShared.value,
+            -pageStrideShared.value,
             Math.min(0, nextX),
           );
         })
         .onEnd((event) => {
           const projectedX = trackTranslateX.value + event.velocityX * 0.12;
           const nextSurface: InputSurface =
-            projectedX <= -pageWidthShared.value / 2 ? "text" : "voice";
-          const targetX = -SURFACE_INDEX[nextSurface] * pageWidthShared.value;
+            projectedX <= -pageStrideShared.value / 2 ? "text" : "voice";
+          const targetX = -SURFACE_INDEX[nextSurface] * pageStrideShared.value;
 
           if (reducedMotion) {
             trackTranslateX.value = targetX;
@@ -234,7 +238,7 @@ export function VoiceTextInputPager({
           }
 
           const targetX =
-            -activeSurfaceIndex.value * pageWidthShared.value;
+            -activeSurfaceIndex.value * pageStrideShared.value;
           trackTranslateX.value = reducedMotion
             ? targetX
             : withSpring(targetX, {
@@ -247,7 +251,7 @@ export function VoiceTextInputPager({
       activeSurfaceIndex,
       applySurface,
       gestureStartX,
-      pageWidthShared,
+      pageStrideShared,
       reducedMotion,
       textInputGesture,
       trackTranslateX,
@@ -291,7 +295,7 @@ export function VoiceTextInputPager({
             pointerEvents={isActive ? "none" : "auto"}
             style={[
               localStyles.track,
-              { width: pageWidth * 2 },
+              { width: pageWidth * 2 + PAGE_GAP },
               trackAnimatedStyle,
               isActive ? localStyles.trackCovered : null,
             ]}
@@ -492,6 +496,7 @@ const localStyles = StyleSheet.create({
   },
   track: {
     flexDirection: "row",
+    gap: PAGE_GAP,
   },
   trackCovered: {
     opacity: 0,

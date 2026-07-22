@@ -9,6 +9,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+import { useReducedMotion } from "../../hooks/useReducedMotion";
 import { Colors } from "../../theme/colors";
 import { fonts } from "../../theme/typography";
 import {
@@ -94,7 +95,7 @@ function getPhaseColor(visualPhase: VoiceVisualPhase, colors: Colors) {
   }
 }
 
-function usePhaseTimeLabel(
+function usePhaseTimeLabels(
   visualPhase: VoiceVisualPhase,
   recordingMaxMs: number,
   phaseProgress?: VoicePhaseProgress | null,
@@ -112,17 +113,41 @@ function usePhaseTimeLabel(
   }, [phaseProgress?.startedAt, visualPhase]);
 
   if (visualPhase === "recording") {
-    return formatClock(recordingMaxMs - (now - phaseStartedAt));
+    return {
+      current: formatClock(recordingMaxMs - (now - phaseStartedAt)),
+      overall: "—",
+    };
   }
 
   if (phaseProgress) {
-    return formatLatencyCountdown(
-      now - phaseProgress.startedAt,
-      phaseProgress.estimatedMs,
-    ).text;
+    const currentProgress =
+      phaseProgress.phase === visualPhase || phaseProgress.phase === "turn"
+        ? phaseProgress
+        : null;
+    const overallProgress =
+      phaseProgress.overall ??
+      (phaseProgress.phase === "turn" ? phaseProgress : null);
+
+    return {
+      current: currentProgress
+        ? formatLatencyCountdown(
+            now - currentProgress.startedAt,
+            currentProgress.estimatedMs,
+          ).text
+        : "—",
+      overall: overallProgress
+        ? formatLatencyCountdown(
+            now - overallProgress.startedAt,
+            overallProgress.estimatedMs,
+          ).text
+        : "—",
+    };
   }
 
-  return `+${formatClock(now - phaseStartedAt)}`;
+  return {
+    current: `+${formatClock(now - phaseStartedAt)}`,
+    overall: "—",
+  };
 }
 
 export function PhaseAwareVoiceAction({
@@ -143,13 +168,24 @@ export function PhaseAwareVoiceAction({
   t,
   visualPhase,
 }: PhaseAwareVoiceActionProps) {
+  const reducedMotion = useReducedMotion();
   const recordingProgress = useSharedValue(0);
   const phaseColor = getPhaseColor(visualPhase, colors);
-  const timeLabel = usePhaseTimeLabel(
+  const animatedPhaseColor = useSharedValue(phaseColor);
+  const timeLabels = usePhaseTimeLabels(
     visualPhase,
     recordingMaxMs,
     phaseProgress,
   );
+
+  React.useEffect(() => {
+    cancelAnimation(animatedPhaseColor);
+    animatedPhaseColor.value = reducedMotion
+      ? phaseColor
+      : withTiming(phaseColor, { duration: 280 });
+
+    return () => cancelAnimation(animatedPhaseColor);
+  }, [animatedPhaseColor, phaseColor, reducedMotion]);
 
   React.useEffect(() => {
     cancelAnimation(recordingProgress);
@@ -168,17 +204,15 @@ export function PhaseAwareVoiceAction({
   const recordingFillStyle = useAnimatedStyle(() => ({
     width: `${recordingProgress.value * 100}%`,
   }));
+  const surfaceColorStyle = useAnimatedStyle(() => ({
+    backgroundColor: animatedPhaseColor.value,
+    borderColor: animatedPhaseColor.value,
+  }));
 
   return (
-    <View
+    <Animated.View
       testID="voice-stage-action-surface"
-      style={[
-        styles.surface,
-        {
-          backgroundColor: phaseColor,
-          borderColor: phaseColor,
-        },
-      ]}
+      style={[styles.surface, surfaceColorStyle]}
     >
       {visualPhase === "recording" ? (
         <Animated.View
@@ -220,8 +254,10 @@ export function PhaseAwareVoiceAction({
         onPress={onOpenStatusDetails}
         style={styles.phaseLabelButton}
       >
-        <Feather name="info" size={12} color={colors.onAccent} />
+        <Feather name="info" size={11} color={colors.onAccent} />
         <Text
+          adjustsFontSizeToFit
+          minimumFontScale={0.84}
           numberOfLines={1}
           style={[styles.phaseLabel, { color: colors.onAccent }]}
         >
@@ -243,15 +279,43 @@ export function PhaseAwareVoiceAction({
           <Feather name="square" size={13} color={colors.onAccent} />
         </TouchableOpacity>
       ) : (
-        <Text
+        <View
           testID="voice-stage-phase-time"
-          numberOfLines={1}
-          style={[styles.phaseTime, { color: colors.onAccent }]}
+          style={styles.phaseTimes}
         >
-          {timeLabel}
-        </Text>
+          <Text
+            numberOfLines={1}
+            style={[styles.phaseTimeLine, { color: colors.onAccent }]}
+          >
+            <Text style={styles.phaseTimeScope}>
+              {t("phaseTimeRemaining")}
+              {"  "}
+            </Text>
+            <Text
+              testID="voice-stage-current-time"
+              style={styles.phaseTimeValue}
+            >
+              {timeLabels.current}
+            </Text>
+          </Text>
+          <Text
+            numberOfLines={1}
+            style={[styles.phaseTimeLine, { color: colors.onAccent }]}
+          >
+            <Text style={styles.phaseTimeScope}>
+              {t("totalTimeRemaining")}
+              {"  "}
+            </Text>
+            <Text
+              testID="voice-stage-total-time"
+              style={styles.phaseTimeValue}
+            >
+              {timeLabels.overall}
+            </Text>
+          </Text>
+        </View>
       )}
-    </View>
+    </Animated.View>
   );
 }
 
@@ -285,26 +349,56 @@ const styles = StyleSheet.create({
   },
   phaseLabelButton: {
     position: "absolute",
-    left: 12,
+    left: 8,
     top: 0,
     bottom: 0,
-    maxWidth: "34%",
+    width: "34%",
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    justifyContent: "center",
+    gap: 4,
   },
   phaseLabel: {
     flexShrink: 1,
-    fontSize: 11,
-    lineHeight: 14,
-    fontFamily: fonts.display,
+    fontSize: 14,
+    lineHeight: 17,
+    fontFamily: fonts.body,
+    fontWeight: "400",
+    letterSpacing: 0.1,
+    textAlign: "center",
   },
-  phaseTime: {
+  phaseTimes: {
     position: "absolute",
-    right: 14,
-    fontSize: 11,
-    lineHeight: 14,
-    fontFamily: fonts.mono,
+    right: 8,
+    top: 0,
+    bottom: 0,
+    width: "34%",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 1,
+  },
+  phaseTimeLine: {
+    width: "100%",
+    fontFamily: fonts.body,
+    fontSize: 11.5,
+    lineHeight: 15,
+    fontWeight: "400",
+    textAlign: "center",
+  },
+  phaseTimeScope: {
+    fontFamily: fonts.body,
+    fontSize: 10.5,
+    lineHeight: 15,
+    fontWeight: "400",
+    letterSpacing: 0.1,
+    opacity: 0.82,
+  },
+  phaseTimeValue: {
+    fontFamily: fonts.body,
+    fontSize: 11.5,
+    lineHeight: 15,
+    fontWeight: "400",
+    fontVariant: ["tabular-nums"],
   },
   stopButton: {
     position: "absolute",
