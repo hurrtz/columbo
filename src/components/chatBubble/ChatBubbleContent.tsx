@@ -707,13 +707,13 @@ function MessageActions({
                 repeatState === "speaking"
                   ? colors.success
                   : repeatState === "preparing"
-                    ? colors.accentSoft
+                    ? colors.phaseSynthesizing
                     : colors.surfaceAlt,
               borderColor:
                 repeatState === "speaking"
                   ? colors.success
                   : repeatState === "preparing"
-                    ? colors.borderStrong
+                    ? colors.phaseSynthesizing
                     : colors.border,
             },
           ]}
@@ -730,7 +730,7 @@ function MessageActions({
               repeatState === "speaking"
                 ? getAccessibleForeground(colors.success)
                 : repeatState === "preparing"
-                  ? colors.accent
+                  ? getAccessibleForeground(colors.phaseSynthesizing)
                   : colors.textSecondary
             }
           />

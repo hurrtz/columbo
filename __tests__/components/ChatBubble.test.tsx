@@ -4,6 +4,7 @@ import { act, fireEvent } from "@testing-library/react-native";
 
 import { ChatBubble } from "../../src/components/ChatBubble";
 import {
+  darkColors,
   getAccessibleForeground,
   lightColors,
 } from "../../src/theme/colors";
@@ -338,6 +339,42 @@ describe("ChatBubble", () => {
       getAccessibleForeground(lightColors.success),
     );
   });
+
+  it.each([
+    ["light", lightColors],
+    ["dark", darkColors],
+  ] as const)(
+    "matches the %s CTA synthesis color while replay is preparing",
+    (themeMode, colors) => {
+      const messageId = `assistant-repeat-preparing-${themeMode}`;
+      const screen = renderWithProviders(
+        <ChatBubble
+          selectable
+          message={{
+            id: messageId,
+            role: "assistant",
+            content: "Prepare this response for speech.",
+            model: "grok-4.5",
+            provider: "xai",
+            timestamp: "2026-07-22T10:02:00.000Z",
+          }}
+          onRepeat={jest.fn()}
+          repeatState="preparing"
+        />,
+        { themeMode },
+      );
+
+      expect(
+        StyleSheet.flatten(
+          screen.getByTestId(`message-repeat-action-${messageId}`).props.style,
+        ).backgroundColor,
+      ).toBe(colors.phaseSynthesizing);
+      expect(screen.getByTestId("icon-loader").props.style.color).toBe(
+        getAccessibleForeground(colors.phaseSynthesizing),
+      );
+      screen.unmount();
+    },
+  );
 
   it("keeps copy neutral when the clipboard write fails", () => {
     const screen = renderWithProviders(
