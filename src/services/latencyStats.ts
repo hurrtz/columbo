@@ -20,6 +20,7 @@ let latencyWriteQueue: Promise<void> = Promise.resolve();
 
 export type LatencyStatsPhase =
   | "stt-transcription"
+  | "request-preparation"
   | "llm-response"
   | "web-search"
   | "tts-synthesis"
@@ -76,6 +77,17 @@ export function createLatencyRouteKey(descriptor: LatencyRouteDescriptor) {
       normalizeKeyPart(descriptor.sttMode),
       normalizeKeyPart(descriptor.provider),
       normalizeKeyPart(descriptor.sttModel),
+    ].join(":");
+  }
+
+  if (descriptor.phase === "request-preparation") {
+    return [
+      "request-preparation-v1",
+      normalizeKeyPart(descriptor.provider),
+      normalizeKeyPart(descriptor.model),
+      normalizeKeyPart(descriptor.inputSource),
+      normalizeKeyPart(descriptor.webSearchMode),
+      normalizeKeyPart(descriptor.webSearchProvider),
     ].join(":");
   }
 
@@ -167,6 +179,10 @@ export function getDefaultLatencyEstimateMs(
 ) {
   if (descriptor.phase === "stt-transcription") {
     return descriptor.sttMode === "provider" ? 4_000 : 2_000;
+  }
+
+  if (descriptor.phase === "request-preparation") {
+    return 2_000;
   }
 
   if (descriptor.phase === "web-search") {

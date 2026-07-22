@@ -98,7 +98,6 @@ export function useVoiceCaptureHandler({
   const lastAssistantMessageIdRef = useRef<string | null>(null);
   const pendingAssistantNoticesRef = useRef<MessagePipelineNotice[]>([]);
   const {
-    cancelLatencyProgress,
     clearLatencyProgress,
     finishLatencyProgress,
     startLatencyProgress,
@@ -199,7 +198,9 @@ export function useVoiceCaptureHandler({
           ttsMode,
         },
       });
-      setPipelinePhase(transcriptionOverride ? "thinking" : "transcribing");
+      setPipelinePhase(
+        transcriptionOverride ? "thinking-briefly" : "transcribing",
+      );
       const streamingRenderRunId = beginStreamingRender();
       ttsFallbackToastShownRef.current = false;
       producedAudioRef.current = false;
@@ -238,6 +239,15 @@ export function useVoiceCaptureHandler({
         webSearchMode,
         webSearchProvider,
       });
+      const startBriefThinkingLatency = () =>
+        startLatencyProgress("thinking-briefly", {
+          phase: "request-preparation",
+          provider,
+          model,
+          inputSource: transcriptionOverride ? "text" : "voice",
+          webSearchMode,
+          webSearchProvider,
+        });
       const startThinkingLatency = () =>
         startLatencyProgress("thinking", {
           phase: "llm-response",
@@ -258,9 +268,22 @@ export function useVoiceCaptureHandler({
           responseLength,
           replyPlayback,
         });
+      let llmStarted = false;
+      const handleLlmStarted = () => {
+        if (llmStarted) {
+          return;
+        }
+
+        llmStarted = true;
+        finishLatencyProgress("thinking-briefly");
+        startThinkingLatency();
+        setPipelinePhase(
+          playbackStartedRef.current ? "speaking" : "thinking",
+        );
+      };
 
       if (transcriptionOverride) {
-        startThinkingLatency();
+        startBriefThinkingLatency();
       } else {
         startLatencyProgress("transcribing", {
           phase: "stt-transcription",
@@ -312,9 +335,9 @@ export function useVoiceCaptureHandler({
               });
               if (!transcriptionOverride) {
                 finishLatencyProgress("transcribing");
-                startThinkingLatency();
+                startBriefThinkingLatency();
               }
-              setPipelinePhase("thinking");
+              setPipelinePhase("thinking-briefly");
               if (existingUserMessageId) {
                 return;
               }
@@ -350,7 +373,7 @@ export function useVoiceCaptureHandler({
               recordDebugLogEvent({
                 event: "voice-pipeline-web-search-start",
               });
-              cancelLatencyProgress("thinking");
+              finishLatencyProgress("thinking-briefly");
               startLatencyProgress("searching", {
                 phase: "web-search",
                 provider: webSearchProvider ?? null,
@@ -363,10 +386,6 @@ export function useVoiceCaptureHandler({
                 event: "voice-pipeline-web-search-complete",
               });
               finishLatencyProgress("searching");
-              startThinkingLatency();
-              setPipelinePhase(
-                playbackStartedRef.current ? "speaking" : "thinking",
-              );
             },
             onWebSearchFallback: (error) => {
               const notice: MessagePipelineNotice = {
@@ -382,18 +401,15 @@ export function useVoiceCaptureHandler({
                   message: error.message,
                 },
               });
-              finishLatencyProgress("searching");
-              startThinkingLatency();
-              setPipelinePhase(
-                playbackStartedRef.current ? "speaking" : "thinking",
-              );
               pendingAssistantNoticesRef.current = [
                 ...pendingAssistantNoticesRef.current,
                 notice,
               ];
               showToast(formatNoticeToast(notice), undefined, "danger");
             },
+            onLlmStart: handleLlmStarted,
             onChunk: (text) => {
+              handleLlmStarted();
               recordDebugLogEvent({
                 event: "voice-pipeline-stream-chunk",
                 payload: {
@@ -410,6 +426,7 @@ export function useVoiceCaptureHandler({
               usage?: UsageEstimate,
               metadata?: MessageMetadata,
             ) => {
+              handleLlmStarted();
               recordDebugLogEvent({
                 event: "voice-pipeline-response-done",
                 payload: {
@@ -736,7 +753,6 @@ export function useVoiceCaptureHandler({
       appendNoticeMetadata,
       assistantInstructions,
       beginStreamingRender,
-      cancelLatencyProgress,
       clearLatencyProgress,
       clearReplyFailure,
       cancelStreamingRender,

@@ -113,18 +113,20 @@ export function getMainScreenViewModel({
     ? "recording"
     : pipelinePhase === "transcribing"
       ? "transcribing"
-      : pipelinePhase === "searching"
-        ? "searching"
-      : player.isActivelyPlaying ||
-          (player.isPlaybackPaused && pipelinePhase === "speaking")
-        ? "speaking"
-        : pipelinePhase === "speaking"
-          ? "synthesizing"
-        : pipelinePhase === "synthesizing"
-          ? "synthesizing"
-          : pipelinePhase === "thinking"
-            ? "thinking"
-            : "idle";
+      : pipelinePhase === "thinking-briefly"
+        ? "thinking-briefly"
+        : pipelinePhase === "searching"
+          ? "searching"
+          : player.isActivelyPlaying ||
+              (player.isPlaybackPaused && pipelinePhase === "speaking")
+            ? "speaking"
+            : pipelinePhase === "speaking"
+              ? "synthesizing"
+              : pipelinePhase === "synthesizing"
+                ? "synthesizing"
+                : pipelinePhase === "thinking"
+                  ? "thinking"
+                  : "idle";
   const isActive = visualPhase !== "idle";
 
   const baseMessages = activeConversation?.messages || [];

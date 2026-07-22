@@ -412,6 +412,7 @@ export const en: TranslationDictionary = {
   currentSetup: "Current Setup",
   listeningToYourVoice: "Listening to your voice",
   parsingYourVoiceInput: "Turning your voice into text",
+  preparingRequest: "Preparing your request",
   searchingTheWeb: "Searching the web for fresh context",
   waitingForProvider: ({ provider }) => `Waiting for ${provider}`,
   preparingVoiceWithProvider: ({ provider }) =>

@@ -83,4 +83,25 @@ describe("statusSelectors", () => {
     expect(status.actionLabel).toBe("Listening");
   });
 
+  it("distinguishes request preparation from provider thinking", () => {
+    const status = getStatusDisplayData({
+      inputMode: "toggle-to-talk",
+      messageCount: 1,
+      pipelinePhase: "thinking-briefly",
+      providerLabel: "xAI",
+      t: (key) =>
+        ({
+          thinking: "Thinking",
+          preparingRequest: "Preparing your request",
+          messageCount: "1 message",
+        })[key] ?? key,
+      ttsProviderLabel: "xAI",
+      visualPhase: "thinking-briefly",
+    });
+
+    expect(status.actionLabel).toBe("Thinking");
+    expect(status.statusTitle).toBe("Thinking");
+    expect(status.statusDetail).toBe("Preparing your request");
+  });
+
 });

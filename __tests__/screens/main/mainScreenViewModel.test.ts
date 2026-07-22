@@ -75,7 +75,7 @@ describe("getMainScreenViewModel", () => {
       isRecording: false,
       language: "en",
       model: "gpt-5.4",
-      pipelinePhase: "thinking",
+      pipelinePhase: "thinking-briefly",
       player: {
         isActivelyPlaying: false,
         isPlaybackPaused: false,
@@ -93,7 +93,7 @@ describe("getMainScreenViewModel", () => {
       ttsProvider: "openai",
     });
 
-    expect(viewModel.visualPhase).toBe("thinking");
+    expect(viewModel.visualPhase).toBe("thinking-briefly");
     expect(viewModel.isActive).toBe(true);
     expect(viewModel.messages).toHaveLength(2);
     expect(viewModel.lastAssistantReply).toBe("Stored reply");

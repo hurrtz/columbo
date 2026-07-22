@@ -189,24 +189,6 @@ export function useLatencyProgressController({
     [],
   );
 
-  const cancelLatencyProgress = useCallback(
-    (phase: VoicePhaseProgressPhase) => {
-      if (phase === "turn") {
-        if (activeTurnProgressRef.current?.phase !== phase) {
-          return;
-        }
-        activeTurnProgressRef.current = null;
-      } else {
-        if (activePhaseProgressRef.current?.phase !== phase) {
-          return;
-        }
-        activePhaseProgressRef.current = null;
-      }
-      publishLatencyProgress();
-    },
-    [publishLatencyProgress],
-  );
-
   const finishLatencyProgress = useCallback(
     (phase: VoicePhaseProgressPhase) => {
       const active =
@@ -238,7 +220,6 @@ export function useLatencyProgressController({
   );
 
   return {
-    cancelLatencyProgress,
     clearLatencyProgress,
     finishLatencyProgress,
     startLatencyProgress,

@@ -26,17 +26,19 @@ export function getVisualPhaseActionLabel(params: {
       : t("listening")
     : visualPhase === "transcribing"
       ? t("parsing")
-      : visualPhase === "searching"
-        ? t("webSearch")
-      : visualPhase === "synthesizing"
-        ? t("voiceOutput")
-        : visualPhase === "thinking"
-          ? t("thinking")
-          : visualPhase === "speaking"
-            ? t("speaking")
-            : inputMode === "push-to-talk"
-              ? t("holdToSpeak")
-              : t("tapToSpeak");
+      : visualPhase === "thinking-briefly"
+        ? t("thinking")
+        : visualPhase === "searching"
+          ? t("webSearch")
+          : visualPhase === "synthesizing"
+            ? t("voiceOutput")
+            : visualPhase === "thinking"
+              ? t("thinking")
+              : visualPhase === "speaking"
+                ? t("speaking")
+                : inputMode === "push-to-talk"
+                  ? t("holdToSpeak")
+                  : t("tapToSpeak");
 }
 
 export function getStatusDisplayData(params: {
@@ -81,9 +83,11 @@ export function getStatusDisplayData(params: {
               ? t("voiceOutput")
               : visualPhase === "transcribing"
                 ? t("parsing")
-                : visualPhase === "thinking"
+                : visualPhase === "thinking-briefly"
                   ? t("thinking")
-                  : t("idle");
+                  : visualPhase === "thinking"
+                    ? t("thinking")
+                    : t("idle");
   const statusDetail =
     playbackPaused && visualPhase === "speaking"
       ? t("speechPaused")
@@ -99,9 +103,11 @@ export function getStatusDisplayData(params: {
                 })
               : visualPhase === "transcribing"
                 ? t("parsingYourVoiceInput")
-                : visualPhase === "thinking"
-                  ? t("waitingForProvider", { provider: providerLabel })
-                  : (messageCountLabel ?? t("freshSession"));
+                : visualPhase === "thinking-briefly"
+                  ? t("preparingRequest")
+                  : visualPhase === "thinking"
+                    ? t("waitingForProvider", { provider: providerLabel })
+                    : (messageCountLabel ?? t("freshSession"));
 
   return {
     actionLabel,

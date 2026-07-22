@@ -131,6 +131,7 @@ describe("runVoicePipeline", () => {
 
     const callbacks = {
       onTranscription: jest.fn(),
+      onLlmStart: jest.fn(),
       onChunk: jest.fn(),
       onResponseDone: jest.fn(),
       onAudioReady: jest.fn(),
@@ -158,6 +159,10 @@ describe("runVoicePipeline", () => {
     expect(result).toBe("Explain wind.");
     expect(transcribeAudio).not.toHaveBeenCalled();
     expect(callbacks.onTranscription).toHaveBeenCalledWith("Explain wind.");
+    expect(callbacks.onLlmStart).toHaveBeenCalledTimes(1);
+    expect(callbacks.onLlmStart.mock.invocationCallOrder[0]).toBeLessThan(
+      callbacks.onChunk.mock.invocationCallOrder[0],
+    );
     expect(callbacks.onSpeechTextReady).toHaveBeenCalledWith(
       "Wind is moving air.",
       undefined,

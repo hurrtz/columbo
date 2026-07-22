@@ -88,12 +88,14 @@ export type VoiceVisualPhase =
   | "idle"
   | "recording"
   | "transcribing"
+  | "thinking-briefly"
   | "searching"
   | "thinking"
   | "synthesizing"
   | "speaking";
 export type VoicePhaseProgressPhase =
   | "transcribing"
+  | "thinking-briefly"
   | "searching"
   | "thinking"
   | "synthesizing"

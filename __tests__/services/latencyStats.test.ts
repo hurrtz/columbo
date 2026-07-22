@@ -43,6 +43,22 @@ describe("latencyStats", () => {
     );
   });
 
+  it("learns request preparation separately from provider response time", () => {
+    const descriptor = {
+      phase: "request-preparation" as const,
+      provider: "xai" as const,
+      model: "grok-4.5",
+      inputSource: "voice" as const,
+      webSearchMode: "on" as const,
+      webSearchProvider: "openai" as const,
+    };
+
+    expect(createLatencyRouteKey(descriptor)).toBe(
+      "request-preparation-v1:xai:grok-4.5:voice:on:openai",
+    );
+    expect(getDefaultLatencyEstimateMs(descriptor)).toBe(2_000);
+  });
+
   it("uses conservative defaults for expensive thinking routes", () => {
     expect(
       getDefaultLatencyEstimateMs({

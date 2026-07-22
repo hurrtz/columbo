@@ -20,6 +20,8 @@ function toLiveActivityPhase(
   pipelinePhase: PipelinePhase,
 ): VoiceLiveActivityPhase | null {
   switch (pipelinePhase) {
+    case "thinking-briefly":
+      return "thinking";
     case "transcribing":
     case "searching":
     case "thinking":

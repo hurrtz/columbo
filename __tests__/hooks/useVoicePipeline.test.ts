@@ -535,13 +535,14 @@ describe("useVoicePipeline", () => {
     );
   });
 
-  it("learns the complete text turn instead of first-chunk latency", async () => {
+  it("learns request preparation and the complete model response separately", async () => {
     const params = createParams({
       spokenRepliesEnabled: false,
     });
     (runVoicePipeline as jest.Mock).mockImplementation(
       async ({ callbacks }: any) => {
         jest.advanceTimersByTime(1_000);
+        callbacks.onLlmStart();
         callbacks.onChunk("First token");
         jest.advanceTimersByTime(4_000);
         callbacks.onResponseDone("First token and the completed reply.");
@@ -558,6 +559,14 @@ describe("useVoicePipeline", () => {
     });
 
     await waitFor(() => {
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+        "@columbo/latency_stats",
+        expect.stringContaining("request-preparation-v1"),
+      );
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+        "@columbo/latency_stats",
+        expect.stringContaining("llm-response-v2"),
+      );
       expect(AsyncStorage.setItem).toHaveBeenCalledWith(
         "@columbo/latency_stats",
         expect.stringContaining("5000"),
@@ -588,6 +597,7 @@ describe("useVoicePipeline", () => {
         callbacks.onWebSearchStart();
         jest.advanceTimersByTime(1_000);
         callbacks.onWebSearchComplete();
+        callbacks.onLlmStart();
         jest.advanceTimersByTime(3_000);
         callbacks.onChunk("A complete reply is forming.");
         callbacks.onResponseDone("A complete reply is forming.");

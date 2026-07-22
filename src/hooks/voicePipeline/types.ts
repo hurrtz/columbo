@@ -24,6 +24,7 @@ import type { useAudioPlayer } from "../useAudioPlayer";
 export type PipelinePhase =
   | "idle"
   | "transcribing"
+  | "thinking-briefly"
   | "searching"
   | "thinking"
   | "synthesizing"

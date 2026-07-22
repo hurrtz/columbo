@@ -95,6 +95,26 @@ describe("useVoiceLiveActivity", () => {
     unmount();
   });
 
+  it("keeps brief request preparation inside the thinking live activity", () => {
+    const { unmount } = renderHook(() =>
+      useVoiceLiveActivity({
+        isRecording: false,
+        phaseProgress: {
+          ...progress,
+          phase: "thinking-briefly",
+        },
+        pipelinePhase: "thinking-briefly",
+        spokenRepliesEnabled: true,
+      }),
+    );
+
+    expect(setVoiceLiveActivityState).toHaveBeenCalledWith({
+      phase: "thinking",
+      expectedSpeechAtMs: 220_000,
+    });
+    unmount();
+  });
+
   it("does not show an ETA to speech when spoken replies are disabled", () => {
     const { unmount } = renderHook(() =>
       useVoiceLiveActivity({
