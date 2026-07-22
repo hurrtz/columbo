@@ -5,25 +5,16 @@ import {
   GestureResponderEvent,
   Text,
   View,
-  Platform,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+import Feather from "@expo/vector-icons/Feather";
 import { useTheme } from "../theme/ThemeContext";
 import { fonts } from "../theme/typography";
-import { Waveform } from "./Waveform";
+import { LiveWaveform } from "./LiveWaveform";
 import { NativeWaveformView } from "./NativeWaveformView";
 import { supportsNativeOutputWaveformPlayback } from "../services/nativeWaveform";
-import {
-  getWaveformControlIconName,
-  getWaveformPhaseGradientColors,
-  isWaveformProcessingPhase,
-} from "./waveform/phaseAppearance";
-import {
-  InputMode,
-  VoiceVisualPhase,
-} from "../types";
-import { useWaveformFrame } from "../state/waveformFeed";
+import { getWaveformControlIconName } from "./waveform/phaseAppearance";
+import { InputMode, VoiceVisualPhase } from "../types";
+import { useWaveformVariant } from "../state/waveformFeed";
 
 interface WaveformBarProps {
   isActive: boolean;
@@ -44,76 +35,57 @@ export function WaveformBar({
   onPressOut,
   onPress,
 }: WaveformBarProps) {
-  const { metering, levels, variant: waveformVariant } = useWaveformFrame();
-  const { colors, isDark } = useTheme();
-  const isRecording = phase === "recording";
-  const isBlockingPhase = isWaveformProcessingPhase(phase);
+  const waveformVariant = useWaveformVariant();
+  const { colors } = useTheme();
   const isSpeaking = phase === "speaking";
   const nativeWaveformChannel =
-    Platform.OS === "ios" &&
     waveformVariant === "oscilloscope"
       ? isSpeaking && supportsNativeOutputWaveformPlayback()
           ? "output"
           : null
       : null;
-  const buttonGradientColors = getWaveformPhaseGradientColors({
-    colors,
-    isDark,
-    phase,
-  });
-  const micButtonBorderColor = isRecording
-    ? "rgba(255, 255, 255, 0.28)"
-    : isBlockingPhase || isSpeaking
-      ? isDark
-        ? "rgba(255, 248, 238, 0.2)"
-        : "rgba(255, 255, 255, 0.26)"
-      : "rgba(255, 255, 255, 0.22)";
+  const activeBackground = colors.accentSoft;
+  const activeForeground = colors.accent;
 
   const content = (
     <View style={styles.contentRow}>
-      <LinearGradient
-        colors={buttonGradientColors}
-        locations={[0, 0.58, 1]}
-        start={{ x: 0.12, y: 0 }}
-        end={{ x: 0.88, y: 1 }}
-        style={styles.micButton}
+      <View
+        style={[
+          styles.micButton,
+          {
+            backgroundColor: isActive ? activeForeground : colors.text,
+          },
+        ]}
       >
-        <View
-          style={[
-            styles.micButtonFrame,
-            { borderColor: micButtonBorderColor },
-          ]}
-        />
         <Feather
           name={getWaveformControlIconName(phase)}
           size={18}
-          color="rgba(255, 255, 255, 0.96)"
+          color={isActive ? activeBackground : colors.background}
         />
-      </LinearGradient>
+      </View>
       <View style={styles.waveformWrap}>
         {isSpeaking ? (
           nativeWaveformChannel ? (
             <NativeWaveformView
               channel={nativeWaveformChannel}
               active={isActive}
-              lineColor={isActive ? "rgba(255, 255, 255, 0.95)" : colors.accent}
+              renderStyle="envelope"
+              lineColor={isActive ? activeForeground : colors.accent}
               baselineColor={
-                isActive ? "rgba(255, 255, 255, 0.14)" : colors.borderStrong
+                isActive ? colors.borderStrong : colors.borderStrong
               }
-              lineWidth={1.9}
+              lineWidth={2.2}
               style={styles.nativeWaveform}
             />
           ) : (
-            <Waveform
-              metering={metering}
-              levels={levels}
+            <LiveWaveform
               maxHeight={waveformVariant === "oscilloscope" ? 32 : 26}
               barCount={waveformVariant === "oscilloscope" ? 64 : 28}
               barWidth={waveformVariant === "oscilloscope" ? 1.5 : 2}
               barGap={waveformVariant === "oscilloscope" ? 0.4 : 1}
-              barColor={isActive ? "rgba(255, 255, 255, 0.95)" : colors.accent}
+              barColor={isActive ? activeForeground : colors.accent}
               barColorInactive={
-                isActive ? "rgba(255, 255, 255, 0.55)" : colors.textMuted
+                isActive ? activeForeground : colors.textMuted
               }
               isActive={isActive}
               variant={waveformVariant}
@@ -127,9 +99,7 @@ export function WaveformBar({
                 style={[
                   styles.statusLabel,
                   {
-                    color: isActive
-                      ? "rgba(255, 255, 255, 0.96)"
-                      : colors.textSecondary,
+                    color: isActive ? activeForeground : colors.textSecondary,
                   },
                 ]}
               >
@@ -144,60 +114,29 @@ export function WaveformBar({
     </View>
   );
 
-  const glowShadow = {
-    shadowColor: isActive
-      ? isRecording
-        ? isDark
-          ? "rgba(255, 122, 112, 0.34)"
-          : "rgba(231, 104, 91, 0.28)"
-        : isBlockingPhase
-          ? isDark
-            ? "rgba(241, 164, 87, 0.28)"
-            : "rgba(235, 153, 74, 0.22)"
-          : isSpeaking
-          ? isDark
-            ? "rgba(66, 201, 123, 0.28)"
-            : "rgba(76, 194, 120, 0.2)"
-        : colors.glow
-      : "transparent",
-    shadowOffset: { width: 0, height: 0 } as const,
-    shadowOpacity: isActive ? 1 : 0,
-    shadowRadius: isActive ? 8 : 0,
-    elevation: isActive ? 4 : 0,
-  };
-
   return (
     <TouchableOpacity
+      testID="voice-stage-active-action"
       activeOpacity={0.88}
+      accessibilityRole="button"
+      accessibilityLabel={statusLabel}
       onPressIn={inputMode === "push-to-talk" ? onPressIn : undefined}
       onPressOut={inputMode === "push-to-talk" ? onPressOut : undefined}
       onPress={inputMode === "toggle-to-talk" ? onPress : undefined}
       style={styles.touchable}
     >
-      {isActive ? (
-        <LinearGradient
-          colors={buttonGradientColors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={[styles.bar, glowShadow]}
-        >
-          {content}
-        </LinearGradient>
-      ) : (
-        <View
-          style={[
-            styles.bar,
-            glowShadow,
-            {
-              borderColor: colors.border,
-              borderWidth: 1,
-              backgroundColor: colors.surface,
-            },
-          ]}
-        >
-          {content}
-        </View>
-      )}
+      <View
+        style={[
+          styles.bar,
+          {
+            borderColor: isActive ? activeBackground : colors.border,
+            borderWidth: 1,
+            backgroundColor: isActive ? activeBackground : colors.surface,
+          },
+        ]}
+      >
+        {content}
+      </View>
     </TouchableOpacity>
   );
 }
@@ -208,7 +147,7 @@ const styles = StyleSheet.create({
   },
   bar: {
     minHeight: 58,
-    borderRadius: 20,
+    borderRadius: 14,
     justifyContent: "center",
     paddingHorizontal: 16,
     overflow: "hidden",
@@ -225,7 +164,7 @@ const styles = StyleSheet.create({
   },
   nativeWaveform: {
     width: "100%",
-    height: 32,
+    height: 36,
   },
   idleFill: {
     flex: 1,
@@ -246,19 +185,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    shadowColor: "rgba(12, 20, 33, 0.18)",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 10,
-    elevation: 3,
-  },
-  micButtonFrame: {
-    position: "absolute",
-    top: 4,
-    right: 4,
-    bottom: 4,
-    left: 4,
-    borderRadius: 18,
-    borderWidth: 1,
   },
 });

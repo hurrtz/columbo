@@ -82,7 +82,7 @@ function buildOscilloscopePath(points: WaveformPoint[]) {
   return path;
 }
 
-interface WaveformProps {
+export interface WaveformProps {
   metering: number; // -160 to 0
   levels?: number[];
   barCount?: number;
