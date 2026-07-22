@@ -110,15 +110,25 @@ describe("useConversations", () => {
     expect(result.current.activeConversation).not.toBeNull();
   });
 
-  it("truncates long titles at word boundary to ~40 chars", async () => {
+  it("keeps useful conversation titles beyond the old 40-character limit", async () => {
+    const { result } = renderHook(() => useConversations());
+    const firstMessage =
+      "This is a longer message that should fill the available title container before display truncation";
+    await act(async () => {
+      result.current.createConversation(firstMessage);
+    });
+
+    expect(result.current.conversations[0].title).toBe(firstMessage);
+  });
+
+  it("keeps a generous safety limit for pathological conversation titles", async () => {
     const { result } = renderHook(() => useConversations());
     await act(async () => {
-      result.current.createConversation(
-        "This is a very long message that should be truncated at a word boundary for display",
-      );
+      result.current.createConversation("word ".repeat(50));
     });
+
     const title = result.current.conversations[0].title;
-    expect(title.length).toBeLessThanOrEqual(43);
+    expect(title.length).toBeLessThanOrEqual(163);
     expect(title.endsWith("...")).toBe(true);
   });
 

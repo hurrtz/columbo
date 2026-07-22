@@ -1,6 +1,11 @@
 import { Conversation, ConversationMeta, Message, Provider } from "../../types";
 
-export function truncateConversationTitle(text: string, max = 40): string {
+export const MAX_CONVERSATION_TITLE_LENGTH = 160;
+
+export function truncateConversationTitle(
+  text: string,
+  max = MAX_CONVERSATION_TITLE_LENGTH,
+): string {
   if (text.length <= max) {
     return text;
   }
@@ -114,7 +119,7 @@ export function normalizeConversationTitle(title: string, fallback: string) {
     return fallback;
   }
 
-  return truncateConversationTitle(trimmed, 60);
+  return truncateConversationTitle(trimmed);
 }
 
 export function buildConversationMetaFromConversation(
