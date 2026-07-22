@@ -95,10 +95,14 @@ describe("useNativeAudioQueueSubscription", () => {
 
     expect(stopNativeOutputWaveform).toHaveBeenCalledTimes(1);
     expect(onPlaybackStarted).toHaveBeenCalledTimes(1);
-    expect(startNativeOutputWaveform).toHaveBeenCalledWith("reply-1", {
-      samples: [0.1, 0.4, 0.2],
-      durationMs: 900,
-    });
+    expect(startNativeOutputWaveform).toHaveBeenCalledWith(
+      "reply-1",
+      {
+        samples: [0.1, 0.4, 0.2],
+        durationMs: 900,
+      },
+      expect.any(Number),
+    );
 
     act(() => {
       nativeAudioQueueListener?.({

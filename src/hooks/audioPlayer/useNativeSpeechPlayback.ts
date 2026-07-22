@@ -7,19 +7,34 @@ import {
 
 import * as Speech from "expo-speech";
 
-import { SpeechDiagnosticsContext, recordSpeechDiagnostic } from "../../services/speech/diagnostics";
+import {
+  SpeechDiagnosticsContext,
+  recordSpeechDiagnostic,
+} from "../../services/speech/diagnostics";
 import { nextPlaybackJobId } from "./shared";
 import { type AudioQueueItem, type NativeSpeechQueueItem } from "./types";
+
+const NATIVE_SPEECH_STATE_POLL_MS = 750;
+const NATIVE_SPEECH_START_TIMEOUT_MS = 6_000;
+const NATIVE_SPEECH_MAX_RUNTIME_MS = 180_000;
+
+function getNativeSpeechRuntimeTimeoutMs(text: string) {
+  // System speech normally renders well below 100 ms per character. Keep a
+  // generous ceiling so slow accessibility rates are not interrupted while
+  // still guaranteeing that a missed callback/probe cannot hold the pipeline
+  // forever.
+  return Math.min(
+    NATIVE_SPEECH_MAX_RUNTIME_MS,
+    Math.max(15_000, text.trim().length * 200),
+  );
+}
 
 export function useNativeSpeechPlayback(params: {
   nativeSpeaking: boolean;
   setNativeSpeaking: Dispatch<SetStateAction<boolean>>;
-  nativeQueueRef: MutableRefObject<
-    NativeSpeechQueueItem[]
-  >;
-  queueRef: MutableRefObject<
-    AudioQueueItem[]
-  >;
+  setNativeSpeechPlaying: Dispatch<SetStateAction<boolean>>;
+  nativeQueueRef: MutableRefObject<NativeSpeechQueueItem[]>;
+  queueRef: MutableRefObject<AudioQueueItem[]>;
   currentAudioRef: MutableRefObject<{
     id: string;
     uri: string;
@@ -27,6 +42,7 @@ export function useNativeSpeechPlayback(params: {
   } | null>;
   nativeSpeakingRef: MutableRefObject<boolean>;
   playingRef: MutableRefObject<boolean>;
+  playbackGenerationRef: MutableRefObject<number>;
   startingRef: MutableRefObject<boolean>;
   cancelledRef: MutableRefObject<boolean>;
   ensurePlaybackSession: () => Promise<void>;
@@ -39,11 +55,13 @@ export function useNativeSpeechPlayback(params: {
   const {
     nativeSpeaking,
     setNativeSpeaking,
+    setNativeSpeechPlaying,
     nativeQueueRef,
     queueRef,
     currentAudioRef,
     nativeSpeakingRef,
     playingRef,
+    playbackGenerationRef,
     startingRef,
     cancelledRef,
     ensurePlaybackSession,
@@ -72,118 +90,230 @@ export function useNativeSpeechPlayback(params: {
     }
 
     currentAudioRef.current = null;
+    startingRef.current = true;
     updatePendingPlaybackState();
 
     try {
       await ensurePlaybackSession();
 
-      if (cancelledRef.current) {
-        nativeQueueRef.current.unshift(next);
-        updatePendingPlaybackState();
+      if (
+        cancelledRef.current ||
+        next.generation !== playbackGenerationRef.current
+      ) {
         return;
       }
 
       nativeSpeakingRef.current = true;
       setNativeSpeaking(true);
-      startNativeMetering();
       updatePendingPlaybackState();
-      recordSpeechDiagnostic({
-        requestId: next.diagnostics?.requestId,
-        source: next.diagnostics?.source ?? "unknown",
-        stage: "playback-started",
-        actualRoute: "native",
-        provider: next.diagnostics?.provider ?? null,
-        providerModel: next.diagnostics?.providerModel ?? null,
-        voice: next.voice ?? null,
-        textLength: next.text.trim().length,
-      });
+
+      let completionHandled = false;
+      let speechStateTimer: ReturnType<typeof setTimeout> | null = null;
+      let speechStartTimer: ReturnType<typeof setTimeout> | null = null;
+      let speechRuntimeTimer: ReturnType<typeof setTimeout> | null = null;
+      let speechStarted = false;
+      let consecutiveSilentPolls = 0;
+      const speechRequestedAt = Date.now();
+
+      const clearSpeechStateTimer = () => {
+        if (speechStateTimer) {
+          clearTimeout(speechStateTimer);
+          speechStateTimer = null;
+        }
+      };
+      const clearSpeechWatchdogs = () => {
+        if (speechStartTimer) {
+          clearTimeout(speechStartTimer);
+          speechStartTimer = null;
+        }
+        if (speechRuntimeTimer) {
+          clearTimeout(speechRuntimeTimer);
+          speechRuntimeTimer = null;
+        }
+      };
+      const continuePlayback = () => {
+        updatePendingPlaybackState();
+        if (cancelledRef.current) {
+          finalizeDrainedState();
+        } else if (queueRef.current.length > 0) {
+          void playNextAudio();
+        } else {
+          void playNextNative();
+        }
+      };
+      const completeSpeech = (
+        stage: "playback-finished" | "playback-stopped",
+        message?: string,
+      ) => {
+        if (completionHandled) {
+          return;
+        }
+
+        if (next.generation !== playbackGenerationRef.current) {
+          completionHandled = true;
+          clearSpeechStateTimer();
+          clearSpeechWatchdogs();
+          return;
+        }
+
+        completionHandled = true;
+        clearSpeechStateTimer();
+        clearSpeechWatchdogs();
+        setNativeSpeechPlaying(false);
+        nativeSpeakingRef.current = false;
+        setNativeSpeaking(false);
+        stopNativeMetering();
+        recordSpeechDiagnostic({
+          requestId: next.diagnostics?.requestId,
+          source: next.diagnostics?.source ?? "unknown",
+          stage,
+          actualRoute: "native",
+          provider: next.diagnostics?.provider ?? null,
+          providerModel: next.diagnostics?.providerModel ?? null,
+          voice: next.voice ?? null,
+          textLength: next.text.trim().length,
+          message,
+        });
+        continuePlayback();
+      };
+      const markSpeechStarted = () => {
+        if (completionHandled || speechStarted) {
+          return;
+        }
+
+        if (next.generation !== playbackGenerationRef.current) {
+          completionHandled = true;
+          clearSpeechStateTimer();
+          clearSpeechWatchdogs();
+          return;
+        }
+
+        speechStarted = true;
+        if (speechStartTimer) {
+          clearTimeout(speechStartTimer);
+          speechStartTimer = null;
+        }
+        speechRuntimeTimer = setTimeout(() => {
+          if (completionHandled) {
+            return;
+          }
+
+          void Speech.stop().catch(() => undefined);
+          completeSpeech(
+            "playback-stopped",
+            "Native speech exceeded its playback watchdog.",
+          );
+        }, getNativeSpeechRuntimeTimeoutMs(next.text));
+        setNativeSpeechPlaying(true);
+        startNativeMetering();
+        recordSpeechDiagnostic({
+          requestId: next.diagnostics?.requestId,
+          source: next.diagnostics?.source ?? "unknown",
+          stage: "playback-started",
+          actualRoute: "native",
+          provider: next.diagnostics?.provider ?? null,
+          providerModel: next.diagnostics?.providerModel ?? null,
+          voice: next.voice ?? null,
+          textLength: next.text.trim().length,
+        });
+        next.onPlaybackStarted?.();
+      };
+      const scheduleSpeechStatePoll = () => {
+        clearSpeechStateTimer();
+        speechStateTimer = setTimeout(() => {
+          void Speech.isSpeakingAsync()
+            .then((isSpeaking) => {
+              if (completionHandled) {
+                return;
+              }
+
+              if (cancelledRef.current) {
+                completeSpeech("playback-stopped");
+                return;
+              }
+
+              if (isSpeaking) {
+                consecutiveSilentPolls = 0;
+                markSpeechStarted();
+              } else if (speechStarted) {
+                consecutiveSilentPolls += 1;
+                if (consecutiveSilentPolls >= 2) {
+                  completeSpeech(
+                    "playback-finished",
+                    "Recovered after the native speech completion callback was missed.",
+                  );
+                  return;
+                }
+              } else if (
+                Date.now() - speechRequestedAt >=
+                NATIVE_SPEECH_START_TIMEOUT_MS
+              ) {
+                completeSpeech(
+                  "playback-stopped",
+                  "Native speech did not start before the playback timeout.",
+                );
+                return;
+              }
+
+              scheduleSpeechStatePoll();
+            })
+            .catch(() => {
+              if (completionHandled) {
+                return;
+              }
+
+              if (
+                !speechStarted &&
+                Date.now() - speechRequestedAt >= NATIVE_SPEECH_START_TIMEOUT_MS
+              ) {
+                completeSpeech(
+                  "playback-stopped",
+                  "Native speech state could not be confirmed before the playback timeout.",
+                );
+                return;
+              }
+
+              scheduleSpeechStatePoll();
+            });
+        }, NATIVE_SPEECH_STATE_POLL_MS);
+      };
 
       Speech.speak(next.text, {
         voice: next.voice,
         rate: 0.96,
         useApplicationAudioSession: true,
         onStart: () => {
-          next.onPlaybackStarted?.();
+          markSpeechStarted();
         },
         onDone: () => {
-          nativeSpeakingRef.current = false;
-          setNativeSpeaking(false);
-          recordSpeechDiagnostic({
-            requestId: next.diagnostics?.requestId,
-            source: next.diagnostics?.source ?? "unknown",
-            stage: "playback-finished",
-            actualRoute: "native",
-            provider: next.diagnostics?.provider ?? null,
-            providerModel: next.diagnostics?.providerModel ?? null,
-            voice: next.voice ?? null,
-            textLength: next.text.trim().length,
-          });
-          updatePendingPlaybackState();
-          if (!cancelledRef.current) {
-            if (queueRef.current.length > 0) {
-              void playNextAudio();
-            } else {
-              void playNextNative();
-            }
-          } else {
-            finalizeDrainedState();
-          }
+          completeSpeech("playback-finished");
         },
         onStopped: () => {
-          nativeSpeakingRef.current = false;
-          setNativeSpeaking(false);
-          stopNativeMetering();
-          recordSpeechDiagnostic({
-            requestId: next.diagnostics?.requestId,
-            source: next.diagnostics?.source ?? "unknown",
-            stage: "playback-stopped",
-            actualRoute: "native",
-            provider: next.diagnostics?.provider ?? null,
-            providerModel: next.diagnostics?.providerModel ?? null,
-            voice: next.voice ?? null,
-            textLength: next.text.trim().length,
-          });
-          updatePendingPlaybackState();
-          if (!cancelledRef.current) {
-            if (queueRef.current.length > 0) {
-              void playNextAudio();
-            } else {
-              void playNextNative();
-            }
-          } else {
-            finalizeDrainedState();
-          }
+          completeSpeech("playback-stopped");
         },
         onError: (error) => {
-          nativeSpeakingRef.current = false;
-          setNativeSpeaking(false);
-          stopNativeMetering();
-          recordSpeechDiagnostic({
-            requestId: next.diagnostics?.requestId,
-            source: next.diagnostics?.source ?? "unknown",
-            stage: "playback-stopped",
-            actualRoute: "native",
-            providerModel: next.diagnostics?.providerModel ?? null,
-            voice: next.voice ?? null,
-            textLength: next.text.trim().length,
-            message:
-              error instanceof Error
-                ? error.message
-                : "Native speech playback failed.",
-          });
-          updatePendingPlaybackState();
-          if (!cancelledRef.current) {
-            if (queueRef.current.length > 0) {
-              void playNextAudio();
-            } else {
-              void playNextNative();
-            }
-          } else {
-            finalizeDrainedState();
-          }
+          completeSpeech(
+            "playback-stopped",
+            error instanceof Error
+              ? error.message
+              : "Native speech playback failed.",
+          );
         },
       });
+      speechStartTimer = setTimeout(() => {
+        if (completionHandled || speechStarted) {
+          return;
+        }
+
+        void Speech.stop().catch(() => undefined);
+        completeSpeech(
+          "playback-stopped",
+          "Native speech did not start before the playback timeout.",
+        );
+      }, NATIVE_SPEECH_START_TIMEOUT_MS);
+      scheduleSpeechStatePoll();
     } catch (error) {
+      setNativeSpeechPlaying(false);
       nativeSpeakingRef.current = false;
       setNativeSpeaking(false);
       stopNativeMetering();
@@ -203,18 +333,23 @@ export function useNativeSpeechPlayback(params: {
       });
       updatePendingPlaybackState();
       finalizeDrainedState();
+    } finally {
+      startingRef.current = false;
+      updatePendingPlaybackState();
     }
   }, [
-      cancelledRef,
+    cancelledRef,
     currentAudioRef,
     ensurePlaybackSession,
     finalizeDrainedState,
     nativeSpeaking,
     nativeQueueRef,
     nativeSpeakingRef,
+    playbackGenerationRef,
     playNextAudio,
     playingRef,
     queueRef,
+    setNativeSpeechPlaying,
     startNativeMetering,
     startingRef,
     stopNativeMetering,
@@ -235,6 +370,7 @@ export function useNativeSpeechPlayback(params: {
       }
 
       nativeQueueRef.current.push({
+        generation: playbackGenerationRef.current,
         id: nextPlaybackJobId("native"),
         text,
         voice: options?.voice,
@@ -264,6 +400,7 @@ export function useNativeSpeechPlayback(params: {
       cancelledRef,
       nativeQueueRef,
       nativeSpeakingRef,
+      playbackGenerationRef,
       playNextNative,
       playingRef,
       startingRef,

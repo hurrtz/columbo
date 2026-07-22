@@ -1,4 +1,5 @@
 import { act, renderHook } from "@testing-library/react-native";
+import * as Audio from "expo-audio";
 import * as Speech from "expo-speech";
 import {
   clearSpeechDiagnostics,
@@ -35,6 +36,7 @@ const mockPlayer = {
 let mockStatus: any;
 
 jest.mock("expo-speech", () => ({
+  isSpeakingAsync: jest.fn(() => Promise.resolve(false)),
   pause: jest.fn(() => Promise.resolve()),
   resume: jest.fn(() => Promise.resolve()),
   speak: jest.fn(),
@@ -184,15 +186,13 @@ describe("useAudioPlayer", () => {
     const { result, rerender } = renderHook(() => useAudioPlayer());
 
     await act(async () => {
-      result.current.enqueueAudio(
-        "reply.wav",
-        undefined,
-        onPlaybackStarted,
-      );
+      result.current.enqueueAudio("reply.wav", undefined, onPlaybackStarted);
       await Promise.resolve();
     });
 
     expect(onPlaybackStarted).not.toHaveBeenCalled();
+    expect(result.current.isPlaying).toBe(true);
+    expect(result.current.isActivelyPlaying).toBe(false);
 
     await act(async () => {
       mockStatus = {
@@ -206,6 +206,7 @@ describe("useAudioPlayer", () => {
     });
 
     expect(onPlaybackStarted).toHaveBeenCalledTimes(1);
+    expect(result.current.isActivelyPlaying).toBe(true);
   });
 
   it("reports when system speech actually starts", async () => {
@@ -218,6 +219,7 @@ describe("useAudioPlayer", () => {
     });
 
     expect(onPlaybackStarted).not.toHaveBeenCalled();
+    expect(result.current.isActivelyPlaying).toBe(false);
 
     const speechOptions = (Speech.speak as jest.Mock).mock.calls[0][1];
     act(() => {
@@ -225,6 +227,211 @@ describe("useAudioPlayer", () => {
     });
 
     expect(onPlaybackStarted).toHaveBeenCalledTimes(1);
+    expect(result.current.isActivelyPlaying).toBe(true);
+    act(() => {
+      speechOptions.onDone();
+    });
+  });
+
+  it("keeps system speech pending while the audio session starts", async () => {
+    let finishAudioSessionStart: () => void = () => undefined;
+    (Audio.setIsAudioActiveAsync as jest.Mock).mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          finishAudioSessionStart = resolve;
+        }),
+    );
+    const { result } = renderHook(() => useAudioPlayer());
+    let drained = false;
+    let drainPromise: Promise<void> = Promise.resolve();
+
+    act(() => {
+      result.current.speakText("Speech waiting for its audio session");
+      drainPromise = result.current.waitForDrain().then(() => {
+        drained = true;
+      });
+    });
+
+    expect(result.current.isPlaying).toBe(true);
+    expect(drained).toBe(false);
+    expect(Speech.speak).not.toHaveBeenCalled();
+
+    await act(async () => {
+      finishAudioSessionStart();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const speechOptions = (Speech.speak as jest.Mock).mock.calls[0][1];
+    act(() => {
+      speechOptions.onStart();
+      speechOptions.onDone();
+    });
+    await act(async () => {
+      await drainPromise;
+    });
+
+    expect(drained).toBe(true);
+    expect(result.current.isPlaying).toBe(false);
+  });
+
+  it("does not revive a system speech job cancelled during session setup", async () => {
+    let finishAudioSessionStart: () => void = () => undefined;
+    (Audio.setIsAudioActiveAsync as jest.Mock).mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          finishAudioSessionStart = resolve;
+        }),
+    );
+    const { result } = renderHook(() => useAudioPlayer());
+
+    act(() => {
+      result.current.speakText("This speech should stay cancelled");
+    });
+    expect(result.current.isPlaying).toBe(true);
+
+    await act(async () => {
+      await result.current.stopPlayback();
+    });
+    expect(result.current.isPlaying).toBe(false);
+
+    await act(async () => {
+      finishAudioSessionStart();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(Speech.speak).not.toHaveBeenCalled();
+    expect(result.current.isPlaying).toBe(false);
+  });
+
+  it("releases pending playback before native stop teardown finishes", async () => {
+    let finishNativeStop: () => void = () => undefined;
+    (Speech.stop as jest.Mock).mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          finishNativeStop = resolve;
+        }),
+    );
+    const { result } = renderHook(() => useAudioPlayer());
+
+    await act(async () => {
+      result.current.speakText("A reply that is still playing");
+      await Promise.resolve();
+    });
+
+    expect(result.current.isPlaying).toBe(true);
+
+    let stopPromise: Promise<void> = Promise.resolve();
+    act(() => {
+      stopPromise = result.current.stopPlayback();
+    });
+
+    expect(result.current.isPlaying).toBe(false);
+    expect(result.current.isActivelyPlaying).toBe(false);
+
+    finishNativeStop();
+    await act(async () => {
+      await stopPromise;
+    });
+    const speechOptions = (Speech.speak as jest.Mock).mock.calls[0][1];
+    act(() => {
+      speechOptions.onStopped();
+    });
+  });
+
+  it("keeps provider diagnostics attached to an explicit audio stop", async () => {
+    const { result } = renderHook(() => useAudioPlayer());
+
+    await act(async () => {
+      result.current.enqueueAudio("reply.wav", {
+        requestId: "reply-stop-1",
+        source: "reply",
+        provider: "xai",
+        providerModel: "text-to-speech",
+      });
+      await Promise.resolve();
+    });
+
+    await act(async () => {
+      await result.current.stopPlayback();
+    });
+
+    expect(getSpeechDiagnostics()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          requestId: "reply-stop-1",
+          source: "reply",
+          stage: "playback-stopped",
+          provider: "xai",
+          providerModel: "text-to-speech",
+        }),
+      ]),
+    );
+  });
+
+  it("recovers when native speech finishes without delivering onDone", async () => {
+    jest.useFakeTimers();
+    const { result } = renderHook(() => useAudioPlayer());
+
+    await act(async () => {
+      result.current.speakText("A reply with a missed completion callback");
+      await Promise.resolve();
+    });
+
+    const speechOptions = (Speech.speak as jest.Mock).mock.calls[0][1];
+    act(() => {
+      speechOptions.onStart();
+    });
+    expect(result.current.isActivelyPlaying).toBe(true);
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(1_600);
+    });
+
+    expect(result.current.isPlaying).toBe(false);
+    expect(result.current.isActivelyPlaying).toBe(false);
+    expect(getSpeechDiagnostics()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          stage: "playback-finished",
+          message: expect.stringContaining("callback was missed"),
+        }),
+      ]),
+    );
+    jest.useRealTimers();
+  });
+
+  it("releases native speech when the system state probe keeps failing", async () => {
+    jest.useFakeTimers();
+    (Speech.isSpeakingAsync as jest.Mock).mockRejectedValue(
+      new Error("Speech state unavailable"),
+    );
+    const { result } = renderHook(() => useAudioPlayer());
+
+    await act(async () => {
+      result.current.speakText("A reply that never starts");
+      await Promise.resolve();
+    });
+
+    expect(result.current.isPlaying).toBe(true);
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(6_100);
+    });
+
+    expect(result.current.isPlaying).toBe(false);
+    expect(result.current.isActivelyPlaying).toBe(false);
+    expect(Speech.stop).toHaveBeenCalled();
+    expect(getSpeechDiagnostics()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          stage: "playback-stopped",
+          message: expect.stringContaining("playback timeout"),
+        }),
+      ]),
+    );
+    jest.useRealTimers();
   });
 
   it("pauses and resumes the current clip without draining playback", async () => {

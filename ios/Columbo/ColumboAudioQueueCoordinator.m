@@ -8,6 +8,8 @@
 
 - (void)handleItemDidPlayToEnd:(NSNotification *)notification;
 - (void)handleItemFailedToPlayToEnd:(NSNotification *)notification;
+- (void)armItemEndBoundaryForCurrentItem;
+- (void)disarmItemEndBoundaryObserver;
 
 @end
 
@@ -16,6 +18,9 @@
   NSMutableDictionary<NSString *, NSDictionary *> *_contextsByItemKey;
   NSMutableSet<NSString *> *_startedItemKeys;
   NSString *_currentItemKey;
+  id _itemEndBoundaryObserver;
+  NSString *_itemEndBoundaryItemKey;
+  NSString *_pendingBoundaryItemKey;
   BOOL _observingPlayer;
 }
 
@@ -159,6 +164,7 @@
 {
   @try {
     if (_player != nil) {
+      [self disarmItemEndBoundaryObserver];
       [_player pause];
       [_player removeAllItems];
     }
@@ -197,6 +203,7 @@
 - (void)invalidate
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
+  [self disarmItemEndBoundaryObserver];
   [self detachPlayerObserversIfNeeded];
   [_player pause];
   [_player removeAllItems];
@@ -290,6 +297,89 @@
   }];
 }
 
+- (void)disarmItemEndBoundaryObserver
+{
+  if (_itemEndBoundaryObserver != nil && _player != nil) {
+    [_player removeTimeObserver:_itemEndBoundaryObserver];
+  }
+
+  _itemEndBoundaryObserver = nil;
+  _itemEndBoundaryItemKey = nil;
+  _pendingBoundaryItemKey = nil;
+}
+
+- (void)armItemEndBoundaryForCurrentItem
+{
+  AVPlayerItem *item = _player.currentItem;
+  if (item == nil) {
+    [self disarmItemEndBoundaryObserver];
+    return;
+  }
+
+  NSString *itemKey = [self itemKey:item];
+  if ([_itemEndBoundaryItemKey isEqualToString:itemKey] ||
+      [_pendingBoundaryItemKey isEqualToString:itemKey]) {
+    return;
+  }
+
+  [self disarmItemEndBoundaryObserver];
+  _pendingBoundaryItemKey = itemKey;
+
+  __weak typeof(self) weakSelf = self;
+  [item.asset loadValuesAsynchronouslyForKeys:@[ @"duration" ]
+                            completionHandler:^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+      __strong typeof(weakSelf) strongSelf = weakSelf;
+      if (strongSelf == nil || strongSelf->_player.currentItem != item ||
+          ![strongSelf->_pendingBoundaryItemKey isEqualToString:itemKey]) {
+        return;
+      }
+
+      CMTime duration = item.duration;
+      if (!CMTIME_IS_NUMERIC(duration) || CMTIME_IS_INDEFINITE(duration) ||
+          CMTimeCompare(duration, kCMTimeZero) <= 0) {
+        strongSelf->_pendingBoundaryItemKey = nil;
+        return;
+      }
+
+      strongSelf->_pendingBoundaryItemKey = nil;
+      strongSelf->_itemEndBoundaryItemKey = itemKey;
+      strongSelf->_itemEndBoundaryObserver =
+          [strongSelf->_player addBoundaryTimeObserverForTimes:@[
+            [NSValue valueWithCMTime:duration]
+          ]
+                                                        queue:dispatch_get_main_queue()
+                                                   usingBlock:^{
+        __strong typeof(weakSelf) boundarySelf = weakSelf;
+        if (boundarySelf == nil || boundarySelf->_player.currentItem != item) {
+          return;
+        }
+
+        NSDictionary *context = boundarySelf->_contextsByItemKey[itemKey];
+        if (context == nil) {
+          return;
+        }
+
+        [boundarySelf emitEvent:@{
+          @"type": @"finished",
+          @"itemId": context[@"itemId"] ?: @"",
+          @"uri": context[@"uri"] ?: @"",
+          @"requestId": context[@"requestId"] ?: [NSNull null],
+          @"source": context[@"source"] ?: [NSNull null],
+        }];
+        [boundarySelf cleanupItem:item];
+        [boundarySelf disarmItemEndBoundaryObserver];
+        [boundarySelf->_player advanceToNextItem];
+        [boundarySelf armItemEndBoundaryForCurrentItem];
+        [boundarySelf emitStartedForCurrentItemIfNeeded];
+        [boundarySelf emitDrainedIfNeeded];
+        [ColumboAudioQueueSession
+            deactivatePlaybackSessionIfIdleForPlayer:boundarySelf->_player];
+      }];
+    });
+  }];
+}
+
 - (void)emitDrainedIfNeeded
 {
   if (_player == nil) {
@@ -323,6 +413,10 @@
   [_startedItemKeys removeObject:itemKey];
   if ([_currentItemKey isEqualToString:itemKey]) {
     _currentItemKey = nil;
+  }
+
+  if ([_itemEndBoundaryItemKey isEqualToString:itemKey]) {
+    [self disarmItemEndBoundaryObserver];
   }
 }
 
@@ -358,6 +452,7 @@
   [self cleanupItem:item];
 
   dispatch_async(dispatch_get_main_queue(), ^{
+    [self armItemEndBoundaryForCurrentItem];
     [self emitStartedForCurrentItemIfNeeded];
     [self emitDrainedIfNeeded];
     [ColumboAudioQueueSession deactivatePlaybackSessionIfIdleForPlayer:self->_player];
@@ -389,6 +484,7 @@
   [self cleanupItem:item];
 
   dispatch_async(dispatch_get_main_queue(), ^{
+    [self armItemEndBoundaryForCurrentItem];
     [self emitStartedForCurrentItemIfNeeded];
     [self emitDrainedIfNeeded];
     [ColumboAudioQueueSession deactivatePlaybackSessionIfIdleForPlayer:self->_player];
@@ -407,6 +503,9 @@
 
   if ([keyPath isEqualToString:@"currentItem"] ||
       [keyPath isEqualToString:@"timeControlStatus"]) {
+    if ([keyPath isEqualToString:@"currentItem"]) {
+      [self armItemEndBoundaryForCurrentItem];
+    }
     [self emitStartedForCurrentItemIfNeeded];
     return;
   }

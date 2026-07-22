@@ -93,7 +93,6 @@ export function usePlaybackLifecycle(params: {
           providerModel:
             currentAudioRef.current.diagnostics?.providerModel ?? null,
           textLength: undefined,
-          message: currentAudioRef.current.uri,
         });
       }
       updatePendingPlaybackState();
@@ -121,7 +120,6 @@ export function usePlaybackLifecycle(params: {
         stage: "playback-finished",
         provider: finishedAudio.diagnostics?.provider ?? null,
         providerModel: finishedAudio.diagnostics?.providerModel ?? null,
-        message: finishedAudio.uri,
       });
       updatePendingPlaybackState();
 

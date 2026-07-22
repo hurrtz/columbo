@@ -32,6 +32,7 @@ export function useNativeAudioQueueSubscription(params: {
   startNativeOutputWaveform: (
     itemId: string,
     analysis: NativeWaveformAnalysis,
+    playbackStartedAtMs: number,
   ) => void;
   stopNativeOutputWaveform: () => void;
   setNativeAudioQueuePlaying: Dispatch<SetStateAction<boolean>>;
@@ -94,6 +95,7 @@ export function useNativeAudioQueueSubscription(params: {
           stopNativeOutputWaveform();
           if (context) {
             currentAudioRef.current = {
+              generation: context.generation,
               id: itemId,
               uri: context.uri,
               diagnostics: context.diagnostics,
@@ -116,9 +118,10 @@ export function useNativeAudioQueueSubscription(params: {
             stage: "playback-started",
             provider: context?.diagnostics?.provider ?? null,
             providerModel: context?.diagnostics?.providerModel ?? null,
-            message: context?.uri ?? event.uri,
           });
           if (context?.waveformAnalysis) {
+            const playbackStartedAtMs =
+              nativeOutputWaveformStartedAtRef.current ?? Date.now();
             void context.waveformAnalysis.then((analysis) => {
               if (
                 !analysis ||
@@ -130,7 +133,11 @@ export function useNativeAudioQueueSubscription(params: {
                 return;
               }
 
-              startNativeOutputWaveform(itemId, analysis);
+              startNativeOutputWaveform(
+                itemId,
+                analysis,
+                playbackStartedAtMs,
+              );
             });
           }
           updatePendingPlaybackState();
@@ -164,9 +171,7 @@ export function useNativeAudioQueueSubscription(params: {
               provider: context.diagnostics?.provider ?? null,
               providerModel: context.diagnostics?.providerModel ?? null,
               message:
-                event.type === "finished"
-                  ? context.uri
-                  : event.message ?? context.uri,
+                event.type === "failed" ? event.message ?? undefined : undefined,
             });
           }
 

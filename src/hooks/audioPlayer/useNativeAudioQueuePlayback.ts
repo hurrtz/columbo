@@ -17,6 +17,7 @@ export function useNativeAudioQueuePlayback(params: {
   nativeAudioQueuePendingCountRef: MutableRefObject<number>;
   nativeQueueRef: MutableRefObject<NativeSpeechQueueItem[]>;
   nativeSpeakingRef: MutableRefObject<boolean>;
+  playbackGenerationRef: MutableRefObject<number>;
   updatePendingPlaybackState: () => void;
 }) {
   const {
@@ -27,6 +28,7 @@ export function useNativeAudioQueuePlayback(params: {
     nativeAudioQueuePendingCountRef,
     nativeQueueRef,
     nativeSpeakingRef,
+    playbackGenerationRef,
     updatePendingPlaybackState,
   } = params;
 
@@ -34,12 +36,16 @@ export function useNativeAudioQueuePlayback(params: {
     async (
       itemId: string,
       audioUri: string,
+      generation: number,
       diagnostics?: SpeechDiagnosticsContext,
     ) => {
       try {
         await ensureAudioQueuePlaybackSession();
 
-        if (cancelledRef.current) {
+        if (
+          cancelledRef.current ||
+          generation !== playbackGenerationRef.current
+        ) {
           nativeAudioQueueContextsRef.current.delete(itemId);
           nativeAudioQueuePendingCountRef.current = Math.max(
             0,
@@ -75,6 +81,7 @@ export function useNativeAudioQueuePlayback(params: {
         });
         updatePendingPlaybackState();
         if (
+          generation === playbackGenerationRef.current &&
           nativeAudioQueuePendingCountRef.current === 0 &&
           !nativeSpeakingRef.current &&
           nativeQueueRef.current.length === 0
@@ -91,6 +98,7 @@ export function useNativeAudioQueuePlayback(params: {
       nativeAudioQueuePendingCountRef,
       nativeQueueRef,
       nativeSpeakingRef,
+      playbackGenerationRef,
       updatePendingPlaybackState,
     ],
   );

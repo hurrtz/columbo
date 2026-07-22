@@ -12,6 +12,7 @@ export function useStopPlaybackController(params: {
   markPlaybackEnded: () => void;
   nativeQueueRef: MutableRefObject<NativeSpeechQueueItem[]>;
   nativeSpeakingRef: MutableRefObject<boolean>;
+  playbackGenerationRef: MutableRefObject<number>;
   playbackPausedRef: MutableRefObject<boolean>;
   player: { pause: () => void };
   playingRef: MutableRefObject<boolean>;
@@ -19,6 +20,7 @@ export function useStopPlaybackController(params: {
   resetPlaybackSession: () => void;
   resetVisualState: () => void;
   setNativeSpeaking: Dispatch<SetStateAction<boolean>>;
+  setNativeSpeechPlaying: Dispatch<SetStateAction<boolean>>;
   setPlaybackPaused: Dispatch<SetStateAction<boolean>>;
   startingRef: MutableRefObject<boolean>;
   stopNativeMetering: () => void;
@@ -37,6 +39,7 @@ export function useStopPlaybackController(params: {
     markPlaybackEnded,
     nativeQueueRef,
     nativeSpeakingRef,
+    playbackGenerationRef,
     playbackPausedRef,
     player,
     playingRef,
@@ -45,6 +48,7 @@ export function useStopPlaybackController(params: {
     resetPlaybackSession,
     resetVisualState,
     setNativeSpeaking,
+    setNativeSpeechPlaying,
     setPlaybackPaused,
     startingRef,
     stopNativeMetering,
@@ -59,6 +63,15 @@ export function useStopPlaybackController(params: {
       nativeSpeakingRef.current ||
       playingRef.current ||
       startingRef.current;
+    const stoppedAudioDiagnostics = currentAudioRef.current?.diagnostics;
+    // Dispatch native teardown first so system speech/audio receives the stop
+    // request before any React state bookkeeping. The UI still settles below
+    // without waiting for either native promise.
+    const nativeStops: Promise<unknown>[] = [Speech.stop()];
+    if (usingNativeAudioQueue) {
+      nativeStops.push(stopNativeAudioQueue());
+    }
+    playbackGenerationRef.current += 1;
     cancelledRef.current = true;
     playbackPausedRef.current = false;
     setPlaybackPaused(false);
@@ -69,14 +82,11 @@ export function useStopPlaybackController(params: {
     clearNativeAudioQueueState();
     player.pause();
     removeLoadedAudio();
-    if (usingNativeAudioQueue) {
-      await stopNativeAudioQueue();
-    }
-    await Speech.stop();
     stopNativeMetering();
     stopNativeOutputWaveform();
     nativeSpeakingRef.current = false;
     setNativeSpeaking(false);
+    setNativeSpeechPlaying(false);
     startingRef.current = false;
     playingRef.current = false;
     if (hadPlayback) {
@@ -85,11 +95,20 @@ export function useStopPlaybackController(params: {
     resetVisualState();
     resetPlaybackSession();
     updatePendingPlaybackState();
-    recordSpeechDiagnostic({
-      source: "unknown",
-      stage: "playback-stopped",
-      message: "Playback stopped explicitly.",
-    });
+
+    // Release the UI and playback-drain waiters before native teardown. Both
+    // native stop calls can take perceptible time on a busy audio session.
+    await Promise.allSettled(nativeStops);
+    if (stoppedAudioDiagnostics) {
+      recordSpeechDiagnostic({
+        requestId: stoppedAudioDiagnostics.requestId,
+        source: stoppedAudioDiagnostics.source ?? "unknown",
+        stage: "playback-stopped",
+        provider: stoppedAudioDiagnostics.provider ?? null,
+        providerModel: stoppedAudioDiagnostics.providerModel ?? null,
+        message: "Playback stopped explicitly.",
+      });
+    }
   }, [
     cancelledRef,
     clearNativeAudioQueueState,
@@ -99,6 +118,7 @@ export function useStopPlaybackController(params: {
     markPlaybackEnded,
     nativeQueueRef,
     nativeSpeakingRef,
+    playbackGenerationRef,
     playbackPausedRef,
     player,
     playingRef,
@@ -107,6 +127,7 @@ export function useStopPlaybackController(params: {
     resetPlaybackSession,
     resetVisualState,
     setNativeSpeaking,
+    setNativeSpeechPlaying,
     setPlaybackPaused,
     startingRef,
     stopNativeMetering,
@@ -121,6 +142,7 @@ export function useStopPlaybackController(params: {
       nativeSpeakingRef.current ||
       playingRef.current ||
       startingRef.current;
+    playbackGenerationRef.current += 1;
     cancelledRef.current = false;
     playbackPausedRef.current = false;
     setPlaybackPaused(false);
@@ -131,6 +153,7 @@ export function useStopPlaybackController(params: {
     clearNativeAudioQueueState();
     nativeSpeakingRef.current = false;
     setNativeSpeaking(false);
+    setNativeSpeechPlaying(false);
     startingRef.current = false;
     playingRef.current = false;
     if (hadPlayback) {
@@ -155,6 +178,7 @@ export function useStopPlaybackController(params: {
     markPlaybackEnded,
     nativeQueueRef,
     nativeSpeakingRef,
+    playbackGenerationRef,
     playbackPausedRef,
     player,
     playingRef,
@@ -163,6 +187,7 @@ export function useStopPlaybackController(params: {
     resetPlaybackSession,
     resetVisualState,
     setNativeSpeaking,
+    setNativeSpeechPlaying,
     setPlaybackPaused,
     startingRef,
     stopNativeMetering,

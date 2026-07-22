@@ -33,13 +33,14 @@ export function usePendingPlaybackState({
   const lastPlaybackEndedAtRef = useRef(0);
 
   const hasPendingPlaybackNow = useCallback(() => {
-    const hasAudioQueuePending = usingNativeAudioQueue
-      ? nativeAudioQueuePendingCountRef.current > 0 ||
-        nativeAudioQueuePlayingRef.current
-      : startingRef.current ||
-        playingRef.current ||
-        currentAudioRef.current !== null ||
-        queueRef.current.length > 0;
+    const hasAudioQueuePending =
+      startingRef.current ||
+      (usingNativeAudioQueue
+        ? nativeAudioQueuePendingCountRef.current > 0 ||
+          nativeAudioQueuePlayingRef.current
+        : playingRef.current ||
+          currentAudioRef.current !== null ||
+          queueRef.current.length > 0);
 
     return (
       hasAudioQueuePending ||

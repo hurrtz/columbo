@@ -2,6 +2,7 @@ import { type SpeechDiagnosticsContext } from "../../services/speech/diagnostics
 import { type NativeWaveformAnalysis } from "../../services/nativeWaveform";
 
 export type AudioQueueItem = {
+  generation: number;
   id: string;
   uri: string;
   diagnostics?: SpeechDiagnosticsContext;
@@ -9,6 +10,7 @@ export type AudioQueueItem = {
 };
 
 export type NativeSpeechQueueItem = {
+  generation: number;
   id: string;
   text: string;
   voice?: string;
@@ -17,6 +19,7 @@ export type NativeSpeechQueueItem = {
 };
 
 export type NativeAudioQueueContext = {
+  generation: number;
   uri: string;
   diagnostics?: SpeechDiagnosticsContext;
   onPlaybackStarted?: () => void;

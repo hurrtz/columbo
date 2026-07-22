@@ -44,6 +44,7 @@ export function useAudioPlayer() {
   const playingRef = useRef(false);
   const startingRef = useRef(false);
   const cancelledRef = useRef(false);
+  const playbackGenerationRef = useRef(0);
   const loadedSourceRef = useRef(false);
   const hasSeenAudioPlayingRef = useRef(false);
   const nativeAudioQueueContextsRef = useRef<Map<string, NativeAudioQueueContext>>(
@@ -57,6 +58,7 @@ export function useAudioPlayer() {
   const [nativeAudioQueuePlaying, setNativeAudioQueuePlaying] =
     useState(false);
   const [nativeSpeaking, setNativeSpeaking] = useState(false);
+  const [nativeSpeechPlaying, setNativeSpeechPlaying] = useState(false);
   const [isPlaybackPaused, setPlaybackPaused] = useState(false);
   const { ensurePlaybackSession, resetPlaybackSession } =
     usePlaybackSession();
@@ -77,6 +79,8 @@ export function useAudioPlayer() {
     getWaveformAnalysis,
     nativeOutputWaveformItemIdRef,
     nativeOutputWaveformStartedAtRef,
+    pauseNativeOutputWaveform,
+    resumeNativeOutputWaveform,
     startNativeMetering,
     startNativeOutputWaveform,
     stopNativeMetering,
@@ -143,6 +147,7 @@ export function useAudioPlayer() {
     nativeAudioQueuePendingCountRef,
     nativeQueueRef,
     nativeSpeakingRef,
+    playbackGenerationRef,
     updatePendingPlaybackState,
   });
 
@@ -160,6 +165,7 @@ export function useAudioPlayer() {
       nativeAudioQueuePendingCountRef,
       nativeSpeakingRef,
       playNativeAudio,
+      playbackGenerationRef,
       playingRef,
       queueRef,
       startingRef,
@@ -195,11 +201,13 @@ export function useAudioPlayer() {
   const { playNextNative, speakText } = useNativeSpeechPlayback({
     nativeSpeaking,
     setNativeSpeaking,
+    setNativeSpeechPlaying,
     nativeQueueRef,
     queueRef,
     currentAudioRef,
     nativeSpeakingRef,
     playingRef,
+    playbackGenerationRef,
     startingRef,
     cancelledRef,
     ensurePlaybackSession,
@@ -264,6 +272,7 @@ export function useAudioPlayer() {
     markPlaybackEnded,
     nativeQueueRef,
     nativeSpeakingRef,
+    playbackGenerationRef,
     playbackPausedRef,
     player,
     playingRef,
@@ -271,6 +280,7 @@ export function useAudioPlayer() {
     resetPlaybackSession,
     resetVisualState,
     setNativeSpeaking,
+    setNativeSpeechPlaying,
     setPlaybackPaused,
     startingRef,
     stopNativeMetering,
@@ -299,6 +309,7 @@ export function useAudioPlayer() {
     try {
       if (hasNativeSpeech) {
         await Speech.pause();
+        setNativeSpeechPlaying(false);
       } else if (hasNativeAudioQueue) {
         await pauseNativeAudioQueue();
         nativeAudioQueuePlayingRef.current = false;
@@ -311,7 +322,11 @@ export function useAudioPlayer() {
       setPlaybackPaused(true);
       playingRef.current = false;
       stopNativeMetering();
-      stopNativeOutputWaveform();
+      if (hasNativeAudioQueue) {
+        pauseNativeOutputWaveform();
+      } else {
+        stopNativeOutputWaveform();
+      }
       updatePendingPlaybackState();
       return true;
     } catch {
@@ -323,6 +338,7 @@ export function useAudioPlayer() {
     nativeAudioQueuePlayingRef,
     player,
     playingRef,
+    pauseNativeOutputWaveform,
     setNativeAudioQueuePlaying,
     stopNativeMetering,
     stopNativeOutputWaveform,
@@ -339,6 +355,7 @@ export function useAudioPlayer() {
       if (nativeSpeakingRef.current) {
         await ensurePlaybackSession();
         await Speech.resume();
+        setNativeSpeechPlaying(true);
         startNativeMetering();
       } else if (usingNativeAudioQueue && currentAudioRef.current) {
         await ensureAudioQueuePlaybackSession();
@@ -351,6 +368,7 @@ export function useAudioPlayer() {
         nativeAudioQueuePlayingRef.current = true;
         setNativeAudioQueuePlaying(true);
         playingRef.current = true;
+        resumeNativeOutputWaveform();
       } else if (currentAudioRef.current) {
         await ensurePlaybackSession();
         player.play();
@@ -393,6 +411,7 @@ export function useAudioPlayer() {
     player,
     playingRef,
     queueRef,
+    resumeNativeOutputWaveform,
     setNativeAudioQueuePlaying,
     startNativeMetering,
     updatePendingPlaybackState,
@@ -409,6 +428,10 @@ export function useAudioPlayer() {
 
   return {
     isPlaying: hasPendingPlayback,
+    isActivelyPlaying:
+      nativeSpeechPlaying ||
+      nativeAudioQueuePlaying ||
+      (!usingNativeAudioQueue && status.playing),
     hasPendingPlayback,
     isPlaybackPaused,
     enqueueAudio,

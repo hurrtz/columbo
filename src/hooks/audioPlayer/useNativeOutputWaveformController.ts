@@ -13,7 +13,7 @@ import {
   averageLevels,
   averageSampleMagnitude,
   buildFallbackSpeechLevels,
-  getTrailingWaveformWindow,
+  getPlaybackWaveformWindow,
   levelToMetering,
 } from "../../utils/audioVisualization";
 import { logWaveformDebug } from "../../utils/waveformDebug";
@@ -54,6 +54,13 @@ export function useNativeOutputWaveformController({
     useRef<ReturnType<typeof setInterval> | null>(null);
   const nativeOutputWaveformItemIdRef = useRef<string | null>(null);
   const nativeOutputWaveformStartedAtRef = useRef<number | null>(null);
+  const pausedNativeOutputWaveformRef = useRef<{
+    analysis: NativeWaveformAnalysis;
+    elapsedMs: number;
+    itemId: string;
+  } | null>(null);
+  const activeNativeOutputWaveformAnalysisRef =
+    useRef<NativeWaveformAnalysis | null>(null);
   const waveformAnalysisCacheRef = useRef<
     Map<string, Promise<NativeWaveformAnalysis | null>>
   >(new Map());
@@ -66,14 +73,15 @@ export function useNativeOutputWaveformController({
   }, []);
 
   const stopNativeOutputWaveform = useCallback(() => {
+    const pausedItemId = pausedNativeOutputWaveformRef.current?.itemId ?? null;
     if (usingNativeAudioQueue) {
       logWaveformDebug("output-waveform-stop-requested", {
-        itemId: nativeOutputWaveformItemIdRef.current ?? null,
+        itemId: nativeOutputWaveformItemIdRef.current ?? pausedItemId,
         usingNativeAudioQueue,
         supportsNativeOutputWaveform,
       });
       void stopNativeOutputWaveformPlayback(
-        nativeOutputWaveformItemIdRef.current ?? null,
+        nativeOutputWaveformItemIdRef.current ?? pausedItemId,
       );
     }
 
@@ -84,8 +92,44 @@ export function useNativeOutputWaveformController({
 
     nativeOutputWaveformItemIdRef.current = null;
     nativeOutputWaveformStartedAtRef.current = null;
+    activeNativeOutputWaveformAnalysisRef.current = null;
+    pausedNativeOutputWaveformRef.current = null;
     setWaveformVariant("bars");
   }, [setWaveformVariant, supportsNativeOutputWaveform, usingNativeAudioQueue]);
+
+  const pauseNativeOutputWaveform = useCallback(() => {
+    const itemId = nativeOutputWaveformItemIdRef.current;
+    const startedAtMs = nativeOutputWaveformStartedAtRef.current;
+    const analysis = activeNativeOutputWaveformAnalysisRef.current;
+
+    if (!itemId || startedAtMs === null || !analysis) {
+      return false;
+    }
+
+    const elapsedMs = Math.min(
+      analysis.durationMs,
+      Math.max(0, Date.now() - startedAtMs),
+    );
+    pausedNativeOutputWaveformRef.current = {
+      analysis,
+      elapsedMs,
+      itemId,
+    };
+
+    if (usingNativeAudioQueue) {
+      void stopNativeOutputWaveformPlayback(itemId);
+    }
+    if (nativeOutputWaveformIntervalRef.current) {
+      clearInterval(nativeOutputWaveformIntervalRef.current);
+      nativeOutputWaveformIntervalRef.current = null;
+    }
+
+    nativeOutputWaveformItemIdRef.current = null;
+    nativeOutputWaveformStartedAtRef.current = null;
+    activeNativeOutputWaveformAnalysisRef.current = null;
+    setWaveformVariant("bars");
+    return true;
+  }, [setWaveformVariant, usingNativeAudioQueue]);
 
   const clearNativeAudioQueueState = useCallback(() => {
     nativeAudioQueueContextsRef.current.clear();
@@ -133,7 +177,11 @@ export function useNativeOutputWaveformController({
   }, []);
 
   const startNativeOutputWaveform = useCallback(
-    (itemId: string, analysis: NativeWaveformAnalysis) => {
+    (
+      itemId: string,
+      analysis: NativeWaveformAnalysis,
+      playbackStartedAtMs: number,
+    ) => {
       if (!analysis.samples.length || analysis.durationMs <= 0) {
         logWaveformDebug("output-waveform-skipped", {
           itemId,
@@ -153,12 +201,15 @@ export function useNativeOutputWaveformController({
       });
       stopNativeOutputWaveform();
       nativeOutputWaveformItemIdRef.current = itemId;
-      nativeOutputWaveformStartedAtRef.current = Date.now();
+      nativeOutputWaveformStartedAtRef.current = playbackStartedAtMs;
+      activeNativeOutputWaveformAnalysisRef.current = analysis;
+      pausedNativeOutputWaveformRef.current = null;
       setWaveformVariant("oscilloscope");
       void startNativeOutputWaveformPlayback({
         itemId,
         samples: analysis.samples,
         durationMs: analysis.durationMs,
+        elapsedMs: Math.max(0, Date.now() - playbackStartedAtMs),
       });
 
       const tick = () => {
@@ -171,7 +222,7 @@ export function useNativeOutputWaveformController({
           1,
           Math.max(0, (Date.now() - startedAt) / Math.max(1, analysis.durationMs)),
         );
-        const samples = getTrailingWaveformWindow(
+        const samples = getPlaybackWaveformWindow(
           analysis.samples,
           progress,
           OSCILLOSCOPE_SAMPLE_COUNT,
@@ -196,11 +247,28 @@ export function useNativeOutputWaveformController({
     ],
   );
 
+  const resumeNativeOutputWaveform = useCallback(() => {
+    const paused = pausedNativeOutputWaveformRef.current;
+    if (!paused) {
+      return false;
+    }
+
+    pausedNativeOutputWaveformRef.current = null;
+    startNativeOutputWaveform(
+      paused.itemId,
+      paused.analysis,
+      Date.now() - paused.elapsedMs,
+    );
+    return true;
+  }, [startNativeOutputWaveform]);
+
   return {
     clearNativeAudioQueueState,
     getWaveformAnalysis,
     nativeOutputWaveformItemIdRef,
     nativeOutputWaveformStartedAtRef,
+    pauseNativeOutputWaveform,
+    resumeNativeOutputWaveform,
     startNativeMetering,
     startNativeOutputWaveform,
     stopNativeMetering,
