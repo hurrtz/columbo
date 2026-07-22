@@ -76,6 +76,8 @@ export function useVoiceSessionController({
     isRecording,
     maxRecordingMs,
     nativeStt,
+    onCaptureStopAbandoned: () => setPipelinePhase("idle"),
+    onCaptureStopStarted: () => setPipelinePhase("transcribing"),
     player,
     processCapturedVoiceTurn: handleVoiceCaptureDone,
     recorder,
@@ -329,6 +331,7 @@ export function useVoiceSessionController({
     handlePressIn,
     handlePressOut,
     handleTogglePress,
+    maxRecordingMs,
     resetVoiceSessionState,
   };
 }

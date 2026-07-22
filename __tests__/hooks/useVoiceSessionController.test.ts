@@ -158,6 +158,7 @@ describe("useVoiceSessionController", () => {
 
     await waitFor(() => {
       expect(params.recorder.stopRecording).toHaveBeenCalledTimes(1);
+      expect(params.setPipelinePhase).toHaveBeenCalledWith("transcribing");
       expect(params.handleVoiceCaptureDone).toHaveBeenCalledWith({
         audioUri: "file://voice.m4a",
       });

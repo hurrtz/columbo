@@ -420,6 +420,11 @@ describe("MainScreen", () => {
     );
     expect(inputSection.getByText("voice-stage:disabled")).toBeTruthy();
     expect(
+      StyleSheet.flatten(
+        screen.getByTestId("portrait-conversation-stack").props.style,
+      ).marginTop,
+    ).toBe(6);
+    expect(
       transcriptPane.getByText("transcript-preview:empty-visible"),
     ).toBeTruthy();
     expect(transcriptPane.queryByTestId("portrait-pane-divider")).toBeNull();

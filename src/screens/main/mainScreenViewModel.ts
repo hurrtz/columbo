@@ -17,7 +17,7 @@ import {
   TtsListenLanguage,
   VoiceVisualPhase,
 } from "../../types";
-import { getStatusDisplayData, getStatusIndicatorTone } from "./statusSelectors";
+import { getStatusDisplayData } from "./statusSelectors";
 import { TranslateFn } from "./shared";
 import { getConversationUsageDisplayData } from "./usageSelectors";
 import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
@@ -167,11 +167,6 @@ export function getMainScreenViewModel({
     messages,
     routeModelLabel,
     statusDisplay,
-    statusIndicatorTone: getStatusIndicatorTone(
-      visualPhase,
-      pipelinePhase,
-      player.isPlaybackPaused,
-    ),
     sttStatusLabel,
     ttsStatusLabel,
     usageDisplay: getConversationUsageDisplayData({

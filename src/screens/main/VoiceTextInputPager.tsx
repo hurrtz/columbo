@@ -22,12 +22,16 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { WaveformBar } from "../../components/WaveformBar";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 import { Colors } from "../../theme/colors";
 import { textStyles } from "../../theme/typography";
-import { InputMode, VoiceVisualPhase } from "../../types";
+import {
+  InputMode,
+  VoicePhaseProgress,
+  VoiceVisualPhase,
+} from "../../types";
 
+import { PhaseAwareVoiceAction } from "./PhaseAwareVoiceAction";
 import { TranslateFn } from "./shared";
 
 export type InputSurface = "voice" | "text";
@@ -40,12 +44,20 @@ interface VoiceTextInputPagerProps {
   inputMode: InputMode;
   isActive: boolean;
   onInputSurfaceChange?: (surface: InputSurface) => void;
+  onOpenStatusDetails: () => void;
   onPress: () => void;
   onPressIn: () => void;
   onPressOut: () => void;
+  onStopPlayback?: () => void | Promise<void>;
   onSubmitTextMessage: (text: string) => void;
   onTextMessageChange?: (text: string) => void;
+  phaseLabel: string;
+  phaseProgress?: VoicePhaseProgress | null;
+  playbackActive?: boolean;
+  playbackPaused?: boolean;
+  recordingMaxMs: number;
   statusLabel: string;
+  stopPlaybackLabel: string;
   t: TranslateFn;
   visualPhase: VoiceVisualPhase;
 }
@@ -63,12 +75,20 @@ export function VoiceTextInputPager({
   inputMode,
   isActive,
   onInputSurfaceChange,
+  onOpenStatusDetails,
   onPress,
   onPressIn,
   onPressOut,
+  onStopPlayback,
   onSubmitTextMessage,
   onTextMessageChange,
+  phaseLabel,
+  phaseProgress,
+  playbackActive,
+  playbackPaused,
+  recordingMaxMs,
   statusLabel,
+  stopPlaybackLabel,
   t,
   visualPhase,
 }: VoiceTextInputPagerProps) {
@@ -254,20 +274,6 @@ export function VoiceTextInputPager({
     trimmedTextMessage,
   ]);
 
-  if (isActive) {
-    return (
-      <WaveformBar
-        isActive
-        phase={visualPhase}
-        statusLabel={statusLabel}
-        inputMode={inputMode}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-        onPress={onPress}
-      />
-    );
-  }
-
   return (
     <View style={localStyles.root}>
       <View
@@ -278,10 +284,16 @@ export function VoiceTextInputPager({
         <GestureDetector gesture={panGesture}>
           <Animated.View
             testID="voice-text-input-pager"
+            accessibilityElementsHidden={isActive}
+            importantForAccessibility={
+              isActive ? "no-hide-descendants" : "auto"
+            }
+            pointerEvents={isActive ? "none" : "auto"}
             style={[
               localStyles.track,
               { width: pageWidth * 2 },
               trackAnimatedStyle,
+              isActive ? localStyles.trackCovered : null,
             ]}
           >
             <View
@@ -403,6 +415,28 @@ export function VoiceTextInputPager({
             </View>
           </Animated.View>
         </GestureDetector>
+        {isActive ? (
+          <View style={localStyles.activeActionOverlay}>
+            <PhaseAwareVoiceAction
+              colors={colors}
+              inputMode={inputMode}
+              onOpenStatusDetails={onOpenStatusDetails}
+              onPress={onPress}
+              onPressIn={onPressIn}
+              onPressOut={onPressOut}
+              onStopPlayback={onStopPlayback}
+              phaseLabel={phaseLabel}
+              phaseProgress={phaseProgress}
+              playbackActive={playbackActive}
+              playbackPaused={playbackPaused}
+              recordingMaxMs={recordingMaxMs}
+              statusLabel={statusLabel}
+              stopPlaybackLabel={stopPlaybackLabel}
+              t={t}
+              visualPhase={visualPhase}
+            />
+          </View>
+        ) : null}
       </View>
 
       <View style={localStyles.pageIndicators}>
@@ -418,8 +452,9 @@ export function VoiceTextInputPager({
                   : t("showTextInput")
               }
               accessibilityRole="button"
-              accessibilityState={{ selected }}
+              accessibilityState={{ disabled: isActive, selected }}
               activeOpacity={0.7}
+              disabled={isActive}
               onPress={() => selectSurface(surface)}
               style={localStyles.pageIndicatorTarget}
             >
@@ -451,10 +486,18 @@ const localStyles = StyleSheet.create({
   },
   viewport: {
     width: "100%",
+    minHeight: 68,
     overflow: "hidden",
+    position: "relative",
   },
   track: {
     flexDirection: "row",
+  },
+  trackCovered: {
+    opacity: 0,
+  },
+  activeActionOverlay: {
+    ...StyleSheet.absoluteFillObject,
   },
   page: {
     justifyContent: "center",

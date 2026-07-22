@@ -19,6 +19,8 @@ interface UseVoiceCaptureLifecycleParams {
   isRecording?: boolean;
   maxRecordingMs?: number;
   nativeStt: NativeSpeechRecognizerController;
+  onCaptureStopAbandoned?: () => void;
+  onCaptureStopStarted?: () => void;
   player: AudioPlayerController;
   processCapturedVoiceTurn: (params: {
     audioUri?: string;
@@ -34,6 +36,8 @@ export function useVoiceCaptureLifecycle({
   isRecording = false,
   maxRecordingMs = MAX_RECORDING_MS,
   nativeStt,
+  onCaptureStopAbandoned,
+  onCaptureStopStarted,
   player,
   processCapturedVoiceTurn,
   recorder,
@@ -164,22 +168,53 @@ export function useVoiceCaptureLifecycle({
     }
 
     captureActiveRef.current = false;
+    onCaptureStopStarted?.();
 
-    if (sttMode === "native") {
-      const transcription = await nativeStt.stopRecognition();
+    try {
+      if (sttMode === "native") {
+        const transcription = await nativeStt.stopRecognition();
 
-      if (transcription) {
+        if (transcription) {
+          recordDebugLogEvent({
+            event: "voice-capture-transcription-ready",
+            payload: {
+              sttMode,
+              textLength: transcription.trim().length,
+            },
+          });
+          void processCapturedVoiceTurn({
+            transcriptionOverride: transcription,
+          });
+        } else {
+          onCaptureStopAbandoned?.();
+          recordDebugLogEvent({
+            event: "voice-capture-transcription-missing",
+            level: "warn",
+            payload: {
+              sttMode,
+            },
+          });
+          showToast(t("couldntCatchThatTryAgain"));
+        }
+
+        return;
+      }
+
+      const uri = await recorder.stopRecording();
+
+      if (uri) {
         recordDebugLogEvent({
-          event: "voice-capture-transcription-ready",
+          event: "voice-capture-audio-ready",
           payload: {
             sttMode,
-            textLength: transcription.trim().length,
+            uri,
           },
         });
-        void processCapturedVoiceTurn({ transcriptionOverride: transcription });
+        void processCapturedVoiceTurn({ audioUri: uri });
       } else {
+        onCaptureStopAbandoned?.();
         recordDebugLogEvent({
-          event: "voice-capture-transcription-missing",
+          event: "voice-capture-audio-missing",
           level: "warn",
           payload: {
             sttMode,
@@ -187,35 +222,16 @@ export function useVoiceCaptureLifecycle({
         });
         showToast(t("couldntCatchThatTryAgain"));
       }
-
-      return;
-    }
-
-    const uri = await recorder.stopRecording();
-
-    if (uri) {
-      recordDebugLogEvent({
-        event: "voice-capture-audio-ready",
-        payload: {
-          sttMode,
-          uri,
-        },
-      });
-      void processCapturedVoiceTurn({ audioUri: uri });
-    } else {
-      recordDebugLogEvent({
-        event: "voice-capture-audio-missing",
-        level: "warn",
-        payload: {
-          sttMode,
-        },
-      });
-      showToast(t("couldntCatchThatTryAgain"));
+    } catch (error) {
+      onCaptureStopAbandoned?.();
+      throw error;
     }
   }, [
     clearMaxDurationTimer,
     isRecording,
     nativeStt,
+    onCaptureStopAbandoned,
+    onCaptureStopStarted,
     processCapturedVoiceTurn,
     recorder,
     showToast,

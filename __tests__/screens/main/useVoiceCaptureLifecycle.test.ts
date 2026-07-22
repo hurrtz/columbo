@@ -33,11 +33,15 @@ function buildParams(overrides: Record<string, unknown> = {}) {
     stopRecognition: jest.fn(async () => "hello"),
   };
   const processCapturedVoiceTurn = jest.fn(async () => undefined);
+  const onCaptureStopAbandoned = jest.fn();
+  const onCaptureStopStarted = jest.fn();
   const showToast = jest.fn();
   const t = jest.fn((key: string) => key);
 
   return {
     nativeStt,
+    onCaptureStopAbandoned,
+    onCaptureStopStarted,
     player,
     processCapturedVoiceTurn,
     recorder,
@@ -79,6 +83,8 @@ describe("useVoiceCaptureLifecycle auto-stop", () => {
     // The heads-up toast was shown and the audio was NOT discarded.
     expect(params.showToast).toHaveBeenCalledWith("maxRecordingLengthReached");
     expect(params.recorder.stopRecording).toHaveBeenCalledTimes(1);
+    expect(params.onCaptureStopStarted).toHaveBeenCalledTimes(1);
+    expect(params.onCaptureStopAbandoned).not.toHaveBeenCalled();
     expect(params.processCapturedVoiceTurn).toHaveBeenCalledWith({
       audioUri: "file:///tmp/recording.wav",
     });
@@ -168,6 +174,8 @@ describe("useVoiceCaptureLifecycle auto-stop", () => {
     });
 
     expect(params.processCapturedVoiceTurn).not.toHaveBeenCalled();
+    expect(params.onCaptureStopStarted).toHaveBeenCalledTimes(1);
+    expect(params.onCaptureStopAbandoned).toHaveBeenCalledTimes(1);
     expect(params.showToast).toHaveBeenCalledWith("couldntCatchThatTryAgain");
   });
 
@@ -185,6 +193,8 @@ describe("useVoiceCaptureLifecycle auto-stop", () => {
     });
 
     expect(params.processCapturedVoiceTurn).not.toHaveBeenCalled();
+    expect(params.onCaptureStopStarted).toHaveBeenCalledTimes(1);
+    expect(params.onCaptureStopAbandoned).toHaveBeenCalledTimes(1);
     expect(params.showToast).toHaveBeenCalledWith("couldntCatchThatTryAgain");
   });
 });

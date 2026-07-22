@@ -2,10 +2,7 @@ import React from "react";
 import { fireEvent, render } from "@testing-library/react-native";
 import { Keyboard, StyleSheet } from "react-native";
 
-import {
-  MainScreenStatusStrip,
-  MainScreenVoiceStage,
-} from "../../../src/screens/main/MainScreenVoiceStage";
+import { MainScreenVoiceStage } from "../../../src/screens/main/MainScreenVoiceStage";
 import { TranslateFn } from "../../../src/screens/main/shared";
 import { lightColors } from "../../../src/theme/colors";
 
@@ -14,18 +11,6 @@ jest.mock("@expo/vector-icons", () => ({
     const React = require("react");
     const { Text } = require("react-native");
     return React.createElement(Text, null, `icon:${name}`);
-  },
-}));
-
-jest.mock("../../../src/components/WaveformBar", () => ({
-  WaveformBar: ({ statusLabel }: { statusLabel?: string }) => {
-    const React = require("react");
-    const { Text } = require("react-native");
-    return React.createElement(
-      Text,
-      { testID: "active-waveform" },
-      statusLabel,
-    );
   },
 }));
 
@@ -57,6 +42,8 @@ jest.mock("react-native-reanimated", () => {
   return {
     __esModule: true,
     default: { View },
+    cancelAnimation: jest.fn(),
+    Easing: { linear: jest.fn() },
     runOnJS: (callback: (...args: unknown[]) => unknown) => callback,
     useAnimatedStyle: (factory: () => unknown) => factory(),
     useSharedValue: (value: unknown) => ({ value }),
@@ -85,6 +72,7 @@ const t = ((key: string) => {
     sendTextMessage: "Send message",
     showVoiceInput: "Show voice input",
     showTextInput: "Show text input",
+    statusDetails: "Status details",
     speechEtaCountdown: "About",
     speechEtaOvertime: "Still working",
   };
@@ -101,10 +89,8 @@ function createProps(overrides: Record<string, unknown> = {}) {
     onPressIn: jest.fn(),
     onPressOut: jest.fn(),
     onSubmitTextMessage: jest.fn(),
-    pipelinePhase: "idle" as const,
-    showStatusStrip: false,
-    statusDetail: "Ready",
-    statusIndicatorTone: "muted",
+    phaseLabel: "Idle",
+    recordingMaxMs: 150_000,
     statusTitle: "Tap to speak",
     t,
     visualPhase: "idle" as const,
@@ -113,46 +99,6 @@ function createProps(overrides: Record<string, unknown> = {}) {
 }
 
 describe("MainScreenVoiceStage composer", () => {
-  it("keeps the landscape status surface full width with horizontal padding", () => {
-    const screen = render(
-      <MainScreenStatusStrip
-        colors={lightColors}
-        fullWidth
-        layout="landscape"
-        onOpenStatusDetails={jest.fn()}
-        pipelinePhase="idle"
-        statusDetail="30 messages"
-        statusIndicatorTone="muted"
-        statusTitle="Tap to speak"
-        t={t}
-      />,
-    );
-
-    expect(
-      StyleSheet.flatten(
-        screen.getByTestId("main-screen-status-strip").props.style,
-      ),
-    ).toEqual(
-      expect.objectContaining({
-        alignSelf: "stretch",
-        backgroundColor: "transparent",
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderTopWidth: StyleSheet.hairlineWidth,
-        paddingLeft: 16,
-        paddingRight: 8,
-        width: "100%",
-      }),
-    );
-    expect(
-      StyleSheet.flatten(screen.getByLabelText("statusDetails").props.style),
-    ).toEqual(
-      expect.objectContaining({
-        backgroundColor: "transparent",
-        borderWidth: 0,
-      }),
-    );
-  });
-
   it("starts with a prominent full-width voice surface", () => {
     const onPress = jest.fn();
     const screen = render(
@@ -174,7 +120,7 @@ describe("MainScreenVoiceStage composer", () => {
     );
     expect(
       screen.getByLabelText("Show voice input").props.accessibilityState,
-    ).toEqual({ selected: true });
+    ).toEqual({ disabled: false, selected: true });
 
     fireEvent.press(screen.getByTestId("voice-input-surface"));
     expect(onPress).toHaveBeenCalledTimes(1);
@@ -190,7 +136,7 @@ describe("MainScreenVoiceStage composer", () => {
 
     expect(
       screen.getByLabelText("Show text input").props.accessibilityState,
-    ).toEqual({ selected: true });
+    ).toEqual({ disabled: false, selected: true });
     expect(
       StyleSheet.flatten(screen.getByTestId("text-input-surface").props.style),
     ).toEqual(
@@ -271,8 +217,20 @@ describe("MainScreenVoiceStage composer", () => {
       "Keep this draft",
     );
 
-    screen.rerender(<MainScreenVoiceStage {...props} isActive />);
-    expect(screen.getByTestId("active-waveform")).toBeTruthy();
+    screen.rerender(
+      <MainScreenVoiceStage
+        {...props}
+        isActive
+        phaseLabel="Thinking"
+        visualPhase="thinking"
+      />,
+    );
+    expect(screen.getByTestId("voice-stage-action-surface")).toBeTruthy();
+    expect(
+      screen.getByTestId("voice-text-input", {
+        includeHiddenElements: true,
+      }).props.value,
+    ).toBe("Keep this draft");
 
     screen.rerender(<MainScreenVoiceStage {...props} isActive={false} />);
     expect(screen.getByPlaceholderText("Type a message").props.value).toBe(
@@ -280,7 +238,7 @@ describe("MainScreenVoiceStage composer", () => {
     );
     expect(
       screen.getByLabelText("Show text input").props.accessibilityState,
-    ).toEqual({ selected: true });
+    ).toEqual({ disabled: false, selected: true });
   });
 
   it("restores the selected surface and draft after a layout remount", () => {
@@ -316,18 +274,75 @@ describe("MainScreenVoiceStage composer", () => {
 
     expect(
       secondScreen.getByLabelText("Show text input").props.accessibilityState,
-    ).toEqual({ selected: true });
+    ).toEqual({ disabled: false, selected: true });
     expect(
       secondScreen.getByPlaceholderText("Type a message").props.value,
     ).toBe("Survive rotation");
   });
 
-  it("replaces the composer with the live waveform while active", () => {
+  it("keeps the same composer footprint and drops the waveform while active", () => {
     const screen = render(
-      <MainScreenVoiceStage {...createProps({ isActive: true })} />,
+      <MainScreenVoiceStage
+        {...createProps({
+          isActive: true,
+          phaseLabel: "Listening",
+          visualPhase: "recording",
+        })}
+      />,
     );
 
-    expect(screen.getByTestId("active-waveform")).toBeTruthy();
-    expect(screen.queryByPlaceholderText("Type a message")).toBeNull();
+    expect(
+      StyleSheet.flatten(
+        screen.getByTestId("voice-text-input-viewport").props.style,
+      ),
+    ).toEqual(expect.objectContaining({ minHeight: 68 }));
+    expect(screen.getByTestId("voice-stage-action-surface")).toBeTruthy();
+    expect(screen.getByTestId("voice-stage-recording-fill")).toBeTruthy();
+    expect(screen.getByText("icon:square")).toBeTruthy();
+    expect(screen.queryByTestId("active-waveform")).toBeNull();
+    expect(
+      screen.getByLabelText("Show voice input").props.accessibilityState,
+    ).toEqual({ disabled: true, selected: true });
+  });
+
+  it("changes phase color and icon without mounting a second status element", () => {
+    const screen = render(
+      <MainScreenVoiceStage
+        {...createProps({
+          isActive: true,
+          phaseLabel: "Thinking",
+          visualPhase: "thinking",
+        })}
+      />,
+    );
+
+    expect(
+      StyleSheet.flatten(
+        screen.getByTestId("voice-stage-action-surface").props.style,
+      ).backgroundColor,
+    ).toBe(lightColors.phaseThinking);
+    expect(screen.getByText("icon:cpu")).toBeTruthy();
+    expect(screen.getByText("Thinking")).toBeTruthy();
+    expect(screen.getByTestId("voice-stage-phase-time")).toBeTruthy();
+    expect(screen.queryByTestId("main-screen-status-strip")).toBeNull();
+  });
+
+  it("keeps playback controls inside the stable speaking CTA", () => {
+    const onStopPlayback = jest.fn();
+    const screen = render(
+      <MainScreenVoiceStage
+        {...createProps({
+          isActive: true,
+          onStopPlayback,
+          phaseLabel: "Speaking",
+          playbackActive: true,
+          visualPhase: "speaking",
+        })}
+      />,
+    );
+
+    expect(screen.getByText("icon:pause")).toBeTruthy();
+    fireEvent.press(screen.getByTestId("voice-stage-stop-playback"));
+    expect(onStopPlayback).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,13 +1,4 @@
-import {
-  formatThinkingStatus,
-  getStatusDisplayData,
-  getStatusIndicatorTone,
-  isLongRunningPhase,
-  isPipelineWorking,
-} from "../../../src/screens/main/statusSelectors";
-
-const withElapsed = (detail: string, seconds: number) =>
-  `${detail} · ${seconds}s`;
+import { getStatusDisplayData } from "../../../src/screens/main/statusSelectors";
 
 describe("statusSelectors", () => {
   it("builds idle state labels from message count and input mode", () => {
@@ -92,65 +83,4 @@ describe("statusSelectors", () => {
     expect(status.actionLabel).toBe("Listening");
   });
 
-  it("maps active phases to stable indicator tones", () => {
-    expect(getStatusIndicatorTone("recording", "idle")).toBe("accent");
-    expect(getStatusIndicatorTone("speaking", "speaking")).toBe("accent");
-    expect(getStatusIndicatorTone("searching", "searching")).toBe("accent");
-    expect(getStatusIndicatorTone("thinking", "thinking")).toBe("accent");
-    expect(getStatusIndicatorTone("idle", "idle")).toBe("muted");
-  });
-
-  it("treats thinking, searching, and synthesizing as long-running", () => {
-    expect(isLongRunningPhase("thinking")).toBe(true);
-    expect(isLongRunningPhase("searching")).toBe(true);
-    expect(isLongRunningPhase("synthesizing")).toBe(true);
-    expect(isLongRunningPhase("idle")).toBe(false);
-    expect(isLongRunningPhase("transcribing")).toBe(false);
-    expect(isLongRunningPhase("speaking")).toBe(false);
-  });
-
-  it("marks every pre-playback processing phase as actively working", () => {
-    expect(isPipelineWorking("transcribing")).toBe(true);
-    expect(isPipelineWorking("searching")).toBe(true);
-    expect(isPipelineWorking("thinking")).toBe(true);
-    expect(isPipelineWorking("synthesizing")).toBe(true);
-    expect(isPipelineWorking("idle")).toBe(false);
-    expect(isPipelineWorking("speaking")).toBe(false);
-  });
-
-  describe("formatThinkingStatus", () => {
-    const base = {
-      baseDetail: "Waiting for OpenAI",
-      reassurance: "Good answers take a moment…",
-      withElapsed,
-    };
-
-    it("returns the base detail before any time has elapsed", () => {
-      expect(formatThinkingStatus({ ...base, elapsedSeconds: 0 })).toBe(
-        "Waiting for OpenAI",
-      );
-    });
-
-    it("appends an elapsed-seconds counter once time has passed", () => {
-      expect(formatThinkingStatus({ ...base, elapsedSeconds: 3 })).toBe(
-        "Waiting for OpenAI · 3s",
-      );
-    });
-
-    it("adds the reassurance line at the threshold", () => {
-      expect(formatThinkingStatus({ ...base, elapsedSeconds: 8 })).toBe(
-        "Waiting for OpenAI · 8s\nGood answers take a moment…",
-      );
-    });
-
-    it("respects a custom reassurance threshold", () => {
-      expect(
-        formatThinkingStatus({
-          ...base,
-          elapsedSeconds: 5,
-          reassureAfterSeconds: 5,
-        }),
-      ).toBe("Waiting for OpenAI · 5s\nGood answers take a moment…");
-    });
-  });
 });

@@ -51,6 +51,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     minHeight: 0,
     gap: 10,
+    marginTop: 6,
   },
   portraitTranscriptPane: {
     flex: 1,
@@ -180,71 +181,6 @@ export const styles = StyleSheet.create({
   stageBlockLandscape: {
     paddingTop: 0,
     paddingBottom: 0,
-  },
-  statusStrip: {
-    width: "100%",
-    marginTop: 0,
-    borderRadius: 12,
-    borderWidth: 0,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    shadowOpacity: 0,
-  },
-  statusStripLandscape: {
-    marginTop: 0,
-    borderRadius: 0,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingLeft: 16,
-    paddingRight: 8,
-    paddingVertical: 9,
-  },
-  statusStripFullWidth: {
-    alignSelf: "stretch",
-  },
-  statusStripCopy: {
-    flex: 1,
-    minWidth: 0,
-    gap: 4,
-  },
-  statusStripLead: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  statusStripActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  statusStripDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
-  statusStripTitle: {
-    fontSize: 15,
-    lineHeight: 20,
-    fontFamily: fonts.display,
-  },
-  statusStripDetail: {
-    fontSize: 12,
-    lineHeight: 18,
-    fontFamily: fonts.body,
-  },
-  statusStripInfoButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  statusStripUtilityButtonLandscape: {
-    borderWidth: 0,
   },
   transcriptShell: {
     flex: 1,

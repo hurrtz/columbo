@@ -301,22 +301,6 @@ export function MainScreen() {
       isBusy,
     });
 
-  const handlePausePlayback = useCallback(async () => {
-    const paused = await player.pausePlayback();
-
-    if (!paused) {
-      showToast(t("pausePlaybackUnavailable"));
-    }
-  }, [player, showToast, t]);
-
-  const handleResumePlayback = useCallback(async () => {
-    const resumed = await player.resumePlayback();
-
-    if (!resumed) {
-      showToast(t("pausePlaybackUnavailable"));
-    }
-  }, [player, showToast, t]);
-
   const handleStopPlayback = useCallback(async () => {
     await player.stopPlayback();
   }, [player]);
@@ -373,6 +357,7 @@ export function MainScreen() {
     handlePressIn,
     handlePressOut,
     handleTogglePress,
+    maxRecordingMs,
     resetVoiceSessionState,
   } = useVoiceSessionController({
     abortRef,
@@ -523,7 +508,6 @@ export function MainScreen() {
     messages,
     routeModelLabel,
     statusDisplay,
-    statusIndicatorTone,
     sttStatusLabel,
     ttsStatusLabel,
     visualPhase,
@@ -692,22 +676,17 @@ export function MainScreen() {
                   layout="landscape"
                   onInputSurfaceChange={handleInputSurfaceChange}
                   onOpenStatusDetails={openStatusDetails}
-                  onPausePlayback={handlePausePlayback}
                   onPress={handleTogglePress}
                   onPressIn={handlePressIn}
                   onPressOut={handlePressOut}
-                  onResumePlayback={handleResumePlayback}
                   onStopPlayback={handleStopPlayback}
                   onSubmitTextMessage={handleSubmitTextMessage}
                   onTextMessageChange={handleTextMessageChange}
-                  pausePlaybackLabel={t("pause")}
+                  phaseLabel={statusDisplay.statusTitle}
                   phaseProgress={phaseProgress}
-                  pipelinePhase={pipelinePhase}
                   playbackActive={player.isPlaying}
                   playbackPaused={player.isPlaybackPaused}
-                  resumePlaybackLabel={t("resume")}
-                  statusDetail={statusDisplay.statusDetail}
-                  statusIndicatorTone={statusIndicatorTone}
+                  recordingMaxMs={maxRecordingMs}
                   statusTitle={statusDisplay.actionLabel}
                   stopPlaybackLabel={t("stop")}
                   t={t}
@@ -811,22 +790,17 @@ export function MainScreen() {
                     isActive={isActive && mainSurfaceVisible}
                     onInputSurfaceChange={handleInputSurfaceChange}
                     onOpenStatusDetails={openStatusDetails}
-                    onPausePlayback={handlePausePlayback}
                     onPress={handleTogglePress}
                     onPressIn={handlePressIn}
                     onPressOut={handlePressOut}
-                    onResumePlayback={handleResumePlayback}
                     onStopPlayback={handleStopPlayback}
                     onSubmitTextMessage={handleSubmitTextMessage}
                     onTextMessageChange={handleTextMessageChange}
-                    pausePlaybackLabel={t("pause")}
+                    phaseLabel={statusDisplay.statusTitle}
                     phaseProgress={phaseProgress}
-                    pipelinePhase={pipelinePhase}
                     playbackActive={player.isPlaying}
                     playbackPaused={player.isPlaybackPaused}
-                    resumePlaybackLabel={t("resume")}
-                    statusDetail={statusDisplay.statusDetail}
-                    statusIndicatorTone={statusIndicatorTone}
+                    recordingMaxMs={maxRecordingMs}
                     statusTitle={statusDisplay.actionLabel}
                     stopPlaybackLabel={t("stop")}
                     t={t}
