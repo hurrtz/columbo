@@ -15,6 +15,8 @@ const STORAGE_KEY = "@columbo/latency_stats";
 const MAX_SAMPLES_PER_ROUTE = 24;
 const MIN_SAMPLE_MS = 250;
 const MAX_SAMPLE_MS = 10 * 60_000;
+const MAX_SAMPLE_AGE_MS = 45 * 24 * 60 * 60_000;
+let latencyWriteQueue: Promise<void> = Promise.resolve();
 
 export type LatencyStatsPhase =
   | "llm-response"
@@ -149,24 +151,33 @@ export function getDefaultLatencyEstimateMs(
   const model = normalizeKeyPart(descriptor.model);
   const provider = normalizeKeyPart(descriptor.provider);
   let estimateMs =
-    effort.includes("max")
-      ? 42_000
-      : effort.includes("high")
-        ? 30_000
-        : effort.includes("medium")
-          ? 18_000
-          : effort.includes("low")
+    effort === "max"
+      ? 24_000
+      : effort === "xhigh"
+        ? 20_000
+        : effort === "high"
+          ? 14_000
+          : effort === "medium"
             ? 9_000
-            : 14_000;
+            : effort === "low"
+              ? 6_000
+              : 8_000;
+
+  // xAI's current chat-completions routes usually reach a complete first
+  // sentence quickly even with high reasoning effort. Keep cold-start UI
+  // estimates credible; route-specific observations replace these priors.
+  if (provider === "xai") {
+    estimateMs = effort === "high" ? 9_000 : effort === "low" ? 6_000 : 8_000;
+  }
 
   if (provider === "anthropic") {
-    estimateMs += 5_000;
+    estimateMs += 4_000;
   }
   if (model.includes("fable") || model.includes("opus")) {
-    estimateMs += 8_000;
+    estimateMs += 6_000;
   }
   if (descriptor.responseLength === "thorough") {
-    estimateMs += 5_000;
+    estimateMs += 6_000;
   } else if (descriptor.responseLength === "brief") {
     estimateMs -= 2_000;
   }
@@ -179,31 +190,32 @@ export function getDefaultLatencyEstimateMs(
   }
 
   if (descriptor.phase === "llm-response") {
-    return Math.max(5_000, estimateMs);
+    return Math.max(4_000, estimateMs);
   }
 
   if (descriptor.inputSource === "voice") {
-    estimateMs += descriptor.sttMode === "provider" ? 7_000 : 3_500;
+    estimateMs += descriptor.sttMode === "provider" ? 4_000 : 2_000;
   }
 
   if (descriptor.spokenRepliesEnabled) {
     if (descriptor.ttsMode === "provider") {
-      const providerSpeechMs =
+      const streamingSpeechMs =
         descriptor.ttsProvider === "xai"
-          ? 18_000
+          ? 2_500
           : descriptor.ttsProvider === "gemini"
-            ? 15_000
-            : 12_000;
+            ? 3_500
+            : 3_500;
 
       if (descriptor.replyPlayback === "wait") {
-        estimateMs +=
+        const fullReplySpeechMs =
           descriptor.responseLength === "thorough"
-            ? providerSpeechMs + 45_000
+            ? 9_000
             : descriptor.responseLength === "brief"
-              ? providerSpeechMs + 12_000
-              : providerSpeechMs + 25_000;
+              ? 3_500
+              : 6_500;
+        estimateMs += fullReplySpeechMs;
       } else {
-        estimateMs += providerSpeechMs;
+        estimateMs += streamingSpeechMs;
       }
     } else {
       estimateMs += descriptor.replyPlayback === "wait" ? 2_500 : 1_000;
@@ -279,16 +291,41 @@ function parseStore(raw: string | null): LatencyStatsStore {
   }
 }
 
+function getStoredSamples(
+  stats: LatencyRouteStats | undefined,
+  nowMs = Date.now(),
+) {
+  if (!stats || typeof stats !== "object" || !Array.isArray(stats.samples)) {
+    return [];
+  }
+
+  const updatedAtMs = Date.parse(stats.updatedAt);
+  if (
+    Number.isFinite(updatedAtMs) &&
+    nowMs - updatedAtMs > MAX_SAMPLE_AGE_MS
+  ) {
+    return [];
+  }
+
+  return stats.samples.filter(
+    (sample) =>
+      Number.isFinite(sample) &&
+      sample >= MIN_SAMPLE_MS &&
+      sample <= MAX_SAMPLE_MS,
+  );
+}
+
 export async function loadLatencyEstimate(
   descriptor: LatencyRouteDescriptor,
 ): Promise<LatencyEstimate> {
+  await latencyWriteQueue.catch(() => undefined);
   const keys = createLatencyRouteKeys(descriptor);
   const [key, familyKey] = keys;
   const fallbackMs = getDefaultLatencyEstimateMs(descriptor);
   const store = parseStore(await AsyncStorage.getItem(STORAGE_KEY));
-  const exactSamples = store[key]?.samples?.filter(Number.isFinite) ?? [];
+  const exactSamples = getStoredSamples(store[key]);
   const familySamples = familyKey
-    ? store[familyKey]?.samples?.filter(Number.isFinite) ?? []
+    ? getStoredSamples(store[familyKey])
     : [];
   const exactMs = getLearnedLatencyEstimateMs(exactSamples);
   const familyMs = getLearnedLatencyEstimateMs(familySamples);
@@ -304,7 +341,7 @@ export async function loadLatencyEstimate(
     };
   }
 
-  if (familyMs > 0) {
+  if (familyMs > 0 && familySamples.length >= 4) {
     const exactWeight = exactMs
       ? Math.min(0.8, 0.35 + exactSamples.length * 0.15)
       : 0;
@@ -322,14 +359,25 @@ export async function loadLatencyEstimate(
     };
   }
 
-  if (exactMs > 0) {
+  const earlyEstimateMs = exactMs || familyMs;
+  const earlySampleCount = exactMs
+    ? exactSamples.length
+    : familySamples.length;
+
+  if (earlyEstimateMs > 0) {
+    // One real route observation is more useful than a generic provider prior,
+    // while the remaining default weight still cushions cold-start outliers.
+    const learnedWeight =
+      earlySampleCount >= 3 ? 0.8 : earlySampleCount === 2 ? 0.65 : 0.45;
     return {
       key,
       keys,
-      estimatedMs: exactMs,
-      sampleCount: exactSamples.length,
+      estimatedMs: Math.round(
+        fallbackMs * (1 - learnedWeight) + earlyEstimateMs * learnedWeight,
+      ),
+      sampleCount: earlySampleCount,
       learned: true,
-      source: "exact",
+      source: exactMs ? "exact" : "family",
     };
   }
 
@@ -356,22 +404,29 @@ export async function recordLatencySamples(
     return;
   }
 
-  const store = parseStore(await AsyncStorage.getItem(STORAGE_KEY));
-  const updatedAt = new Date().toISOString();
+  const write = latencyWriteQueue
+    .catch(() => undefined)
+    .then(async () => {
+      const store = parseStore(await AsyncStorage.getItem(STORAGE_KEY));
+      const updatedAt = new Date().toISOString();
 
-  for (const key of [...new Set(keys.filter(Boolean))]) {
-    const current = store[key]?.samples?.filter(Number.isFinite) ?? [];
-    const samples = [...current, Math.round(durationMs)].slice(
-      -MAX_SAMPLES_PER_ROUTE,
-    );
+      for (const key of [...new Set(keys.filter(Boolean))]) {
+        const current = getStoredSamples(store[key]);
+        const samples = [...current, Math.round(durationMs)].slice(
+          -MAX_SAMPLES_PER_ROUTE,
+        );
 
-    store[key] = {
-      samples,
-      updatedAt,
-    };
-  }
+        store[key] = {
+          samples,
+          updatedAt,
+        };
+      }
 
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+    });
+
+  latencyWriteQueue = write.catch(() => undefined);
+  await write;
 }
 
 export async function recordLatencySample(

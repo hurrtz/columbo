@@ -54,7 +54,20 @@ describe("latencyStats", () => {
         responseTone: "professional",
         webSearchMode: "off",
       }),
-    ).toBeGreaterThan(55_000);
+    ).toBeGreaterThanOrEqual(40_000);
+  });
+
+  it("gives xhigh effort its own estimate between high and max", () => {
+    const estimate = (effort: string) =>
+      getDefaultLatencyEstimateMs({
+        phase: "llm-response",
+        provider: "openai",
+        model: "gpt-5.6-sol",
+        effort,
+      });
+
+    expect(estimate("xhigh")).toBeGreaterThan(estimate("high"));
+    expect(estimate("xhigh")).toBeLessThan(estimate("max"));
   });
 
   it("keys and estimates the complete turn to first speech", () => {
@@ -80,7 +93,26 @@ describe("latencyStats", () => {
     expect(createLatencyRouteKey(descriptor)).toBe(
       "turn-to-first-speech-v1:anthropic:claude-fable-5:max:thorough:professional:voice:provider:gemini:gemini-3.5-flash:spoken:provider:gemini:gemini-2.5-flash-preview-tts:wait:off:none",
     );
-    expect(getDefaultLatencyEstimateMs(descriptor)).toBeGreaterThan(120_000);
+    expect(getDefaultLatencyEstimateMs(descriptor)).toBe(53_000);
+  });
+
+  it("uses a credible cold-start estimate for streamed xAI speech", () => {
+    expect(
+      getDefaultLatencyEstimateMs({
+        phase: "turn-to-first-speech",
+        provider: "xai",
+        model: "grok-4.5",
+        effort: "high",
+        responseLength: "normal",
+        responseTone: "professional",
+        inputSource: "text",
+        spokenRepliesEnabled: true,
+        ttsMode: "provider",
+        ttsProvider: "xai",
+        replyPlayback: "stream",
+        webSearchMode: "off",
+      }),
+    ).toBe(11_500);
   });
 
   it("derives learned estimates from recent upper-percentile samples", () => {
@@ -137,7 +169,7 @@ describe("latencyStats", () => {
     await recordLatencySamples(keys, 96_000);
 
     await expect(loadLatencyEstimate(descriptor)).resolves.toMatchObject({
-      estimatedMs: 92_000,
+      estimatedMs: 78_350,
       learned: true,
       sampleCount: 2,
       source: "exact",
@@ -172,10 +204,57 @@ describe("latencyStats", () => {
     await recordLatencySamples(createLatencyRouteKeys(firstDescriptor), 42_000);
 
     await expect(loadLatencyEstimate(relatedDescriptor)).resolves.toMatchObject({
-      estimatedMs: 42_000,
+      estimatedMs: 30_725,
       learned: true,
       sampleCount: 1,
       source: "family",
     });
+  });
+
+  it("serializes concurrent samples so neither observation is lost", async () => {
+    await Promise.all([
+      recordLatencySample("llm-response-v2:concurrent", 1_000),
+      recordLatencySample("llm-response-v2:concurrent", 2_000),
+    ]);
+
+    expect(
+      JSON.parse(mockStoredValue ?? "{}")["llm-response-v2:concurrent"].samples,
+    ).toEqual([1_000, 2_000]);
+  });
+
+  it("ignores malformed persisted sample collections", async () => {
+    const descriptor = {
+      phase: "llm-response" as const,
+      provider: "xai" as const,
+      model: "grok-4.5",
+      effort: "high",
+    };
+    const key = createLatencyRouteKey(descriptor);
+    mockStoredValue = JSON.stringify({
+      [key]: {
+        samples: "not-an-array",
+        updatedAt: new Date().toISOString(),
+      },
+    });
+
+    await expect(loadLatencyEstimate(descriptor)).resolves.toMatchObject({
+      learned: false,
+      sampleCount: 0,
+      source: "default",
+    });
+  });
+
+  it("expires stale route history before learning or appending", async () => {
+    const key = "llm-response-v2:stale";
+    mockStoredValue = JSON.stringify({
+      [key]: {
+        samples: [40_000, 45_000, 50_000, 55_000],
+        updatedAt: "2020-01-01T00:00:00.000Z",
+      },
+    });
+
+    await recordLatencySample(key, 2_000);
+
+    expect(JSON.parse(mockStoredValue ?? "{}")[key].samples).toEqual([2_000]);
   });
 });
