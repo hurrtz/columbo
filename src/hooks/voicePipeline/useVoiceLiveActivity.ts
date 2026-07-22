@@ -36,8 +36,9 @@ export function useVoiceLiveActivity({
   pipelinePhase,
   spokenRepliesEnabled,
 }: UseVoiceLiveActivityParams) {
-  const expectedSpeechAtMs = phaseProgress
-    ? phaseProgress.startedAt + phaseProgress.estimatedMs
+  const overallProgress = phaseProgress?.overall ?? phaseProgress;
+  const expectedSpeechAtMs = overallProgress
+    ? overallProgress.startedAt + overallProgress.estimatedMs
     : null;
 
   useEffect(() => {

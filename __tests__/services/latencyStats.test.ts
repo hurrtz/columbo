@@ -96,6 +96,43 @@ describe("latencyStats", () => {
     expect(getDefaultLatencyEstimateMs(descriptor)).toBe(53_000);
   });
 
+  it("learns transcription and speech synthesis as distinct phases", () => {
+    expect(
+      createLatencyRouteKey({
+        phase: "stt-transcription",
+        provider: "gemini",
+        sttMode: "provider",
+        sttModel: "gemini-3.5-flash",
+      }),
+    ).toBe("stt-transcription-v1:provider:gemini:gemini-3.5-flash");
+    expect(
+      getDefaultLatencyEstimateMs({
+        phase: "stt-transcription",
+        provider: null,
+        sttMode: "native",
+      }),
+    ).toBe(2_000);
+
+    expect(
+      createLatencyRouteKey({
+        phase: "tts-synthesis",
+        provider: "xai",
+        ttsMode: "provider",
+        ttsModel: "grok-voice-1",
+        responseLength: "normal",
+        replyPlayback: "stream",
+      }),
+    ).toBe("tts-synthesis-v1:provider:xai:grok-voice-1:normal:stream");
+    expect(
+      getDefaultLatencyEstimateMs({
+        phase: "tts-synthesis",
+        provider: "xai",
+        ttsMode: "provider",
+        replyPlayback: "stream",
+      }),
+    ).toBe(3_500);
+  });
+
   it("uses a credible cold-start estimate for streamed xAI speech", () => {
     expect(
       getDefaultLatencyEstimateMs({

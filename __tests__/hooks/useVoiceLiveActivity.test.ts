@@ -15,14 +15,23 @@ jest.mock("../../src/services/voiceLiveActivity", () => ({
 }));
 
 const progress: VoicePhaseProgress = {
-  phase: "turn",
+  phase: "thinking",
   progress: 0.25,
-  elapsedMs: 30_000,
-  startedAt: 100_000,
-  estimatedMs: 120_000,
+  elapsedMs: 4_000,
+  startedAt: 120_000,
+  estimatedMs: 12_000,
   sampleCount: 4,
   learned: true,
   overEstimate: false,
+  overall: {
+    progress: 0.25,
+    elapsedMs: 40_000,
+    startedAt: 80_000,
+    estimatedMs: 140_000,
+    sampleCount: 4,
+    learned: true,
+    overEstimate: false,
+  },
 };
 
 describe("useVoiceLiveActivity", () => {

@@ -92,9 +92,13 @@ export type VoiceVisualPhase =
   | "thinking"
   | "synthesizing"
   | "speaking";
-export type VoicePhaseProgressPhase = "searching" | "thinking" | "turn";
-export interface VoicePhaseProgress {
-  phase: VoicePhaseProgressPhase;
+export type VoicePhaseProgressPhase =
+  | "transcribing"
+  | "searching"
+  | "thinking"
+  | "synthesizing"
+  | "turn";
+export interface VoiceTimingProgress {
   progress: number;
   elapsedMs: number;
   startedAt: number;
@@ -102,6 +106,10 @@ export interface VoicePhaseProgress {
   sampleCount: number;
   learned: boolean;
   overEstimate: boolean;
+}
+export interface VoicePhaseProgress extends VoiceTimingProgress {
+  phase: VoicePhaseProgressPhase;
+  overall?: VoiceTimingProgress;
 }
 
 export interface Settings {

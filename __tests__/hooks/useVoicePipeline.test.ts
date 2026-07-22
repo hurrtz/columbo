@@ -617,11 +617,14 @@ describe("useVoicePipeline", () => {
 
     expect(result.current.pipelinePhase).toBe("synthesizing");
     expect(result.current.phaseProgress).toMatchObject({
-      phase: "turn",
+      phase: "synthesizing",
+      overall: {
+        startedAt: expect.any(Number),
+      },
     });
-    expect(Date.now() - (result.current.phaseProgress?.startedAt ?? 0)).toBe(
-      7_000,
-    );
+    expect(
+      Date.now() - (result.current.phaseProgress?.overall?.startedAt ?? 0),
+    ).toBe(7_000);
     expect(onPlaybackStarted).toEqual(expect.any(Function));
 
     act(() => {

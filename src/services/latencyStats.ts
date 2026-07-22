@@ -8,7 +8,7 @@ import type {
   ReplyPlayback,
   SttBackendMode,
   TtsBackendMode,
-  VoicePhaseProgress,
+  VoiceTimingProgress,
 } from "../types";
 
 const STORAGE_KEY = "@columbo/latency_stats";
@@ -19,8 +19,10 @@ const MAX_SAMPLE_AGE_MS = 45 * 24 * 60 * 60_000;
 let latencyWriteQueue: Promise<void> = Promise.resolve();
 
 export type LatencyStatsPhase =
+  | "stt-transcription"
   | "llm-response"
   | "web-search"
+  | "tts-synthesis"
   | "turn-to-first-speech";
 
 export interface LatencyRouteDescriptor {
@@ -68,6 +70,15 @@ function normalizeKeyPart(value: unknown): string {
 }
 
 export function createLatencyRouteKey(descriptor: LatencyRouteDescriptor) {
+  if (descriptor.phase === "stt-transcription") {
+    return [
+      "stt-transcription-v1",
+      normalizeKeyPart(descriptor.sttMode),
+      normalizeKeyPart(descriptor.provider),
+      normalizeKeyPart(descriptor.sttModel),
+    ].join(":");
+  }
+
   if (descriptor.phase === "web-search") {
     return [
       "web",
@@ -95,6 +106,17 @@ export function createLatencyRouteKey(descriptor: LatencyRouteDescriptor) {
       normalizeKeyPart(descriptor.replyPlayback),
       normalizeKeyPart(descriptor.webSearchMode),
       normalizeKeyPart(descriptor.webSearchProvider),
+    ].join(":");
+  }
+
+  if (descriptor.phase === "tts-synthesis") {
+    return [
+      "tts-synthesis-v1",
+      normalizeKeyPart(descriptor.ttsMode),
+      normalizeKeyPart(descriptor.provider),
+      normalizeKeyPart(descriptor.ttsModel),
+      normalizeKeyPart(descriptor.responseLength),
+      normalizeKeyPart(descriptor.replyPlayback),
     ].join(":");
   }
 
@@ -143,8 +165,20 @@ export function createLatencyRouteKeys(descriptor: LatencyRouteDescriptor) {
 export function getDefaultLatencyEstimateMs(
   descriptor: LatencyRouteDescriptor,
 ) {
+  if (descriptor.phase === "stt-transcription") {
+    return descriptor.sttMode === "provider" ? 4_000 : 2_000;
+  }
+
   if (descriptor.phase === "web-search") {
     return 6_000;
+  }
+
+  if (descriptor.phase === "tts-synthesis") {
+    if (descriptor.ttsMode !== "provider") {
+      return 1_500;
+    }
+
+    return descriptor.replyPlayback === "wait" ? 6_000 : 3_500;
   }
 
   const effort = normalizeKeyPart(descriptor.effort);
@@ -258,7 +292,7 @@ export function getLearnedLatencyEstimateMs(samples: number[]) {
 export function getLatencyProgress(
   elapsedMs: number,
   estimatedMs: number,
-): Pick<VoicePhaseProgress, "progress" | "overEstimate"> {
+): Pick<VoiceTimingProgress, "progress" | "overEstimate"> {
   const safeEstimateMs = Math.max(1, estimatedMs);
 
   if (elapsedMs <= safeEstimateMs) {

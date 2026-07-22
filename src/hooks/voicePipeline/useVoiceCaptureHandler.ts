@@ -98,6 +98,7 @@ export function useVoiceCaptureHandler({
   const lastAssistantMessageIdRef = useRef<string | null>(null);
   const pendingAssistantNoticesRef = useRef<MessagePipelineNotice[]>([]);
   const {
+    cancelLatencyProgress,
     clearLatencyProgress,
     finishLatencyProgress,
     startLatencyProgress,
@@ -175,6 +176,7 @@ export function useVoiceCaptureHandler({
     recordDebugLogEvent({
       event: "voice-pipeline-first-playback-started",
     });
+    finishLatencyProgress("synthesizing");
     finishLatencyProgress("turn");
     setPipelinePhase("speaking");
   }, [finishLatencyProgress, setPipelinePhase]);
@@ -236,6 +238,37 @@ export function useVoiceCaptureHandler({
         webSearchMode,
         webSearchProvider,
       });
+      const startThinkingLatency = () =>
+        startLatencyProgress("thinking", {
+          phase: "llm-response",
+          provider,
+          model,
+          effort: modelEffort,
+          responseLength,
+          responseTone,
+          webSearchMode,
+          webSearchProvider,
+        });
+      const startSynthesisLatency = () =>
+        startLatencyProgress("synthesizing", {
+          phase: "tts-synthesis",
+          provider: ttsProvider,
+          ttsMode,
+          ttsModel: selectedTtsModel,
+          responseLength,
+          replyPlayback,
+        });
+
+      if (transcriptionOverride) {
+        startThinkingLatency();
+      } else {
+        startLatencyProgress("transcribing", {
+          phase: "stt-transcription",
+          provider: sttProvider,
+          sttMode,
+          sttModel: selectedSttModel,
+        });
+      }
 
       try {
         const transcription = await runVoicePipeline({
@@ -277,6 +310,10 @@ export function useVoiceCaptureHandler({
                   textLength: text.trim().length,
                 },
               });
+              if (!transcriptionOverride) {
+                finishLatencyProgress("transcribing");
+                startThinkingLatency();
+              }
               setPipelinePhase("thinking");
               if (existingUserMessageId) {
                 return;
@@ -313,12 +350,20 @@ export function useVoiceCaptureHandler({
               recordDebugLogEvent({
                 event: "voice-pipeline-web-search-start",
               });
+              cancelLatencyProgress("thinking");
+              startLatencyProgress("searching", {
+                phase: "web-search",
+                provider: webSearchProvider ?? null,
+                webSearchMode,
+              });
               setPipelinePhase("searching");
             },
             onWebSearchComplete: () => {
               recordDebugLogEvent({
                 event: "voice-pipeline-web-search-complete",
               });
+              finishLatencyProgress("searching");
+              startThinkingLatency();
               setPipelinePhase(
                 playbackStartedRef.current ? "speaking" : "thinking",
               );
@@ -337,6 +382,8 @@ export function useVoiceCaptureHandler({
                   message: error.message,
                 },
               });
+              finishLatencyProgress("searching");
+              startThinkingLatency();
               setPipelinePhase(
                 playbackStartedRef.current ? "speaking" : "thinking",
               );
@@ -370,8 +417,11 @@ export function useVoiceCaptureHandler({
                   totalTokens: usage?.totalTokens ?? null,
                 },
               });
+              finishLatencyProgress("thinking");
               if (!spokenRepliesEnabled) {
                 finishLatencyProgress("turn");
+              } else if (!playbackStartedRef.current) {
+                startSynthesisLatency();
               }
               cancelStreamingRender(streamingRenderRunId);
               setStreamingText("");
@@ -686,6 +736,7 @@ export function useVoiceCaptureHandler({
       appendNoticeMetadata,
       assistantInstructions,
       beginStreamingRender,
+      cancelLatencyProgress,
       clearLatencyProgress,
       clearReplyFailure,
       cancelStreamingRender,

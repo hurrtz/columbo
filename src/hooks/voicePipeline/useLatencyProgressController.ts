@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, type Dispatch, type SetStateAction } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 
 import { recordDebugLogEvent } from "../../services/debugLogCapture";
 import {
@@ -13,6 +19,7 @@ import {
 import type {
   VoicePhaseProgress,
   VoicePhaseProgressPhase,
+  VoiceTimingProgress,
 } from "../../types";
 
 interface ActiveLatencyProgress {
@@ -27,37 +34,52 @@ interface ActiveLatencyProgress {
   runId: number;
 }
 
+function snapshotProgress(active: ActiveLatencyProgress): VoiceTimingProgress {
+  const elapsedMs = Date.now() - active.startedAt;
+  const progress = getLatencyProgress(elapsedMs, active.estimatedMs);
+  active.progress = Math.max(active.progress, progress.progress);
+
+  return {
+    progress: active.progress,
+    elapsedMs,
+    startedAt: active.startedAt,
+    estimatedMs: active.estimatedMs,
+    sampleCount: active.sampleCount,
+    learned: active.learned,
+    overEstimate: progress.overEstimate,
+  };
+}
+
 export function useLatencyProgressController({
   setPhaseProgress,
 }: {
   setPhaseProgress: Dispatch<SetStateAction<VoicePhaseProgress | null>>;
 }) {
-  const activeLatencyProgressRef = useRef<ActiveLatencyProgress | null>(null);
+  const activeTurnProgressRef = useRef<ActiveLatencyProgress | null>(null);
+  const activePhaseProgressRef = useRef<ActiveLatencyProgress | null>(null);
   const latencyRunIdRef = useRef(0);
 
-  const updateLatencyProgress = useCallback(
-    (active: ActiveLatencyProgress) => {
-      const elapsedMs = Date.now() - active.startedAt;
-      const progress = getLatencyProgress(elapsedMs, active.estimatedMs);
-      active.progress = Math.max(active.progress, progress.progress);
+  const publishLatencyProgress = useCallback(() => {
+    const activePhase = activePhaseProgressRef.current;
+    const activeTurn = activeTurnProgressRef.current;
+    const active = activePhase ?? activeTurn;
 
-      setPhaseProgress({
-        phase: active.phase,
-        progress: active.progress,
-        elapsedMs,
-        startedAt: active.startedAt,
-        estimatedMs: active.estimatedMs,
-        sampleCount: active.sampleCount,
-        learned: active.learned,
-        overEstimate: progress.overEstimate,
-      });
-    },
-    [setPhaseProgress],
-  );
+    if (!active) {
+      setPhaseProgress(null);
+      return;
+    }
+
+    setPhaseProgress({
+      phase: active.phase,
+      ...snapshotProgress(active),
+      overall:
+        activePhase && activeTurn ? snapshotProgress(activeTurn) : undefined,
+    });
+  }, [setPhaseProgress]);
 
   const clearLatencyProgress = useCallback(() => {
-    latencyRunIdRef.current += 1;
-    activeLatencyProgressRef.current = null;
+    activeTurnProgressRef.current = null;
+    activePhaseProgressRef.current = null;
     setPhaseProgress(null);
   }, [setPhaseProgress]);
 
@@ -66,8 +88,6 @@ export function useLatencyProgressController({
       phase: VoicePhaseProgressPhase,
       descriptor: LatencyRouteDescriptor,
     ) => {
-      clearLatencyProgress();
-
       const runId = latencyRunIdRef.current + 1;
       latencyRunIdRef.current = runId;
       const startedAt = Date.now();
@@ -86,12 +106,20 @@ export function useLatencyProgressController({
         runId,
       };
 
-      activeLatencyProgressRef.current = active;
-      updateLatencyProgress(active);
+      if (phase === "turn") {
+        activeTurnProgressRef.current = active;
+        activePhaseProgressRef.current = null;
+      } else {
+        activePhaseProgressRef.current = active;
+      }
+      publishLatencyProgress();
 
       void loadLatencyEstimate(descriptor)
         .then((estimate) => {
-          const current = activeLatencyProgressRef.current;
+          const current =
+            phase === "turn"
+              ? activeTurnProgressRef.current
+              : activePhaseProgressRef.current;
 
           if (current?.runId !== runId) {
             return;
@@ -111,7 +139,7 @@ export function useLatencyProgressController({
               source: estimate.source,
             },
           });
-          updateLatencyProgress(current);
+          publishLatencyProgress();
         })
         .catch((error) => {
           recordDebugLogEvent({
@@ -125,28 +153,22 @@ export function useLatencyProgressController({
           });
         });
     },
-    [clearLatencyProgress, updateLatencyProgress],
+    [publishLatencyProgress],
   );
 
   const recordLatencyProgressSample = useCallback(
-    (phase: VoicePhaseProgressPhase) => {
-      const active = activeLatencyProgressRef.current;
-
-      if (!active || active.phase !== phase) {
-        return;
-      }
-
+    (active: ActiveLatencyProgress) => {
       const durationMs = Date.now() - active.startedAt;
-      const key = active.key;
+      const { key, keys, phase } = active;
 
-      void recordLatencySamples(active.keys, durationMs)
+      void recordLatencySamples(keys, durationMs)
         .then(() => {
           recordDebugLogEvent({
             event: "adaptive-latency-sample-recorded",
             payload: {
               durationMs,
               key,
-              routeCount: active.keys.length,
+              routeCount: keys.length,
               phase,
             },
           });
@@ -167,23 +189,56 @@ export function useLatencyProgressController({
     [],
   );
 
+  const cancelLatencyProgress = useCallback(
+    (phase: VoicePhaseProgressPhase) => {
+      if (phase === "turn") {
+        if (activeTurnProgressRef.current?.phase !== phase) {
+          return;
+        }
+        activeTurnProgressRef.current = null;
+      } else {
+        if (activePhaseProgressRef.current?.phase !== phase) {
+          return;
+        }
+        activePhaseProgressRef.current = null;
+      }
+      publishLatencyProgress();
+    },
+    [publishLatencyProgress],
+  );
+
   const finishLatencyProgress = useCallback(
     (phase: VoicePhaseProgressPhase) => {
-      recordLatencyProgressSample(phase);
-      clearLatencyProgress();
+      const active =
+        phase === "turn"
+          ? activeTurnProgressRef.current
+          : activePhaseProgressRef.current;
+
+      if (!active || active.phase !== phase) {
+        return;
+      }
+
+      recordLatencyProgressSample(active);
+      if (phase === "turn") {
+        activeTurnProgressRef.current = null;
+      } else {
+        activePhaseProgressRef.current = null;
+      }
+      publishLatencyProgress();
     },
-    [clearLatencyProgress, recordLatencyProgressSample],
+    [publishLatencyProgress, recordLatencyProgressSample],
   );
 
   useEffect(
     () => () => {
-      latencyRunIdRef.current += 1;
-      activeLatencyProgressRef.current = null;
+      activeTurnProgressRef.current = null;
+      activePhaseProgressRef.current = null;
     },
     [],
   );
 
   return {
+    cancelLatencyProgress,
     clearLatencyProgress,
     finishLatencyProgress,
     startLatencyProgress,
