@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { Feather } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
 
 import { Colors } from "../../theme/colors";
 import { fonts } from "../../theme/typography";
@@ -11,9 +11,11 @@ interface MainScreenTopBarProps {
   compact?: boolean;
   debugLogActive?: boolean;
   debugLogLabel?: string;
+  drawerLabel: string;
   onOpenDrawer: () => void;
   onOpenSettings: () => void;
   onToggleDebugLog?: () => void;
+  settingsLabel: string;
 }
 
 export function MainScreenTopBar({
@@ -21,9 +23,11 @@ export function MainScreenTopBar({
   compact = false,
   debugLogActive = false,
   debugLogLabel = "LOG",
+  drawerLabel,
   onOpenDrawer,
   onOpenSettings,
   onToggleDebugLog,
+  settingsLabel,
 }: MainScreenTopBarProps) {
   return (
     <View style={styles.topBar}>
@@ -31,41 +35,46 @@ export function MainScreenTopBar({
         style={[
           styles.iconButton,
           {
-            backgroundColor: colors.surface,
-            borderColor: colors.border,
-            shadowColor: colors.glow,
+            backgroundColor: "transparent",
+            borderColor: "transparent",
           },
         ]}
         onPress={onOpenDrawer}
+        accessibilityRole="button"
+        accessibilityLabel={drawerLabel}
       >
-        <Feather
-          name="message-square"
-          size={18}
-          color={colors.textSecondary}
-        />
+        <Feather name="sidebar" size={20} color={colors.textSecondary} />
       </TouchableOpacity>
 
-      {compact ? (
-        <View
-          style={[
-            styles.compactBrand,
-            {
-              backgroundColor: colors.surface,
-              borderColor: colors.border,
-            },
-          ]}
-        >
-          <Text style={[styles.compactBrandText, { color: colors.text }]}>
-            Columbo
-          </Text>
-        </View>
-      ) : (
-        <View style={styles.wordmark}>
-          <Text style={[styles.wordmarkText, { color: colors.text }]}>
-            Columbo
-          </Text>
-        </View>
-      )}
+      <View
+        testID="main-screen-title-slot"
+        pointerEvents="none"
+        style={styles.brandLayer}
+      >
+        {compact ? (
+          <View
+            style={[
+              styles.compactBrand,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Text
+              style={[styles.compactBrandText, { color: colors.text }]}
+            >
+              Columbo
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.wordmark}>
+            <Text style={[styles.wordmarkText, { color: colors.text }]}>
+              Columbo
+            </Text>
+          </View>
+        )}
+      </View>
 
       <View style={styles.actions}>
         {onToggleDebugLog ? (
@@ -75,12 +84,13 @@ export function MainScreenTopBar({
               {
                 backgroundColor: debugLogActive
                   ? colors.accentSoft
-                  : colors.surface,
-                borderColor: debugLogActive ? colors.accent : colors.border,
-                shadowColor: colors.glow,
+                  : "transparent",
+                borderColor: debugLogActive ? colors.accent : "transparent",
               },
             ]}
             onPress={onToggleDebugLog}
+            accessibilityRole="button"
+            accessibilityLabel={debugLogLabel}
           >
             <Text
               style={[
@@ -97,14 +107,15 @@ export function MainScreenTopBar({
           style={[
             styles.iconButton,
             {
-              backgroundColor: colors.surface,
-              borderColor: colors.border,
-              shadowColor: colors.glow,
+              backgroundColor: "transparent",
+              borderColor: "transparent",
             },
           ]}
           onPress={onOpenSettings}
+          accessibilityRole="button"
+          accessibilityLabel={settingsLabel}
         >
-          <Feather name="settings" size={18} color={colors.textSecondary} />
+          <Feather name="settings" size={20} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>
     </View>
@@ -113,23 +124,29 @@ export function MainScreenTopBar({
 
 const styles = StyleSheet.create({
   topBar: {
+    position: "relative",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingTop: 8,
-    paddingBottom: 14,
+    paddingBottom: 10,
+  },
+  brandLayer: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    alignItems: "center",
+    justifyContent: "center",
   },
   iconButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    elevation: 6,
   },
   actions: {
     flexDirection: "row",
@@ -147,8 +164,8 @@ const styles = StyleSheet.create({
     gap: 1,
   },
   wordmarkText: {
-    fontSize: 24,
-    letterSpacing: 0.8,
+    fontSize: 20,
+    letterSpacing: 0.3,
     fontFamily: fonts.displayHeavy,
   },
   compactBrand: {
