@@ -16,9 +16,14 @@ import { resolveQwenApiEndpoint } from "../utils/qwenRegion";
 
 import {
   buildSystemPrompt,
+  CONVERSATION_TITLE_PROMPT,
   CONTEXT_SUMMARIZER_PROMPT,
   formatMessagesForSummary,
 } from "./llm/prompts";
+import {
+  buildConversationContextPlan,
+  getConversationSummaryBody,
+} from "./conversationContext";
 import { requestAnthropicChat, requestAnthropicChatStream } from "./llm/providers/anthropic";
 import {
   requestOpenAICompatibleChat,
@@ -391,6 +396,96 @@ export async function summarizeConversationContext(params: {
       completionText: trimmedSummary,
     }),
   };
+}
+
+function normalizeGeneratedConversationTitle(value: string) {
+  const firstNonEmptyLine = value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find(Boolean);
+
+  if (!firstNonEmptyLine) {
+    return "";
+  }
+
+  return firstNonEmptyLine
+    .replace(/^#{1,6}\s*/, "")
+    .replace(/^(?:title|titel)\s*:\s*/i, "")
+    .replace(/^[\s"'“”‘’`*_]+|[\s"'“”‘’`*_]+$/g, "")
+    .replace(/[.!]+$/, "")
+    .trim();
+}
+
+function selectConversationTitleMessages(params: {
+  messages: Message[];
+  contextSummary?: string;
+  summarizedMessageCount?: number;
+}) {
+  const contextPlan = buildConversationContextPlan(params);
+
+  if (!contextPlan.usesSummary) {
+    return contextPlan.recentMessages;
+  }
+
+  const recentMessages = contextPlan.fallbackRecentMessages;
+  const earliestMessages = params.messages.slice(0, 2);
+  const selectedById = new Map(
+    [...earliestMessages, ...recentMessages].map((message) => [
+      message.id,
+      message,
+    ]),
+  );
+
+  return params.messages.filter((message) => selectedById.has(message.id));
+}
+
+export async function generateConversationTitle(params: {
+  messages: Message[];
+  contextSummary?: string;
+  summarizedMessageCount?: number;
+  model: string;
+  modelEffort?: string;
+  provider: Provider;
+  apiKey: string;
+  language: AppLanguage;
+  abortSignal?: AbortSignal;
+}) {
+  const summary = getConversationSummaryBody(params.contextSummary);
+  const titleMessages = selectConversationTitleMessages(params);
+
+  if (!summary && titleMessages.length === 0) {
+    return "";
+  }
+
+  const contextSections = [
+    summary ? `Existing conversation summary:\n${summary}` : null,
+    titleMessages.length > 0
+      ? `Conversation excerpts:\n${formatMessagesForSummary(titleMessages)}`
+      : null,
+  ].filter(Boolean);
+  const requestMessages = [
+    {
+      role: "user" as const,
+      content: contextSections.join("\n\n"),
+    },
+  ];
+  const rawTitle = await requestChatText({
+    provider: params.provider,
+    model: params.model,
+    modelEffort: params.modelEffort,
+    apiKey: params.apiKey,
+    language: params.language,
+    systemPrompt: CONVERSATION_TITLE_PROMPT,
+    messages: requestMessages,
+    abortSignal: params.abortSignal,
+  });
+  const title = normalizeGeneratedConversationTitle(rawTitle);
+
+  if (!title) {
+    throw buildProviderEmptyReplyError(params.provider, params.language);
+  }
+
+  return title;
 }
 
 export async function validateProviderConnection(params: {

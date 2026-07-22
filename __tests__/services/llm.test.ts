@@ -1,4 +1,8 @@
-import { streamChat, validateProviderConnection } from "../../src/services/llm";
+import {
+  generateConversationTitle,
+  streamChat,
+  validateProviderConnection,
+} from "../../src/services/llm";
 import { Message } from "../../src/types";
 global.fetch = jest.fn();
 
@@ -1580,6 +1584,63 @@ describe("streamChat", () => {
     finishOnDone?.();
     await streamPromise;
     expect(settled).toBe(true);
+  });
+});
+
+describe("generateConversationTitle", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("uses one non-streaming request and returns a clean one-line title", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: 'Title: **Provider Routing Cleanup.**\nExtra text',
+            },
+          },
+        ],
+      }),
+    });
+
+    const title = await generateConversationTitle({
+      messages: [
+        {
+          id: "message-1",
+          role: "user",
+          content: "Please clean up the provider routing.",
+          model: null,
+          provider: null,
+          timestamp: "2026-07-22T10:00:00.000Z",
+        },
+        {
+          id: "message-2",
+          role: "assistant",
+          content: "I traced every provider transport.",
+          model: "gpt-5.4-2026-03-05",
+          provider: "openai",
+          timestamp: "2026-07-22T10:01:00.000Z",
+        },
+      ],
+      model: "gpt-5.4-2026-03-05",
+      provider: "openai",
+      apiKey: "sk-test-key",
+      language: "en",
+    });
+
+    expect(title).toBe("Provider Routing Cleanup");
+    expect(fetch).toHaveBeenCalledTimes(1);
+    const body = JSON.parse((fetch as jest.Mock).mock.calls[0][1].body);
+    expect(body.messages[0].content).toContain("short, specific title");
+    expect(body.messages[1].content).toContain(
+      "Please clean up the provider routing.",
+    );
+    expect(body.messages[1].content).toContain(
+      "I traced every provider transport.",
+    );
   });
 });
 
