@@ -181,7 +181,7 @@ export function usePreviewVoiceController({
             mode: request.mode,
           },
         });
-        showToast(message);
+        showToast(message, undefined, "danger");
       } finally {
         if (previewAbortRef.current === previewAbortController) {
           previewAbortRef.current = null;

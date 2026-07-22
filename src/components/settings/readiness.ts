@@ -1,5 +1,6 @@
 import type { WebSearchProvider } from "../../constants/webSearch";
 import type { Provider, Settings } from "../../types";
+import { hasProviderCredentialForCapability } from "../../utils/providerCredentials";
 
 export type SettingsReadinessState = "ready" | "attention" | "broken" | "off";
 
@@ -108,6 +109,10 @@ function getSpeakReadiness(
     return status("broken");
   }
 
+  if (provider === "mistral" && !settings.providerTtsVoices.mistral?.trim()) {
+    return status("broken");
+  }
+
   return status("ready");
 }
 
@@ -122,7 +127,11 @@ function getSearchReadiness(
 
   if (
     !context.searchProviders.includes(provider) ||
-    !settings.apiKeys[provider]?.trim()
+    !hasProviderCredentialForCapability(
+      provider,
+      settings.apiKeys[provider],
+      "search",
+    )
   ) {
     return status("broken");
   }

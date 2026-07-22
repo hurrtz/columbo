@@ -12,6 +12,7 @@ import { listCatalogProviders } from "../../src/catalog";
 import { WEB_SEARCH_PROVIDER_IDS } from "../../src/constants/webSearch";
 import { LocalizationProvider } from "../../src/i18n";
 import { ThemeProvider } from "../../src/theme/ThemeContext";
+import { lightColors } from "../../src/theme/colors";
 import { DEFAULT_SETTINGS } from "../../src/types";
 import { PROVIDER_ORDER } from "../../src/constants/models";
 
@@ -166,10 +167,10 @@ describe("ProviderSelectionGrid", () => {
     const anthropicButton = screen.getByLabelText("Open Anthropic settings");
 
     expect(StyleSheet.flatten(openAiButton.props.style).backgroundColor).toBe(
-      "#2DAD7622",
+      `${lightColors.success}22`,
     );
     expect(StyleSheet.flatten(anthropicButton.props.style).backgroundColor).toBe(
-      "#FFFDFC",
+      lightColors.surfaceElevated,
     );
     expect(screen.queryByText("check")).toBeNull();
   });
@@ -285,7 +286,7 @@ describe("ProviderApiKeyCard", () => {
     ).toBeTruthy();
     expect(screen.getByText(/Limits:/)).toBeTruthy();
     expect(screen.getByText("GPT-5.5")).toBeTruthy();
-    expect(screen.getByText("gpt-5.5")).toBeTruthy();
+    expect(screen.getByText("GPT-5.5")).toBeTruthy();
     expect(screen.getByText("GPT-4o mini Transcribe")).toBeTruthy();
     expect(screen.getByText("gpt-4o-mini-transcribe")).toBeTruthy();
     expect(screen.getByText("GPT-4o mini TTS")).toBeTruthy();
@@ -319,7 +320,7 @@ describe("ProviderApiKeyCard", () => {
     expect(screen.getByText("Catalog reference for this provider:")).toBeTruthy();
     expect(screen.getByText(/Limits:/)).toBeTruthy();
     expect(screen.getByText("GPT-5.5")).toBeTruthy();
-    expect(screen.getByText("gpt-5.5")).toBeTruthy();
+    expect(screen.getByText("GPT-5.5")).toBeTruthy();
   });
 
   it("shows Qwen's API region without exposing its storage suffix", () => {

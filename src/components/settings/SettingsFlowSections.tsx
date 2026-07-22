@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 
-import { Feather } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
 
 import {
   getAppProviderForCatalogProviderId,
@@ -144,7 +144,7 @@ function getStatusMeta(
         backgroundColor: `${colors.success}22`,
         borderColor: `${colors.success}99`,
         textColor: colors.success,
-        icon: null,
+        icon: "check-circle" as const,
       };
     case "configured":
       return {
@@ -294,6 +294,7 @@ function ProviderVaultRow({
   const isConnected = healthState === "healthy";
   const isFailing = healthState === "failing";
   const showStatusPill = healthState === "validating";
+  const showStatusIcon = healthState === "healthy" || healthState === "failing";
   const secureApiKey = !!apiKey.trim() && !visibleApiKey;
   const showValidationMessage =
     validationState.status === "success" || validationState.status === "error";
@@ -335,6 +336,10 @@ function ProviderVaultRow({
         style={styles.providerVaultHeader}
         activeOpacity={0.85}
         onPress={onToggleExpanded}
+        accessibilityRole="button"
+        accessibilityLabel={`${PROVIDER_LABELS[provider]}, ${capabilities
+          .map((capability) => getCapabilityLabel(capability, t))
+          .join(", ")}, ${statusMeta.label}`}
       >
         <View style={styles.providerVaultHeaderCopy}>
           <View style={styles.providerVaultHeaderMain}>
@@ -401,6 +406,13 @@ function ProviderVaultRow({
                 {statusMeta.label}
               </Text>
             </View>
+          ) : null}
+          {showStatusIcon && statusMeta.icon ? (
+            <Feather
+              name={statusMeta.icon}
+              size={16}
+              color={statusMeta.textColor}
+            />
           ) : null}
           <Feather
             name={expanded ? "chevron-up" : "chevron-down"}
@@ -546,7 +558,7 @@ function ProviderVaultRow({
             </TouchableOpacity>
           </View>
 
-          {!canValidate ? (
+          {apiKey.trim() && !canValidate ? (
             <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
               {t("providerValidationUnavailable")}
             </Text>
@@ -559,11 +571,11 @@ function ProviderVaultRow({
                 {
                   backgroundColor:
                     validationState.status === "success"
-                      ? colors.accentSoft
+                      ? `${colors.success}22`
                       : `${colors.danger}12`,
                   borderColor:
                     validationState.status === "success"
-                      ? colors.borderStrong
+                      ? `${colors.success}99`
                       : `${colors.danger}55`,
                 },
               ]}
@@ -574,7 +586,7 @@ function ProviderVaultRow({
                   {
                     color:
                       validationState.status === "success"
-                        ? colors.text
+                        ? colors.success
                         : colors.danger,
                   },
                 ]}
@@ -1260,7 +1272,7 @@ export function SpeakingSection({
           options={[
             {
               value: "native",
-              label: t("appNative"),
+              label: t("systemVoice"),
               description: t("nativeTtsDescription"),
             },
             {

@@ -43,6 +43,7 @@ export interface SettingsModalProps {
   onValidateWebSearchProvider: (
     provider: WebSearchProvider,
   ) => Promise<void>;
+  onOpenSetupGuide?: () => void;
   onClose: () => void;
 }
 

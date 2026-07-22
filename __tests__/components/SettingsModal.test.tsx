@@ -27,19 +27,6 @@ jest.mock("@expo/vector-icons", () => ({
   },
 }));
 
-jest.mock("expo-linear-gradient", () => ({
-  LinearGradient: ({
-    children,
-    ...props
-  }: {
-    children: React.ReactNode;
-  }) => {
-    const React = require("react");
-    const { View } = require("react-native");
-    return React.createElement(View, props, children);
-  },
-}));
-
 jest.mock("react-native-reanimated", () => {
   const React = require("react");
   const { View } = require("react-native");
@@ -124,7 +111,7 @@ describe("SettingsModal", () => {
       expect(screen.getByTestId("settings-modal-title").props.children).toBe(
         "Settings",
       );
-      expect(screen.getByTestId("settings-header-gradient")).toBeTruthy();
+      expect(screen.queryByTestId("settings-header-gradient")).toBeNull();
       expect(screen.queryByTestId("settings-modal-gradient")).toBeNull();
       expect(screen.queryByText("Runtime Readiness")).toBeNull();
       expect(screen.getByText("Connections")).toBeTruthy();
@@ -200,6 +187,11 @@ describe("SettingsModal", () => {
       );
       expect(screen.getByText("OpenAI")).toBeTruthy();
       expect(screen.getByText("Test key")).toBeTruthy();
+      expect(
+        screen.queryByText(
+          "Live validation is not wired for this provider yet. Save the key here and verify it during actual use.",
+        ),
+      ).toBeNull();
       expect(screen.queryByText("System Prompt")).toBeNull();
     });
   });

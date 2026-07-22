@@ -73,6 +73,30 @@ describe("settings readiness", () => {
     expectStatus(readiness.speak, "off");
   });
 
+  it("marks Mistral speech broken until a saved voice ID is configured", () => {
+    const settings = withSettings({
+      ttsMode: "provider",
+      ttsProvider: "mistral",
+      apiKeys: {
+        ...DEFAULT_SETTINGS.apiKeys,
+        mistral: "mistral-test-key",
+      },
+      providerTtsVoices: {
+        ...DEFAULT_SETTINGS.providerTtsVoices,
+        mistral: "",
+      },
+    });
+
+    const readiness = getSettingsReadiness(settings, {
+      llmProviders: ["mistral"],
+      sttProviders: ["mistral"],
+      ttsProviders: ["mistral"],
+      searchProviders: ["mistral"],
+    });
+
+    expectStatus(readiness.speak, "broken");
+  });
+
   it("marks search ready when a selected search-capable provider has credentials even if search is disabled", () => {
     const settings = withSettings({
       webSearchMode: "off",
@@ -92,4 +116,30 @@ describe("settings readiness", () => {
 
     expectStatus(readiness.search, "ready");
   });
+
+  it.each([
+    ["gemini", "project-id|ya29.speech-token|us"],
+    ["bytedance-doubao-seed", "speech-app-key|speech-access-key"],
+  ] as const)(
+    "does not treat %s speech-only credentials as web-search readiness",
+    (provider, apiKey) => {
+      const settings = withSettings({
+        webSearchMode: "off",
+        webSearchProvider: provider,
+        apiKeys: {
+          ...DEFAULT_SETTINGS.apiKeys,
+          [provider]: apiKey,
+        },
+      });
+
+      const readiness = getSettingsReadiness(settings, {
+        llmProviders: [],
+        sttProviders: [provider],
+        ttsProviders: [],
+        searchProviders: [provider],
+      });
+
+      expectStatus(readiness.search, "broken");
+    },
+  );
 });

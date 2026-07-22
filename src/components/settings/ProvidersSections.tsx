@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 
-import { Feather } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
 
 import { getCatalogProviderEntry, listCatalogProviders } from "../../catalog";
 import { APP_PROVIDER_CATALOG_IDS } from "../../catalog/appProviders";

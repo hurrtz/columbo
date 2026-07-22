@@ -1,7 +1,7 @@
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
-import { Feather } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
 
 import { useLocalization } from "../../i18n";
 import { useTheme } from "../../theme/ThemeContext";
@@ -83,9 +83,9 @@ function getReadinessColor(
       };
     case "attention":
       return {
-        backgroundColor: `${colors.accentWarm}18`,
-        borderColor: `${colors.accentWarm}55`,
-        textColor: colors.accentWarm,
+        backgroundColor: colors.accentSoft,
+        borderColor: colors.accent,
+        textColor: colors.accent,
       };
     case "broken":
       return {
@@ -115,7 +115,6 @@ function ReadinessPill({
   const { t } = useLocalization();
   const meta = getReadinessColor(status, colors);
   const summary = t(status.summaryKey);
-  const showSummary = status.state !== "ready" && status.state !== "off";
 
   return (
     <TouchableOpacity
@@ -137,14 +136,6 @@ function ReadinessPill({
       >
         {label}
       </Text>
-      {showSummary ? (
-        <Text
-          style={[styles.readinessPillSummary, { color: meta.textColor }]}
-          numberOfLines={1}
-        >
-          {summary}
-        </Text>
-      ) : null}
     </TouchableOpacity>
   );
 }
@@ -152,15 +143,47 @@ function ReadinessPill({
 export function SettingsOverview({
   readiness,
   onOpenPage,
+  onOpenSetupGuide,
 }: {
   readiness: SettingsReadiness;
   onOpenPage: (page: DrillInSettingsPage) => void;
+  onOpenSetupGuide?: () => void;
 }) {
   const { colors } = useTheme();
   const { t } = useLocalization();
 
   return (
     <View style={styles.tabPane}>
+      {onOpenSetupGuide ? (
+        <TouchableOpacity
+          style={[
+            styles.setupGuideRow,
+            {
+              backgroundColor: colors.accentSoft,
+              borderColor: colors.borderStrong,
+            },
+          ]}
+          activeOpacity={0.85}
+          onPress={onOpenSetupGuide}
+          accessibilityRole="button"
+          accessibilityLabel={t("settingsGuidedSetup")}
+        >
+          <Feather name="compass" size={18} color={colors.accent} />
+          <View style={styles.overviewRowCopy}>
+            <Text style={[styles.overviewRowTitle, { color: colors.text }]}>
+              {t("settingsGuidedSetup")}
+            </Text>
+            <Text
+              style={[
+                styles.overviewRowSummary,
+                { color: colors.textSecondary },
+              ]}
+            >
+              {t("settingsGuidedSetupSummary")}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      ) : null}
       <View style={styles.readinessGrid}>
         <ReadinessPill
           label={t("settingsReadinessThink")}

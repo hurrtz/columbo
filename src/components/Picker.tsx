@@ -9,7 +9,8 @@ import {
   FlatList,
   StyleSheet,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
+import { APP_MODAL_ORIENTATIONS } from "../constants/layout";
 import { useLocalization } from "../i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { fonts } from "../theme/typography";
@@ -82,7 +83,12 @@ export function Picker({
         </View>
       </TouchableOpacity>
 
-      <Modal visible={open} transparent animationType="fade">
+      <Modal
+        visible={open}
+        transparent
+        animationType="fade"
+        supportedOrientations={APP_MODAL_ORIENTATIONS}
+      >
         <TouchableOpacity
           style={styles.overlay}
           activeOpacity={1}
@@ -162,15 +168,13 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     padding: 14,
-    borderRadius: 20,
+    borderRadius: 12,
     borderWidth: 1,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 5,
+    shadowOpacity: 0,
+    elevation: 0,
   },
   dropdownText: {
     flex: 1,
@@ -203,7 +207,7 @@ const styles = StyleSheet.create({
   list: {
     width: "80%",
     maxHeight: "60%",
-    borderRadius: 24,
+    borderRadius: 16,
     borderWidth: 1,
     overflow: "hidden",
   },
@@ -225,7 +229,7 @@ const styles = StyleSheet.create({
   option: {
     paddingHorizontal: 14,
     paddingVertical: 14,
-    borderRadius: 18,
+    borderRadius: 10,
     borderWidth: 1,
     marginBottom: 8,
     flexDirection: "row",

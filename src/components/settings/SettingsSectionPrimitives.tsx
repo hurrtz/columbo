@@ -1,8 +1,6 @@
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
-import { LinearGradient } from "expo-linear-gradient";
-
 import { useLocalization } from "../../i18n";
 import { useTheme } from "../../theme/ThemeContext";
 
@@ -74,18 +72,14 @@ export function RadioGroup<T extends string>({
               activeOpacity={0.85}
               disabled={disabled}
             >
-              <LinearGradient
-                colors={
-                  active
-                    ? [colors.accentGradientStart, colors.accentGradientEnd]
-                    : [colors.surface, colors.surface]
-                }
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+              <View
                 style={[
                   styles.radioButton,
                   {
                     borderColor: active ? colors.accent : colors.border,
+                    backgroundColor: active
+                      ? colors.accentSoft
+                      : colors.surface,
                     opacity: disabled ? 0.55 : 1,
                   },
                   active ? styles.radioButtonActive : null,
@@ -94,14 +88,14 @@ export function RadioGroup<T extends string>({
                 <Text
                   style={[
                     styles.radioLabel,
-                    active
-                      ? styles.radioLabelActive
-                      : { color: colors.textSecondary },
+                    {
+                      color: active ? colors.accent : colors.textSecondary,
+                    },
                   ]}
                 >
                   {option.label}
                 </Text>
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
           );
         })}

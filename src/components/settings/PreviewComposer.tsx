@@ -4,10 +4,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  View,
 } from "react-native";
 
-import { Feather } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+import Feather from "@expo/vector-icons/Feather";
 
 import { useLocalization } from "../../i18n";
 import { useTheme } from "../../theme/ThemeContext";
@@ -70,27 +70,25 @@ export function PreviewComposer({
         }}
         disabled={interactionDisabled || (!isBusy && !text.trim())}
       >
-        <LinearGradient
-          colors={[colors.accentGradientStart, colors.accentGradientEnd]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+        <View
           style={[
             styles.previewButton,
+            { backgroundColor: colors.bubbleUser },
             !text.trim() ? styles.previewButtonDisabled : null,
             isGenerating ? styles.previewButtonBusy : null,
           ]}
         >
           {isGenerating ? (
-            <ActivityIndicator size="small" color="#F4F8FF" />
+            <ActivityIndicator size="small" color={colors.onAccent} />
           ) : isPlaying ? (
-            <Feather name="square" size={14} color="#F4F8FF" />
+            <Feather name="square" size={14} color={colors.onAccent} />
           ) : (
-            <Feather name="volume-2" size={16} color="#F4F8FF" />
+            <Feather name="volume-2" size={16} color={colors.onAccent} />
           )}
           <Text style={styles.previewButtonText}>
             {isBusy ? t("stop") : t("previewVoice")}
           </Text>
-        </LinearGradient>
+        </View>
       </TouchableOpacity>
     </>
   );

@@ -8,11 +8,11 @@ import {
   useWindowDimensions,
 } from "react-native";
 
-import { Feather } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+import Feather from "@expo/vector-icons/Feather";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { APP_MODAL_ORIENTATIONS } from "../constants/layout";
 import { useLocalization } from "../i18n";
 import {
   Provider,
@@ -93,6 +93,7 @@ export function SettingsModal(props: SettingsModalProps) {
     onStopPreviewVoice,
     onValidateProvider,
     onValidateWebSearchProvider,
+    onOpenSetupGuide,
     onClose,
   } = props;
   const { colors } = useTheme();
@@ -100,7 +101,7 @@ export function SettingsModal(props: SettingsModalProps) {
   const insets = useSafeAreaInsets();
   const { height, width } = useWindowDimensions();
   const isLandscape = width > height;
-  const modalMaxWidth = isLandscape ? Math.min(width - 24, 980) : 460;
+  const modalMaxWidth = isLandscape ? Math.min(width - 24, 980) : width;
   const [activePage, setActivePage] = React.useState<SettingsPage>(() =>
     getInitialSettingsPage({
       focusProvider,
@@ -282,6 +283,7 @@ export function SettingsModal(props: SettingsModalProps) {
           <SettingsOverview
             readiness={readiness}
             onOpenPage={(page) => setActivePage(page)}
+            onOpenSetupGuide={onOpenSetupGuide}
           />
         );
       case "connections":
@@ -380,13 +382,20 @@ export function SettingsModal(props: SettingsModalProps) {
   })();
 
   return (
-    <Modal visible={visible} transparent animationType="none">
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      supportedOrientations={APP_MODAL_ORIENTATIONS}
+    >
       <View
+        accessibilityViewIsModal
         style={[
           styles.overlay,
           {
-            paddingTop: Math.max(insets.top + 10, 24),
+            paddingTop: isLandscape ? Math.max(insets.top + 8, 16) : 0,
             paddingBottom: 0,
+            paddingHorizontal: isLandscape ? 12 : 0,
           },
         ]}
       >
@@ -394,6 +403,7 @@ export function SettingsModal(props: SettingsModalProps) {
           style={[styles.backdrop, { backgroundColor: colors.overlay }]}
           activeOpacity={1}
           onPress={onClose}
+          accessible={false}
         />
         <Animated.View
           style={[
@@ -403,6 +413,8 @@ export function SettingsModal(props: SettingsModalProps) {
               borderColor: colors.border,
               maxWidth: modalMaxWidth,
               shadowColor: colors.glow,
+              borderRadius: isLandscape ? 22 : 0,
+              borderWidth: isLandscape ? 1 : 0,
             },
             modalAnimStyle,
           ]}
@@ -413,16 +425,10 @@ export function SettingsModal(props: SettingsModalProps) {
               {
                 backgroundColor: colors.surface,
                 borderBottomColor: colors.border,
+                paddingTop: isLandscape ? 18 : insets.top + 14,
               },
             ]}
           >
-            <LinearGradient
-              testID="settings-header-gradient"
-              colors={[colors.accentSoft, "rgba(255, 255, 255, 0)"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.heroGlow}
-            />
             <View style={styles.headerLeading}>
               {showsBackButton ? (
                 <TouchableOpacity
@@ -460,6 +466,8 @@ export function SettingsModal(props: SettingsModalProps) {
                 },
               ]}
               onPress={onClose}
+              accessibilityRole="button"
+              accessibilityLabel={t("dismiss")}
             >
               <Feather name="x" size={18} color={colors.textSecondary} />
             </TouchableOpacity>
@@ -472,7 +480,12 @@ export function SettingsModal(props: SettingsModalProps) {
             contentContainerStyle={[
               styles.content,
               isLandscape ? styles.contentLandscape : null,
-              { paddingBottom: Math.max(20, keyboardInset + 20) },
+              {
+                paddingBottom: Math.max(
+                  insets.bottom + 20,
+                  keyboardInset + 20,
+                ),
+              },
             ]}
             scrollIndicatorInsets={{ bottom: keyboardInset }}
             keyboardShouldPersistTaps="always"
@@ -486,6 +499,7 @@ export function SettingsModal(props: SettingsModalProps) {
           message={validationToastMessage ?? ""}
           visible={validationToastMessage !== null}
           onDismiss={() => setValidationToastMessage(null)}
+          tone="danger"
         />
       </View>
     </Modal>

@@ -1,19 +1,13 @@
 import React from "react";
 import { Text, TextInput, View } from "react-native";
 
-import {
-  getTtsListenLanguageLabel,
-} from "../../constants/localTts";
+import { getTtsListenLanguageLabel } from "../../constants/localTts";
 import {
   PROVIDER_DEFAULT_TTS_VOICES,
   getProviderTtsVoiceOptions,
 } from "../../constants/models";
 import { useLocalization } from "../../i18n";
-import {
-  Provider,
-  Settings,
-  TtsListenLanguage,
-} from "../../types";
+import { Provider, Settings, TtsListenLanguage } from "../../types";
 import { useTheme } from "../../theme/ThemeContext";
 import { Picker } from "../Picker";
 
@@ -104,7 +98,9 @@ export function ProviderVoicePreviewSection({
           />
         ) : provider === "mistral" ? (
           <View style={styles.settingsSubsectionStack}>
-            <Text style={[styles.previewLabel, { color: colors.textSecondary }]}>
+            <Text
+              style={[styles.previewLabel, { color: colors.textSecondary }]}
+            >
               {t("mistralVoiceId")}
             </Text>
             <TextInput
@@ -128,8 +124,15 @@ export function ProviderVoicePreviewSection({
                 },
               ]}
             />
-            <Text style={[styles.previewHint, { color: colors.textMuted }]}>
-              {t("mistralVoiceIdHint")}
+            <Text
+              style={[
+                styles.previewHint,
+                { color: selectedVoice ? colors.textMuted : colors.danger },
+              ]}
+            >
+              {t(
+                selectedVoice ? "mistralVoiceIdHint" : "mistralVoiceIdRequired",
+              )}
             </Text>
           </View>
         ) : (
@@ -168,9 +171,7 @@ export function ProviderVoicePreviewSection({
                 text={previewTexts[provider][entry]}
                 setText={(text) => onSetPreviewText(provider, entry, text)}
                 phase={
-                  activePreview?.id === previewId
-                    ? activePreview.phase
-                    : "idle"
+                  activePreview?.id === previewId ? activePreview.phase : "idle"
                 }
                 interactionDisabled={
                   activePreview !== null && activePreview.id !== previewId
@@ -241,9 +242,7 @@ export function NativeVoicePreviewSection({
               text={previewText}
               setText={onSetPreviewText}
               phase={
-                activePreview?.id === "native"
-                  ? activePreview.phase
-                  : "idle"
+                activePreview?.id === "native" ? activePreview.phase : "idle"
               }
               interactionDisabled={
                 activePreview !== null && activePreview.id !== "native"

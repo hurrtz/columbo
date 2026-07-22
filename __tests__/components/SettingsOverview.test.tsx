@@ -5,6 +5,7 @@ import { render } from "@testing-library/react-native";
 import { SettingsOverview } from "../../src/components/settings/SettingsOverview";
 import { LocalizationProvider } from "../../src/i18n";
 import { ThemeProvider } from "../../src/theme/ThemeContext";
+import { lightColors } from "../../src/theme/colors";
 import type { SettingsReadiness } from "../../src/components/settings/readiness";
 
 jest.mock("@expo/vector-icons", () => ({
@@ -36,7 +37,7 @@ describe("SettingsOverview", () => {
     const speakChip = screen.getByLabelText("Speak: Off");
 
     expect(StyleSheet.flatten(thinkChip.props.style).backgroundColor).toBe(
-      "#2DAD7622",
+      `${lightColors.success}22`,
     );
     expect(screen.getByText("Think").props.numberOfLines).toBe(1);
     expect(thinkChip.findAllByType(Text)).toHaveLength(1);
@@ -44,6 +45,24 @@ describe("SettingsOverview", () => {
     expect(screen.queryByText("Runtime Readiness")).toBeNull();
     expect(screen.queryByText("Ready")).toBeNull();
     expect(screen.queryByText("Off")).toBeNull();
-    expect(screen.getByText("Attention").props.numberOfLines).toBe(1);
+    expect(screen.queryByText("Attention")).toBeNull();
+    expect(screen.queryByText("Broken")).toBeNull();
+  });
+
+  it("shows one guided-setup icon and no trailing launch icon", () => {
+    const screen = render(
+      <ThemeProvider mode="light">
+        <LocalizationProvider language="en">
+          <SettingsOverview
+            readiness={readiness}
+            onOpenPage={jest.fn()}
+            onOpenSetupGuide={jest.fn()}
+          />
+        </LocalizationProvider>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getAllByText("icon:compass")).toHaveLength(1);
+    expect(screen.queryByText("icon:arrow-up-right")).toBeNull();
   });
 });
