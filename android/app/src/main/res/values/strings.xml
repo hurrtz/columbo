@@ -1,8 +1,8 @@
 <resources>
-  <string name="app_name" translatable="false">Columbo</string>
+  <string name="app_name" translatable="false">Mr Broccoli</string>
   <string name="voice_turn_channel_name">Voice replies</string>
-  <string name="voice_turn_channel_description">Progress while Columbo prepares a spoken reply</string>
-  <string name="voice_turn_notification_title">Columbo is working</string>
+  <string name="voice_turn_channel_description">Progress while Mr Broccoli prepares a spoken reply</string>
+  <string name="voice_turn_notification_title">Mr Broccoli is working</string>
   <string name="voice_turn_listening">Listening</string>
   <string name="voice_turn_transcribing">Processing speech</string>
   <string name="voice_turn_searching">Searching</string>

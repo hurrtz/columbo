@@ -65,10 +65,10 @@ describe("useSettings", () => {
     (SecureStore.getItemAsync as jest.Mock).mockImplementation(
       (key: string) => {
         const values: Record<string, string | null> = {
-          "columbo.provider_key.openai": "sk-openai",
-          "columbo.provider_key.anthropic": "sk-anthropic",
-          "columbo.provider_key.gemini": "gemini-test-key",
-          "columbo.provider_key.xai": "xai-test",
+          "mrbroccoli.provider_key.openai": "sk-openai",
+          "mrbroccoli.provider_key.anthropic": "sk-anthropic",
+          "mrbroccoli.provider_key.gemini": "gemini-test-key",
+          "mrbroccoli.provider_key.xai": "xai-test",
         };
 
         return Promise.resolve(values[key] ?? null);
@@ -168,7 +168,7 @@ describe("useSettings", () => {
     );
     (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) =>
       Promise.resolve(
-        key === "columbo.provider_key.openai" ? "invalid-key" : null,
+        key === "mrbroccoli.provider_key.openai" ? "invalid-key" : null,
       ),
     );
 
@@ -259,7 +259,7 @@ describe("useSettings", () => {
       result.current.updateSettings({ lastProvider: "anthropic" });
     });
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@columbo/settings",
+      "@mrbroccoli/settings",
       expect.stringContaining('"lastProvider":"anthropic"'),
     );
   });
@@ -295,7 +295,7 @@ describe("useSettings", () => {
 
     expect(AsyncStorage.setItem).toHaveBeenCalledTimes(2);
     expect(AsyncStorage.setItem).toHaveBeenLastCalledWith(
-      "@columbo/settings",
+      "@mrbroccoli/settings",
       expect.stringContaining('"responseTone":"concise"'),
     );
   });
@@ -310,7 +310,7 @@ describe("useSettings", () => {
 
     expect(result.current.settings.showUsageStats).toBe(true);
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@columbo/settings",
+      "@mrbroccoli/settings",
       expect.stringContaining('"showUsageStats":true'),
     );
   });
@@ -325,7 +325,7 @@ describe("useSettings", () => {
 
     expect(result.current.settings.showDebugLogButton).toBe(true);
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@columbo/settings",
+      "@mrbroccoli/settings",
       expect.stringContaining('"showDebugLogButton":true'),
     );
   });
@@ -354,7 +354,7 @@ describe("useSettings", () => {
       "deep",
     );
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@columbo/settings",
+      "@mrbroccoli/settings",
       expect.stringContaining('"webSearchMode":"on"'),
     );
   });
@@ -436,7 +436,7 @@ describe("useSettings", () => {
     );
     (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) => {
       const values: Record<string, string | null> = {
-        "columbo.provider_key.grok": "xai-legacy-key",
+        "mrbroccoli.provider_key.grok": "xai-legacy-key",
       };
 
       return Promise.resolve(values[key] ?? null);
@@ -580,7 +580,7 @@ describe("useSettings", () => {
       DEFAULT_ASSISTANT_INSTRUCTIONS_BY_LANGUAGE.de,
     );
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@columbo/settings",
+      "@mrbroccoli/settings",
       expect.stringContaining('"language":"de"'),
     );
   });
@@ -614,7 +614,7 @@ describe("useSettings", () => {
     });
 
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@columbo/settings",
+      "@mrbroccoli/settings",
       expect.stringContaining('"deepseek":"deepseek-chat"'),
     );
     expect(result.current.settings.providerModels.deepseek).toBe(
@@ -634,7 +634,7 @@ describe("useSettings", () => {
     });
 
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@columbo/settings",
+      "@mrbroccoli/settings",
       expect.stringContaining(
         '"id":"mode-3","route":{"provider":"gemini","model":"gemini-2.5-pro","effort":"dynamic"}',
       ),
@@ -655,7 +655,7 @@ describe("useSettings", () => {
     });
 
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@columbo/settings",
+      "@mrbroccoli/settings",
       expect.stringContaining('"activeResponseMode":"mode-3"'),
     );
     expect(result.current.settings.activeResponseMode).toBe("mode-3");
@@ -670,7 +670,7 @@ describe("useSettings", () => {
     });
 
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@columbo/settings",
+      "@mrbroccoli/settings",
       expect.stringContaining('"gemini":"Aoede"'),
     );
     expect(result.current.settings.providerTtsVoices.gemini).toBe("Aoede");
@@ -708,7 +708,7 @@ describe("useSettings", () => {
     });
 
     expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
-      "columbo.provider_key.gemini",
+      "mrbroccoli.provider_key.gemini",
       "gemini-live-key",
     );
     expect(result.current.settings.apiKeys.gemini).toBe("gemini-live-key");
@@ -758,7 +758,7 @@ describe("useSettings", () => {
     );
     (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) =>
       Promise.resolve(
-        key === "columbo.provider_key.openai" ? "invalid-key" : null,
+        key === "mrbroccoli.provider_key.openai" ? "invalid-key" : null,
       ),
     );
     const { result } = renderHook(() => useSettings());
@@ -793,7 +793,7 @@ describe("useSettings", () => {
     );
     (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) =>
       Promise.resolve(
-        key === "columbo.provider_key.openai" ? "working-key" : null,
+        key === "mrbroccoli.provider_key.openai" ? "working-key" : null,
       ),
     );
     const { result } = renderHook(() => useSettings());
@@ -949,7 +949,7 @@ describe("useSettings", () => {
     });
 
     expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith(
-      "columbo.provider_key.deepseek",
+      "mrbroccoli.provider_key.deepseek",
     );
   });
 });

@@ -5,7 +5,7 @@
 
 ## Problem
 
-Columbo currently exposes more provider choices than a voice-first BYOK app
+Mr Broccoli currently exposes more provider choices than a voice-first BYOK app
 needs. Five runtime providers are dedicated web-search or web-data vendors
 instead of conversational AI providers. They add API-key setup, validation,
 storage, provider icons, web-search routing, tests, and user-facing settings
@@ -34,9 +34,9 @@ where the app actually has an integration path.
 
 - Reintroducing raw web-search vendors under a different UI bucket.
 - Adding price estimation back into the app.
-- Adding dedicated coding models. Columbo is about vocal communication, not
+- Adding dedicated coding models. Mr Broccoli is about vocal communication, not
   coding workflows.
-- Claiming provider web-search support where Columbo is still using a
+- Claiming provider web-search support where Mr Broccoli is still using a
   transport that cannot call the provider's search tool.
 - Rebuilding every provider to a newer API family in this same change. API
   migrations are included only when required to make a supported model or
@@ -82,7 +82,7 @@ Rationale:
   with voice-first usage because they provide LLMs plus at least one speech
   capability in public docs.
 - Anthropic, DeepSeek, Kimi, and Perplexity remain useful as BYOK LLM routes
-  even without native app-wired STT/TTS because Columbo has native speech
+  even without native app-wired STT/TTS because Mr Broccoli has native speech
   input/output fallback.
 - Perplexity is kept as an answer-synthesis LLM provider, not as a raw search
   vendor.
@@ -123,7 +123,7 @@ implemented in this overhaul.
 
 ### STT
 
-Provider STT stays enabled only when Columbo can submit recorded audio through
+Provider STT stays enabled only when Mr Broccoli can submit recorded audio through
 a stable route that is useful for non-Chinese users.
 
 Expected outcomes:
@@ -140,7 +140,7 @@ Expected outcomes:
 
 ### TTS
 
-Provider TTS stays enabled only when Columbo can generate speech from text
+Provider TTS stays enabled only when Mr Broccoli can generate speech from text
 through a straightforward BYOK route.
 
 Expected outcomes:
@@ -153,7 +153,7 @@ Expected outcomes:
 - Do not mark Mistral TTS as app-wired unless the app implements the required
   `/v1/audio/speech` route and voice-selection flow. Mistral's current TTS docs
   emphasize reusable voices or reference audio; that is not the same contract as
-  Columbo's simple named-voice picker.
+  Mr Broccoli's simple named-voice picker.
 
 ### Web Search
 

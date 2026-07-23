@@ -1,4 +1,4 @@
-# Columbo product experience and visual system
+# Mr Broccoli product experience and visual system
 
 Status: implemented and release-verified design contract, 2026-07-22
 
@@ -49,7 +49,7 @@ This map deliberately describes what a person can accomplish without using the c
 
 ## 2. Product model
 
-Columbo is a conversation workspace whose primary instrument is voice. It is not a provider dashboard with a microphone attached, and it is not a decorative voice orb with the conversation hidden elsewhere.
+Mr Broccoli is a conversation workspace whose primary instrument is voice. It is not a provider dashboard with a microphone attached, and it is not a decorative voice orb with the conversation hidden elsewhere.
 
 The product has four conceptual surfaces:
 
@@ -106,7 +106,7 @@ Only one primary action is visually dominant at a time. A screen may contain man
 
 ## 5. Visual language: Signal & Ink
 
-Columbo should feel like a precise listening instrument and a well-edited notebook: calm, direct, tactile, and slightly editorial. It must not imply magic, sentience, or generic “AI energy.”
+Mr Broccoli should feel like a precise listening instrument and a well-edited notebook: calm, direct, tactile, and slightly editorial. It must not imply magic, sentience, or generic “AI energy.”
 
 ### Principles
 
@@ -186,13 +186,13 @@ The shell components receive state and callbacks; voice, provider, persistence, 
 
 ## 7. Current-state comparison
 
-Evidence reviewed: all 38 supplied screenshots in `~/Desktop/columbo`, covering empty and populated home states, every processing/playback phase, the conversation surface, history, first-run setup, response-style selection, connections, response routes, listening, speaking, search, and app settings.
+Evidence reviewed: all 38 supplied screenshots in `~/Desktop/mrbroccoli`, covering empty and populated home states, every processing/playback phase, the conversation surface, history, first-run setup, response-style selection, connections, response routes, listening, speaking, search, and app settings.
 
 ### Structural gaps
 
 - The home screen behaves like three stacked demos: a provider/model dashboard, a large voice orb, and a transcript preview. The actual conversation is subordinate and requires a second full-screen surface for typing and reading.
 - The voice control consumes roughly a third of the viewport even when idle. Its decorative rings are visually louder than the user’s message, while phase/status information is repeated below it.
-- Response routes use tall provider-logo cards. This gives external vendors more visual authority than Columbo and turns a frequent selector into a large dashboard.
+- Response routes use tall provider-logo cards. This gives external vendors more visual authority than Mr Broccoli and turns a frequent selector into a large dashboard.
 - Typed input exists only in the separate Conversation modal. Voice-first has accidentally become text-hostile rather than simply voice-prioritized.
 - Phone history is a partial-width drawer but each conversation is a dense dashboard card. Long titles, multiple provider/model lines, message chips, and start/end columns compete at once.
 - Settings is logically grouped, but it presents nearly every group, choice, provider, and readiness state as another rounded card or pill. The hierarchy comes from boxes rather than information.
@@ -243,13 +243,13 @@ Evidence reviewed: all 38 supplied screenshots in `~/Desktop/columbo`, covering 
 
 - Reviewed all 38 supplied screenshots and mapped the complete user-facing capability set before comparing the current screens with the target model.
 - Visually exercised the home workspace, session-history drawer, Settings, and Guided setup on an iPhone 14 Plus simulator in light and dark appearance, including accessibility labels, safe-area behavior, cold-thread restoration, replay, pause/resume/stop, and keyless fallback.
-- Entered a disposable xAI credential through Columbo's real Settings UI and exercised two selectable routes (Grok 4.5 with high reasoning and Grok 4.3 with low reasoning), streamed chat, grounded web search with rendered/persisted sources, provider TTS, audible voice preview, reply replay, and the provider-STT upload/error path. A generated xAI speech sample also completed an xAI STT round trip outside the simulator. The credential was then removed through Settings and confirmed absent after a full app reload.
+- Entered a disposable xAI credential through Mr Broccoli's real Settings UI and exercised two selectable routes (Grok 4.5 with high reasoning and Grok 4.3 with low reasoning), streamed chat, grounded web search with rendered/persisted sources, provider TTS, audible voice preview, reply replay, and the provider-STT upload/error path. A generated xAI speech sample also completed an xAI STT round trip outside the simulator. The credential was then removed through Settings and confirmed absent after a full app reload.
 - Exercised an invalid credential in the live app: the submitted message remained durable, the phase returned immediately to idle, the provider error was actionable, and the persisted Retry action completed exactly one reply after valid credentials were restored.
 - Verified transcript follow-tail behavior live for restored and streaming conversations. Focused tests cover the complementary interaction contract: user scroll-up suspends following, returning within 48 px of the tail resumes it, a new conversation follows by default, and hidden-modal layout does not lose the initial tail scroll. Streaming growth uses non-animated tail anchoring to avoid overlapping iOS scroll animations.
 - Fixed and instrumented the native iOS queue's final-item boundary handling. A 624 ms tail completed in about 655 ms and drained 17 ms later instead of leaving the UI in `Speaking`; long xAI provider speech began roughly 4.8 seconds sooner after smaller first-speech chunks. Native stop tears down immediately, and resume restores the real output waveform from the elapsed position.
 - Passed all 89 Jest suites and 599 tests, `npx tsc --noEmit`, `git diff --check`, all 18 `npx expo-doctor` checks, and production Hermes exports for iOS and Android. Focused playback, transcript, provider, routing, persistence, phase, latency, and service tests also passed after their respective final changes.
 - Completed Android `testDebugUnitTest` plus `assembleDebug`, a fresh Debug iOS simulator build, and a signed arm64 device build installed and exercised on the paired `hurrtzifon`. Physical-iPhone stop-to-idle measured 0.919 seconds. A 16.4-second speaking-waveform Instruments run reported zero hitches, zero hangs, and nominal thermal state.
-- Removed the remaining `xcode -> uuid` build-chain advisory with a scoped `uuid` 11.1.1 override. The real Expo Xcode parser passes against Columbo's project and `npm audit --omit=dev` now reports zero vulnerabilities.
+- Removed the remaining `xcode -> uuid` build-chain advisory with a scoped `uuid` 11.1.1 override. The real Expo Xcode parser passes against Mr Broccoli's project and `npm audit --omit=dev` now reports zero vulnerabilities.
 - Physical speaker playback, voice preview, multiple live provider turns, web search, keyboard avoidance, landscape layout, waveform pacing, and cancellation were exercised successfully. A final user-spoken microphone/STT pass on physical hardware remains advisable because host-to-phone acoustic injection was inconclusive; simulator and generated-audio STT coverage cannot substitute for a human speaking into the device.
 
 ## 10. Home hierarchy refinement

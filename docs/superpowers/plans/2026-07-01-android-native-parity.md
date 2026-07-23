@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Bring Columbo's Android native waveform and audio playback implementation to feature parity with the existing iOS Swift/Objective-C native modules.
+**Goal:** Bring Mr Broccoli's Android native waveform and audio playback implementation to feature parity with the existing iOS Swift/Objective-C native modules.
 
 **Architecture:** Mirror the iOS public native contracts on Android while using Android-native media and drawing APIs internally. Keep bridge modules small, move pure waveform analysis/state/rendering helpers into focused Kotlin files, and update JavaScript platform gates only after Android has registered real native implementations.
 
@@ -12,19 +12,19 @@
 
 ## File Structure
 
-- Modify `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeWaveformModule.kt`: replace analysis/playback stubs with real behavior and wire input/output waveform state.
-- Modify `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeWaveformPackage.kt`: register the audio queue module and native waveform view manager.
-- Create `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboWaveformAudioAnalyzer.kt`: decode local audio files and produce normalized peak samples plus duration.
-- Create `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboWaveformStateCoordinator.kt`: hold input/output waveform samples and output playback window state.
-- Create `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeAudioQueueModule.kt`: expose the same audio queue methods/events as iOS.
-- Create `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboWaveformView.kt`: draw waveform/envelope visuals with Android `Canvas`.
-- Create `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeWaveformViewManager.kt`: expose the Android view as `ColumboNativeWaveformView`.
+- Modify `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeWaveformModule.kt`: replace analysis/playback stubs with real behavior and wire input/output waveform state.
+- Modify `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeWaveformPackage.kt`: register the audio queue module and native waveform view manager.
+- Create `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliWaveformAudioAnalyzer.kt`: decode local audio files and produce normalized peak samples plus duration.
+- Create `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliWaveformStateCoordinator.kt`: hold input/output waveform samples and output playback window state.
+- Create `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeAudioQueueModule.kt`: expose the same audio queue methods/events as iOS.
+- Create `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliWaveformView.kt`: draw waveform/envelope visuals with Android `Canvas`.
+- Create `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeWaveformViewManager.kt`: expose the Android view as `MrBroccoliNativeWaveformView`.
 - Modify `src/services/nativeWaveform.ts`: allow Android output waveform playback once the module methods exist.
 - Modify `src/services/nativeAudioQueue.ts`: allow Android native audio queue once the module exists.
 - Modify `src/components/NativeWaveformView.tsx`: load the native waveform view on Android and iOS.
 - Modify `src/hooks/useAudioPlayer.ts`: choose native audio queue based on module availability, preserving iOS-only route-settle waits.
 - Add focused Jest tests under `__tests__/services/` and `__tests__/hooks/` for platform gate behavior.
-- Add focused Android unit tests under `android/app/src/test/java/com/tobiaswinkler/columbo/` for pure waveform helper behavior when local Gradle test support is available.
+- Add focused Android unit tests under `android/app/src/test/java/com/tobiaswinkler/mrbroccoli/` for pure waveform helper behavior when local Gradle test support is available.
 
 ## Task 1: Commit The Native Parity Design And Plan
 
@@ -37,7 +37,7 @@
 Run:
 
 ```bash
-rg -n "ColumboNativeWaveform|ColumboNativeAudioQueue|ColumboNativeWaveformView|analyzeAudioFile|drained" docs/superpowers/specs/2026-07-01-android-native-parity-design.md
+rg -n "MrBroccoliNativeWaveform|MrBroccoliNativeAudioQueue|MrBroccoliNativeWaveformView|analyzeAudioFile|drained" docs/superpowers/specs/2026-07-01-android-native-parity-design.md
 ```
 
 Expected: output includes the three native surfaces, waveform analysis, and audio queue event requirements.
@@ -56,27 +56,27 @@ Expected: commit succeeds with only the two docs staged.
 ## Task 2: Add Android Waveform Analysis
 
 **Files:**
-- Create: `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboWaveformAudioAnalyzer.kt`
-- Modify: `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeWaveformModule.kt`
-- Test: `android/app/src/test/java/com/tobiaswinkler/columbo/ColumboWaveformAudioAnalyzerTest.kt` if Gradle unit tests can run in this repo
+- Create: `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliWaveformAudioAnalyzer.kt`
+- Modify: `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeWaveformModule.kt`
+- Test: `android/app/src/test/java/com/tobiaswinkler/mrbroccoli/MrBroccoliWaveformAudioAnalyzerTest.kt` if Gradle unit tests can run in this repo
 
 - [ ] **Step 1: Write failing analyzer tests**
 
-Create `android/app/src/test/java/com/tobiaswinkler/columbo/ColumboWaveformAudioAnalyzerTest.kt`:
+Create `android/app/src/test/java/com/tobiaswinkler/mrbroccoli/MrBroccoliWaveformAudioAnalyzerTest.kt`:
 
 ```kotlin
-package com.tobiaswinkler.columbo
+package com.tobiaswinkler.mrbroccoli
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class ColumboWaveformAudioAnalyzerTest {
+class MrBroccoliWaveformAudioAnalyzerTest {
   @Test
   fun peakSamplesUseAtLeastSixtyFourBuckets() {
     val samples = listOf(0.0f, 0.25f, -0.5f, 1.0f, -1.0f)
 
-    val peaks = ColumboWaveformAudioAnalyzer.extractPeakSamples(
+    val peaks = MrBroccoliWaveformAudioAnalyzer.extractPeakSamples(
       samples = samples,
       targetCount = 8,
     )
@@ -93,7 +93,7 @@ class ColumboWaveformAudioAnalyzerTest {
       if (index % 2 == 0) 0.8f else -0.2f
     }
 
-    val peaks = ColumboWaveformAudioAnalyzer.extractPeakSamples(
+    val peaks = MrBroccoliWaveformAudioAnalyzer.extractPeakSamples(
       samples = samples,
       targetCount = 128,
     )
@@ -110,17 +110,17 @@ Run:
 
 ```bash
 cd android
-./gradlew :app:testDebugUnitTest --tests '*ColumboWaveformAudioAnalyzerTest'
+./gradlew :app:testDebugUnitTest --tests '*MrBroccoliWaveformAudioAnalyzerTest'
 ```
 
-Expected: fails because `ColumboWaveformAudioAnalyzer` does not exist.
+Expected: fails because `MrBroccoliWaveformAudioAnalyzer` does not exist.
 
 - [ ] **Step 3: Implement the analyzer helper**
 
-Create `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboWaveformAudioAnalyzer.kt` with:
+Create `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliWaveformAudioAnalyzer.kt` with:
 
 ```kotlin
-package com.tobiaswinkler.columbo
+package com.tobiaswinkler.mrbroccoli
 
 import android.media.MediaCodec
 import android.media.MediaExtractor
@@ -136,7 +136,7 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 
-object ColumboWaveformAudioAnalyzer {
+object MrBroccoliWaveformAudioAnalyzer {
   fun analyze(
     reactContext: ReactApplicationContext,
     uri: String,
@@ -335,7 +335,7 @@ object ColumboWaveformAudioAnalyzer {
 
 - [ ] **Step 4: Wire `analyzeAudioFile`**
 
-In `ColumboNativeWaveformModule.kt`, replace:
+In `MrBroccoliNativeWaveformModule.kt`, replace:
 
 ```kotlin
   @ReactMethod
@@ -351,7 +351,7 @@ with:
   fun analyzeAudioFile(uri: String, sampleCount: Double?, promise: Promise) {
     try {
       promise.resolve(
-        ColumboWaveformAudioAnalyzer.analyze(
+        MrBroccoliWaveformAudioAnalyzer.analyze(
           reactApplicationContext,
           uri,
           sampleCount?.toInt(),
@@ -373,7 +373,7 @@ Run:
 
 ```bash
 cd android
-./gradlew :app:testDebugUnitTest --tests '*ColumboWaveformAudioAnalyzerTest'
+./gradlew :app:testDebugUnitTest --tests '*MrBroccoliWaveformAudioAnalyzerTest'
 ./gradlew assembleDebug
 ```
 
@@ -384,15 +384,15 @@ Expected: both commands exit 0.
 Run:
 
 ```bash
-git add android/app/src/main/java/com/tobiaswinkler/columbo/ColumboWaveformAudioAnalyzer.kt android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeWaveformModule.kt android/app/src/test/java/com/tobiaswinkler/columbo/ColumboWaveformAudioAnalyzerTest.kt
+git add android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliWaveformAudioAnalyzer.kt android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeWaveformModule.kt android/app/src/test/java/com/tobiaswinkler/mrbroccoli/MrBroccoliWaveformAudioAnalyzerTest.kt
 git commit -m "feat(android): analyze native audio waveforms"
 ```
 
 ## Task 3: Add Android Native Audio Queue
 
 **Files:**
-- Create: `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeAudioQueueModule.kt`
-- Modify: `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeWaveformPackage.kt`
+- Create: `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeAudioQueueModule.kt`
+- Modify: `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeWaveformPackage.kt`
 - Modify: `src/services/nativeAudioQueue.ts`
 - Modify: `src/hooks/useAudioPlayer.ts`
 - Test: `__tests__/services/nativeAudioQueue.test.ts`
@@ -423,7 +423,7 @@ describe("nativeAudioQueue", () => {
       value: "android",
       configurable: true,
     });
-    reactNative.NativeModules.ColumboNativeAudioQueue = {
+    reactNative.NativeModules.MrBroccoliNativeAudioQueue = {
       prepare: jest.fn(),
       enqueue: jest.fn(),
       start: jest.fn(),
@@ -451,7 +451,7 @@ Expected: fails because availability is restricted to iOS.
 
 - [ ] **Step 3: Implement Android audio queue module**
 
-Create `ColumboNativeAudioQueueModule.kt` with a FIFO-backed `MediaPlayer` implementation exposing `prepare`, `enqueue`, `start`, `pause`, `resume`, and `stop`, emitting `ColumboNativeAudioQueueEvent` payloads with the iOS field names.
+Create `MrBroccoliNativeAudioQueueModule.kt` with a FIFO-backed `MediaPlayer` implementation exposing `prepare`, `enqueue`, `start`, `pause`, `resume`, and `stop`, emitting `MrBroccoliNativeAudioQueueEvent` payloads with the iOS field names.
 
 The implementation must:
 
@@ -466,13 +466,13 @@ The implementation must:
 
 - [ ] **Step 4: Register the module**
 
-Update `ColumboNativeWaveformPackage.kt`:
+Update `MrBroccoliNativeWaveformPackage.kt`:
 
 ```kotlin
   ): List<NativeModule> =
     listOf(
-      ColumboNativeWaveformModule(reactContext),
-      ColumboNativeAudioQueueModule(reactContext),
+      MrBroccoliNativeWaveformModule(reactContext),
+      MrBroccoliNativeAudioQueueModule(reactContext),
     )
 ```
 
@@ -512,15 +512,15 @@ Expected: all commands exit 0.
 Run:
 
 ```bash
-git add android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeAudioQueueModule.kt android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeWaveformPackage.kt src/services/nativeAudioQueue.ts src/hooks/useAudioPlayer.ts __tests__/services/nativeAudioQueue.test.ts
+git add android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeAudioQueueModule.kt android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeWaveformPackage.kt src/services/nativeAudioQueue.ts src/hooks/useAudioPlayer.ts __tests__/services/nativeAudioQueue.test.ts
 git commit -m "feat(android): add native audio queue"
 ```
 
 ## Task 4: Add Android Output Waveform State
 
 **Files:**
-- Create: `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboWaveformStateCoordinator.kt`
-- Modify: `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeWaveformModule.kt`
+- Create: `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliWaveformStateCoordinator.kt`
+- Modify: `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeWaveformModule.kt`
 - Modify: `src/services/nativeWaveform.ts`
 - Test: `__tests__/services/nativeWaveform.test.ts`
 
@@ -540,7 +540,7 @@ describe("nativeWaveform", () => {
       value: "android",
       configurable: true,
     });
-    reactNative.NativeModules.ColumboNativeWaveform = {
+    reactNative.NativeModules.MrBroccoliNativeWaveform = {
       startRecording: jest.fn(),
       stopRecording: jest.fn(),
       cancelRecording: jest.fn(),
@@ -570,7 +570,7 @@ Expected: fails because support is restricted to iOS.
 
 - [ ] **Step 3: Implement Android waveform state coordinator**
 
-Create `ColumboWaveformStateCoordinator.kt` with:
+Create `MrBroccoliWaveformStateCoordinator.kt` with:
 
 - `setSamples(channel, samples)`
 - `clear(channel)`
@@ -582,9 +582,9 @@ Use normalized samples in the `0.0..1.0` range. For output playback, return a mo
 
 - [ ] **Step 4: Wire input and output module methods**
 
-In `ColumboNativeWaveformModule.kt`:
+In `MrBroccoliNativeWaveformModule.kt`:
 
-- On recording level ticks, call `ColumboWaveformStateCoordinator.setSamples("input", snapshot)`.
+- On recording level ticks, call `MrBroccoliWaveformStateCoordinator.setSamples("input", snapshot)`.
 - In `startOutputPlayback`, reject blank `itemId`, store output playback state, resolve `true`.
 - In `stopOutputPlayback`, clear matching output playback state, resolve `true`.
 - In `invalidate`, clear output state.
@@ -610,16 +610,16 @@ Expected: all commands exit 0.
 Run:
 
 ```bash
-git add android/app/src/main/java/com/tobiaswinkler/columbo/ColumboWaveformStateCoordinator.kt android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeWaveformModule.kt src/services/nativeWaveform.ts __tests__/services/nativeWaveform.test.ts
+git add android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliWaveformStateCoordinator.kt android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeWaveformModule.kt src/services/nativeWaveform.ts __tests__/services/nativeWaveform.test.ts
 git commit -m "feat(android): add output waveform state"
 ```
 
 ## Task 5: Add Android Native Waveform View
 
 **Files:**
-- Create: `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboWaveformView.kt`
-- Create: `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeWaveformViewManager.kt`
-- Modify: `android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeWaveformPackage.kt`
+- Create: `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliWaveformView.kt`
+- Create: `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeWaveformViewManager.kt`
+- Modify: `android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeWaveformPackage.kt`
 - Modify: `src/components/NativeWaveformView.tsx`
 - Test: `__tests__/components/NativeWaveformView.test.tsx`
 
@@ -642,14 +642,14 @@ describe("NativeWaveformView", () => {
       value: "android",
       configurable: true,
     });
-    const requireNativeComponent = jest.fn(() => "ColumboNativeWaveformView");
+    const requireNativeComponent = jest.fn(() => "MrBroccoliNativeWaveformView");
     reactNative.requireNativeComponent = requireNativeComponent;
 
     const { NativeWaveformView } = require("../../src/components/NativeWaveformView");
 
     render(<NativeWaveformView channel="input" active style={{ width: 120, height: 40 }} />);
 
-    expect(requireNativeComponent).toHaveBeenCalledWith("ColumboNativeWaveformView");
+    expect(requireNativeComponent).toHaveBeenCalledWith("MrBroccoliNativeWaveformView");
   });
 });
 ```
@@ -666,25 +666,25 @@ Expected: fails because the native view is only required on iOS.
 
 - [ ] **Step 3: Implement the Android view**
 
-Create `ColumboWaveformView.kt` as a custom `View` that:
+Create `MrBroccoliWaveformView.kt` as a custom `View` that:
 
 - Has `channel`, `active`, `lineColor`, `baselineColor`, `lineWidth`, and `renderStyle` properties.
 - Draws a baseline.
 - Draws input as envelope style by default.
 - Draws output as waveform style by default.
 - Invalidates itself with `postInvalidateOnAnimation()` while attached and active.
-- Pulls samples from `ColumboWaveformStateCoordinator.samples(channel)`.
+- Pulls samples from `MrBroccoliWaveformStateCoordinator.samples(channel)`.
 
 - [ ] **Step 4: Implement and register the view manager**
 
-Create `ColumboNativeWaveformViewManager.kt` exposing `ColumboNativeWaveformView`.
+Create `MrBroccoliNativeWaveformViewManager.kt` exposing `MrBroccoliNativeWaveformView`.
 
-Update `ColumboNativeWaveformPackage.kt`:
+Update `MrBroccoliNativeWaveformPackage.kt`:
 
 ```kotlin
   override fun createViewManagers(
     reactContext: ReactApplicationContext,
-  ): List<ViewManager<*, *>> = listOf(ColumboNativeWaveformViewManager())
+  ): List<ViewManager<*, *>> = listOf(MrBroccoliNativeWaveformViewManager())
 ```
 
 - [ ] **Step 5: Remove Android fallback view**
@@ -708,7 +708,7 @@ Expected: all commands exit 0.
 Run:
 
 ```bash
-git add android/app/src/main/java/com/tobiaswinkler/columbo/ColumboWaveformView.kt android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeWaveformViewManager.kt android/app/src/main/java/com/tobiaswinkler/columbo/ColumboNativeWaveformPackage.kt src/components/NativeWaveformView.tsx __tests__/components/NativeWaveformView.test.tsx
+git add android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliWaveformView.kt android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeWaveformViewManager.kt android/app/src/main/java/com/tobiaswinkler/mrbroccoli/MrBroccoliNativeWaveformPackage.kt src/components/NativeWaveformView.tsx __tests__/components/NativeWaveformView.test.tsx
 git commit -m "feat(android): render native waveform view"
 ```
 
@@ -770,7 +770,7 @@ Manual checks:
 
 Add a short Android native parity section to `docs/android-local-development.md` with the verified native surfaces and any remaining known limitations.
 
-Add a concise Obsidian note under `02 Projects/Columbo/Columbo.md` with commits, verification commands, emulator/device used, and any remaining gaps.
+Add a concise Obsidian note under `02 Projects/MrBroccoli/Mr Broccoli.md` with commits, verification commands, emulator/device used, and any remaining gaps.
 
 - [ ] **Step 7: Final verification**
 

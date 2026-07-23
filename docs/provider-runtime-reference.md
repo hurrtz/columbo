@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-21
 
-This document tracks the providers that are present in Columbo's runtime
+This document tracks the providers that are present in Mr Broccoli's runtime
 manifest. The source of truth is `src/constants/providers/runtimeManifest.ts`;
 this file is a human-readable reference for product and maintenance decisions.
 
@@ -87,7 +87,7 @@ validation, API-key storage, setup-guide routing, and web-search dispatch:
 - Effort: `reasoning_effort` on Seed 2.1 and Seed 2.0 rows.
 - STT/TTS: not runtime-exposed. Doubao Speech remains catalog context only
   because the wired route is China-first and not a clearly multilingual BYOK
-  speech option for Columbo.
+  speech option for Mr Broccoli.
 
 ### Google / Gemini (`gemini`)
 
@@ -139,7 +139,7 @@ validation, API-key storage, setup-guide routing, and web-search dispatch:
 - Effort: Kimi K3 reasoning effort plus a `thinking.type` toggle for Kimi K2.6.
 - Web search: Kimi built-in `$web_search` tool on Kimi K2.6. Kimi K3 remains
   the default chat route, but Moonshot currently advises against using K3 web
-  search in production while that capability is being updated. Columbo
+  search in production while that capability is being updated. Mr Broccoli
   disables Kimi thinking for the K2.6 search route as required by Moonshot's
   web-search API contract.
 - STT/TTS: not runtime-exposed.

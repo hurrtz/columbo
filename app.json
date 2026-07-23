@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "Columbo",
-    "slug": "columbo",
-    "scheme": "columbo",
+    "name": "Mr Broccoli",
+    "slug": "mrbroccoli",
+    "scheme": "mrbroccoli",
     "version": "2.4.0",
     "platforms": ["ios", "android"],
     "ios": {
-      "bundleIdentifier": "com.tobiaswinkler.app.columbo"
+      "bundleIdentifier": "com.tobiaswinkler.app.mrbroccoli"
     },
     "android": {
-      "package": "com.tobiaswinkler.app.columbo"
+      "package": "com.tobiaswinkler.app.mrbroccoli"
     },
     "extra": {
       "router": {},

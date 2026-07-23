@@ -4,7 +4,7 @@ type BackgroundVoiceTurnModule = {
   setTurnActive(active: boolean): void;
 };
 
-const nativeModule = NativeModules.ColumboBackgroundVoiceTurn as
+const nativeModule = NativeModules.MrBroccoliBackgroundVoiceTurn as
   | BackgroundVoiceTurnModule
   | undefined;
 

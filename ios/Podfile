@@ -51,10 +51,10 @@ def patch_fmt_consteval!(installer)
   return unless File.exist?(base_h)
 
   contents = File.read(base_h)
-  return if contents.include?('Columbo: force-disable consteval')
+  return if contents.include?('MrBroccoli: force-disable consteval')
 
   marker = "#if FMT_USE_CONSTEVAL\n#  define FMT_CONSTEVAL consteval"
-  override = "// Columbo: force-disable consteval (broken under Apple clang 21 / Xcode 26)\n" \
+  override = "// MrBroccoli: force-disable consteval (broken under Apple clang 21 / Xcode 26)\n" \
              "#undef FMT_USE_CONSTEVAL\n" \
              "#define FMT_USE_CONSTEVAL 0\n" \
              "#if FMT_USE_CONSTEVAL\n#  define FMT_CONSTEVAL consteval"
@@ -89,7 +89,7 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
 
 prepare_react_native_project!
 
-target 'Columbo' do
+target 'MrBroccoli' do
   use_expo_modules!
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
@@ -156,7 +156,7 @@ target 'Columbo' do
             )
         end
 
-        next unless target.name == 'Columbo'
+        next unless target.name == 'MrBroccoli'
 
         phase_name = '[Hermes] Generate dSYM'
         phase = target.shell_script_build_phases.find { |build_phase| build_phase.name == phase_name }

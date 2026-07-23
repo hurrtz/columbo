@@ -1,6 +1,6 @@
 # Android Local Development
 
-Columbo contains a native Android project under `android/`. Use this path for local device development; do not regenerate the native project unless an Expo upgrade requires it.
+Mr Broccoli contains a native Android project under `android/`. Use this path for local device development; do not regenerate the native project unless an Expo upgrade requires it.
 
 The repo tracks the Android build entrypoints (`build.gradle`, `settings.gradle`, `gradle.properties`, the Gradle wrapper, `android/app/build.gradle`), app manifests, required launcher/splash resources, and custom native Kotlin sources. Build output stays ignored.
 
@@ -33,7 +33,7 @@ For emulator sessions where you install with Gradle directly, start Metro in dev
 npx expo start --dev-client --host lan
 adb reverse tcp:8081 tcp:8081
 cd android && ./gradlew installDebug
-adb shell am start -n com.tobiaswinkler.app.columbo/.MainActivity
+adb shell am start -n com.tobiaswinkler.app.mrbroccoli/.MainActivity
 ```
 
 Avoid `npx expo start --localhost` for this path: on macOS it can bind Metro only to loopback, while Android probes the host at `10.0.2.2:8081`.
@@ -61,16 +61,16 @@ cd android && ./gradlew assembleDebug
 
 The Android native project now registers the same app-facing native audio and waveform surfaces used by the iOS implementation:
 
-- `ColumboNativeWaveform` records local audio, emits input waveform levels, analyzes local audio files, and tracks output waveform playback state.
-- `ColumboNativeAudioQueue` provides Android native audio queue methods and queue events for playback.
-- `ColumboNativeWaveformView` renders the native waveform view on Android as well as iOS.
+- `MrBroccoliNativeWaveform` records local audio, emits input waveform levels, analyzes local audio files, and tracks output waveform playback state.
+- `MrBroccoliNativeAudioQueue` provides Android native audio queue methods and queue events for playback.
+- `MrBroccoliNativeWaveformView` renders the native waveform view on Android as well as iOS.
 
 Focused verification:
 
 ```bash
 npm test -- --runInBand --watchman=false __tests__/components/NativeWaveformView.test.tsx __tests__/services/nativeWaveform.test.ts __tests__/services/nativeAudioQueue.test.ts __tests__/hooks/useAudioPlayer.test.ts
 npx tsc --noEmit
-cd android && ./gradlew :app:testDebugUnitTest --tests '*ColumboWaveformAudioAnalyzerTest' --tests '*ColumboWaveformStateCoordinatorTest'
+cd android && ./gradlew :app:testDebugUnitTest --tests '*MrBroccoliWaveformAudioAnalyzerTest' --tests '*MrBroccoliWaveformStateCoordinatorTest'
 cd android && ./gradlew assembleDebug
 ```
 

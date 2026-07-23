@@ -97,9 +97,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.tobiaswinkler.app.columbo'
+    namespace 'com.tobiaswinkler.app.mrbroccoli'
     defaultConfig {
-        applicationId 'com.tobiaswinkler.app.columbo'
+        applicationId 'com.tobiaswinkler.app.mrbroccoli'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 6

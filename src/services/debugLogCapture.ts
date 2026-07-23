@@ -127,7 +127,7 @@ function formatDebugLogSession(
   status: "active" | "complete",
 ) {
   const lines = [
-    "# Columbo Debug Log Capture",
+    "# Mr Broccoli Debug Log Capture",
     `sessionId: ${session.id}`,
     `startedAt: ${session.startedAtIso}`,
     `endedAt: ${endedAtIso}`,

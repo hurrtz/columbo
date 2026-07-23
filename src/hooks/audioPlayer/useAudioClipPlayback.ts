@@ -103,7 +103,7 @@ export function useAudioClipPlayback(params: {
       player.setActiveForLockScreen?.(
         true,
         {
-          artist: "Columbo",
+          artist: "Mr Broccoli",
           title: "Spoken reply",
         },
         {

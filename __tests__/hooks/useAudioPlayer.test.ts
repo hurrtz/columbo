@@ -94,7 +94,7 @@ describe("useAudioPlayer", () => {
     expect(mockPlayer.setActiveForLockScreen).toHaveBeenCalledWith(
       true,
       {
-        artist: "Columbo",
+        artist: "Mr Broccoli",
         title: "Spoken reply",
       },
       {

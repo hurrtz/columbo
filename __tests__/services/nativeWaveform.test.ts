@@ -13,7 +13,7 @@ describe("nativeWaveform", () => {
         addListener: jest.fn(() => ({ remove: jest.fn() })),
       })),
       NativeModules: {
-        ColumboNativeWaveform: {
+        MrBroccoliNativeWaveform: {
           startRecording,
           stopRecording,
           cancelRecording,

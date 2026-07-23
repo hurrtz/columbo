@@ -1,10 +1,10 @@
-# Columbo Agent Notes
+# Mr Broccoli Agent Notes
 
 These notes are specific to this repository and supplement any parent-level instructions.
 
 ## Project Shape
 
-- Columbo is a voice-first mobile chat app built with Expo, React Native, and Expo Router.
+- Mr Broccoli is a voice-first mobile chat app built with Expo, React Native, and Expo Router.
 - The real app entry is `app/index.tsx`, which renders `src/screens/MainScreen.tsx`.
 - `app/_layout.tsx` is the root wrapper and provides `SettingsProvider`, localization, theme, and gesture handling.
 - The Expo template stub (`App.tsx`) and the bare-workflow `index.ts` entry have been removed; the app resolves its entry through `expo-router/entry` (`package.json` `main`).
@@ -27,9 +27,9 @@ These notes are specific to this repository and supplement any parent-level inst
 
 ## State And Persistence
 
-- Public settings are stored under the AsyncStorage key `@columbo/settings`.
-- Provider API keys are stored separately in `expo-secure-store` using the `columbo.provider_key.<provider>` prefix.
-- Conversations are stored under the AsyncStorage key `@columbo/conversations` plus per-conversation keys `@columbo/conversation/<id>`.
+- Public settings are stored under the AsyncStorage key `@mrbroccoli/settings`.
+- Provider API keys are stored separately in `expo-secure-store` using the `mrbroccoli.provider_key.<provider>` prefix.
+- Conversations are stored under the AsyncStorage key `@mrbroccoli/conversations` plus per-conversation keys `@mrbroccoli/conversation/<id>`.
 - Do not move provider API keys into AsyncStorage or any plain-text project config.
 - When changing settings shape, update `src/types.ts` and `src/hooks/useSettings.ts` together and preserve migration behavior for existing installs.
 

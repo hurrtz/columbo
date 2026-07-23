@@ -1,7 +1,7 @@
 <resources>
   <string name="voice_turn_channel_name">Sprachantworten</string>
-  <string name="voice_turn_channel_description">Fortschritt, während Columbo eine gesprochene Antwort vorbereitet</string>
-  <string name="voice_turn_notification_title">Columbo arbeitet</string>
+  <string name="voice_turn_channel_description">Fortschritt, während Mr Broccoli eine gesprochene Antwort vorbereitet</string>
+  <string name="voice_turn_notification_title">Mr Broccoli arbeitet</string>
   <string name="voice_turn_listening">Hört zu</string>
   <string name="voice_turn_transcribing">Verarbeitet Sprache</string>
   <string name="voice_turn_searching">Sucht</string>

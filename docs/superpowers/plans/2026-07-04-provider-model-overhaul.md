@@ -5,7 +5,7 @@
 > the design in
 > `docs/superpowers/specs/2026-07-04-provider-model-overhaul-design.md`.
 
-**Goal:** Reduce Columbo's provider surface to conversational providers that
+**Goal:** Reduce Mr Broccoli's provider surface to conversational providers that
 make sense for a voice-first BYOK app, keep Perplexity only as a Sonar
 LLM/search-answer provider, and make model/effort/speech/search metadata honest
 against official docs and the app's current transports.

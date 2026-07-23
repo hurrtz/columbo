@@ -7,15 +7,9 @@ describe("translations", () => {
     );
   });
 
-  it("does not expose the old app name in localized UI copy", () => {
-    expect(JSON.stringify(translations)).not.toContain("SchnackAI");
-    expect(JSON.stringify(translations)).not.toContain("Schnack");
-  });
-
-  it("does not reuse the old Schnack vocabulary in German copy", () => {
-    expect(JSON.stringify(translations.de).toLowerCase()).not.toContain(
-      "schnack",
-    );
+  it("uses the current app name in localized UI copy", () => {
+    expect(JSON.stringify(translations.en)).toContain("Mr Broccoli");
+    expect(JSON.stringify(translations.de)).toContain("Mr Broccoli");
   });
 
   describe("home-screen style chip keys", () => {

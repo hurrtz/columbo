@@ -27,7 +27,7 @@ interface VoiceLiveActivityDependencies {
 
 const HEARTBEAT_INTERVAL_MS = 20_000;
 
-const nativeModule = NativeModules.ColumboVoiceLiveActivity as
+const nativeModule = NativeModules.MrBroccoliVoiceLiveActivity as
   VoiceLiveActivityModule | undefined;
 
 let currentState: VoiceLiveActivityState | null = null;

@@ -10,7 +10,7 @@ describe("nativeAudioQueue", () => {
         addListener: jest.fn(() => ({ remove: jest.fn() })),
       })),
       NativeModules: {
-        ColumboNativeAudioQueue: {
+        MrBroccoliNativeAudioQueue: {
           prepare: jest.fn(),
           enqueue: jest.fn(),
           start: jest.fn(),

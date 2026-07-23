@@ -185,12 +185,12 @@ describe("MainScreenVoiceStage composer", () => {
       ).backgroundColor,
     ).toBe(lightColors.surfaceAlt);
 
-    fireEvent.changeText(input, "  Hello Columbo  ");
+    fireEvent.changeText(input, "  Hello Mr Broccoli  ");
     expect(screen.getByLabelText("Send message")).toBeTruthy();
     expect(screen.getByText("icon:arrow-up")).toBeTruthy();
 
     fireEvent.press(screen.getByTestId("voice-text-primary-action"));
-    expect(onSubmitTextMessage).toHaveBeenCalledWith("Hello Columbo");
+    expect(onSubmitTextMessage).toHaveBeenCalledWith("Hello Mr Broccoli");
     expect(dismissKeyboard).toHaveBeenCalledTimes(1);
     expect(input.props.value).toBe("");
     dismissKeyboard.mockRestore();

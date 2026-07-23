@@ -59,10 +59,10 @@ describe("useConversations", () => {
       ],
     };
     const stored = new Map<string, string>([
-      ["@columbo/active_conversation", conversation.id],
-      ["@columbo/conversation/restored-active-thread", JSON.stringify(conversation)],
+      ["@mrbroccoli/active_conversation", conversation.id],
+      ["@mrbroccoli/conversation/restored-active-thread", JSON.stringify(conversation)],
       [
-        "@columbo/conversations",
+        "@mrbroccoli/conversations",
         JSON.stringify([
           {
             id: conversation.id,
@@ -118,10 +118,10 @@ describe("useConversations", () => {
       ],
     };
     const stored = new Map<string, string>([
-      ["@columbo/active_conversation", conversation.id],
-      ["@columbo/conversation/legacy-title-thread", JSON.stringify(conversation)],
+      ["@mrbroccoli/active_conversation", conversation.id],
+      ["@mrbroccoli/conversation/legacy-title-thread", JSON.stringify(conversation)],
       [
-        "@columbo/conversations",
+        "@mrbroccoli/conversations",
         JSON.stringify([
           {
             id: conversation.id,
@@ -278,7 +278,7 @@ describe("useConversations", () => {
     );
     expect(result.current.activeConversation?.summarizedMessageCount).toBe(4);
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      "@columbo/conversation/test-uuid-1",
+      "@mrbroccoli/conversation/test-uuid-1",
       expect.stringContaining('"summarizedMessageCount":4'),
     );
   });
@@ -374,7 +374,7 @@ describe("useConversations", () => {
 
   it("backfills missing model metadata from stored conversation messages", async () => {
     (AsyncStorage.getItem as jest.Mock).mockImplementation((key: string) => {
-      if (key === "@columbo/conversations") {
+      if (key === "@mrbroccoli/conversations") {
         return Promise.resolve(
           JSON.stringify([
             {
@@ -387,7 +387,7 @@ describe("useConversations", () => {
         );
       }
 
-      if (key === "@columbo/conversation/conv-1") {
+      if (key === "@mrbroccoli/conversation/conv-1") {
         return Promise.resolve(
           JSON.stringify({
             id: "conv-1",
@@ -553,7 +553,7 @@ describe("useConversations", () => {
     const stored = new Map<string, string>();
     let releaseFirstWrite: () => void = () => undefined;
     let conversationWriteCount = 0;
-    const key = "@columbo/conversation/ordered-writes";
+    const key = "@mrbroccoli/conversation/ordered-writes";
     (AsyncStorage.setItem as jest.Mock).mockImplementation(
       async (writeKey: string, value: string) => {
         if (writeKey !== key) {
@@ -611,7 +611,7 @@ describe("useConversations", () => {
   it("orders deletion after pending writes so a removed thread stays removed", async () => {
     const stored = new Map<string, string>();
     let releaseSave: () => void = () => undefined;
-    const key = "@columbo/conversation/delete-after-save";
+    const key = "@mrbroccoli/conversation/delete-after-save";
     (AsyncStorage.setItem as jest.Mock).mockImplementation(
       async (writeKey: string, value: string) => {
         if (writeKey === key) {

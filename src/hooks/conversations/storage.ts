@@ -7,8 +7,8 @@ import {
   sortConversationMeta,
 } from "./meta";
 
-export const META_KEY = "@columbo/conversations";
-export const ACTIVE_CONVERSATION_KEY = "@columbo/active_conversation";
+export const META_KEY = "@mrbroccoli/conversations";
+export const ACTIVE_CONVERSATION_KEY = "@mrbroccoli/active_conversation";
 
 const mutationQueues = new Map<string, Promise<void>>();
 
@@ -45,7 +45,7 @@ async function awaitPendingMutation(key: string) {
 }
 
 export function conversationKey(id: string) {
-  return `@columbo/conversation/${id}`;
+  return `@mrbroccoli/conversation/${id}`;
 }
 
 export async function readConversation(id: string) {

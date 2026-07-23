@@ -15,7 +15,7 @@ export const tts = providerContext.defineTtsModels([
     languagesSummary:
       "9 languages: English, French, Spanish, Portuguese, Italian, Dutch, German, Hindi, and Arabic.",
     notes:
-      "POST /v1/audio/speech returns base64 audio_data. Columbo uses saved preset/custom voice IDs and MP3 output.",
+      "POST /v1/audio/speech returns base64 audio_data. Mr Broccoli uses saved preset/custom voice IDs and MP3 output.",
     officialSources: [
       "https://docs.mistral.ai/models/model-cards/voxtral-tts-26-03",
       "https://docs.mistral.ai/studio-api/audio/text_to_speech",

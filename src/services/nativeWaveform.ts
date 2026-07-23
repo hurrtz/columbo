@@ -21,7 +21,7 @@ type NativeWaveformModule = {
   cancelRecording(sessionId: string): Promise<boolean>;
 };
 
-const nativeModule = NativeModules.ColumboNativeWaveform as
+const nativeModule = NativeModules.MrBroccoliNativeWaveform as
   | NativeWaveformModule
   | undefined;
 
@@ -41,7 +41,7 @@ export function subscribeToNativeWaveform(
   }
 
   const subscription = nativeEmitter.addListener(
-    "ColumboNativeWaveformEvent",
+    "MrBroccoliNativeWaveformEvent",
     listener,
   );
 

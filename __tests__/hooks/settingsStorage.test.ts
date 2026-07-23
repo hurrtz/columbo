@@ -85,18 +85,18 @@ describe("settings storage", () => {
   it("persists the legacy Grok key under xAI after loading it", async () => {
     (SecureStore.getItemAsync as jest.Mock).mockImplementation(
       async (key: string) =>
-        key === "columbo.provider_key.grok" ? " legacy-xai-key " : null,
+        key === "mrbroccoli.provider_key.grok" ? " legacy-xai-key " : null,
     );
 
     const apiKeys = await loadStoredApiKeys();
 
     expect(apiKeys.xai).toBe("legacy-xai-key");
     expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
-      "columbo.provider_key.xai",
+      "mrbroccoli.provider_key.xai",
       "legacy-xai-key",
     );
     expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith(
-      "columbo.provider_key.grok",
+      "mrbroccoli.provider_key.grok",
     );
   });
 });

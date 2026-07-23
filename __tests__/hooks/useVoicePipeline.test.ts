@@ -560,15 +560,15 @@ describe("useVoicePipeline", () => {
 
     await waitFor(() => {
       expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-        "@columbo/latency_stats",
+        "@mrbroccoli/latency_stats",
         expect.stringContaining("request-preparation-v1"),
       );
       expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-        "@columbo/latency_stats",
+        "@mrbroccoli/latency_stats",
         expect.stringContaining("llm-response-v2"),
       );
       expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-        "@columbo/latency_stats",
+        "@mrbroccoli/latency_stats",
         expect.stringContaining("5000"),
       );
     });
@@ -646,7 +646,7 @@ describe("useVoicePipeline", () => {
 
     await waitFor(() => {
       expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-        "@columbo/latency_stats",
+        "@mrbroccoli/latency_stats",
         expect.stringContaining("7000"),
       );
     });

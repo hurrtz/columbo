@@ -251,7 +251,7 @@ export const en: TranslationDictionary = {
   localTtsDescription:
     "Try a matching downloaded local voice first, then the selected configured service if available, then the system voice.",
   providerTtsDescription:
-    "Use the selected configured service first. If it cannot start the reply, Columbo falls back to the system voice.",
+    "Use the selected configured service first. If it cannot start the reply, Mr Broccoli falls back to the system voice.",
   ttsProvider: "TTS Provider",
   ttsProviderEnabledHint:
     "Only enabled providers with spoken-reply support appear here.",
@@ -273,7 +273,7 @@ export const en: TranslationDictionary = {
   mistralVoiceIdRequired:
     "Enter a Mistral preset or custom voice ID before using speech output.",
   qwenSpeechUnavailableInUs:
-    "Columbo's current Qwen speech routes are not available in the US region. Choose Singapore or Beijing for Qwen speech.",
+    "Mr Broccoli's current Qwen speech routes are not available in the US region. Choose Singapore or Beijing for Qwen speech.",
   qwenApiRegion: "Qwen API Region",
   qwenRegionSingapore: "Singapore",
   qwenRegionUs: "US (Virginia)",
@@ -281,12 +281,12 @@ export const en: TranslationDictionary = {
   qwenRegionHint:
     "The selected region must match the region in which this API key was created.",
   qwenRegionUsSpeechHint:
-    "US-region keys support chat and web search here. Columbo's current Qwen STT and TTS routes require a Singapore or Beijing key.",
+    "US-region keys support chat and web search here. Mr Broccoli's current Qwen STT and TTS routes require a Singapore or Beijing key.",
   providerDefaultVoiceHint:
     "This provider currently uses its default voice for preview and spoken replies.",
   listenLanguages: "Listen Languages",
   listenLanguagesHint:
-    "Pick the reply languages you want to sound good. Columbo tries them in this order when routing speech output.",
+    "Pick the reply languages you want to sound good. Mr Broccoli tries them in this order when routing speech output.",
   localVoicePacks: "Local Voice Packs",
   localVoicePacksHint:
     "Each language keeps its own local voice. Choose the voice you want for that language, then download only the packs you actually care about.",
@@ -435,7 +435,7 @@ export const en: TranslationDictionary = {
   conversationActions: "Conversation actions",
   statusDetails: "Status details",
   persistenceFailure:
-    "Columbo couldn't save data on this device. Keep the app open and try again; recent changes may be lost after restart.",
+    "Mr Broccoli couldn't save data on this device. Keep the app open and try again; recent changes may be lost after restart.",
   show: "Show",
   showTranscript: "Show transcript",
   hide: "Hide",
@@ -493,7 +493,7 @@ export const en: TranslationDictionary = {
   idle: "Idle",
   yourConversationAppearsHere: "Your conversation appears here",
   defaultTranscriptEmptyDescription:
-    "Speak or type below. Columbo will keep the thread and respond here.",
+    "Speak or type below. Mr Broccoli will keep the thread and respond here.",
   delete: "Delete",
   deleteConversationConfirmationTitle: ({ title }) => `Delete “${title}”?`,
   deleteConversationConfirmationMessage:
@@ -504,7 +504,7 @@ export const en: TranslationDictionary = {
   newSession: "New Session",
   noSavedConversationsYet: "No saved conversations yet",
   drawerEmptyDescription:
-    "Start speaking from the main view and Columbo will build a session automatically.",
+    "Start speaking from the main view and Mr Broccoli will build a session automatically.",
   setupGuideTitle: "Configure the app",
   setupGuideSubtitle: "Add credentials and choose routes in Settings.",
   fastestStartPreset: "Minimal setup",
@@ -517,9 +517,9 @@ export const en: TranslationDictionary = {
     "We will open Settings next so you can paste and validate credentials.",
   useThisSetup: "Use this setup",
   notNow: "Not now",
-  setupGuideIntroTitle: "How Columbo works",
+  setupGuideIntroTitle: "How Mr Broccoli works",
   setupGuideIntroBody:
-    "Columbo starts blank. Add credentials for external services you already use, then choose how replies, speech input, spoken output, and optional web context are routed.",
+    "Mr Broccoli starts blank. Add credentials for external services you already use, then choose how replies, speech input, spoken output, and optional web context are routed.",
   setupGuideIntroNote:
     "After setup, use the main voice control to start and stop a conversation. The current transcript stays available on the home screen, and every route can be changed later in Settings.",
   setupGuideProviderTitle: "Add Credentials",
@@ -542,7 +542,7 @@ export const en: TranslationDictionary = {
     `These ${provider} credentials do not allow reply requests.`,
   setupGuideVoiceTestTitle: "Test Your Setup",
   setupGuideVoiceTestBody:
-    "Say a short sentence. Columbo will test microphone access, transcription, the configured reply route, and spoken output when an acceptable voice route is available.",
+    "Say a short sentence. Mr Broccoli will test microphone access, transcription, the configured reply route, and spoken output when an acceptable voice route is available.",
   setupGuideVoiceTestNoInputBody:
     "Voice input is not available with this setup. Continue to review the detected routes, then adjust speech settings later if needed.",
   setupGuideVoiceTestTextOnlyNote:
@@ -561,7 +561,7 @@ export const en: TranslationDictionary = {
     "Voice input is not available for this setup on this device.",
   setupGuideSummaryTitle: "Setup Complete",
   setupGuideSummaryBody:
-    "Here is the route Columbo will use with your current configuration.",
+    "Here is the route Mr Broccoli will use with your current configuration.",
   setupGuideSummaryLlm: "LLM",
   setupGuideSummaryStt: "Speech to text",
   setupGuideSummaryTts: "Text to speech",
@@ -585,7 +585,7 @@ export const en: TranslationDictionary = {
     "Try a different title, route, model, or phrase from the transcript.",
   memoryModalTitle: "Conversation memory",
   memoryModalDescription:
-    "This is the compact summary Columbo carries forward once a thread gets long enough to compress older turns.",
+    "This is the compact summary Mr Broccoli carries forward once a thread gets long enough to compress older turns.",
   memorySummary: "Saved summary",
   memorySummaryEmpty:
     "No compact memory yet. Once this thread gets longer, older turns will be summarized here.",
