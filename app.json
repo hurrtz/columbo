@@ -3,12 +3,19 @@
     "name": "Mr Broccoli",
     "slug": "mrbroccoli",
     "scheme": "mrbroccoli",
+    "icon": "./assets/appIcon.png",
     "version": "2.4.0",
     "platforms": ["ios", "android"],
     "ios": {
+      "icon": "./assets/appIcon.png",
       "bundleIdentifier": "com.tobiaswinkler.app.mrbroccoli"
     },
     "android": {
+      "icon": "./assets/appIcon.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/appIcon.png",
+        "backgroundColor": "#202438"
+      },
       "package": "com.tobiaswinkler.app.mrbroccoli"
     },
     "extra": {
